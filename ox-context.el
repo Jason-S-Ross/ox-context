@@ -1,0 +1,299 @@
+;; Custom exporter for ConTeXt
+
+(require 'cl-lib)
+(require 'ox-latex)
+(prin1 "Test")
+(org-export-define-derived-backend
+    'context 'latex
+  :menu-entry
+  '(?C 1
+       ((?c "As ConTeXt file" org-context-export-to-context)))
+ :filters-alist '((:filter-options . org-context-math-block-options-filter)
+                  (:filter-paragraph . org-context-clean-invalid-line-breaks)
+                  (:filter-parse-tree org-context-math-block-tree-filter
+                                      ;;org-context-matrices-tree-filter
+                                      ;; org-context-image-link-filter
+                                      )
+                  (:filter-verse-block . org-context-clean-invalid-line-breaks))
+ :options-alist '((:context-text-markup-alist nil nil org-context-text-markup-alist))
+ :translate-alist '((bold . org-context-bold)
+                    ;;(center-block org-context-center-block)
+                    (code . org-context-code)
+                    ;;(fixed-width . org-context-fixed-width)
+                    ;;(footnote-definition . org-context-footnote-definition)
+                    ;;(footnote-reference . org-context-footnote-reference)
+                    ;;(headline . org-context-headline)
+                    ;;(horizontal-rule . org-context-horizontal-rule)
+                    ;;(inline-src-block . org-context-context-src-block)
+                    (italic . org-context-italic)
+                    ;;(item . org-context-item)
+                    ;;(latex-environment . org-context-environment)
+                    ;;(line-break . org-context-line-break)
+                    ;;(link . org-context-link)
+                    ;;(paragraph . org-context-paragraph)
+                    ;;(plain-list . org-context-plain-list)
+                    ;;(plain-text . org-context-plain-text)
+                    ;;(quote-block . org-context-quote-block)
+                    ;;(section . org-context-section)
+                    ;;(src-block . org-context-src-block)
+                    (strike-through . org-context-strike-through)
+                    ;;(subscript . org-context-subscript)
+                    ;;(superscript . org-context-superscript)
+                    ;;(table . org-context-table)
+                    ;;(table-cell . org-context-table-cell)
+                    ;;(table-row . org-context-table-row)
+                    ;;(target . org-context-target)
+                    (template . org-context-template)
+                    ;;(timestamp . org-context-timestamp)
+                    (underline . org-context-underline)
+                    (verbatim . org-context-verbatim)
+                    ;;(verse-block . org-context-verse-block)
+                    ;;;; Pseudo objects and elements.
+                    ;;(latex-math-block . org-context-math-block)
+                    ;;(latex-matrices . org-context-matrices)
+                    ))
+
+
+
+;;; Filters
+(defun org-context-math-block-options-filter (info _backend)
+  ;; Annotating because I'm a big dummy.
+  ;; Assign to INFO the result of iterating over '(:author :date :title)
+  (dolist (prop '(:author :date :title) info)
+    ;; Dumb comment
+    ;; Info is a plist. Prop is one of :author :date :title
+    ;; For each of those values, set its key in INFO to the results of
+    ;; org-context--wrap-latex-math-block on its old value
+    (plist-put info prop
+               (org-context--wrap-latex-math-block (plist-get info prop) info))))
+
+(defun org-context-clean-invalid-line-breaks (data _backend _info)
+  (replace-regexp-in-string
+   "\\(\\\\stop[A-Za-z0-9*]+\\|^\\)[ \t]*\\\\\\\\[ \t]*$"
+   "\\1"
+   data))
+
+(defun org-context-math-block-tree-filter (tree _backend info)
+  (org-context--wrap-latex-math-block tree info))
+
+;; (defun org-context-matrices-tree-filter (tree _backend info)
+;;   (org-context--wrap-latex-matrices tree info))
+
+;; (defun org-context-image-link-filter (data _backend info)
+;;   (org-export-insert-image-links data info org-context-inline-image-rules))
+
+
+;;;; Pseudo Object: LaTeX Math Block
+
+;; `latex-math-block' objects have the following property:
+;; `:post-blank'.
+
+(defun org-context--wrap-latex-math-block (data info)
+  "Merge continuous math objects in a pseudo-object container.
+DATA is a parse tree or a secondary string. INFO is a plist
+containing export options. Modify DATA by side-effect and return it."
+  (let
+      ((valid-object-p
+        ;; Non-nill when OBJECT can be added to a latex math block
+        (lambda (object)
+          (pcase (org-element-type object)
+            (`entity (org-element-property :latex-math-p object))
+            (`latex-fragment
+             (let
+                 ((value (org-element-property :value object)))
+               (or (string-prefix-p "\\(" value)
+                   (string-match-p "\\`\\$[^$]" value))))))))
+    (org-element-map
+     data
+     '(entity latex-fragment)
+     (lambda (object)
+       (when
+           (and
+            (not
+             (eq
+              (org-element-type
+               (org-element-property :parent object))
+              'latex-math-block))
+            (funcall valid-object-p object))
+         (let
+             ((math-block (list 'latex-math-block nil))
+              (next-elements (org-export-get-next-element object info t))
+              (last object))
+           ;; Wrap MATH-BLOCK around OBJECT in DATA.
+           (org-element-insert-before math-block object)
+           (org-element-extract-element object)
+           (org-element-adopt-elements math-block object)
+           (when (zerop (or (org-element-property :post-blank object) 0))
+             ;; MATH-BLOCK swallows consecutive math objects.
+             (catch 'exit
+               (dolist (next next-elements)
+                 (unless (funcall valid-object-p next) (throw 'exit nil))
+                 (org-element-extract-element next)
+                 (org-element-adopt-elements math-block next)
+                 ;; Eschew the case: \beta$x$ -> \(\betax\)
+                 (org-element-put-property last :post-blank 1)
+                 (setq last next)
+                 (when (> (or (org-element-property :post-blank next) 0) 0)
+                   (throw 'exit nil)))))
+           (org-element-put-property
+            math-block :post-blank (org-element-property :post-blank last)))))
+     info nil '(latex-latex-math-block) t)
+    data))
+
+
+(defun org-context--format-spec (info)
+  "Create a format-spec for document meta-data.
+INFO is a plist used as a communication channel."
+  `((?a . ,(org-export-data (plist-get info :author) info))
+    (?t . ,(org-export-data (plist-get info :title) info))
+    (?s . ,(org-export-data (plist-get info :subtitle) info))
+    (?k . ,(org-export-data (org-context--wrap-latex-math-block
+                             (plist-get info :keywords) info)
+                            info))
+    (?d . ,(org-export-data (org-latex--wrap-latex-math-block
+                             (plist-get info :description) info)
+                            info))
+    (?c . ,(plist-get info :creator))
+    (?l . ,(plist-get info :language))
+    (?L . ,(capitalize (plist-get info :language)))
+    (?D . ,(org-export-get-date info))))
+
+
+(defun org-context-make-preamble (info &optional template)
+  "Return a formatted ConTeXt preamble.
+INFO is a plist used as a communication channel. Optional
+argument TEMPLATE, when non-nil, is the header template string,
+as expected by `org-splice-context-header'."
+  "\\unprotect
+\\def\\doctitle#1{\\gdef\\@title{#1}}
+\\def\\author#1{\\gdef\\@author{#1}}
+\\def\\email#1{\\gdef\\@email{#1}}
+\\def\\date#1{\\gdef\\@date{#1}}
+\\date{\\currentdate}  % Default to today unless specified otherwise.
+
+\\def\\maketitle{%
+  \\startalignment[center]
+    \\blank[force,2*big]
+      {\\tfd \\@title}
+    \\blank[3*medium]
+      {\\tfa \\@author}
+    \\blank[3*medium]
+      {\\mono \\@email}
+    \\blank[2*medium]
+      {\\tfa \\@date}
+    \\blank[3*medium]
+  \\stopalignment}
+\\protect")
+
+
+(defun org-context-template (contents info)
+  "Return complete document string after ConTeXt conversion.
+CONTENTS is the transcoded contents string. INFO is a plist
+holding the export options."
+  (let ((title (org-export-data (plist-get info :title) info))
+        (spec (org-context--format-spec info)))
+    (concat
+     ;; Time-stamp.
+     (and (plist-get info :time-stamp-file)
+          (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
+     ;; Document class and packages.
+     (org-context-make-preamble info)
+     ;; Possibly limit depth for headline numbering.
+     (let ((sec-num (plist-get info :section-numbers)))
+       (cond
+         ((eq sec-num 1) "\\setupcombinedlist[content][list={chapter}]\n")
+         ((eq sec-num 2) "\\setupcombinedlist[content][list={chapter,section}]\n")
+         ((eq sec-num 3) "\\setupcombinedlist[content][list={chapter,section,subsection}]\n")
+         ((eq sec-num 4) "\\setupcombinedlist[content][list={chapter,section,subsection,subsubsection}]\n")
+         (t "\\setupcombinedlist[content]\n")))
+     ;; Author.
+     (let
+         ((author
+           (and (plist-get info :with-author)
+                (let ((auth (plist-get info :author)))
+                  (and auth (org-export-data auth info))))))
+       (format "\\author{%s}\n" author))
+     (let
+          ((email (plist-get info :email)))
+       (format "\\email{%s}\n" email))
+     (let
+         ((date (and (plist-get info :with-date) (org-export-get-date info))))
+       (format "\\date{%s}\n" date))
+     (format "\\doctitle{%s}\n" title)
+     "\\starttext\n"
+     "\\maketitle\n"
+     contents
+     "\\stoptext\n"
+     )))
+
+;;; Internal functions
+
+;;;; Text Markup
+
+(defcustom org-context-text-markup-alist
+  '((bold ."\\bf{%s}")
+    (code . "\\type{%s}")
+    (italic . "\\it{%s}")
+    (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
+    (underline . "\\underbar{%s}")
+    (verbatim . "\\type{%s}")
+    (verb . "\\type}%s")
+    (protectedtexttt . "\\ty{%s}"))
+  "Alist of ConTeXt expressions to convert text markup."
+  :group 'org-export-context
+  :version "26.1"
+  :package-version '(Org . "8.3")
+  :type 'alist
+  :options '(bold code italic strike-through underline verbatim))
+
+
+(defun org-context--text-markup (text markup info)
+  "Format TEXT depending on MARKUP text markup.
+INFO is a plist used as a communication channel. See
+`org-context-text-markup-alist' for details"
+  (let ((fmt (cdr (assq markup (plist-get info :context-text-markup-alist)))))
+    (cl-case fmt
+      ;; No format string: Return raw text.
+      ((nil) text)
+      (verb
+       (format "\\type{%s}" text))
+      (t (format fmt text)))))
+
+;;; Transcode Functions
+
+;;;; Bold
+
+(defun org-context-bold (_bold contents info)
+  "Transcode BOLD from Org to ConTeXt.
+CONTENTS is the text with bold markup. INFO is a plist holding
+contextual information."
+  (org-context--text-markup contents 'bold info))
+
+(defun org-context-code (code contents info)
+  "Transcode CODE from Org to ConTeXt"
+  (org-context--text-markup (org-element-property :value code) 'code info))
+
+(defun org-context-italic (_italic contents info)
+  "Transcode ITALIC from Org to ConTeXt"
+  (org-context--text-markup contents 'italic info))
+
+(defun org-context-strike-through (_strike-through contents info)
+  "Transcode STRIKE_THROUGH from Org to ConTeXt"
+  (org-context--text-markup contents 'strike-through info))
+
+(defun org-context-underline (_underline contents info)
+  "Transcode UNDERLINE from Org to ConTeXt"
+  (org-context--text-markup contents 'underline info))
+
+(defun org-context-verbatim (_verbatim contents info)
+  "Transcode a VERBATIM object from Org to ConTeXt"
+  (org-context--text-markup contents 'verbatim info))
+
+;;;###autoload
+(defun org-context-export-to-context
+    (&optional async subtreep visible-only body-only ext-plist)
+  "Export the current buffer as a ConTeXt document (.mkiv)"
+  (interactive)
+  (let ((file (org-export-output-file-name ".mkiv" subtreep)))
+    (org-export-to-file 'context file
+      async subtreep visible-only body-only ext-plist)))
