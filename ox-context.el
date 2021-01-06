@@ -22,7 +22,7 @@
                     ;;(fixed-width . org-context-fixed-width)
                     ;;(footnote-definition . org-context-footnote-definition)
                     ;;(footnote-reference . org-context-footnote-reference)
-                    ;;(headline . org-context-headline)
+                    (headline . org-context-headline)
                     ;;(horizontal-rule . org-context-horizontal-rule)
                     ;;(inline-src-block . org-context-context-src-block)
                     (italic . org-context-italic)
@@ -259,6 +259,18 @@ INFO is a plist used as a communication channel. See
        (format "\\type{%s}" text))
       (t (format fmt text)))))
 
+(defun org-context--label (datum info &optional force full)
+  "Return an appropriate label for DATUM
+DATUM is an element or a `target' type object. INFO is the
+current export state, as a plist.
+
+Return nil if element DATUM has no NAME or VALUE affiliated
+keyword or no CUSTOM_ID property, unless FORCE is non-nil. In
+this case always return a unique label.
+
+Eventually, if FULL is non-nil, wrap label within \"\\label{}\"."
+  "")
+
 ;;; Transcode Functions
 
 ;;;; Bold
@@ -272,6 +284,56 @@ contextual information."
 (defun org-context-code (code contents info)
   "Transcode CODE from Org to ConTeXt"
   (org-context--text-markup (org-element-property :value code) 'code info))
+
+(defun org-context-headline (headline contents info)
+  "Transcodes a HEADLINE element from Org to ConTeXt."
+  (unless (org-element-property :footnote-section-p headline)
+    (let* ((level (org-export-get-relative-level headline info))
+           (class (plist-get info :latex-class))
+           (class-sectioning (assoc class (plist-get info :latex-classes)))
+           (numberedp (org-export-numbered-headline-p headline info))
+           (title (org-export-data (org-element-property :title headline) info))
+           (text (org-export-data (org-element-property :title headline) info))
+           (todo (and (plist-get info :with-todo-keywords)
+                      (let ((todo (org-element-property :todo-keyword headline)))
+                        (and todo (concat (org-export-data todo info) " ")))))
+           (todo-type (and todo (org-element-property :todo-type headline)))
+           (tags (and (plist-get info :with-tags)
+                      (let ((tag-list (org-export-get-tags headline info)))
+                        (and tag-list (concat "    " (org-make-tag-string tag-list))))))
+           (priority (and (plist-get info :with-priority)
+                          (org-element-property :priority headline)))
+           (full-text (funcall (plist-get info :latex-format-headline-function)
+                               todo todo-type priority text tags info))
+           (headline-label (org-context--label headline info t t))
+           (section-back-end
+            (org-export-create-backend
+             :parent 'latex
+             :transcoders '((underline . (lambda (o c i) format ("\\underline{%s}" c))))))
+           (section-fmt
+            (let ((sec (nth (1+ level) class-sectioning)))
+              (cond
+               ((not sec) nil)
+               ((stringp sec) (concat sec "\n%s"))
+               ((not (consp (cdr sec)))
+                (concat (funcall (if numberedp #'car #'cdr) sec) "\n%s"))
+               ((= (length sec) 2)
+                (when numberedp (concat (car sec) "\n%s" (nth 1 sec))))
+               ((= (length sec) 4)
+                (if numberedp (concat (car sec) "\n%s" (nth 1 sec))
+                  (concat (nth 2 sec) "\n%s" (nth 3 sec)))))))
+           (pre-blanks
+            (make-string (org-element-property :pre-blank headline) ?\n)))
+      (let ((opt-title
+             (funcall (plist-get info :latex-format-headline-function)
+                      todo todo-type priority
+                      (org-export-data-with-backend
+                       (org-export-get-alt-title headline info)
+                       section-back-end info)
+                      (and (eq (plist-get info :with-tags) t) tags)
+                      info)))
+        (format section-fmt full-text
+                (concat headline-label pre-blanks contents))))))
 
 (defun org-context-italic (_italic contents info)
   "Transcode ITALIC from Org to ConTeXt"
