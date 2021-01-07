@@ -25,7 +25,7 @@
                     ;;(footnote-reference . org-context-footnote-reference)
                     (headline . org-context-headline)
                     ;;(horizontal-rule . org-context-horizontal-rule)
-                    ;;(inline-src-block . org-context-context-src-block)
+                    (inline-src-block . org-context-context-src-block)
                     (italic . org-context-italic)
                     ;;(item . org-context-item)
                     ;;(latex-environment . org-context-environment)
@@ -36,7 +36,7 @@
                     ;;(plain-text . org-context-plain-text)
                     ;;(quote-block . org-context-quote-block)
                     ;;(section . org-context-section)
-                    ;;(src-block . org-context-src-block)
+                    (src-block . org-context-src-block)
                     (strike-through . org-context-strike-through)
                     ;;(subscript . org-context-subscript)
                     ;;(superscript . org-context-superscript)
@@ -341,6 +341,14 @@ contextual information."
         (format section-fmt full-text
                 (concat headline-label pre-blanks contents))))))
 
+(defun org-context-inline-src-block (inline-src-block _contents info)
+  "Transcode an INLINE-SRC-BLOCK element from Org to ConTeXt.
+CONTENTS holds the contents of the item. INFO is a plist holding
+contextual information."
+  (let ((code (org-element-property :value inline-src-block)))
+    (let* ((org-lang (org-element-propery :language inline-src-block)))
+      (format "\\starttyping[option=%s] %s \\stoptyping " org-lang code))))
+
 (defun org-context-italic (_italic contents info)
   "Transcode ITALIC from Org to ConTeXt"
   (org-context--text-markup contents 'italic info))
@@ -348,6 +356,19 @@ contextual information."
 (defun org-context-strike-through (_strike-through contents info)
   "Transcode STRIKE_THROUGH from Org to ConTeXt"
   (org-context--text-markup contents 'strike-through info))
+
+(defun org-context-src-block (src-block _contents info)
+  "Transcode a SRC-BLOCK element from Org to LaTeX.
+CONTENTS holds the contents of the item. INFO is a plist holding
+contextual information."
+  (when (org-string-nw-p (org-element-property :value src-block))
+    (let* ((lang (org-element-property :language src-block)))
+      (cond
+       ((not lang) (format "\\starttyping\n%s\\stoptyping"
+                           (org-export-format-code-default src-block info)))
+       (t (format "\\starttyping[option=%s]\n%s\\stoptyping"
+                  lang
+                  (org-export-format-code-default src-block info)))))))
 
 (defun org-context-underline (_underline contents info)
   "Transcode UNDERLINE from Org to ConTeXt"
