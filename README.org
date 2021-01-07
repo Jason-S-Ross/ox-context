@@ -2,6 +2,9 @@
 ** DONE bold
    CLOSED: [2021-01-07 Thu 08:43]
 ** TODO center-block
+*** DONE Basic Implementation
+    CLOSED: [2021-01-07 Thu 11:13]
+*** TODO Labels
 ** TODO clock
 ** TODO code
    This may be OK but need to check against LaTeX

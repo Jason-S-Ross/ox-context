@@ -20,7 +20,7 @@
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
                   (:context-highlighted-langs nil nil org-context-highlighted-langs))
  :translate-alist '((bold . org-context-bold)
-                    ;;(center-block org-context-center-block)
+                    (center-block . org-context-center-block)
                     (code . org-context-code)
                     ;;(fixed-width . org-context-fixed-width)
                     ;;(footnote-definition . org-context-footnote-definition)
@@ -331,6 +331,13 @@ Eventually, if FULL is non-nil, wrap label within \"\\label{}\"."
 CONTENTS is the text with bold markup. INFO is a plist holding
 contextual information."
   (org-context--text-markup contents 'bold info))
+
+(defun org-context-center-block (center-block contents info)
+  "Transcode a CENTER-BLOCK element from Org to ConTeXt.
+CONTENTS holds the contents of the center block.  INFO is a plist
+holding contextual information."
+  ;; TODO Wrap in label
+  (format "\\startalignment[middle]\n%s\\stopalignment" contents))
 
 (defun org-context-code (code contents info)
   "Transcode CODE from Org to ConTeXt"
