@@ -30,7 +30,9 @@
 ** TODO latex-environment
 ** TODO latex-fragment
 ** TODO line-break
-** TODO link
+** DONE link
+   CLOSED: [2021-01-07 Thu 10:11]
+   Could possibly use named urls but this is a simple solution
 ** TODO node-property
 ** TODO paragraph
 ** TODO plain-list

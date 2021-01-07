@@ -241,6 +241,12 @@ alternative=hanging, width=broad, margin=1cm
   [blockquote]
   [style=\\slx,
    before={\\setupinterlinespace[line=2.4ex]}]
+
+% Allow LaTeX-style urls
+\\def\\href#1#2{\\useURL[#2][{#2}][][{#1}]\\goto{\\url[#2]}[url(#1)]}
+\\setupurl
+  [color=blue
+   style=\\tf]
 "
    (mapconcat #'org-element-normalize-string
               (list (plist-get info :context-header-extra))
