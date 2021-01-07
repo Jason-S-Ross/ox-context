@@ -237,14 +237,14 @@ holding the export options."
 ;;;; Text Markup
 
 (defcustom org-context-text-markup-alist
-  '((bold ."\\bf{%s}")
+  '((bold ."\\bold{%s}")
     (code . "\\type{%s}")
-    (italic . "\\it{%s}")
+    (italic . "\\italic{%s}")
     (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
     (underline . "\\underbar{%s}")
     (verbatim . "\\type{%s}")
     (verb . "\\type}%s")
-    (protectedtexttt . "\\ty{%s}"))
+    (protectedtexttt . "\\type{%s}"))
   "Alist of ConTeXt expressions to convert text markup."
   :group 'org-export-context
   :version "26.1"
