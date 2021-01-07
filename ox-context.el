@@ -23,6 +23,9 @@
                     (center-block . org-context-center-block)
                     (code . org-context-code)
                     ;;(fixed-width . org-context-fixed-width)
+                    (entity . org-context-entity)
+                    (example-block . org-context-example-block)
+                    (export-block . org-context-export-block)
                     ;;(footnote-definition . org-context-footnote-definition)
                     ;;(footnote-reference . org-context-footnote-reference)
                     (headline . org-context-headline)
@@ -247,6 +250,10 @@ alternative=hanging, width=broad, margin=1cm
 \\setupurl
   [color=blue
    style=\\tf]
+
+% Create the example environment
+\\definetyping[example]
+
 "
    (mapconcat #'org-element-normalize-string
               (list (plist-get info :context-header-extra))
@@ -342,6 +349,25 @@ holding contextual information."
 (defun org-context-code (code contents info)
   "Transcode CODE from Org to ConTeXt"
   (org-context--text-markup (org-element-property :value code) 'code info))
+
+(defun org-context-entity (entity _contennts info)
+  "Transcode an ENTITY object from Org to ConTeXt.
+CONTENTS are the definition itself. INFO is a plist
+holding contextual information."
+  (org-element-property :context entity))
+
+(defun org-context-example-block (example-block _contennts info)
+  "Transcode an EXAMPLE-BLOCK element from Org to ConTeXt.
+CONTENTS is nil. INFO is a plist holding contextual information."
+  (when (org-string-nw-p (org-element-property :value example-block))
+    (format "\\startexample\n%s\\stopexample"
+            (org-export-format-code-default example-block info))))
+
+(defun org-context-export-block (export-block _contents _info)
+  "Transcode a EXPORT-BLOCK element from Org to ConTeXt.
+CONTENTS is nil. INFO is a plist holding contextual information."
+  (when (member (org-element-property :type export-block) '("CONTEXT" "TEX"))
+    (org-remove-indentation (org-element-property :value export-block))))
 
 (defun org-context-headline (headline contents info)
   "Transcodes a HEADLINE element from Org to ConTeXt."

@@ -11,9 +11,13 @@
 ** TODO drawer
 ** TODO dynamic-block
 ** TODO entity
-** TODO example-block
-** TODO export-block
-** TODO export-snippet
+** DONE example-block
+   CLOSED: [2021-01-07 Thu 10:58]
+** DONE export-block
+   CLOSED: [2021-01-07 Thu 10:37]
+** DONE export-snippet
+   CLOSED: [2021-01-07 Thu 10:31]
+   Deferring to the LaTeX implementation
 ** TODO fixed-width
 ** TODO footnote-definition
 ** TODO footnote-reference
