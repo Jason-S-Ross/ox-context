@@ -18,7 +18,8 @@
  :options-alist '((:context-text-markup-alist nil nil org-context-text-markup-alist)
                   (:context-toc-command nil nil org-context-toc-command)
                   (:context-header "CONTEXT_HEADER" nil nil newline)
-                  (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline))
+                  (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
+                  (:context-highlighted-langs nil nil org-context-highlighted-langs))
  :translate-alist '((bold . org-context-bold)
                     ;;(center-block org-context-center-block)
                     (code . org-context-code)
@@ -61,6 +62,20 @@
   "ConTeXt command to set the table of contents."
   :group 'org-export-context
   :type 'string)
+
+;;;; Text Markup
+
+
+(defcustom org-context-highlighted-langs
+  '((metapost "mp"))
+  "Alist mapping languages to their counterpart in
+ConTeXt. ConTeXt only supports a couple of languages
+out-of-the-box so this is a short list."
+  :group 'org-export-context
+  :type '(repeat
+          (list
+           (symbol :tag "Major mode      ")
+           (symbol :tag "ConTeXt language"))))
 
 ;;; Filters
 (defun org-context-math-block-options-filter (info _backend)
@@ -358,8 +373,12 @@ contextual information."
 CONTENTS holds the contents of the item. INFO is a plist holding
 contextual information."
   (let ((code (org-element-property :value inline-src-block)))
-    (let* ((org-lang (org-element-propery :language inline-src-block)))
-      (format "\\starttyping[option=%s] %s \\stoptyping " org-lang code))))
+    (let* ((org-lang (org-element-propery :language inline-src-block))
+           (lang (or (cadr
+                      (assq (intern org-lang)
+                            (plist-get info :context-highlighted-langs)))
+                     (downcase org-lang))))
+      (format "\\starttyping[option=%s] %s \\stoptyping " lang code))))
 
 (defun org-context-italic (_italic contents info)
   "Transcode ITALIC from Org to ConTeXt"
@@ -374,7 +393,10 @@ contextual information."
 CONTENTS holds the contents of the item. INFO is a plist holding
 contextual information."
   (when (org-string-nw-p (org-element-property :value src-block))
-    (let* ((lang (org-element-property :language src-block)))
+    (let* ((org-lang (org-element-property :language src-block))
+           (lang (or (cadr (assq (intern org-lang)
+                                 (plist-get info :context-highlighted-langs)))
+                     (downcase org-lang))))
       (cond
        ((not lang) (format "\\starttyping\n%s\\stoptyping"
                            (org-export-format-code-default src-block info)))
