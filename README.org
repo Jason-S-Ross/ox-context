@@ -95,6 +95,13 @@
 *** TODO Preamble Additional Options
 *** TODO Headline Numbering Setup
 *** TODO Subtitle
+*** TODO Configuration
+    I'm imagining a system where transcoders are specified
+    by the user in the preamble. For example, the user could
+    write =\definetyping[example]= in the preamble so that
+    any =example= instances would use their definition.
+    We could ship with a standard definition in the header
+    that the user could override.
 ** TODO timestamp
 ** TODO underline
 ** DONE verbatim
