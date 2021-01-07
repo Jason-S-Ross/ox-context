@@ -34,7 +34,9 @@
    CLOSED: [2021-01-07 Thu 10:11]
    Could possibly use named urls but this is a simple solution
 ** TODO node-property
-** TODO paragraph
+** DONE paragraph
+   CLOSED: [2021-01-07 Thu 09:55]
+   Use LaTeX implementation
 ** TODO plain-list
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 08:47]
