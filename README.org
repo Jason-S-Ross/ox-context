@@ -32,7 +32,8 @@
 ** DONE inline-src-block
    CLOSED: [2021-01-07 Thu 08:45]
 ** TODO inlinetask
-** TODO italic
+** DONE italic
+   CLOSED: [2021-01-07 Thu 10:13]
 ** TODO item
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 08:46]
