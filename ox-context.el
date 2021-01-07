@@ -386,9 +386,10 @@ contextual information."
   "Transcode UNDERLINE from Org to ConTeXt"
   (org-context--text-markup contents 'underline info))
 
-(defun org-context-verbatim (_verbatim contents info)
+(defun org-context-verbatim (verbatim _contents info)
   "Transcode a VERBATIM object from Org to ConTeXt"
-  (org-context--text-markup contents 'verbatim info))
+  (org-context--text-markup
+   (org-element-property :value verbatim) 'verbatim info))
 
 ;;;###autoload
 (defun org-context-export-to-context
