@@ -29,7 +29,7 @@
                     ;;(footnote-definition . org-context-footnote-definition)
                     ;;(footnote-reference . org-context-footnote-reference)
                     (headline . org-context-headline)
-                    ;;(horizontal-rule . org-context-horizontal-rule)
+                    (horizontal-rule . org-context-horizontal-rule)
                     (inline-src-block . org-context-context-src-block)
                     (italic . org-context-italic)
                     (item . org-context-item)
@@ -426,6 +426,22 @@ CONTENTS is nil. INFO is a plist holding contextual information."
                       info)))
         (format section-fmt full-text
                 (concat headline-label pre-blanks contents))))))
+
+(defun org-context-horizontal-rule (horizontal-rule _contents info)
+  "Transcode a HORIZONTAL-RULE object from Org to ConTeXt.
+CONTENTS is nil. INFO is a plist holding contextual information."
+  (let ((attr (org-export-read-attribute :attr_latex horizontal-rule))
+        (prev (org-export-get-previous-element horizontal-rule info)))
+    (concat
+     ;; Make sure the rule doesn't start at the end of the current
+     ;; line
+     (when (and prev
+                (let ((prev-blank (org-element-property :post-blank prev)))
+                  (or (not prev-blank) (zerop prev-blank))))
+       "\n")
+     (format "\\blackrule[width=%s, height=%s]"
+             (or (plist-get attr :width) "\\textwidth")
+             (or (plist-get attr :thickness) "0.5pt")))))
 
 (defun org-context-inline-src-block (inline-src-block _contents info)
   "Transcode an INLINE-SRC-BLOCK element from Org to ConTeXt.
