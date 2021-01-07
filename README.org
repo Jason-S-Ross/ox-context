@@ -8,6 +8,9 @@
 ** TODO clock
 ** TODO code
    This may be OK but need to check against LaTeX
+*** DONE Basic Implementation
+    CLOSED: [2021-01-07 Thu 10:31]
+*** TODO Labels
 ** TODO drawer
 ** TODO dynamic-block
 ** TODO entity
