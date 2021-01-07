@@ -42,7 +42,8 @@
     CLOSED: [2021-01-07 Thu 08:46]
 *** TODO Bullet Types
 *** TODO Check Boxes
-*** TODO Multiple Levels
+*** DONE Multiple Levels
+    CLOSED: [2021-01-07 Thu 11:18]
 ** TODO keyword
 ** TODO latex-environment
 ** TODO latex-fragment
