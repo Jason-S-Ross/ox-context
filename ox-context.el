@@ -30,12 +30,12 @@
                     ;;(horizontal-rule . org-context-horizontal-rule)
                     (inline-src-block . org-context-context-src-block)
                     (italic . org-context-italic)
-                    ;;(item . org-context-item)
+                    (item . org-context-item)
                     ;;(latex-environment . org-context-environment)
                     ;;(line-break . org-context-line-break)
                     ;;(link . org-context-link)
                     ;;(paragraph . org-context-paragraph)
-                    ;;(plain-list . org-context-plain-list)
+                    (plain-list . org-context-plain-list)
                     ;;(plain-text . org-context-plain-text)
                     ;;(quote-block . org-context-quote-block)
                     ;;(section . org-context-section)
@@ -211,6 +211,12 @@ as expected by `org-splice-context-header'."
     \\blank[3*medium]
   \\stopalignment}
 \\protect
+
+% LaTeX-style descriptive enumerations
+\\definedescription[desc][
+headstyle=bold, style=normal, align=flushleft,
+alternative=hanging, width=broad, margin=1cm
+]
 "
    (mapconcat #'org-element-normalize-string
               (list (plist-get info :context-header-extra))
@@ -383,6 +389,37 @@ contextual information."
 (defun org-context-italic (_italic contents info)
   "Transcode ITALIC from Org to ConTeXt"
   (org-context--text-markup contents 'italic info))
+
+(defun org-context-item (item contents info)
+  "Transcode and ITEM element from Org to ConTeXt"
+  (let ((tag (let ((tag (org-element-property :tag item)))
+               (and tag (org-export-data tag info)))))
+    (if (eq
+         (org-element-property :type (org-export-get-parent item))
+         'descriptive)
+        (format "\\desc{%s} %s" tag (org-trim contents))
+      (format "\\item %s" (org-trim contents))))
+  )
+
+(defun org-context-plain-list (plain-list contents info)
+  "Transcode a PLAIN-LIST element from Org to ContTeXt.
+CONTENTS is the contents of the list. INFO is a plist holding
+contextual information."
+  (let* ((type (org-element-property :type plain-list))
+         (attr (org-export-read-attribute :attr_latex plain-list))
+         (env (plist-get attr :environment))
+         (open-command
+          (cond ((eq type 'ordered) "\\startitemize[n]\n")
+                ((eq type 'descriptive) "")
+                (t "\\startitemize\n")))
+         (close-command
+          (if (eq type 'descriptive)
+              ""
+            "\\stopitemize")))
+    (concat
+     open-command
+     contents
+     close-command)))
 
 (defun org-context-strike-through (_strike-through contents info)
   "Transcode STRIKE_THROUGH from Org to ConTeXt"
