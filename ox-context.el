@@ -34,6 +34,7 @@
                     (italic . org-context-italic)
                     (item . org-context-item)
                     ;;(latex-environment . org-context-environment)
+                    (latex-fragment . org-context-latex-fragment)
                     ;;(line-break . org-context-line-break)
                     ;;(link . org-context-link)
                     ;;(paragraph . org-context-paragraph)
@@ -56,7 +57,7 @@
                     (verbatim . org-context-verbatim)
                     ;;(verse-block . org-context-verse-block)
                     ;;;; Pseudo objects and elements.
-                    ;;(latex-math-block . org-context-math-block)
+                    (latex-math-block . org-context-math-block)
                     ;;(latex-matrices . org-context-matrices)
                     ))
 
@@ -127,7 +128,7 @@ out-of-the-box so this is a short list."
 
 
 ;;;; Pseudo Object: LaTeX Math Block
-
+c
 ;; `latex-math-block' objects have the following property:
 ;; `:post-blank'.
 
@@ -470,6 +471,19 @@ contextual information."
       (format "\\item %s" (org-trim contents))))
   )
 
+(defun org-context-latex-fragment (latex-fragment _contents _info)
+  "Transcode a LATEX-FRAGMENT object from Org to ConTeXt.
+CONTENTS is nil.  INFO is a plist holding contextual information."
+  (let ((value (org-element-property :value latex-fragment)))
+    ;; Trim math markers since the fragment is enclosed within
+    ;; a latex-math-block object anyway.
+    (cond ((string-match-p "\\`\\$[^$]" value) (substring value 1 -1))
+          ((string-prefix-p "\\(" value) (substring value 2 -2))
+          ((string-prefix-p "\\[" value)
+           (format "\\startformula\n%s\\stopformula"
+                   (substring value 2 -2)))
+          (t value))))
+
 (defun org-context-plain-list (plain-list contents info)
   "Transcode a PLAIN-LIST element from Org to ContTeXt.
 CONTENTS is the contents of the list. INFO is a plist holding
@@ -489,6 +503,13 @@ contextual information."
      open-command
      contents
      close-command)))
+
+(defun org-context-math-block (_math-block contents _info)
+  "Transcode a MATH-BLOCK object from Org to ConTeXt.
+CONTENTS is a string.  INFO is a plist used as a communication
+channel."
+  (when (org-string-nw-p contents)
+    (format "\\m{%s}" (org-trim contents))))
 
 (defun org-context-quote-block (quote-block contents info)
   "Transcodes a QUOTE-BLOCK element from Org to ConTeXt."
