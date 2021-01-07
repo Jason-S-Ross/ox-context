@@ -2,7 +2,6 @@
 
 (require 'cl-lib)
 (require 'ox-latex)
-(prin1 "Test")
 (org-export-define-derived-backend
     'context 'latex
   :menu-entry
