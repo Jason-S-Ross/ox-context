@@ -15,7 +15,8 @@
                                       ;; org-context-image-link-filter
                                       )
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
- :options-alist '((:context-text-markup-alist nil nil org-context-text-markup-alist))
+ :options-alist '((:context-text-markup-alist nil nil org-context-text-markup-alist)
+                  (:context-toc-command nil nil org-context-toc-command))
  :translate-alist '((bold . org-context-bold)
                     ;;(center-block org-context-center-block)
                     (code . org-context-code)
@@ -54,6 +55,10 @@
                     ))
 
 
+(defcustom org-context-toc-command "\\completecontent"
+  "ConTeXt command to set the table of contents."
+  :group 'org-export-context
+  :type 'string)
 
 ;;; Filters
 (defun org-context-math-block-options-filter (info _backend)
@@ -222,6 +227,7 @@ holding the export options."
      (format "\\doctitle{%s}\n" title)
      "\\starttext\n"
      "\\maketitle\n"
+     (plist-get info :context-toc-command)
      contents
      "\\stoptext\n"
      )))
