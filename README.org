@@ -41,7 +41,8 @@
 ** TODO plain-text
 ** TODO planning
 ** TODO property-drawer
-** TODO quote-block
+** DONE quote-block
+   CLOSED: [2021-01-07 Thu 09:49]
 ** TODO radio-target
 ** TODO section
 ** TODO special-block

@@ -36,7 +36,7 @@
                     ;;(paragraph . org-context-paragraph)
                     (plain-list . org-context-plain-list)
                     ;;(plain-text . org-context-plain-text)
-                    ;;(quote-block . org-context-quote-block)
+                    (quote-block . org-context-quote-block)
                     ;;(section . org-context-section)
                     (src-block . org-context-src-block)
                     (strike-through . org-context-strike-through)
@@ -74,7 +74,8 @@
     (underline . "\\underbar{%s}")
     (verbatim . "\\type{%s}")
     (verb . "\\type}%s")
-    (protectedtexttt . "\\type{%s}"))
+    (protectedtexttt . "\\type{%s}")
+    (quotation . "\\startblockquote\n%s\n\\stopblockquote"))
   "Alist of ConTeXt expressions to convert text markup."
   :group 'org-export-context
   :version "26.1"
@@ -233,6 +234,12 @@ as expected by `org-splice-context-header'."
 headstyle=bold, style=normal, align=flushleft,
 alternative=hanging, width=broad, margin=1cm
 ]
+
+% blockquote environment
+\\setupdelimitedtext
+  [blockquote]
+  [style=\\slx,
+   before={\\setupinterlinespace[line=2.4ex]}]
 "
    (mapconcat #'org-element-normalize-string
               (list (plist-get info :context-header-extra))
@@ -418,6 +425,11 @@ contextual information."
      open-command
      contents
      close-command)))
+
+(defun org-context-quote-block (quote-block contents info)
+  "Transcodes a QUOTE-BLOCK element from Org to ConTeXt."
+  ;; TODO Wrap a label around quotes
+  (org-context--text-markup contents 'quotation info))
 
 (defun org-context-strike-through (_strike-through contents info)
   "Transcode STRIKE_THROUGH from Org to ConTeXt"
