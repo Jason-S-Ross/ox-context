@@ -44,7 +44,9 @@
 ** DONE quote-block
    CLOSED: [2021-01-07 Thu 09:49]
 ** TODO radio-target
-** TODO section
+** DONE section
+   CLOSED: [2021-01-07 Thu 09:33]
+   Just defer to the LaTeX implementation
 ** TODO special-block
 ** TODO src-block
 *** DONE Basic Implementation
