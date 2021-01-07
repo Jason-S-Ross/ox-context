@@ -40,8 +40,8 @@
                     ;;(section . org-context-section)
                     (src-block . org-context-src-block)
                     (strike-through . org-context-strike-through)
-                    ;;(subscript . org-context-subscript)
-                    ;;(superscript . org-context-superscript)
+                    (subscript . org-context-subscript)
+                    (superscript . org-context-superscript)
                     ;;(table . org-context-table)
                     ;;(table-cell . org-context-table-cell)
                     ;;(table-row . org-context-table-row)
@@ -69,6 +69,8 @@
     (code . "\\type{%s}")
     (italic . "\\italic{%s}")
     (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
+    (subscript . "\\low{%s}")
+    (superscript . "\\high{%s}")
     (underline . "\\underbar{%s}")
     (verbatim . "\\type{%s}")
     (verb . "\\type}%s")
@@ -420,6 +422,14 @@ contextual information."
 (defun org-context-strike-through (_strike-through contents info)
   "Transcode STRIKE_THROUGH from Org to ConTeXt"
   (org-context--text-markup contents 'strike-through info))
+
+(defun org-context-subscript (_subscript contents info)
+  "Transcode a SUBSCRIPT from Org to ConTeXt"
+  (org-context--text-markup contents 'subscript info))
+
+(defun org-context-superscript (_superscript contents info)
+  "Transcode a SUPERSCRIPT from Org to ConTeXt"
+  (org-context--text-markup contents 'superscript info))
 
 (defun org-context-src-block (src-block _contents info)
   "Transcode a SRC-BLOCK element from Org to LaTeX.

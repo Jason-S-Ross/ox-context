@@ -52,8 +52,10 @@
 ** TODO statistics-cookie
 ** DONE strike-through
    CLOSED: [2021-01-07 Thu 08:48]
-** TODO subscript
-** TODO superscript
+** DONE subscript
+   CLOSED: [2021-01-07 Thu 09:23]
+** DONE superscript
+   CLOSED: [2021-01-07 Thu 09:23]
 ** TODO table
 ** TODO table-cell
 ** TODO table-row
