@@ -16,7 +16,8 @@
                                       )
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
  :options-alist '((:context-text-markup-alist nil nil org-context-text-markup-alist)
-                  (:context-toc-command nil nil org-context-toc-command))
+                  (:context-toc-command nil nil org-context-toc-command)
+                  (:context-header "CONTEXT_HEADER" nil nil newline))
  :translate-alist '((bold . org-context-bold)
                     ;;(center-block org-context-center-block)
                     (code . org-context-code)
@@ -169,7 +170,12 @@ INFO is a plist used as a communication channel."
 INFO is a plist used as a communication channel. Optional
 argument TEMPLATE, when non-nil, is the header template string,
 as expected by `org-splice-context-header'."
-  "\\unprotect
+  (concat
+   (mapconcat #'org-element-normalize-string
+              (list (plist-get info :context-header))
+              "")
+   "
+\\unprotect
 \\def\\doctitle#1{\\gdef\\@title{#1}}
 \\def\\author#1{\\gdef\\@author{#1}}
 \\def\\email#1{\\gdef\\@email{#1}}
@@ -188,7 +194,8 @@ as expected by `org-splice-context-header'."
       {\\tfa \\@date}
     \\blank[3*medium]
   \\stopalignment}
-\\protect")
+\\protect
+"))
 
 
 (defun org-context-template (contents info)
