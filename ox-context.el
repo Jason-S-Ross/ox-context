@@ -17,7 +17,8 @@
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
  :options-alist '((:context-text-markup-alist nil nil org-context-text-markup-alist)
                   (:context-toc-command nil nil org-context-toc-command)
-                  (:context-header "CONTEXT_HEADER" nil nil newline))
+                  (:context-header "CONTEXT_HEADER" nil nil newline)
+                  (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline))
  :translate-alist '((bold . org-context-bold)
                     ;;(center-block org-context-center-block)
                     (code . org-context-code)
@@ -195,7 +196,11 @@ as expected by `org-splice-context-header'."
     \\blank[3*medium]
   \\stopalignment}
 \\protect
-"))
+"
+   (mapconcat #'org-element-normalize-string
+              (list (plist-get info :context-header-extra))
+              "")
+   ))
 
 
 (defun org-context-template (contents info)
