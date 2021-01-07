@@ -65,6 +65,21 @@
 
 ;;;; Text Markup
 
+(defcustom org-context-text-markup-alist
+  '((bold ."\\bold{%s}")
+    (code . "\\type{%s}")
+    (italic . "\\italic{%s}")
+    (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
+    (underline . "\\underbar{%s}")
+    (verbatim . "\\type{%s}")
+    (verb . "\\type}%s")
+    (protectedtexttt . "\\type{%s}"))
+  "Alist of ConTeXt expressions to convert text markup."
+  :group 'org-export-context
+  :version "26.1"
+  :package-version '(Org . "8.3")
+  :type 'alist
+  :options '(bold code italic strike-through underline verbatim))
 
 (defcustom org-context-highlighted-langs
   '((metapost "mp"))
@@ -266,24 +281,6 @@ holding the export options."
      )))
 
 ;;; Internal functions
-
-;;;; Text Markup
-
-(defcustom org-context-text-markup-alist
-  '((bold ."\\bold{%s}")
-    (code . "\\type{%s}")
-    (italic . "\\italic{%s}")
-    (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
-    (underline . "\\underbar{%s}")
-    (verbatim . "\\type{%s}")
-    (verb . "\\type}%s")
-    (protectedtexttt . "\\type{%s}"))
-  "Alist of ConTeXt expressions to convert text markup."
-  :group 'org-export-context
-  :version "26.1"
-  :package-version '(Org . "8.3")
-  :type 'alist
-  :options '(bold code italic strike-through underline verbatim))
 
 
 (defun org-context--text-markup (text markup info)
