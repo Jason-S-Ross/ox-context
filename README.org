@@ -52,6 +52,7 @@
    CLOSED: [2021-01-07 Thu 10:11]
    Could possibly use named urls but this is a simple solution
 ** TODO node-property
+   I don't exactly know what this is
 ** DONE paragraph
    CLOSED: [2021-01-07 Thu 09:55]
    Use LaTeX implementation
