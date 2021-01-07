@@ -39,6 +39,7 @@
                     (quote-block . org-context-quote-block)
                     ;;(section . org-context-section)
                     (src-block . org-context-src-block)
+                    (special-block . org-context-special-block)
                     (strike-through . org-context-strike-through)
                     (subscript . org-context-subscript)
                     (superscript . org-context-superscript)
@@ -442,6 +443,22 @@ contextual information."
 (defun org-context-superscript (_superscript contents info)
   "Transcode a SUPERSCRIPT from Org to ConTeXt"
   (org-context--text-markup contents 'superscript info))
+
+(defun org-context-special-block (special-block contents info)
+  "Transcode a SPECIAL-BLOCK element from Org to ConTeXt.
+CONTENTS holds the contents of the block. INFO is a plist
+holding contextual information."
+  ;; TODO `org-latex--caption/label-string' needs to be
+  ;; replaced.
+  (let ((type (org-element-property :type special-block))
+        (opt (org-export-read-attribute :attr_latex special-block :options))
+        (caption (org-latex--caption/label-string special-block info))
+        (caption-above-p (org-latex--caption-above-p special-block info)))
+    (concat (format "\\start%s[%s]\n" type (or opt ""))
+            (and caption-above-p caption)
+            contents
+            (and (not caption-above-p) caption)
+            (format "\\stop%s" type))))
 
 (defun org-context-src-block (src-block _contents info)
   "Transcode a SRC-BLOCK element from Org to LaTeX.

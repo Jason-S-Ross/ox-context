@@ -48,6 +48,8 @@
    CLOSED: [2021-01-07 Thu 09:33]
    Just defer to the LaTeX implementation
 ** TODO special-block
+   Need to override org-latex--caption/label-string
+   to give an appropriate label string for ConTeXt.
 ** TODO src-block
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 08:47]
