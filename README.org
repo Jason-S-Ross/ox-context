@@ -19,6 +19,9 @@
    CLOSED: [2021-01-07 Thu 10:31]
    Deferring to the LaTeX implementation
 ** TODO fixed-width
+*** DONE Basic Implementation
+    CLOSED: [2021-01-07 Thu 10:30]
+*** TODO Labels
 ** TODO footnote-definition
 ** TODO footnote-reference
 ** TODO headline

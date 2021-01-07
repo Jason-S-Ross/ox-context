@@ -22,10 +22,10 @@
  :translate-alist '((bold . org-context-bold)
                     (center-block . org-context-center-block)
                     (code . org-context-code)
-                    ;;(fixed-width . org-context-fixed-width)
                     (entity . org-context-entity)
                     (example-block . org-context-example-block)
                     (export-block . org-context-export-block)
+                    (fixed-width . org-context-fixed-width)
                     ;;(footnote-definition . org-context-footnote-definition)
                     ;;(footnote-reference . org-context-footnote-reference)
                     (headline . org-context-headline)
@@ -368,6 +368,14 @@ CONTENTS is nil. INFO is a plist holding contextual information."
 CONTENTS is nil. INFO is a plist holding contextual information."
   (when (member (org-element-property :type export-block) '("CONTEXT" "TEX"))
     (org-remove-indentation (org-element-property :value export-block))))
+
+(defun org-context-fixed-width (fixed-width _contents info)
+  "Transcode a FIXED-WDITH element from Org to LaTeX.
+CONTENTS is nil. INFO is a plist holding contextual information."
+  ;; TODO Wrap with label
+  (format "\\starttyping\n%s\n\\stoptyping"
+          (org-remove-indentation
+           (org-element-property :value fixed-width))))
 
 (defun org-context-headline (headline contents info)
   "Transcodes a HEADLINE element from Org to ConTeXt."
