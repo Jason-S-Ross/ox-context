@@ -1,0 +1,85 @@
+#+TITLE: Chapter 1 Exercises
+#+DESCRIPTION: Mathematical Methods in Engineering, Karman and Biot
+#+AUTHOR: Jason Ross
+#+OPTIONS: toc:nil num:t
+#+CONTEXT_HEADER: \usemodule[pret-python]
+
+* Problem 1
+  - Problem :: Evaluate numerically the integral
+
+  \[
+  I = \int_0^{\pi/2}{\ln\left(\sin{x}\right) dx}
+  \]
+
+  and compare with the exact value $I = -\frac{\pi}{2}\ln{2}$
+
+  - Solution :: ...
+
+    Note that $\ln{\left(\sin x\right)} = \ln{\left(x \frac{\sin x}{x}\right)}
+    = \ln{x} + \ln{\frac{\sin x}{x}}$
+
+    Therefore we just need to find
+    $\int_0^{\pi/2}{\ln{x} dx}$ analytically and evaluate
+    $\int_0^{\pi/2}{\ln{\frac{\sin x}{x}} dx}$ numerically.
+
+    $\int_0^{\pi/2}{\ln{x} dx}$ can be integrated by parts.
+
+    Let $u = \ln x, v^{'} = dx, u^{'} = \frac{1}{x}, v = x$. Therefore,
+    $$\int{ln{x} dx} = \int{u v^{'} dx} = u v - \int{v u^{'} dx}$$
+    $$ u v - \int{v u^{'} dx} = x \ln x - \int{x \frac{1}{x} dx} = x \ln x - x$$
+    And so, $\int_0^{\pi/2}{\ln x dx} = \left. x \ln x - x \right|_0^{\pi/2}$
+
+    #+BEGIN_EXPORT context
+    \startformula
+    \startalign
+    \NC \lim_{x \to 0} x \ln x \NC= \lim_{x \to 0} \frac{\ln x}{\frac{1}{x}} \NR
+    \NC \NC = \lim_{x \to 0}-\frac{\frac{1}{x}}{\frac{1}{x^2}} \NR
+    \NC \NC= \lim_{x \to 0}-x \NR
+    \NC \NC= 0 \NR
+    \stopalign
+    \stopformula
+    #+END_EXPORT
+    And, $\int_0^{\pi/2}{\ln x dx} = \frac{pi}{2} \left(\ln x - 1\right) \approx -0.861$
+
+    #+BEGIN_SRC python :results output code :exports both
+    from sympy import log, pi, integrate
+    from sympy.abc import x
+    print((pi/2 * (log(pi/2) - 1)).evalf())
+    print(integrate(log(x), (x, 0, pi/2)).evalf())
+    #+END_SRC
+
+    #+RESULTS:
+    #+begin_src python
+    -0.861451872082119
+    -0.861451872082119
+    #+end_src
+
+    So we have a value for part of our problem. The other part is to evaluate the integral
+    $$\int_0^{\pi/2}{\ln{\frac{\sin x}{x}} dx}$$
+    We can do this with Simpson's rule. Recall that
+    \[S = \frac{H}{9}\sum_{i=0}^{n-1}{f(x_0 + i H)+
+    4 f\left(x_0 + \left(i + \frac{1}{2}\right) H\right) +
+    f\left(x_0 + \left(i + 1\right) H\right)}\]
+    
+    #+BEGIN_SRC python :results output :exports both
+    from math import pi, sin, log
+    num_points = 10000
+    xmin = 0
+    xmax = pi/2
+    def f(x):
+        if x == 0:
+            return 0
+        return log(sin(x)/x)
+    H = (xmax - xmin) / num_points
+    def s(x0, i, H, f):
+        return H/6 * (
+            f(x0 + i * H) 
+            + 4 * f(x0 + (i + 1/2) * H) 
+            + f(x0 + (i + 1) * H)
+        ) 
+    print(sum(s(xmin, i, H, f) for i in range(num_points)))
+    #+END_SRC
+    
+    #+RESULTS:
+    : -0.2273057071559435
+ 

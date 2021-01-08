@@ -1,0 +1,140 @@
+% Created 2021-01-07 Thu 18:16
+\usemodule[pret-python]
+
+\unprotect
+\def\doctitle#1{\gdef\@title{#1}}
+\def\author#1{\gdef\@author{#1}}
+\def\email#1{\gdef\@email{#1}}
+\def\date#1{\gdef\@date{#1}}
+\date{\currentdate}  % Default to today unless specified otherwise.
+
+\def\maketitle{%
+  \startalignment[center]
+    \blank[force,2*big]
+      {\tfd \@title}
+    \blank[3*medium]
+      {\tfa \@author}
+    \blank[3*medium]
+      {\mono \@email}
+    \blank[2*medium]
+      {\tfa \@date}
+    \blank[3*medium]
+  \stopalignment}
+\protect
+
+% LaTeX-style descriptive enumerations
+\definedescription[desc][
+headstyle=bold, style=normal, align=flushleft,
+alternative=hanging, width=broad, margin=1cm
+]
+
+% blockquote environment
+\setupdelimitedtext
+  [blockquote]
+  [style=\slx,
+   before={\setupinterlinespace[line=2.4ex]}]
+
+% Allow LaTeX-style urls
+\def\href#1#2{\useURL[#2][{#2}][][{#1}]\goto{\url[#2]}[url(#1)]}
+\setupurl
+  [color=blue
+   style=\tf]
+
+% Create the example environment
+\definetyping[example]
+
+\setupcombinedlist[content]
+\author{Jason Ross}
+\email{jason@JasonsLappy}
+\date{(2020-10-01)}
+\doctitle{Chapter 1 Exercises}
+\starttext
+\maketitle
+\completecontent
+\section{Problem 1}
+\desc{Problem} Evaluate numerically the integral
+
+\startformula
+
+  I = \int_0^{\pi/2}{\ln\left(\sin{x}\right) dx}
+  
+\stopformula
+
+and compare with the exact value \m{I = -\frac{\pi}{2}\ln{2}}
+
+\desc{Solution} \ldots{}
+
+Note that \m{\ln{\left(\sin x\right)} = \ln{\left(x \frac{\sin x}{x}\right)}
+    = \ln{x} + \ln{\frac{\sin x}{x}}}
+
+Therefore we just need to find
+\m{\int_0^{\pi/2}{\ln{x} dx}} analytically and evaluate
+\m{\int_0^{\pi/2}{\ln{\frac{\sin x}{x}} dx}} numerically.
+
+\m{\int_0^{\pi/2}{\ln{x} dx}} can be integrated by parts.
+
+Let \m{u = \ln x, v^{'} = dx, u^{'} = \frac{1}{x}, v = x}. Therefore,
+\startformula
+\int{ln{x} dx} = \int{u v^{'} dx} = u v - \int{v u^{'} dx}
+\stopformula
+\startformula
+ u v - \int{v u^{'} dx} = x \ln x - \int{x \frac{1}{x} dx} = x \ln x - x
+\stopformula
+And so, \m{\int_0^{\pi/2}{\ln x dx} = \left. x \ln x - x \right|_0^{\pi/2}}
+
+\startformula
+\startalign
+\NC \lim_{x \to 0} x \ln x \NC= \lim_{x \to 0} \frac{\ln x}{\frac{1}{x}} \NR
+\NC \NC = \lim_{x \to 0}-\frac{\frac{1}{x}}{\frac{1}{x^2}} \NR
+\NC \NC= \lim_{x \to 0}-x \NR
+\NC \NC= 0 \NR
+\stopalign
+\stopformula
+And, \m{\int_0^{\pi/2}{\ln x dx} = \frac{pi}{2} \left(\ln x - 1\right) \approx -0.861}
+
+\starttyping[option=python]
+from sympy import log, pi, integrate
+from sympy.abc import x
+print((pi/2 * (log(pi/2) - 1)).evalf())
+print(integrate(log(x), (x, 0, pi/2)).evalf())
+\stoptyping
+
+\starttyping[option=python]
+-0.861451872082119
+-0.861451872082119
+\stoptyping
+
+So we have a value for part of our problem. The other part is to evaluate the integral
+\startformula
+\int_0^{\pi/2}{\ln{\frac{\sin x}{x}} dx}
+\stopformula
+We can do this with Simpson's rule. Recall that
+\startformula
+S = \frac{H}{9}\sum_{i=0}^{n-1}{f(x_0 + i H)+
+    4 f\left(x_0 + \left(i + \frac{1}{2}\right) H\right) +
+    f\left(x_0 + \left(i + 1\right) H\right)}
+\stopformula
+
+\starttyping[option=python]
+from math import pi, sin, log
+num_points = 10000
+xmin = 0
+xmax = pi/2
+def f(x):
+    if x == 0:
+        return 0
+    return log(sin(x)/x)
+H = (xmax - xmin) / num_points
+def s(x0, i, H, f):
+    return H/6 * (
+        f(x0 + i * H) 
+        + 4 * f(x0 + (i + 1/2) * H) 
+        + f(x0 + (i + 1) * H)
+    ) 
+print(sum(s(xmin, i, H, f) for i in range(num_points)))
+\stoptyping
+
+\starttyping
+-0.22734117306968255
+\stoptyping
+\stoptext
