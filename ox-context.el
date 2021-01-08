@@ -479,8 +479,10 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
     ;; a latex-math-block object anyway.
     (cond ((string-match-p "\\`\\$[^$]" value) (substring value 1 -1))
           ((string-prefix-p "\\(" value) (substring value 2 -2))
-          ((string-prefix-p "\\[" value)
-           (format "\\startformula\n%s\\stopformula"
+          ((or
+            (string-prefix-p "\\[" value)
+            (string-prefix-p "$$" value))
+           (format "\\startformula\n%s\n\\stopformula"
                    (substring value 2 -2)))
           (t value))))
 
