@@ -48,7 +48,7 @@
                     ;;(latex-environment . org-context-environment)
                     (latex-fragment . org-context-latex-fragment)
                     ;;(line-break . org-context-line-break)
-                    ;;(link . org-context-link)
+                    (link . org-context-link)
                     ;;(paragraph . org-context-paragraph)
                     (plain-list . org-context-plain-list)
                     ;;(plain-text . org-context-plain-text)
@@ -317,6 +317,16 @@ holding the export options."
 
 ;;; Internal functions
 
+(defun org-context--wrap-label (element output info)
+  "Wrap label associated to ELEMENT around OUTPUT, if appropriate.
+INFO is the current export state, as a plist.  This function
+should not be used for floats.  See
+`org-context--caption/label-string'."
+  (if (not (and (org-string-nw-p output) (org-element-property :name element)))
+      output
+    (concat (format "\\pagereference[%s]"
+                    (org-context--label element info))
+            output)))
 
 (defun org-context--text-markup (text markup info)
   "Format TEXT depending on MARKUP text markup.
@@ -389,6 +399,88 @@ CONTENTS is nil. INFO is a plist holding contextual information."
   (format "\\starttyping\n%s\n\\stoptyping"
           (org-remove-indentation
            (org-element-property :value fixed-width))))
+(defun org-context-link (link desc info)
+  "Transcode a LINK object from Org to ConTeXt.
+
+DESC is the description part of the link, or the empty string.
+INFO is a plist holding contextual information. See
+`org-export-data'."
+  (let* ((type (org-element-property :type link))
+         (raw-path (org-element-property :path link))
+         (desc (and (not (string= desc "")) desc))
+         (imagep (org-export-inline-image-p
+                  link
+                  (plist-get info :latex-inline-image-rules)))
+         (path (org-latex--protect-text
+                (pcase type
+                  ((or "http" "https" "ftp" "mailto" "doi")
+                   (concat type ":" raw-path))
+                  ("file"
+                   (org-export-file-uri raw-path))
+                  (_
+                   raw-path)))))
+    (cond
+     ;; Link type is handled by a special function.
+     ((org-export-custom-protocol-maybe link desc 'latex info))
+     ;; Image file.
+     (imagep (org-contex--inline-image link info))
+     ;; Radio link: Transcode target's contents and use them as link's
+     ;; description.
+     ((string= type "radio")
+      (let ((destination (org-export-resolve-radio-link link info)))
+        (if (not destination)
+            desc
+          (format "\\about{%s}[%s]"
+                  desc
+                  (org-export-get-reference destination info)))))
+     ;; Links pointing to a headline: Find destination and build
+     ;; appropriate referencing command.
+     ((member type '("custom-id" "fuzzy" "id"))
+      (let ((destination
+             (if (string= type "fuzzy")
+                 (org-export-resolve-fuzzy-link link info 'latex-matrices)
+               (org-export-resolve-id-link link info))))
+        (cl-case (org-element-type destination)
+          ;; Id link points to an external file
+          (plain-text
+           (if desc
+               (format "\\goto{%s}[url(%s)]" desc destination)
+             (format "\\goto{\\hyphenatedurl{%s}}[url(%s)]" destination destination)))
+          ;; Fuzzy link points nowhere
+          ((nil)
+           (format "\\hyphenatedurl{%s}" (org-element-property :raw-link link)))
+          ;; LINK points to a headline.  If headlines are numbered
+          ;; and the link has no description, display headline's
+          ;; number.  Otherwise, display description or headline's
+          ;; title.
+          (headline
+           (let ((label (org-context--label destination info t)))
+             (if (and (not desc)
+                      (org-export-numbered-headline-p destination info))
+                 (format "\\about[%s]" label)
+               (format "\\goto{%s}[%s]"
+                       (or desc
+                           (org-export-data
+                            (org-element-property :title destination) info)
+                           label)))))
+          (otherwise
+           (let ((ref (org-context--label destination info t)))
+             (if (not desc)
+                 (format "\\about[%s]" ref)
+               (format "\\goto{%s}[%s]" desc ref)))))))
+     ;; Coderef: replace link with the reference name or the
+     ;; equivalent line number.
+     ((string= type "coderef")
+      (format (org-export-get-coderef-format path desc)
+              ;; Resolve with RAW-PATH since PATH could be tainted
+              ;; with `org-context--protect-text' call above.
+              (org-export-resolve-coderef raw-path info)))
+     ;; External link with a description part.
+     ((and path desc) (format "\\goto{%s}[url(%s)]" desc path))
+     ;; External link without a description part.
+     (path (format "\\goto{\\hyphenatedurl{%s}}[url(%s)]" path path))
+     ;; No path, only description.  Try to do something useful.
+     (t (format "\\hyphenatedurl{%s}" desc)))))
 
 (defun org-context-headline (headline contents info)
   "Transcodes a HEADLINE element from Org to ConTeXt."
