@@ -17,7 +17,7 @@
 (org-export-define-derived-backend
     'context 'latex
   :menu-entry
-  '(?C 1
+  '(?C "Export to ConTeXt"
        ((?c "As ConTeXt file" org-context-export-to-context)))
  :filters-alist '((:filter-options . org-context-math-block-options-filter)
                   (:filter-paragraph . org-context-clean-invalid-line-breaks)
