@@ -26,11 +26,12 @@
                                       ;; org-context-image-link-filter
                                       )
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
- :options-alist '((:context-text-markup-alist nil nil org-context-text-markup-alist)
-                  (:context-toc-command nil nil org-context-toc-command)
+ :options-alist '((:context-format-headline-function nil nil org-context-format-headline-function)
                   (:context-header "CONTEXT_HEADER" nil nil newline)
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
-                  (:context-highlighted-langs nil nil org-context-highlighted-langs))
+                  (:context-highlighted-langs nil nil org-context-highlighted-langs)
+                  (:context-text-markup-alist nil nil org-context-text-markup-alist)
+                  (:context-toc-command nil nil org-context-toc-command))
  :translate-alist '((bold . org-context-bold)
                     (center-block . org-context-center-block)
                     (code . org-context-code)
@@ -79,6 +80,23 @@
   :group 'org-export-context
   :type 'string)
 
+(defcustom org-context-format-headline-function
+  'org-context-format-headline-default-function
+  "Function for formatting the headline's text.
+
+This function will be called with six arguments:
+TODO      the todo keyword (string or nil)
+TODO-TYPE the type of todo (symbol: `todo', `done', nil)
+PRIORITY  the priority of the headline (integer or nil)
+TEXT      the main headline text (string)
+TAGS      the tags (list of strings or nil)
+INFO      the export options (plist)
+
+The function result will be used in the section format string."
+  :group 'org-export-latex
+  :version "24.4"
+  :package-version '(Org . "8.0")
+  :type 'function)
 ;;;; Text Markup
 
 (defcustom org-context-text-markup-alist
@@ -317,6 +335,19 @@ holding the export options."
 
 ;;; Internal functions
 
+(defun org-context-format-headline-default-function
+    (todo _todo-type priority text tags _info)
+  "Default format function for a headline.
+See `org-latex-format-headline-function' for details."
+  (concat
+   (and todo (format "\\sansbold{%s} " todo))
+   (and priority (format "\\framed{\\#%c} " priority))
+   text
+   (and tags
+        (format "\\hfill{}{\\tt %s} "
+                (mapconcat #'org-latex--protect-text tags ":")))))
+
+
 (defun org-context--wrap-label (element output info)
   "Wrap label associated to ELEMENT around OUTPUT, if appropriate.
 INFO is the current export state, as a plist.  This function
@@ -327,6 +358,52 @@ should not be used for floats.  See
     (concat (format "\\pagereference[%s]"
                     (org-context--label element info))
             output)))
+
+(defun org-context--caption/label-string (element info)
+  "Return caption and label ConTeXt string for ELEMENT.
+
+INFO is a plist holding contextual information.  If there's no
+caption nor label, return the empty string.
+
+For non-floats, see `org-context--wrap-label'."
+  ;; TODO This whole function needs a lot of work.
+  (let* ((label (org-context--label element info nil t))
+	 (main (org-export-get-caption element))
+	 (attr (org-export-read-attribute :attr_latex element))
+	 (type (org-element-type element))
+	 (nonfloat (or (and (plist-member attr :float)
+			    (not (plist-get attr :float))
+			    main)
+		       (and (eq type 'src-block)
+			    (not (plist-get attr :float))
+			    (null (plist-get info :latex-listings)))))
+	 (short (org-export-get-caption element t))
+	 (caption-from-attr-latex (plist-get attr :caption)))
+    (cond
+     ((org-string-nw-p caption-from-attr-latex)
+      (concat caption-from-attr-latex "\n"))
+     ((and (not main) (equal label "")) "")
+     ((not main) label)
+     ;; Option caption format with short name.
+     (t
+      (format (if nonfloat "\\captionof{%s}%s{%s%s}\n"
+		"\\caption%s%s{%s%s}\n")
+	      (let ((type* (if (eq type 'latex-environment)
+			       (org-latex--environment-type element)
+			     type)))
+		(if nonfloat
+		    (cl-case type*
+		      (paragraph "figure")
+		      (image "figure")
+		      (special-block "figure")
+		      (src-block (if (plist-get info :latex-listings)
+				     "listing"
+				   "figure"))
+		      (t (symbol-name type*)))
+		  ""))
+	      (if short (format "[%s]" (org-export-data short info)) "")
+	      (org-trim label)
+	      (org-export-data main info))))))
 
 (defun org-context--text-markup (text markup info)
   "Format TEXT depending on MARKUP text markup.
@@ -341,16 +418,49 @@ INFO is a plist used as a communication channel. See
       (t (format fmt text)))))
 
 (defun org-context--label (datum info &optional force full)
-  "Return an appropriate label for DATUM
-DATUM is an element or a `target' type object. INFO is the
+  "Return an appropriate label for DATUM.
+DATUM is an element or a `target' type object.  INFO is the
 current export state, as a plist.
 
 Return nil if element DATUM has no NAME or VALUE affiliated
-keyword or no CUSTOM_ID property, unless FORCE is non-nil. In
+keyword or no CUSTOM_ID property, unless FORCE is non-nil.  In
 this case always return a unique label.
 
 Eventually, if FULL is non-nil, wrap label within \"\\label{}\"."
-  "")
+  (let* ((type (org-element-type datum))
+	 (user-label
+	  (org-element-property
+	   (cl-case type
+	     ((headline inlinetask) :CUSTOM_ID)
+	     (target :value)
+	     (otherwise :name))
+	   datum))
+	 (label
+	  (and (or user-label force)
+	       (if (and user-label (plist-get info :latex-prefer-user-labels))
+		   user-label
+		 (concat (pcase type
+			   (`headline "sec:")
+			   (`table "tab:")
+			   (`latex-environment
+			    (and (string-match-p
+				  org-latex-math-environments-re
+				  (org-element-property :value datum))
+				 "eq:"))
+			   (`latex-matrices "eq:")
+			   (`paragraph
+			    (and (org-element-property :caption datum)
+				 "fig:"))
+			   (_ nil))
+			 (org-export-get-reference datum info))))))
+    (cond ((not full) label)
+	  (label (format "\\pagereference[%s]%s"
+			 label
+			 (if (eq type 'target) "" "\n")))
+	  (t ""))))
+
+(defun org-context--inline-image (link info)
+  (org-latex--inline-image link info))
 
 ;;; Transcode Functions
 
@@ -366,12 +476,27 @@ contextual information."
   "Transcode a CENTER-BLOCK element from Org to ConTeXt.
 CONTENTS holds the contents of the center block.  INFO is a plist
 holding contextual information."
-  ;; TODO Wrap in label
-  (format "\\startalignment[middle]\n%s\\stopalignment" contents))
+  (org-context--wrap-label
+   center-block (format "\\startalignment[middle]\n%s\\stopalignment" contents) info))
 
 (defun org-context-code (code contents info)
   "Transcode CODE from Org to ConTeXt"
   (org-context--text-markup (org-element-property :value code) 'code info))
+
+(defun org-context-drawer (drawer contents info)
+  "Transcode a DRAWER element from Org to ConTeXt.
+CONTENTS holds the contents of the block.  INFO is a plist
+holding contextual information."
+  (let* ((name (org-element-property :drawer-name drawer))
+         (output (funcall (plist-get info :context-format-drawer-function)
+                          name contents)))
+    (org-context--wrap-label drawer output info)))
+
+(defun org-context-dynamic-block (dynamic-block contents info)
+  "Transcode a DYNAMIC-BLOCK element from Org to LaTeX.
+CONTENTS holds the contents of the block.  INFO is a plist
+holding contextual information.  See `org-export-data'."
+  (org-context--wrap-label dynamic-block contents info))
 
 (defun org-context-entity (entity _contennts info)
   "Transcode an ENTITY object from Org to ConTeXt.
@@ -383,8 +508,11 @@ holding contextual information."
   "Transcode an EXAMPLE-BLOCK element from Org to ConTeXt.
 CONTENTS is nil. INFO is a plist holding contextual information."
   (when (org-string-nw-p (org-element-property :value example-block))
-    (format "\\startexample\n%s\\stopexample"
-            (org-export-format-code-default example-block info))))
+    (org-context--wrap-label
+     example-block
+     (format "\\startexample\n%s\\stopexample"
+             (org-export-format-code-default example-block info))
+     info)))
 
 (defun org-context-export-block (export-block _contents _info)
   "Transcode a EXPORT-BLOCK element from Org to ConTeXt.
@@ -395,10 +523,13 @@ CONTENTS is nil. INFO is a plist holding contextual information."
 (defun org-context-fixed-width (fixed-width _contents info)
   "Transcode a FIXED-WDITH element from Org to LaTeX.
 CONTENTS is nil. INFO is a plist holding contextual information."
-  ;; TODO Wrap with label
-  (format "\\starttyping\n%s\n\\stoptyping"
-          (org-remove-indentation
-           (org-element-property :value fixed-width))))
+  (org-context--wrap-label
+   fixed-width
+   (format "\\starttyping\n%s\n\\stoptyping"
+           (org-remove-indentation
+            (org-element-property :value fixed-width)))
+   info))
+
 (defun org-context-link (link desc info)
   "Transcode a LINK object from Org to ConTeXt.
 
@@ -484,53 +615,36 @@ INFO is a plist holding contextual information. See
 
 (defun org-context-headline (headline contents info)
   "Transcodes a HEADLINE element from Org to ConTeXt."
-  (unless (org-element-property :footnote-section-p headline)
-    (let* ((level (org-export-get-relative-level headline info))
-           (class (plist-get info :latex-class))
-           (class-sectioning (assoc class (plist-get info :latex-classes)))
-           (numberedp (org-export-numbered-headline-p headline info))
-           (title (org-export-data (org-element-property :title headline) info))
-           (text (org-export-data (org-element-property :title headline) info))
-           (todo (and (plist-get info :with-todo-keywords)
-                      (let ((todo (org-element-property :todo-keyword headline)))
-                        (and todo (concat (org-export-data todo info) " ")))))
-           (todo-type (and todo (org-element-property :todo-type headline)))
-           (tags (and (plist-get info :with-tags)
-                      (let ((tag-list (org-export-get-tags headline info)))
-                        (and tag-list (concat "    " (org-make-tag-string tag-list))))))
-           (priority (and (plist-get info :with-priority)
-                          (org-element-property :priority headline)))
-           (full-text (funcall (plist-get info :latex-format-headline-function)
-                               todo todo-type priority text tags info))
-           (headline-label (org-context--label headline info t t))
-           (section-back-end
-            (org-export-create-backend
-             :parent 'latex
-             :transcoders '((underline . (lambda (o c i) format ("\\underline{%s}" c))))))
-           (section-fmt
-            (let ((sec (nth (1+ level) class-sectioning)))
-              (cond
-               ((not sec) nil)
-               ((stringp sec) (concat sec "\n%s"))
-               ((not (consp (cdr sec)))
-                (concat (funcall (if numberedp #'car #'cdr) sec) "\n%s"))
-               ((= (length sec) 2)
-                (when numberedp (concat (car sec) "\n%s" (nth 1 sec))))
-               ((= (length sec) 4)
-                (if numberedp (concat (car sec) "\n%s" (nth 1 sec))
-                  (concat (nth 2 sec) "\n%s" (nth 3 sec)))))))
-           (pre-blanks
-            (make-string (org-element-property :pre-blank headline) ?\n)))
-      (let ((opt-title
-             (funcall (plist-get info :latex-format-headline-function)
-                      todo todo-type priority
-                      (org-export-data-with-backend
-                       (org-export-get-alt-title headline info)
-                       section-back-end info)
-                      (and (eq (plist-get info :with-tags) t) tags)
-                      info)))
-        (format section-fmt full-text
-                (concat headline-label pre-blanks contents))))))
+  (let* ((level (org-export-get-relative-level headline info))
+         (numberedp (org-export-numbered-headline-p headline info))
+         (text (org-export-data (org-element-property :title headline) info))
+         (todo
+          (and (plist-get info :with-todo-keywords)
+               (let ((todo (org-element-property :todo-keyword headline)))
+                 (and todo (org-export-data todo info)))))
+         (todo-type (and todo (org-element-property :todo-type headline)))
+         (tags (and (plist-get info :with-tags)
+                    (org-export-get-tags headline info)))
+         (priority (and (plist-get info :with-priority)
+                        (org-element-property :priority headline)))
+         (full-text (funcall (plist-get info :context-format-headline-function)
+                             todo todo-type priority text tags info))
+         (headertemplate
+          (concat
+           "\\"
+           (apply 'concat (make-list (+ level (- 1)) "sub"))
+           (if numberedp "section" "subject")))
+         (headline-label (org-context--label headline info t )))
+    (concat
+     headertemplate
+     (format
+      "[reference={%s},\n  title={%s},\n  list={%s},\n  marking={%s}]"
+      headline-label
+      full-text
+      text
+      text)
+     "\n"
+     contents)))
 
 (defun org-context-horizontal-rule (horizontal-rule _contents info)
   "Transcode a HORIZONTAL-RULE object from Org to ConTeXt.
@@ -544,9 +658,12 @@ CONTENTS is nil. INFO is a plist holding contextual information."
                 (let ((prev-blank (org-element-property :post-blank prev)))
                   (or (not prev-blank) (zerop prev-blank))))
        "\n")
-     (format "\\blackrule[width=%s, height=%s]"
-             (or (plist-get attr :width) "\\textwidth")
-             (or (plist-get attr :thickness) "0.5pt")))))
+     (org-context--wrap-label
+      horizontal-rule
+      (format "\\blackrule[width=%s, height=%s]"
+              (or (plist-get attr :width) "\\textwidth")
+              (or (plist-get attr :thickness) "0.5pt"))
+      info))))
 
 (defun org-context-inline-src-block (inline-src-block _contents info)
   "Transcode an INLINE-SRC-BLOCK element from Org to ConTeXt.
@@ -605,10 +722,13 @@ contextual information."
           (if (eq type 'descriptive)
               ""
             "\\stopitemize")))
-    (concat
-     open-command
-     contents
-     close-command)))
+    (org-context--wrap-label
+     plain-list
+     (concat
+      open-command
+      contents
+      close-command)
+     info)))
 
 (defun org-context-math-block (_math-block contents _info)
   "Transcode a MATH-BLOCK object from Org to ConTeXt.
@@ -619,8 +739,8 @@ channel."
 
 (defun org-context-quote-block (quote-block contents info)
   "Transcodes a QUOTE-BLOCK element from Org to ConTeXt."
-  ;; TODO Wrap a label around quotes
-  (org-context--text-markup contents 'quotation info))
+  (org-context--wrap-label
+   quote-block (org-context--text-markup contents 'quotation info) info))
 
 (defun org-context-strike-through (_strike-through contents info)
   "Transcode STRIKE_THROUGH from Org to ConTeXt"
