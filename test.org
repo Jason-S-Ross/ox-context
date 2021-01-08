@@ -1,8 +1,23 @@
-#+TITLE: Chapter 1 Exercises
-#+DESCRIPTION: Mathematical Methods in Engineering, Karman and Biot
+# Copyright (C) 2021 Jason Ross
+# Author: Jason Ross <jason dot ross at gmail dot com>
+
+# This is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+ 
+
+#+TITLE: Org Mode ConTeXt Export Demo
+#+DESCRIPTION: Simple demo of the Org Mode ConTeXt exporter
 #+AUTHOR: Jason Ross
 #+OPTIONS: toc:nil num:t
 #+CONTEXT_HEADER: \usemodule[pret-python]
+#+DATE: 2021-01-07
 
 * Problem 1
   - Problem :: Evaluate numerically the integral
@@ -83,3 +98,44 @@
     #+RESULTS:
     : -0.2273057071559435
  
+** Sample Subheading
+   - Item
+     Some prose
+   - Item 2
+     Some more prose
+
+   Here's some prose in the middle
+
+   1. Numbered item
+      - A subitem
+        - A subsubitem
+   2. Another numbered item
+
+   *Here's some bold* /here's some italics/ +Here's some strikethrough+
+   ~here's some code~ =here's some verbatim= _here's some underline!?_
+   _/Here's some underlined italics/_
+
+   #+BEGIN_SRC lua
+     local function s(a)
+       if control[s] then
+         foo(s)
+       end
+     end
+   #+END_SRC
+
+   #+BEGIN_SRC metapost
+     beginfig(1)
+       draw fullcircle scaled 3cm ;
+     endfig ;
+     end ;
+   #+END_SRC
+ 
+   Here's a quote from Donald Knuth:
+   -----
+   #+BEGIN_QUOTE
+   The best programs are written so that computing machines can perform them
+   quickly and so that human beings can understand them clearly. A programmer
+   is ideally an essayist who works with traditional aesthetic and literary
+   forms as well as mathematical concepts, to communicate the way that an
+   algorithm works and to convince a reader that the results will be correct.
+   #+END_QUOTE

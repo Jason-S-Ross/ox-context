@@ -1,4 +1,4 @@
-% Created 2021-01-07 Thu 18:16
+% Created 2021-01-07 Thu 18:31
 \usemodule[pret-python]
 
 \unprotect
@@ -46,8 +46,8 @@ alternative=hanging, width=broad, margin=1cm
 \setupcombinedlist[content]
 \author{Jason Ross}
 \email{jason@JasonsLappy}
-\date{(2020-10-01)}
-\doctitle{Chapter 1 Exercises}
+\date{(2021-01-07)}
+\doctitle{Org Mode ConTeXt Export Demo}
 \starttext
 \maketitle
 \completecontent
@@ -137,4 +137,56 @@ print(sum(s(xmin, i, H, f) for i in range(num_points)))
 \starttyping
 -0.22734117306968255
 \stoptyping
+
+\subsection{Sample Subheading}
+\startitemize
+\item Item
+Some prose
+\item Item 2
+Some more prose
+\stopitemize
+
+Here's some prose in the middle
+
+\startitemize[n]
+\item Numbered item
+\startitemize
+\item A subitem
+\startitemize
+\item A subsubitem
+\stopitemize
+\stopitemize
+\item Another numbered item
+\stopitemize
+
+\bold{Here's some bold} \italic{here's some italics} \inframed[frame=off]{\overstrike{Here's some strikethrough}}
+\type{here's some code} \type{here's some verbatim} \underbar{here's some underline!?}
+\underbar{\italic{Here's some underlined italics}}
+
+\starttyping[option=lua]
+local function s(a)
+  if control[s] then
+    foo(s)
+  end
+end
+\stoptyping
+
+\starttyping[option=mp]
+beginfig(1)
+  draw fullcircle scaled 3cm ;
+endfig ;
+end ;
+\stoptyping
+
+Here's a quote from Donald Knuth:
+
+\blackrule[width=\textwidth, height=0.5pt]
+\startblockquote
+The best programs are written so that computing machines can perform them
+quickly and so that human beings can understand them clearly. A programmer
+is ideally an essayist who works with traditional aesthetic and literary
+forms as well as mathematical concepts, to communicate the way that an
+algorithm works and to convince a reader that the results will be correct.
+
+\stopblockquote
 \stoptext
