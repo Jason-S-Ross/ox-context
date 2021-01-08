@@ -1,5 +1,5 @@
 # Copyright (C) 2021 Jason Ross
-# Author: Jason Ross <jason dot ross at gmail dot com>
+# Author: Jason Ross <jasonross1024 at gmail dot com>
 
 # This is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -100,8 +100,10 @@
  
 ** Sample Subheading
    - Item
+     
      Some prose
    - Item 2
+
      Some more prose
 
    Here's some prose in the middle
