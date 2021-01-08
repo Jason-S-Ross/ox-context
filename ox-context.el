@@ -128,7 +128,7 @@ out-of-the-box so this is a short list."
 
 
 ;;;; Pseudo Object: LaTeX Math Block
-c
+
 ;; `latex-math-block' objects have the following property:
 ;; `:post-blank'.
 
