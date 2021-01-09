@@ -390,25 +390,7 @@ For non-floats, see `org-context--wrap-label'."
      ((and (not main) (equal label "")) "")
      ((not main) label)
      ;; Option caption format with short name.
-     (t
-      (format (if nonfloat "\\captionof{%s}%s{%s%s}\n"
-		"\\caption%s%s{%s%s}\n")
-	      (let ((type* (if (eq type 'latex-environment)
-			       (org-latex--environment-type element)
-			     type)))
-		(if nonfloat
-		    (cl-case type*
-		      (paragraph "figure")
-		      (image "figure")
-		      (special-block "figure")
-		      (src-block (if (plist-get info :latex-listings)
-				     "listing"
-				   "figure"))
-		      (t (symbol-name type*)))
-		  ""))
-	      (if short (format "[%s]" (org-export-data short info)) "")
-	      (org-trim label)
-	      (org-export-data main info))))))
+     (t(org-export-data main info)))))
 
 (defun org-context--text-markup (text markup info)
   "Format TEXT depending on MARKUP text markup.
@@ -466,8 +448,121 @@ Eventually, if FULL is non-nil, wrap label within \"\\label{}\"."
 
 
 (defun org-context--inline-image (link info)
-  "TODO"
-  (org-latex--inline-image link info))
+  "Return the ConTeXt code for an inline image.
+LINK is the link pointing to the inline image. INFO is a plist
+used as a communication channel."
+  (let* ((parent (org-export-get-parent-element link))
+         (path (let ((raw-path (org-element-property :path link)))
+                 (if (not (file-name-absolute-p raw-path)) raw-path
+                   (expand-file-name raw-path))))
+         (filetype (file-name-extension path))
+         ;; OK to use the latex function here
+         (caption-above-p (org-latex--caption-above-p link info))
+         (attr (org-export-read-attribute :attr_latex parent))
+         (caption (org-context--caption/label-string parent info))
+         (float (let ((float (plist-get attr :float)))
+                  (cond ((string= float "wrap") 'wrap)
+                        ((string= float "sideways") 'sideways)
+                        ((string= float "multicolumn") 'multicolumn)
+                        ((and (plist-member attr :float) (not float)) 'nonfloat)
+                        ((or float
+                             (org-element-property :caption parent)
+                             (org-string-nw-p (plist-get attr :caption)))
+                         'figure)
+                        (t 'nonfloat))))
+         (placement
+          (let ((place (plist-get attr :placement)))
+            (cond
+             (place (format %s place))
+             ;; TODO: Get correct style for wrapping
+             ((eq float 'wrap) "{l}{0.5\\textwidth}")
+             ((eq float 'figure)
+              ;; TODO: Get correct style for figure mode. Do we even need this?
+              ;; Check the ConTeXt options for default figure placement
+              (format "[%s]" (plist-get info :latex-default-figure-position)))
+              (t ""))))
+          (center
+           (cond
+            ;; If this is an image link, do not center
+            ((eq 'link (org-element-type (org-export-get-parent link))) nil)
+            ((plist-member attr :center) (plist-get attr :center))
+            ;; TODO: Do we need an option for this or can we just have it
+            ;; be in CONTEXT_HEADER_EXTRA?
+            (t (plist-get info :latex-images-centered))))
+          ;; TODO: Figure out what this is about
+          (comment-include (if (plist-get attr :comment-include) "%" ""))
+          ;; It is possible to specify the scale or width and height in
+          ;; the ATTR_LATEX line, and also via default variables.
+          (scale (cond ((eq float 'wrap) "")
+                       ((plist-get attr :scale))
+                       ;; TODO: Can we eliminate this option with
+                       ;; CONTEXT_HEADER_EXTRA?
+                       (t (plist-get info :latex-image-default-scale))))
+          (width (cond ((org-string-nw-p scale) "")
+                       ((plist-get attr :width))
+                       ((plist-get attr :height) "")
+                       ;; TODO Is this a reasonable size? Shouldn't this
+                       ;; be configurable?
+                       ((eq float 'wrap) "0.48\\textwidth")
+                       ;; TODO Can we eliminate this option with
+                       ;; CONTEXT_HEADER_EXTRA?
+                       (t (plist-get info "0.9\\textwidth"))))
+          (height (cond ((org-string-nw-p scale) "")
+                        ((plist-get attr :height))
+                        ((or (plist-get attr :width)
+                             (memq float '(figure wrap))) "")
+                        ;; TODO Can we eliminate this option with
+                        ;; CONTEXT_HEADER_EXTRA?
+                        (t (plist-get info nil))))
+          ;; TODO format options compatible with ConTeXt
+          (options (let ((opt (or (plist-get attr :options)
+                                  (plist-get info :latex-image-default-option))))
+                     (if (not (string-match "\\`\\[\\(.*\\)\\]\\'" opt))
+                         opt
+                       (match-string 1 opt))))
+          image-code)
+         ;; We can't handle tikz and pgf so don't even try
+         (when (not (member filetype '("tikz" "pgf")))
+           ;; Add scale, or width and height to options
+           (if (org-string-nw-p scale)
+               ;; TODO check scale format
+               (setq options (concat options ",scale=" scale))
+             (when (org-string-nw-p width) (setq options (concat options ",width=" width)))
+             (when (org-string-nw-p height) (setq options (concat options ",height=" height))))
+           (let ((search-option (org-element-property :search-option link)))
+             ;; TODO
+             )
+           (setq options
+                 (cond ((not (org-string-nw-p options)) "")
+                       ((string-prefix-p "," options)
+                        (substring options 1))
+                       (t options)))
+           (setq image-code
+                 (format "\\externalfigure[%s][%s]" path options))
+           (let ((floatname
+                  (pcase float
+                    ;;;; TODO
+                    ;;(`wrap "orgwrapfigure")
+                    ;;;; TODO
+                    ;;(`sideways "orgsidewaysfigure")
+                    ;;;; TODO
+                    ;;(`multicolumn "orgmulticolumnfigure")
+                    ;;(`figure "orgfigure")
+                    (_ "figure"))))
+             (format
+              "\\startplace%s%s
+%s
+\\stopplace%s"
+              floatname
+              (format
+               "[%s]"
+               (concat
+                (if center "location={force,middle}" "location={force}")
+                (when (org-string-nw-p caption) (format ",title={%s}" caption))))
+              ;; TODO include comments
+              ;; TODO allow caption placement
+              image-code
+              floatname)))))
 
 
 (defun org-context--org-table (table contents info)

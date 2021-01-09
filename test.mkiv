@@ -1,4 +1,4 @@
-% Created 2021-01-09 Sat 12:42
+% Created 2021-01-09 Sat 15:09
 %From CONTEXT_HEADER
 \usemodule[pret-python]
 
@@ -74,7 +74,7 @@ numbering=line]
 \stopfrontmatter
 \startbodymatter
 
-\section[reference={sec:org1bd72bf},
+\section[reference={sec:orgd9c5c9d},
   title={Problem 1},
   list={Problem 1},
   marking={Problem 1}]
@@ -144,29 +144,31 @@ S = \frac{H}{9}\sum_{i=0}^{n-1}{f(x_0 + i H)+
 \stopformula
 
 \startorgblksrc[option=python]
-from math import pi, sin, log
-num_points = 10000
-xmin = 0
-xmax = pi/2
-def f(x):
-    if x == 0:
-        return 0
-    return log(sin(x)/x)
-H = (xmax - xmin) / num_points
-def s(x0, i, H, f):
-    return H/6 * (
-        f(x0 + i * H) 
-        + 4 * f(x0 + (i + 1/2) * H) 
-        + f(x0 + (i + 1) * H)
-    ) 
-print(sum(s(xmin, i, H, f) for i in range(num_points)))
+import matplotlib.pyplot as plt
+import numpy as np
+x, y = np.meshgrid(np.linspace(0, 1, 25), np.linspace(0, 1, 25))
+def slope(x, y):
+    return x - y**2
+u = np.ones_like(x)
+v = slope(x, y)
+plt.figure(figsize=(8, 8))
+plt.quiver(x, y, u, v, scale=30)
+plt.gcf().tight_layout()
+plt.plot(
+    np.linspace(0, 1, 11),
+    [0.000, 0.005, 0.020, 0.045, 0.080, 0.124,
+     0.177, 0.238, 0.306, 0.380, 0.458]
+)
+plt.savefig("temp.pdf")
+return "temp.pdf"
+
 \stoporgblksrc
 
-\startorgfixed
--0.22734117306968255
-\stoporgfixed
+\startplacefigure[location={force,middle},title={Quiver Plot}]
+\externalfigure[temp.pdf][]
+\stopplacefigure
 
-\subsection[reference={sec:org3ef1816},
+\subsection[reference={sec:org421b871},
   title={Sample Subheading},
   list={Sample Subheading},
   marking={Sample Subheading}]
@@ -216,7 +218,7 @@ end ;
 \stoporgblksrc
 
 
-Here's a link to \about[sec:org1bd72bf]
+Here's a link to \about[sec:orgd9c5c9d]
 
 Here's a link to \goto{google}[url(http://google.com)]
 
@@ -227,7 +229,7 @@ Here's a bare link to \goto{\hyphenatedurl{https://orgmode.org}}[url(https://org
 \pagebreak
 
 
-\subsubsection[reference={sec:orgf8674e1},
+\subsubsection[reference={sec:orgf51ac22},
   title={\sansbold{DONE} Sample SubSubHeading\hfill{}{\tt sampletag} },
   list={Sample SubSubHeading},
   marking={Sample SubSubHeading}]
@@ -244,12 +246,13 @@ algorithm works and to convince a reader that the results will be correct.
 \blackrule[width=\textwidth, height=0.5pt]
 
 \pagebreak
-\subsubsubsection[reference={sec:orgb926d53},
+\subsubsubsection[reference={sec:org817c7ef},
   title={Sample SubSubSubHeading},
   list={Sample SubSubSubHeading},
   marking={Sample SubSubSubHeading}]
 Here's a table
 
+\startplacetable
 \startxtable
 \startxtablehead[orgheader]
 \startxrow
@@ -265,14 +268,15 @@ Here's a table
 \stopxrow
 
 \stopxtable
+\stopplacetable
 
 That was the table
 
-\subsubsubsubsection[reference={sec:org4cfc15e},
+\subsubsubsubsection[reference={sec:orgacacfd3},
   title={Sample SubSubSubSubHeading},
   list={Sample SubSubSubSubHeading},
   marking={Sample SubSubSubSubHeading}]
-\subsubsubsubsubsection[reference={sec:orgf4ca15a},
+\subsubsubsubsubsection[reference={sec:org4b948b5},
   title={Sample SubSubSubSubSubHeading},
   list={Sample SubSubSubSubSubHeading},
   marking={Sample SubSubSubSubSubHeading}]
