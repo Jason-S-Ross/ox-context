@@ -1,58 +1,84 @@
-% Created 2021-01-07 Thu 18:34
+% Created 2021-01-08 Fri 17:13
+%From CONTEXT_HEADER
 \usemodule[pret-python]
 
-\unprotect
-\def\doctitle#1{\gdef\@title{#1}}
-\def\author#1{\gdef\@author{#1}}
-\def\email#1{\gdef\@email{#1}}
-\def\date#1{\gdef\@date{#1}}
-\date{\currentdate}  % Default to today unless specified otherwise.
 
+% Turn on interaction to make links work
+\setupinteraction[state=start]
+
+% Define a doctitle command
 \def\maketitle{%
   \startalignment[center]
     \blank[force,2*big]
-      {\tfd \@title}
+      \title{ \getvariable{org}{title}}
     \blank[3*medium]
-      {\tfa \@author}
+      {\tfa \getvariable{org}{name}}
     \blank[3*medium]
-      {\mono \@email}
+      {\mono \getvariable{org}{email}}
     \blank[2*medium]
-      {\tfa \@date}
+      {\tfa \getvariable{org}{date}}
     \blank[3*medium]
   \stopalignment}
-\protect
 
 % LaTeX-style descriptive enumerations
-\definedescription[desc][
-headstyle=bold, style=normal, align=flushleft,
-alternative=hanging, width=broad, margin=1cm
-]
+\definedescription[orgdesc]
 
 % blockquote environment
-\setupdelimitedtext
-  [blockquote]
-  [style=\slx,
-   before={\setupinterlinespace[line=2.4ex]}]
-
-% Allow LaTeX-style urls
-\def\href#1#2{\useURL[#2][{#2}][][{#1}]\goto{\url[#2]}[url(#1)]}
-\setupurl
-  [color=blue
-   style=\tf]
+\defineframedtext[orgblockquote]
 
 % Create the example environment
-\definetyping[example]
+\definetyping[orgexample]
 
+% Create the fixed width environment
+\definetyping[orgfixed]
+
+% Create the inline source environment
+\definetyping[orginlinesrc]
+
+% Create the block source environment
+\definetyping[orgblksrc]
+
+% Create the table header style
+\definextable[orgheader]
+
+% From CONTEXT_HEADER_EXTRA
+\setuppapersize[letter]
+\setuplayout[backspace=1.85in, width=4.8in, height=7.64in]
+\setupxtable [align=center, leftframe=off, rightframe=off, topframe=off,
+bottomframe=off, loffset=1em, roffset=1em, stretch=on]
+\setupxtable[orgheader][toffset=1ex, foregroundstyle=bold, bottomframe=on]
+\setuptyping[orgblksrc]
+[before={\startframedtext[width=\makeupwidth,
+background=color,
+backgroundcolor=lightgray]},
+after={\stopframedtext},
+style={\small\tt},
+numbering=line]
+\setuphead[title][header=empty, footer=empty]
+\setupheadertexts[{\getvariable{org}{author}}][{\getvariable{org}{title}}]
+\setupfootertexts[][{Page \pagenumber}]
+\setuppagenumbering[location=]
+\setuplinenumbering[style={\small\tt}]
+\setupframedtext
+[orgblockquote]
+[style={\sl}, frame=off, location=middle]
 \setupcombinedlist[content]
-\author{Jason Ross}
-\email{jason@JasonsLappy}
-\date{(2021-01-07)}
-\doctitle{Org Mode ConTeXt Export Demo}
+\setvariable{org}{author}{Jason Ross}
+\setvariable{org}{email}{jasonross1024@gmail.com}
+\setvariable{org}{date}{(2021-01-07)}
+\setvariable{org}{title}{Org Mode ConTeXt Export Demo}
 \starttext
+\startfrontmatter
 \maketitle
-\completecontent
-\section{Problem 1}
-\desc{Problem} Evaluate numerically the integral
+\placecontent
+\stopfrontmatter
+\startbodymatter
+
+\section[reference={sec:org859a326},
+  title={Problem 1},
+  list={Problem 1},
+  marking={Problem 1}]
+\orgdesc{Problem} Evaluate numerically the integral
 
 \startformula
 
@@ -62,7 +88,7 @@ alternative=hanging, width=broad, margin=1cm
 
 and compare with the exact value \m{I = -\frac{\pi}{2}\ln{2}}
 
-\desc{Solution} \ldots{}
+\orgdesc{Solution} \ldots{}
 
 Note that \m{\ln{\left(\sin x\right)} = \ln{\left(x \frac{\sin x}{x}\right)}
     = \ln{x} + \ln{\frac{\sin x}{x}}}
@@ -92,17 +118,17 @@ And so, \m{\int_0^{\pi/2}{\ln x dx} = \left. x \ln x - x \right|_0^{\pi/2}}
 \stopformula
 And, \m{\int_0^{\pi/2}{\ln x dx} = \frac{pi}{2} \left(\ln x - 1\right) \approx -0.861}
 
-\starttyping[option=python]
+\startorgblksrc[option=python]
 from sympy import log, pi, integrate
 from sympy.abc import x
 print((pi/2 * (log(pi/2) - 1)).evalf())
 print(integrate(log(x), (x, 0, pi/2)).evalf())
-\stoptyping
+\stoporgblksrc
 
-\starttyping[option=python]
+\startorgblksrc[option=python]
 -0.861451872082119
 -0.861451872082119
-\stoptyping
+\stoporgblksrc
 
 So we have a value for part of our problem. The other part is to evaluate the integral
 \startformula
@@ -115,7 +141,7 @@ S = \frac{H}{9}\sum_{i=0}^{n-1}{f(x_0 + i H)+
     f\left(x_0 + \left(i + 1\right) H\right)}
 \stopformula
 
-\starttyping[option=python]
+\startorgblksrc[option=python]
 from math import pi, sin, log
 num_points = 10000
 xmin = 0
@@ -132,13 +158,16 @@ def s(x0, i, H, f):
         + f(x0 + (i + 1) * H)
     ) 
 print(sum(s(xmin, i, H, f) for i in range(num_points)))
-\stoptyping
+\stoporgblksrc
 
-\starttyping
+\startorgfixed
 -0.22734117306968255
-\stoptyping
+\stoporgfixed
 
-\subsection{Sample Subheading}
+\subsection[reference={sec:orgb2dddea},
+  title={Sample Subheading},
+  list={Sample Subheading},
+  marking={Sample Subheading}]
 \startitemize
 \item Item
 
@@ -165,30 +194,85 @@ Here's some prose in the middle
 \type{here's some code} \type{here's some verbatim} \underbar{here's some underline!?}
 \underbar{\italic{Here's some underlined italics}}
 
-\starttyping[option=lua]
+
+
+Here's some junk in a drawer
+
+\startorgblksrc[option=lua]
 local function s(a)
   if control[s] then
     foo(s)
   end
 end
-\stoptyping
+\stoporgblksrc
 
-\starttyping[option=mp]
+\startorgblksrc[option=mp]
 beginfig(1)
   draw fullcircle scaled 3cm ;
 endfig ;
 end ;
-\stoptyping
+\stoporgblksrc
 
+
+Here's a link to \about[sec:org859a326]
+
+Here's a link to \goto{google}[url(http://google.com)]
+
+Here's a bare link to \goto{\hyphenatedurl{https://orgmode.org}}[url(https://orgmode.org)]
+
+\pagebreak
+\input{knuth}
+\pagebreak
+
+
+\subsubsection[reference={sec:org8ce50f9},
+  title={\sansbold{DONE} Sample SubSubHeading\hfill{}{\tt sampletag} },
+  list={Sample SubSubHeading},
+  marking={Sample SubSubHeading}]
 Here's a quote from Donald Knuth:
-
-\blackrule[width=\textwidth, height=0.5pt]
-\startblockquote
+\startorgblockquote
 The best programs are written so that computing machines can perform them
 quickly and so that human beings can understand them clearly. A programmer
 is ideally an essayist who works with traditional aesthetic and literary
 forms as well as mathematical concepts, to communicate the way that an
 algorithm works and to convince a reader that the results will be correct.
 
-\stopblockquote
+\stoporgblockquote
+
+\blackrule[width=\textwidth, height=0.5pt]
+
+\pagebreak
+\subsubsubsection[reference={sec:orgda73ef9},
+  title={Sample SubSubSubHeading},
+  list={Sample SubSubSubHeading},
+  marking={Sample SubSubSubHeading}]
+Here's a table
+
+\startxtable
+\startxtablehead[orgheader]
+\startxrow
+\startxcell Head 1 \stopxcell
+\startxcell Head 2 \stopxcell
+\stopxrow
+\stopxtablehead
+\startxrow
+\stopxrow
+\startxrow
+\startxcell Row 1 \stopxcell
+\startxcell Row 2 \stopxcell
+\stopxrow
+
+\stopxtable
+
+That was the table
+
+\subsubsubsubsection[reference={sec:orge393dec},
+  title={Sample SubSubSubSubHeading},
+  list={Sample SubSubSubSubHeading},
+  marking={Sample SubSubSubSubHeading}]
+\subsubsubsubsubsection[reference={sec:orgc59106a},
+  title={Sample SubSubSubSubSubHeading},
+  list={Sample SubSubSubSubSubHeading},
+  marking={Sample SubSubSubSubSubHeading}]
+\stopbodymatter
 \stoptext

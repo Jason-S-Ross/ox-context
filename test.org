@@ -15,8 +15,30 @@
 #+TITLE: Org Mode ConTeXt Export Demo
 #+DESCRIPTION: Simple demo of the Org Mode ConTeXt exporter
 #+AUTHOR: Jason Ross
+#+EMAIL: jasonross1024@gmail.com
 #+OPTIONS: toc:nil num:t
 #+CONTEXT_HEADER: \usemodule[pret-python]
+
+#+CONTEXT_HEADER_EXTRA: \setuppapersize[letter]
+#+CONTEXT_HEADER_EXTRA: \setuplayout[backspace=1.85in, width=4.8in, height=7.64in]
+#+CONTEXT_HEADER_EXTRA: \setupxtable [align=center, leftframe=off, rightframe=off, topframe=off,
+#+CONTEXT_HEADER_EXTRA: bottomframe=off, loffset=1em, roffset=1em, stretch=on]
+#+CONTEXT_HEADER_EXTRA: \setupxtable[orgheader][toffset=1ex, foregroundstyle=bold, bottomframe=on]
+#+CONTEXT_HEADER_EXTRA: \setuptyping[orgblksrc]
+#+CONTEXT_HEADER_EXTRA:    [before={\startframedtext[width=\makeupwidth,
+#+CONTEXT_HEADER_EXTRA:                              background=color,
+#+CONTEXT_HEADER_EXTRA:                              backgroundcolor=lightgray]},
+#+CONTEXT_HEADER_EXTRA:     after={\stopframedtext},
+#+CONTEXT_HEADER_EXTRA:     style={\small\tt},
+#+CONTEXT_HEADER_EXTRA:     numbering=line]
+#+CONTEXT_HEADER_EXTRA: \setuphead[title][header=empty, footer=empty]
+#+CONTEXT_HEADER_EXTRA: \setupheadertexts[{\getvariable{org}{author}}][{\getvariable{org}{title}}]
+#+CONTEXT_HEADER_EXTRA: \setupfootertexts[][{Page \pagenumber}]
+#+CONTEXT_HEADER_EXTRA: \setuppagenumbering[location=]
+#+CONTEXT_HEADER_EXTRA: \setuplinenumbering[style={\small\tt}]
+#+CONTEXT_HEADER_EXTRA: \setupframedtext
+#+CONTEXT_HEADER_EXTRA:   [orgblockquote]
+#+CONTEXT_HEADER_EXTRA:   [style={\sl}, frame=off, location=middle]
 #+DATE: 2021-01-07
 
 * Problem 1
@@ -117,6 +139,12 @@
    ~here's some code~ =here's some verbatim= _here's some underline!?_
    _/Here's some underlined italics/_
 
+
+  
+:TestDrawer:
+Here's some junk in a drawer
+:END:
+ 
    #+BEGIN_SRC lua
      local function s(a)
        if control[s] then
@@ -132,12 +160,46 @@
      end ;
    #+END_SRC
  
-   Here's a quote from Donald Knuth:
-   -----
-   #+BEGIN_QUOTE
-   The best programs are written so that computing machines can perform them
-   quickly and so that human beings can understand them clearly. A programmer
-   is ideally an essayist who works with traditional aesthetic and literary
-   forms as well as mathematical concepts, to communicate the way that an
-   algorithm works and to convince a reader that the results will be correct.
-   #+END_QUOTE
+
+   Here's a link to [[Problem 1]]
+
+   Here's a link to [[http://google.com][google]]
+
+   Here's a bare link to https://orgmode.org
+   
+   #+BEGIN_EXPORT context
+   \pagebreak
+   \input{knuth}
+   \pagebreak
+   #+END_EXPORT
+   
+
+*** DONE Sample SubSubHeading                                     :sampletag:
+    CLOSED: [2021-01-08 Fri 09:33]
+
+    Here's a quote from Donald Knuth:
+    #+BEGIN_QUOTE
+    The best programs are written so that computing machines can perform them
+    quickly and so that human beings can understand them clearly. A programmer
+    is ideally an essayist who works with traditional aesthetic and literary
+    forms as well as mathematical concepts, to communicate the way that an
+    algorithm works and to convince a reader that the results will be correct.
+    #+END_QUOTE
+    -----
+    
+   #+BEGIN_EXPORT context
+   \pagebreak
+   #+END_EXPORT
+**** Sample SubSubSubHeading
+
+     Here's a table
+
+     | Head 1 | Head 2 |
+     |--------+--------|
+     | Row 1  | Row 2  |
+
+     That was the table
+
+***** Sample SubSubSubSubHeading
+
+****** Sample SubSubSubSubSubHeading
