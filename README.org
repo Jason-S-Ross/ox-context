@@ -11,10 +11,12 @@
 * Translators
 ** DONE bold
    CLOSED: [2021-01-07 Thu 08:43]
-** TODO center-block
+** DONE center-block
+   CLOSED: [2021-01-09 Sat 15:16]
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 11:13]
-*** TODO Labels
+*** DONE Labels
+    CLOSED: [2021-01-09 Sat 15:16]
 ** TODO clock
 ** TODO code
    This may be OK but need to check against LaTeX
@@ -23,8 +25,10 @@
 *** TODO Labels
 ** DONE drawer
    CLOSED: [2021-01-08 Fri 17:31]
-** TODO dynamic-block
-** TODO entity
+** DONE dynamic-block
+   CLOSED: [2021-01-09 Sat 15:18]
+** DONE entity
+   CLOSED: [2021-01-09 Sat 15:18]
 ** DONE example-block
    CLOSED: [2021-01-07 Thu 10:58]
 ** DONE export-block
@@ -67,11 +71,18 @@
    instance, I could probably just do a regex replace to
    go from =\begin{align}= to =\startalgin= and replace all
    the =&= characters with =\nc=
+*** DONE Provide support for align*
+    CLOSED: [2021-01-09 Sat 15:20]
+*** TODO Provide support for numbering/no numbering
 ** TODO latex-fragment
+*** DONE Provide translation for LaTeX to ConTeXt math delimiters
+    CLOSED: [2021-01-09 Sat 15:21]
 ** TODO line-break
-** DONE link
-   CLOSED: [2021-01-07 Thu 10:11]
+** link
    Could possibly use named urls but this is a simple solution
+*** TODO Provide support for images
+**** TODO Provide support for captions
+**** TODO Provide support for additional metadata
 ** TODO node-property
    I don't exactly know what this is
 ** DONE paragraph
@@ -91,9 +102,8 @@
 ** DONE section
    CLOSED: [2021-01-07 Thu 09:33]
    Just defer to the LaTeX implementation
-** TODO special-block
-   Need to override org-latex--caption-above-p
-   to give an appropriate label string for ConTeXt.
+** DONE special-block
+   CLOSED: [2021-01-09 Sat 15:23]
 ** TODO src-block
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 08:47]

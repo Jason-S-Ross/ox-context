@@ -396,6 +396,7 @@ For non-floats, see `org-context--wrap-label'."
   "Format TEXT depending on MARKUP text markup.
 INFO is a plist used as a communication channel. See
 `org-context-text-markup-alist' for details"
+  ;; TODO Handle special cases like the LaTeX backend
   (let ((fmt (cdr (assq markup (plist-get info :context-text-markup-alist)))))
     (cl-case fmt
       ;; No format string: Return raw text.
@@ -857,7 +858,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                       (org-latex--caption/label-string latex-environment info)))
            (caption-above-p
             (memq type (append (plist-get info :latex-caption-above) '(math)))))
-      ;; TODO 'table 'src-block 
+      ;; TODO 'table 'src-block
       (pcase type
         ('math
          ;; TODO equaton eqnarray math displaymath
@@ -941,8 +942,6 @@ channel."
   "Transcode a SPECIAL-BLOCK element from Org to ConTeXt.
 CONTENTS holds the contents of the block. INFO is a plist
 holding contextual information."
-  ;; TODO `org-latex--caption-above-p' needs to be
-  ;; replaced.
   (let ((type (org-element-property :type special-block))
         (opt (org-export-read-attribute :attr_latex special-block :options))
         (caption (org-context--caption/label-string special-block info))
