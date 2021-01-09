@@ -673,7 +673,7 @@ INFO is a plist holding contextual information. See
      ;; Link type is handled by a special function.
      ((org-export-custom-protocol-maybe link desc 'latex info))
      ;; Image file.
-     (imagep (org-contex--inline-image link info))
+     (imagep (org-context--inline-image link info))
      ;; Radio link: Transcode target's contents and use them as link's
      ;; description.
      ((string= type "radio")
