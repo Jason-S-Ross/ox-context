@@ -31,7 +31,6 @@
 #+CONTEXT_HEADER_EXTRA:     after={\stopframedtext},
 #+CONTEXT_HEADER_EXTRA:     style={\small\tt},
 #+CONTEXT_HEADER_EXTRA:     numbering=line]
-#+CONTEXT_HEADER_EXTRA: \setuphead[title][header=empty, footer=empty]
 #+CONTEXT_HEADER_EXTRA: \setupheadertexts[{\getvariable{org}{author}}][{\getvariable{org}{title}}]
 #+CONTEXT_HEADER_EXTRA: \setupfootertexts[][{Page \pagenumber}]
 #+CONTEXT_HEADER_EXTRA: \setuppagenumbering[location=]

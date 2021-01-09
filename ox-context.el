@@ -230,6 +230,19 @@ INFO is a plist used as a communication channel."
     (?L . ,(capitalize (plist-get info :language)))
     (?D . ,(org-export-get-date info))))
 
+(defun org-context--make-title (info &optional template)
+  "Return a formatted ConTeXt title."
+  " \\startalignment[center]
+  \\blank[force,2*big]
+  \\title{\\getvariable{org}{title}}
+  \\blank[3*medium]
+  {\\tfa \\getvariable{org}{name}}
+  \\blank[3*medium]
+  {\\mono \\getvariable{org}{email}}
+  \\blank[2*medium]
+  {\\tfa \\getvariable{org}{date}}
+  \\blank[3*medium]
+  \\stopalignment")
 
 (defun org-context-make-preamble (info &optional template)
   "Return a formatted ConTeXt preamble.
@@ -246,21 +259,6 @@ as expected by `org-splice-context-header'."
 % Turn on interaction to make links work
 \\setupinteraction[state=start]
 
-% Define a doctitle command
-\\unprotect
-\\def\\maketitle{%
-  \\startalignment[center]
-    \\blank[force,2*big]
-      {\\tfd \\getvariable{org}{title}}
-    \\blank[3*medium]
-      {\\tfa \\getvariable{org}{name}}
-    \\blank[3*medium]
-      {\\mono \\getvariable{org}{email}}
-    \\blank[2*medium]
-      {\\tfa \\getvariable{org}{date}}
-    \\blank[3*medium]
-  \\stopalignment}
-\\protect
 
 % LaTeX-style descriptive enumerations
 \\definedescription[orgdesc]
@@ -282,6 +280,9 @@ as expected by `org-splice-context-header'."
 
 % Create the table header style
 \\definextable[orgheader]
+
+% Create the title page style
+\\definemakeup[titlepage]
 
 % From CONTEXT_HEADER_EXTRA
 "
@@ -327,9 +328,11 @@ holding the export options."
      (format "\\setvariable{org}{title}{%s}\n" title)
      "\\starttext\n"
      "\\startfrontmatter\n"
-     "\\maketitle\n"
+     "\\starttitlepagemakeup\n"
+     (org-context--make-title info)
      (plist-get info :context-toc-command)
-     "\n\\stopfrontmatter\n"
+     "\n\\stoptitlepagemakeup\n"
+     "\\stopfrontmatter\n"
      "\\startbodymatter\n"
      contents
      "\\stopbodymatter\n"

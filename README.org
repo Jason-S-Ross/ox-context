@@ -1,9 +1,9 @@
 * Basic Features
-** Title Page [0/3]
-   - [ ] Allow the header to be turned off on the title page
+** Title Page [1/3]
+   - [X] Allow the header to be turned off on the title page
    - [ ] Allow the user to configure the title layout.
    - [ ] Add more elements like description, keywords, etc.
-** Prebuilt configurations [/]
+** Prebuilt configurations [0/4]
    - [ ] Article
    - [ ] Report
    - [ ] Book

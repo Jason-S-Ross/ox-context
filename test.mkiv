@@ -1,4 +1,4 @@
-% Created 2021-01-08 Fri 17:13
+% Created 2021-01-08 Fri 18:53
 %From CONTEXT_HEADER
 \usemodule[pret-python]
 
@@ -6,19 +6,6 @@
 % Turn on interaction to make links work
 \setupinteraction[state=start]
 
-% Define a doctitle command
-\def\maketitle{%
-  \startalignment[center]
-    \blank[force,2*big]
-      \title{ \getvariable{org}{title}}
-    \blank[3*medium]
-      {\tfa \getvariable{org}{name}}
-    \blank[3*medium]
-      {\mono \getvariable{org}{email}}
-    \blank[2*medium]
-      {\tfa \getvariable{org}{date}}
-    \blank[3*medium]
-  \stopalignment}
 
 % LaTeX-style descriptive enumerations
 \definedescription[orgdesc]
@@ -41,6 +28,9 @@
 % Create the table header style
 \definextable[orgheader]
 
+% Create the title page style
+\definemakeup[titlepage]
+
 % From CONTEXT_HEADER_EXTRA
 \setuppapersize[letter]
 \setuplayout[backspace=1.85in, width=4.8in, height=7.64in]
@@ -54,7 +44,6 @@ backgroundcolor=lightgray]},
 after={\stopframedtext},
 style={\small\tt},
 numbering=line]
-\setuphead[title][header=empty, footer=empty]
 \setupheadertexts[{\getvariable{org}{author}}][{\getvariable{org}{title}}]
 \setupfootertexts[][{Page \pagenumber}]
 \setuppagenumbering[location=]
@@ -69,12 +58,23 @@ numbering=line]
 \setvariable{org}{title}{Org Mode ConTeXt Export Demo}
 \starttext
 \startfrontmatter
-\maketitle
-\placecontent
+\starttitlepagemakeup
+ \startalignment[center]
+  \blank[force,2*big]
+  \title{\getvariable{org}{title}}
+  \blank[3*medium]
+  {\tfa \getvariable{org}{name}}
+  \blank[3*medium]
+  {\mono \getvariable{org}{email}}
+  \blank[2*medium]
+  {\tfa \getvariable{org}{date}}
+  \blank[3*medium]
+  \stopalignment\completecontent
+\stoptitlepagemakeup
 \stopfrontmatter
 \startbodymatter
 
-\section[reference={sec:org859a326},
+\section[reference={sec:org28d633b},
   title={Problem 1},
   list={Problem 1},
   marking={Problem 1}]
@@ -164,7 +164,7 @@ print(sum(s(xmin, i, H, f) for i in range(num_points)))
 -0.22734117306968255
 \stoporgfixed
 
-\subsection[reference={sec:orgb2dddea},
+\subsection[reference={sec:org0c6460e},
   title={Sample Subheading},
   list={Sample Subheading},
   marking={Sample Subheading}]
@@ -214,7 +214,7 @@ end ;
 \stoporgblksrc
 
 
-Here's a link to \about[sec:org859a326]
+Here's a link to \about[sec:org28d633b]
 
 Here's a link to \goto{google}[url(http://google.com)]
 
@@ -225,7 +225,7 @@ Here's a bare link to \goto{\hyphenatedurl{https://orgmode.org}}[url(https://org
 \pagebreak
 
 
-\subsubsection[reference={sec:org8ce50f9},
+\subsubsection[reference={sec:org1cb8ba9},
   title={\sansbold{DONE} Sample SubSubHeading\hfill{}{\tt sampletag} },
   list={Sample SubSubHeading},
   marking={Sample SubSubHeading}]
@@ -242,7 +242,7 @@ algorithm works and to convince a reader that the results will be correct.
 \blackrule[width=\textwidth, height=0.5pt]
 
 \pagebreak
-\subsubsubsection[reference={sec:orgda73ef9},
+\subsubsubsection[reference={sec:orgc0f8520},
   title={Sample SubSubSubHeading},
   list={Sample SubSubSubHeading},
   marking={Sample SubSubSubHeading}]
@@ -266,11 +266,11 @@ Here's a table
 
 That was the table
 
-\subsubsubsubsection[reference={sec:orge393dec},
+\subsubsubsubsection[reference={sec:org2ba55b2},
   title={Sample SubSubSubSubHeading},
   list={Sample SubSubSubSubHeading},
   marking={Sample SubSubSubSubHeading}]
-\subsubsubsubsubsection[reference={sec:orgc59106a},
+\subsubsubsubsubsection[reference={sec:org278635f},
   title={Sample SubSubSubSubSubHeading},
   list={Sample SubSubSubSubSubHeading},
   marking={Sample SubSubSubSubSubHeading}]
