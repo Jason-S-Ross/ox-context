@@ -58,9 +58,9 @@
                     (strike-through . org-context-strike-through)
                     (subscript . org-context-subscript)
                     (superscript . org-context-superscript)
-                    ;;(table . org-context-table)
-                    ;;(table-cell . org-context-table-cell)
-                    ;;(table-row . org-context-table-row)
+                    (table . org-context-table)
+                    (table-cell . org-context-table-cell)
+                    (table-row . org-context-table-row)
                     ;;(target . org-context-target)
                     (template . org-context-template)
                     ;;(timestamp . org-context-timestamp)
@@ -283,6 +283,9 @@ alternative=hanging, width=broad, margin=1cm
 % Create the example environment
 \\definetyping[example]
 
+% Create the table header style
+\\definextable[orgheader]
+
 "
    (mapconcat #'org-element-normalize-string
               (list (plist-get info :context-header-extra))
@@ -457,8 +460,27 @@ Eventually, if FULL is non-nil, wrap label within \"\\label{}\"."
 			 (if (eq type 'target) "" "\n")))
 	  (t ""))))
 
+
 (defun org-context--inline-image (link info)
+  "TODO"
   (org-latex--inline-image link info))
+
+
+(defun org-context--org-table (table contents info)
+  "Return appropriate ConTeXt code for an Org table.
+
+TABLE is the table type element to transcode.  CONTENTS is its
+contents, as a string.  INFO is a plist used as a communication
+channel.
+
+This function assumes TABLE has `org' as its `:type' property and
+`table' as its `:mode' attribute."
+  ;; TODO
+  (concat
+   "\\startxtable\n"
+   contents
+   "\n\\stopxtable\n"))
+
 
 ;;; Transcode Functions
 
@@ -783,6 +805,34 @@ contextual information."
        (t (format "\\starttyping[option=%s]\n%s\\stoptyping"
                   lang
                   (org-export-format-code-default src-block info)))))))
+
+(defun org-context-table (table contents info)
+  "Transcode a TABLE element from Org to ConTeXt.
+CONTENTS is the contents of the table. INFO is a plist holding
+contextual information."
+  (org-context--org-table table contents info))
+
+
+
+(defun org-context-table-cell (table-cell contents info)
+  "Transcode a TABLE-CELL from Org to ConTeXt.
+CONTENTS is the cell contents. INFO is a plist used as
+a communication channel."
+  (concat
+   "\\startxcell "
+   ;; TODO
+   contents
+   " \\stopxcell\n"))
+
+(defun org-context-table-row (table-row contents info)
+  "Transcode a TABLE-ROW element from Org to ConTeXt.
+CONTENTS is the contents of the row.  INFO is a plist used as
+a communication channel."
+  (let ((firstrowp (not (org-export-get-previous-element table-row info)))
+        (wrappedcontents (concat "\\startxrow\n" contents "\\stopxrow")))
+    (if firstrowp
+        (concat "\\startxtablehead[orgheader]\n" wrappedcontents "\n\\stopxtablehead")
+      wrappedcontents)))
 
 (defun org-context-underline (_underline contents info)
   "Transcode UNDERLINE from Org to ConTeXt"
