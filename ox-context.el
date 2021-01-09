@@ -46,7 +46,7 @@
                     (inline-src-block . org-context-context-src-block)
                     (italic . org-context-italic)
                     (item . org-context-item)
-                    ;;(latex-environment . org-context-environment)
+                    (latex-environment . org-context-latex-environment)
                     (latex-fragment . org-context-latex-fragment)
                     ;;(line-break . org-context-line-break)
                     (link . org-context-link)
@@ -336,8 +336,7 @@ holding the export options."
      "\\startbodymatter\n"
      contents
      "\\stopbodymatter\n"
-     "\\stoptext\n"
-     )))
+     "\\stoptext\n")))
 
 ;;; Internal functions
 
@@ -714,8 +713,72 @@ contextual information."
          (org-element-property :type (org-export-get-parent item))
          'descriptive)
         (format "\\orgdesc{%s} %s" tag (org-trim contents))
-      (format "\\item %s" (org-trim contents))))
-  )
+      (format "\\item %s" (org-trim contents)))))
+
+(defun org-context--latex-environment-name (latex-environment)
+  "Return the NAME of LATEX-ENVIRONMENT.
+
+The TYPE is determined from the actual latex environment."
+  (let* ((latex-begin-re "\\\\begin{\\([A-Za-z0-9*]+\\)}")
+         (value (org-remove-indentation
+                 (org-element-property :value latex-environment)))
+         (env (or (and (string-match latex-begin-re value)
+                       (match-string 1 value))
+                  "")))
+    env))
+
+(defun org-context--latex-environment-contents (latex-environment)
+  "Returns the CONTENTS of LATEX-ENVIRONMENT."
+  (let* ((latex-env-re "\\\\begin{\\([A-Za-z0-9*]+\\)}\\(\\(?:.*\n\\)*\\)\\\\end{\\1}")
+         (value (org-remove-indentation
+                 (org-element-property :value latex-environment)))
+         (match (string-match latex-env-re value))
+         (env-contents (match-string 2 value)))
+    env-contents))
+
+(defun org-context--transcode-align (align-environment)
+  "Transcode an ALIGN-ENVIRONMENT from org to ConTeXt.
+CONTENTS is nil. INFO is a plist holding contextual information."
+  (concat
+   "\\startalign\n\\NC "
+   (replace-regexp-in-string
+    "\\\\\\\\\n" "\\\\NR\n\\\\NC "
+    (replace-regexp-in-string "[^\\]&" " \\\\NC " align-environment))
+   "\\stopalign\n"))
+
+(defun org-context-latex-environment (latex-environment _contents info)
+  "Transcode a LATEX-ENVIRONMENT element from Org to ConTeXt.
+CONTENTS is nil.  INFO is a plist holding contextual information."
+  (when (plist-get info :with-latex)
+    (let* ((value (org-remove-indentation
+                   (org-element-property :value latex-environment)))
+           (environment-name (org-context--latex-environment-name latex-environment))
+           (environment-contents
+            (org-context--latex-environment-contents
+             latex-environment))
+           (type (org-latex--environment-type latex-environment))
+           (caption (if (eq type 'math)
+                        (org-latex--label latex-environment info nil t)
+                      (org-latex--caption/label-string latex-environment info)))
+           (caption-above-p
+            (memq type (append (plist-get info :latex-caption-above) '(math)))))
+      ;; TODO 'table 'src-block 
+      (pcase type
+        ('math
+         ;; TODO equaton eqnarray math displaymath
+         ;; gather multline flalign alignat
+         ;; xalginat xxalignat
+         ;; subequations brequn
+         ;; dmath dseries dgroup darray
+         ;; empheq
+         (concat
+          "\\startformula\n"
+          (pcase environment-name
+            ("align" (org-context--transcode-align environment-contents))
+            ("align*" (org-context--transcode-align environment-contents))
+            (_ environment-contents))
+          "\\stopformula"))
+        (_ value)))))
 
 (defun org-context-latex-fragment (latex-fragment _contents _info)
   "Transcode a LATEX-FRAGMENT object from Org to ConTeXt.

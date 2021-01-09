@@ -65,16 +65,13 @@
     $$ u v - \int{v u^{'} dx} = x \ln x - \int{x \frac{1}{x} dx} = x \ln x - x$$
     And so, $\int_0^{\pi/2}{\ln x dx} = \left. x \ln x - x \right|_0^{\pi/2}$
 
-    #+BEGIN_EXPORT context
-    \startformula
-    \startalign
-    \NC \lim_{x \to 0} x \ln x \NC= \lim_{x \to 0} \frac{\ln x}{\frac{1}{x}} \NR
-    \NC \NC = \lim_{x \to 0}-\frac{\frac{1}{x}}{\frac{1}{x^2}} \NR
-    \NC \NC= \lim_{x \to 0}-x \NR
-    \NC \NC= 0 \NR
-    \stopalign
-    \stopformula
-    #+END_EXPORT
+    \begin{align*}
+    \frac{d^4}{dx^4} e^{a x} + e^{a x} &= 0 \\
+    a^4 e^{a x} + e^{a x} &= 0 \\
+    a^4 + 1 &= 0 \\
+    a^4 &= -1 \\
+    \end{align*}
+
     And, $\int_0^{\pi/2}{\ln x dx} = \frac{pi}{2} \left(\ln x - 1\right) \approx -0.861$
 
     #+BEGIN_SRC python :results output code :exports both
