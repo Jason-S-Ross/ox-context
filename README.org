@@ -1,3 +1,13 @@
+* Basic Features
+** Title Page [0/3]
+   - [ ] Allow the header to be turned off on the title page
+   - [ ] Allow the user to configure the title layout.
+   - [ ] Add more elements like description, keywords, etc.
+** Prebuilt configurations [/]
+   - [ ] Article
+   - [ ] Report
+   - [ ] Book
+   - [ ] Letter
 * Translators
 ** DONE bold
    CLOSED: [2021-01-07 Thu 08:43]
@@ -11,7 +21,8 @@
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 10:31]
 *** TODO Labels
-** TODO drawer
+** DONE drawer
+   CLOSED: [2021-01-08 Fri 17:31]
 ** TODO dynamic-block
 ** TODO entity
 ** DONE example-block
@@ -21,17 +32,22 @@
 ** DONE export-snippet
    CLOSED: [2021-01-07 Thu 10:31]
    Deferring to the LaTeX implementation
-** TODO fixed-width
+** DONE fixed-width
+   CLOSED: [2021-01-08 Fri 13:35]
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 10:30]
-*** TODO Labels
+*** DONE Labels
+    CLOSED: [2021-01-08 Fri 13:34]
 ** TODO footnote-definition
 ** TODO footnote-reference
-** TODO headline
-** TODO horizontal-rule
+** DONE headline
+   CLOSED: [2021-01-08 Fri 17:39]
+** DONE horizontal-rule
+   CLOSED: [2021-01-08 Fri 17:32]
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 10:22]
-*** TODO Add labelling
+*** DONE Add labelling
+    CLOSED: [2021-01-08 Fri 13:35]
 ** DONE inline-src-block
    CLOSED: [2021-01-07 Thu 08:45]
 ** TODO inlinetask
@@ -46,6 +62,11 @@
     CLOSED: [2021-01-07 Thu 11:18]
 ** TODO keyword
 ** TODO latex-environment
+   I might try to escape/replace really common environments
+   and verbatim (or maybe just ignore) anything else. For
+   instance, I could probably just do a regex replace to
+   go from =\begin{align}= to =\startalgin= and replace all
+   the =&= characters with =\nc=
 ** TODO latex-fragment
 ** TODO line-break
 ** DONE link
@@ -71,11 +92,12 @@
    CLOSED: [2021-01-07 Thu 09:33]
    Just defer to the LaTeX implementation
 ** TODO special-block
-   Need to override org-latex--caption/label-string
+   Need to override org-latex--caption-above-p
    to give an appropriate label string for ConTeXt.
 ** TODO src-block
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 08:47]
+*** TODO Line Numbering
 *** TODO Metadata
 ** TODO statistics-cookie
 ** DONE strike-through
@@ -85,8 +107,11 @@
 ** DONE superscript
    CLOSED: [2021-01-07 Thu 09:23]
 ** TODO table
+   Basic implementation done. Need to look into styling options
 ** TODO table-cell
+   This should be ok but I'm leaving this open until I can check more things
 ** TODO table-row
+   This should be ok but I'm leaving this open until I can check more things
 ** TODO target
 ** TODO template
 *** DONE Basic Implementation
@@ -96,18 +121,19 @@
 *** TODO Headline Numbering Setup
 *** TODO Subtitle
 *** TODO Configuration
-    I'm imagining a system where transcoders are specified
-    by the user in the preamble. For example, the user could
-    write =\definetyping[example]= in the preamble so that
-    any =example= instances would use their definition.
-    We could ship with a standard definition in the header
-    that the user could override.
+    The cleanest way to do the configuration is to let the
+    user use ConTeXt's built-in styling systems. They should
+    be able to do quite a bit just by adding extra code to the
+    preamble.
 ** TODO timestamp
-** TODO underline
+** DONE underline
+   CLOSED: [2021-01-08 Fri 17:34]
 ** DONE verbatim
    CLOSED: [2021-01-07 Thu 08:52]
 ** TODO verse-block
-** TODO latex-math-block
+   I'm not planning on touching this any time soon
+** DONE latex-math-block
+   CLOSED: [2021-01-08 Fri 13:39]
 ** TODO latex-matrices
 * TODO Menu
 ** DONE Export to ConTeXt File
@@ -119,10 +145,13 @@
 ** TODO Sanitize Math
    - Replace surrounding characters
    - Recognize and translate environments
-   - Replace "&" characters and "\\"
+   - Replace "&" characters and "\\" in {align}
 ** TODO Matrices
 ** TODO Image Links
 * TODO Options
+  Any of these options that is just raw LaTeX that the user
+  interpolates could probably be replaced with additional
+  CONTEXT_HEADER_EXTRA lines.
 ** DONE context-header
    CLOSED: [2021-01-07 Thu 09:01]
 ** DONE context-header-extra
@@ -163,4 +192,6 @@
 ** TODO context-title-command
 ** TODO context-toc-command
 ** TODO context-compiler
-** TODO date
+** DONE date
+   CLOSED: [2021-01-08 Fri 17:36]
+
