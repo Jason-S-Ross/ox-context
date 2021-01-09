@@ -108,7 +108,7 @@ The function result will be used in the section format string."
     (verbatim . "\\type{%s}")
     (verb . "\\type}%s")
     (protectedtexttt . "\\type{%s}")
-    (quotation . "\\startblockquote\n%s\n\\stopblockquote"))
+    (quotation . "\\startorgblockquote\n%s\n\\stoporgblockquote"))
   "Alist of ConTeXt expressions to convert text markup."
   :group 'org-export-context
   :version "26.1"
@@ -237,59 +237,57 @@ INFO is a plist used as a communication channel. Optional
 argument TEMPLATE, when non-nil, is the header template string,
 as expected by `org-splice-context-header'."
   (concat
+   "%From CONTEXT_HEADER\n"
    (mapconcat #'org-element-normalize-string
               (list (plist-get info :context-header))
               "")
    "
-\\unprotect
-\\def\\doctitle#1{\\gdef\\@title{#1}}
-\\def\\author#1{\\gdef\\@author{#1}}
-\\def\\email#1{\\gdef\\@email{#1}}
-\\def\\date#1{\\gdef\\@date{#1}}
-\\date{\\currentdate}  % Default to today unless specified otherwise.
 
+% Turn on interaction to make links work
+\\setupinteraction[state=start]
+
+% Define a doctitle command
+\\unprotect
 \\def\\maketitle{%
   \\startalignment[center]
     \\blank[force,2*big]
-      {\\tfd \\@title}
+      {\\tfd \\getvariable{org}{title}}
     \\blank[3*medium]
-      {\\tfa \\@author}
+      {\\tfa \\getvariable{org}{name}}
     \\blank[3*medium]
-      {\\mono \\@email}
+      {\\mono \\getvariable{org}{email}}
     \\blank[2*medium]
-      {\\tfa \\@date}
+      {\\tfa \\getvariable{org}{date}}
     \\blank[3*medium]
   \\stopalignment}
 \\protect
 
 % LaTeX-style descriptive enumerations
-\\definedescription[desc][
-headstyle=bold, style=normal, align=flushleft,
-alternative=hanging, width=broad, margin=1cm
-]
+\\definedescription[orgdesc]
 
 % blockquote environment
-\\setupdelimitedtext
-  [blockquote]
-  [style=\\slx,
-   before={\\setupinterlinespace[line=2.4ex]}]
-
-% Allow LaTeX-style urls
-\\def\\href#1#2{\\useURL[#2][{#2}][][{#1}]\\goto{\\url[#2]}[url(#1)]}
-\\setupurl
-  [color=blue
-   style=\\tf]
+\\defineframedtext[orgblockquote]
 
 % Create the example environment
-\\definetyping[example]
+\\definetyping[orgexample]
+
+% Create the fixed width environment
+\\definetyping[orgfixed]
+
+% Create the inline source environment
+\\definetyping[orginlinesrc]
+
+% Create the block source environment
+\\definetyping[orgblksrc]
 
 % Create the table header style
 \\definextable[orgheader]
 
+% From CONTEXT_HEADER_EXTRA
 "
    (mapconcat #'org-element-normalize-string
               (list (plist-get info :context-header-extra))
-              "")
+              "\n")
    ))
 
 
@@ -319,18 +317,22 @@ holding the export options."
            (and (plist-get info :with-author)
                 (let ((auth (plist-get info :author)))
                   (and auth (org-export-data auth info))))))
-       (format "\\author{%s}\n" author))
+       (format "\\setvariable{org}{author}{%s}\n" author))
      (let
           ((email (plist-get info :email)))
-       (format "\\email{%s}\n" email))
+       (format "\\setvariable{org}{email}{%s}\n" email))
      (let
          ((date (and (plist-get info :with-date) (org-export-get-date info))))
-       (format "\\date{%s}\n" date))
-     (format "\\doctitle{%s}\n" title)
+       (format "\\setvariable{org}{date}{%s}\n" date))
+     (format "\\setvariable{org}{title}{%s}\n" title)
      "\\starttext\n"
+     "\\startfrontmatter\n"
      "\\maketitle\n"
      (plist-get info :context-toc-command)
+     "\n\\stopfrontmatter\n"
+     "\\startbodymatter\n"
      contents
+     "\\stopbodymatter\n"
      "\\stoptext\n"
      )))
 
@@ -530,7 +532,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
   (when (org-string-nw-p (org-element-property :value example-block))
     (org-context--wrap-label
      example-block
-     (format "\\startexample\n%s\\stopexample"
+     (format "\\startorgexample\n%s\\stoporgexample"
              (org-export-format-code-default example-block info))
      info)))
 
@@ -545,7 +547,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
 CONTENTS is nil. INFO is a plist holding contextual information."
   (org-context--wrap-label
    fixed-width
-   (format "\\starttyping\n%s\n\\stoptyping"
+   (format "\\startorgfixed\n%s\n\\stoporgfixed"
            (org-remove-indentation
             (org-element-property :value fixed-width)))
    info))
@@ -695,7 +697,7 @@ contextual information."
                       (assq (intern org-lang)
                             (plist-get info :context-highlighted-langs)))
                      (downcase org-lang))))
-      (format "\\starttyping[option=%s] %s \\stoptyping " lang code))))
+      (format "\\startorginlinesrc[option=%s] %s \\stoporginlinesrc " lang code))))
 
 (defun org-context-italic (_italic contents info)
   "Transcode ITALIC from Org to ConTeXt"
@@ -708,7 +710,7 @@ contextual information."
     (if (eq
          (org-element-property :type (org-export-get-parent item))
          'descriptive)
-        (format "\\desc{%s} %s" tag (org-trim contents))
+        (format "\\orgdesc{%s} %s" tag (org-trim contents))
       (format "\\item %s" (org-trim contents))))
   )
 
@@ -778,11 +780,11 @@ channel."
   "Transcode a SPECIAL-BLOCK element from Org to ConTeXt.
 CONTENTS holds the contents of the block. INFO is a plist
 holding contextual information."
-  ;; TODO `org-latex--caption/label-string' needs to be
+  ;; TODO `org-latex--caption-above-p' needs to be
   ;; replaced.
   (let ((type (org-element-property :type special-block))
         (opt (org-export-read-attribute :attr_latex special-block :options))
-        (caption (org-latex--caption/label-string special-block info))
+        (caption (org-context--caption/label-string special-block info))
         (caption-above-p (org-latex--caption-above-p special-block info)))
     (concat (format "\\start%s[%s]\n" type (or opt ""))
             (and caption-above-p caption)
@@ -800,9 +802,9 @@ contextual information."
                                  (plist-get info :context-highlighted-langs)))
                      (downcase org-lang))))
       (cond
-       ((not lang) (format "\\starttyping\n%s\\stoptyping"
+       ((not lang) (format "\\startorgblksrc\n%s\\stoporgblksrc"
                            (org-export-format-code-default src-block info)))
-       (t (format "\\starttyping[option=%s]\n%s\\stoptyping"
+       (t (format "\\startorgblksrc[option=%s]\n%s\\stoporgblksrc"
                   lang
                   (org-export-format-code-default src-block info)))))))
 
