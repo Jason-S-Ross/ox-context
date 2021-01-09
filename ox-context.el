@@ -576,9 +576,9 @@ This function assumes TABLE has `org' as its `:type' property and
 `table' as its `:mode' attribute."
   ;; TODO
   (concat
-   "\\startxtable\n"
+   "\\startplacetable\n\\startxtable\n"
    contents
-   "\n\\stopxtable\n"))
+   "\n\\stopxtable\n\\stopplacetable\n"))
 
 
 ;;; Transcode Functions
