@@ -517,7 +517,7 @@ used as a communication channel."
                        ((eq float 'wrap) "0.48\\textwidth")
                        ;; TODO Can we eliminate this option with
                        ;; CONTEXT_HEADER_EXTRA?
-                       (t (plist-get info "0.9\\textwidth"))))
+                       (t  "0.9\\textwidth")))
           (height (cond ((org-string-nw-p scale) "")
                         ((plist-get attr :height))
                         ((or (plist-get attr :width)
