@@ -51,6 +51,7 @@
                     (latex-fragment . org-context-latex-fragment)
                     (line-break . org-context-line-break)
                     (link . org-context-link)
+                    (paragraph . org-context-paragraph)
                     (plain-list . org-context-plain-list)
                     ;;(plain-text . org-context-plain-text)
                     (quote-block . org-context-quote-block)
@@ -102,6 +103,7 @@ The function result will be used in the section format string."
   '((bold ."\\bold{%s}")
     (code . "\\type{%s}")
     (italic . "\\italic{%s}")
+    (paragraph . "\n\\startOrgParagraph\n%s\n\\stopOrgParagraph")
     (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
     (subscript . "\\low{%s}")
     (superscript . "\\high{%s}")
@@ -284,6 +286,8 @@ as expected by `org-splice-context-header'."
 
 % Create the title page style
 \\definemakeup[titlepage]
+% Create a paragraph style
+\\definestartstop[OrgParagraph]
 
 % From CONTEXT_HEADER_EXTRA
 "
@@ -898,6 +902,13 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   "Transcode a LINE-BREAK object from Org to LaTeX.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   "\\crlf\n")
+
+(defun org-context-paragraph (_paragraph contents info)
+  "Transcode a PARAGRAPH element from Org to LaTeX.
+CONTENTS is the contents of the paragraph, as a string.  INFO is
+the plist used as a communication channel."
+  (org-context--text-markup contents 'paragraph info))
+
 (defun org-context-plain-list (plain-list contents info)
   "Transcode a PLAIN-LIST element from Org to ContTeXt.
 CONTENTS is the contents of the list. INFO is a plist holding
