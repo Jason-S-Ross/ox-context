@@ -256,7 +256,7 @@ INFO is a plist used as a communication channel. Optional
 argument TEMPLATE, when non-nil, is the header template string,
 as expected by `org-splice-context-header'."
   (concat
-   "%From CONTEXT_HEADER\n"
+   "\n\n%From CONTEXT_HEADER\n"
    (mapconcat #'org-element-normalize-string
               (list (plist-get info :context-header))
               "")
@@ -284,12 +284,14 @@ as expected by `org-splice-context-header'."
 \\definelines[OrgVerse]
 % Create a paragraph style
 \\definestartstop[OrgParagraph]
+% Create a body style
+\\definestartstop[OrgBody]
 
 % From CONTEXT_HEADER_EXTRA
 "
    (mapconcat #'org-element-normalize-string
               (list (plist-get info :context-header-extra))
-              "\n")
+              "\n\n")
    ))
 
 
@@ -305,14 +307,16 @@ holding the export options."
           (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
      ;; Document class and packages.
      (org-context-make-preamble info)
+     "\n% Table of Contents \n"
      ;; Possibly limit depth for headline numbering.
      (let ((sec-num (plist-get info :section-numbers)))
        (cond
          ((eq sec-num 1) "\\setupcombinedlist[content][list={chapter}]\n")
-         ((eq sec-num 2) "\\setupcombinedlist[content][list={chapter,section}]\n")
-         ((eq sec-num 3) "\\setupcombinedlist[content][list={chapter,section,subsection}]\n")
-         ((eq sec-num 4) "\\setupcombinedlist[content][list={chapter,section,subsection,subsubsection}]\n")
+         ((eq sec-num 2) "\\setupcombinedlist[content][list={section}]\n")
+         ((eq sec-num 3) "\\setupcombinedlist[content][list={subsection}]\n")
+         ((eq sec-num 4) "\\setupcombinedlist[content][list={subsubsection}]\n")
          (t "\\setupcombinedlist[content]\n")))
+     "\n% Org Document Variables\n"
      ;; Author.
      (let
          ((author
@@ -327,18 +331,21 @@ holding the export options."
          ((date (and (plist-get info :with-date) (org-export-get-date info))))
        (format "\\setvariable{org}{date}{%s}\n" (org-export-data date info)))
      (format "\\setvariable{org}{title}{%s}\n" title)
-     "\\starttext\n"
-     "\\placebookmarks\n"
-     "\\startfrontmatter\n"
-     "\\starttitlepagemakeup\n"
+     "\n% Document Start\n\n\n"
+     "\\starttext
+\\placebookmarks
+\\startfrontmatter
+\\startOrgTitlePagemakeup\n"
      (org-context--make-title info)
      (plist-get info :context-toc-command)
-     "\n\\stoptitlepagemakeup\n"
-     "\\stopfrontmatter\n"
-     "\\startbodymatter\n"
+     "\n\\stopOrgTitlePagemakeup
+\\stopfrontmatter
+\\startbodymatter
+\\startOrgBody\n"
      contents
-     "\\stopbodymatter\n"
-     "\\stoptext\n")))
+     "\n\\stopOrgBody
+\\stopbodymatter
+\\stoptext\n")))
 
 ;;; Internal functions
 
