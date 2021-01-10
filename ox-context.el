@@ -68,7 +68,7 @@
                     ;;(timestamp . org-context-timestamp)
                     (underline . org-context-underline)
                     (verbatim . org-context-verbatim)
-                    ;;(verse-block . org-context-verse-block)
+                    (verse-block . org-context-verse-block)
                     ;;;; Pseudo objects and elements.
                     (latex-math-block . org-context-math-block)
                     ;;(latex-matrices . org-context-matrices)
@@ -112,6 +112,7 @@ The function result will be used in the section format string."
     (verb . "\\type}%s")
     (protectedtexttt . "\\type{%s}")
     (quotation . "\\startorgblockquote\n%s\n\\stoporgblockquote"))
+    (verse . "\\startOrgVerse\n%s\n\\stopOrgVerse"))
   "Alist of ConTeXt expressions to convert text markup."
   :group 'org-export-context
   :version "26.1"
@@ -286,6 +287,8 @@ as expected by `org-splice-context-header'."
 
 % Create the title page style
 \\definemakeup[titlepage]
+% Create a verse style
+\\definelines[OrgVerse]
 % Create a paragraph style
 \\definestartstop[OrgParagraph]
 
@@ -1022,6 +1025,16 @@ a communication channel."
   "Transcode a VERBATIM object from Org to ConTeXt"
   (org-context--text-markup
    (org-element-property :value verbatim) 'verbatim info))
+
+
+(defun org-context-verse-block (verse-block contents info)
+  "Transcode a VERSE-BLOCK element from Org to ConTeXt.
+CONTENTS is verse block contents.  INFO is a plist holding
+contextual information."
+  (org-context--wrap-label
+   verse-block
+   (org-context--text-markup contents 'verse info)
+   info))
 
 ;;;###autoload
 (defun org-context-export-to-context
