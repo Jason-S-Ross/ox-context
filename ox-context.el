@@ -102,16 +102,18 @@ The function result will be used in the section format string."
 (defcustom org-context-text-markup-alist
   '((bold ."\\bold{%s}")
     (code . "\\type{%s}")
+    (fixed-width . "\\startOrgFixed\n%s\n\\stopOrgFixed")
     (italic . "\\italic{%s}")
     (paragraph . "\n\\startOrgParagraph\n%s\n\\stopOrgParagraph")
+    (property-drawer . "\n\startOrgPropertyDrawer\n%s\n\\stopOrgPropertyDrawer")
+    (protectedtexttt . "\\type{%s}")
+    (quotation . "\\startOrgBlockQuote\n%s\n\\stopOrgBlockQuote")
     (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
     (subscript . "\\low{%s}")
     (superscript . "\\high{%s}")
     (underline . "\\underbar{%s}")
     (verbatim . "\\type{%s}")
-    (verb . "\\type}%s")
-    (protectedtexttt . "\\type{%s}")
-    (quotation . "\\startorgblockquote\n%s\n\\stoporgblockquote"))
+    (verb . "\\type{%s}")
     (verse . "\\startOrgVerse\n%s\n\\stopOrgVerse"))
   "Alist of ConTeXt expressions to convert text markup."
   :group 'org-export-context
@@ -262,31 +264,22 @@ as expected by `org-splice-context-header'."
 
 % Turn on interaction to make links work
 \\setupinteraction[state=start]
-
-
 % LaTeX-style descriptive enumerations
-\\definedescription[orgdesc]
-
+\\definedescription[OrgDesc]
 % blockquote environment
-\\defineframedtext[orgblockquote]
-
+\\definestartstop[OrgBlockQuote]
 % Create the example environment
-\\definetyping[orgexample]
-
+\\definetyping[OrgExample]
 % Create the fixed width environment
-\\definetyping[orgfixed]
-
+\\definestartstop[OrgFixed]
 % Create the inline source environment
-\\definetyping[orginlinesrc]
-
+\\definetyping[OrgInlineSrc]
 % Create the block source environment
-\\definetyping[orgblksrc]
-
+\\definetyping[OrgBlkSrc]
 % Create the table header style
-\\definextable[orgheader]
-
+\\definextable[OrgTableHeader]
 % Create the title page style
-\\definemakeup[titlepage]
+\\definemakeup[OrgTitlePage]
 % Create a verse style
 \\definelines[OrgVerse]
 % Create a paragraph style
@@ -639,7 +632,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
   (when (org-string-nw-p (org-element-property :value example-block))
     (org-context--wrap-label
      example-block
-     (format "\\startorgexample\n%s\\stoporgexample"
+     (format "\\startOrgExample\n%s\\stopOrgExample"
              (org-export-format-code-default example-block info))
      info)))
 
@@ -654,9 +647,11 @@ CONTENTS is nil. INFO is a plist holding contextual information."
 CONTENTS is nil. INFO is a plist holding contextual information."
   (org-context--wrap-label
    fixed-width
-   (format "\\startorgfixed\n%s\n\\stoporgfixed"
-           (org-remove-indentation
-            (org-element-property :value fixed-width)))
+   (org-context--text-markup
+    (org-remove-indentation
+     (org-element-property :value fixed-width))
+    'fixed-width
+    info)
    info))
 
 (defun org-context-link (link desc info)
@@ -824,7 +819,7 @@ contextual information."
                       (assq (intern org-lang)
                             (plist-get info :context-highlighted-langs)))
                      (downcase org-lang))))
-      (format "\\startorginlinesrc[option=%s] %s \\stoporginlinesrc " lang code))))
+      (format "\\startOrgInlineSrc[option=%s] %s \\stopOrgInlineSrc " lang code))))
 
 (defun org-context-italic (_italic contents info)
   "Transcode ITALIC from Org to ConTeXt"
@@ -837,7 +832,7 @@ contextual information."
     (if (eq
          (org-element-property :type (org-export-get-parent item))
          'descriptive)
-        (format "\\startorgdesc{%s} %s\n\\stoporgdesc" tag (org-trim contents))
+        (format "\\startOrgDesc{%s} %s\n\\stopOrgDesc" tag (org-trim contents))
       (format "\\item %s" (org-trim contents)))))
 
 (defun org-context--latex-environment-name (latex-environment)
@@ -1002,9 +997,9 @@ contextual information."
                                  (plist-get info :context-highlighted-langs)))
                      (downcase org-lang))))
       (cond
-       ((not lang) (format "\\startorgblksrc\n%s\\stoporgblksrc"
+       ((not lang) (format "\\startOrgBlkSrc\n%s\\stopOrgBlkSrc"
                            (org-export-format-code-default src-block info)))
-       (t (format "\\startorgblksrc[option=%s]\n%s\\stoporgblksrc"
+       (t (format "\\startOrgBlkSrc[option=%s]\n%s\\stopOrgBlkSrc"
                   lang
                   (org-export-format-code-default src-block info)))))))
 
@@ -1033,7 +1028,7 @@ a communication channel."
   (let ((firstrowp (not (org-export-get-previous-element table-row info)))
         (wrappedcontents (concat "\\startxrow\n" contents "\\stopxrow")))
     (if firstrowp
-        (concat "\\startxtablehead[orgheader]\n" wrappedcontents "\n\\stopxtablehead")
+        (concat "\\startxtablehead[OrgTableHeader]\n" wrappedcontents "\n\\stopxtablehead")
       wrappedcontents)))
 
 (defun org-context-underline (_underline contents info)
