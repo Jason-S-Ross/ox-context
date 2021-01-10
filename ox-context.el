@@ -44,7 +44,7 @@
                     ;;(footnote-reference . org-context-footnote-reference)
                     (headline . org-context-headline)
                     (horizontal-rule . org-context-horizontal-rule)
-                    (inline-src-block . org-context-context-src-block)
+                    (inline-src-block . org-context-inline-src-block)
                     (italic . org-context-italic)
                     (item . org-context-item)
                     (latex-environment . org-context-latex-environment)
