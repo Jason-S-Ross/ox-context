@@ -810,7 +810,7 @@ contextual information."
     (if (eq
          (org-element-property :type (org-export-get-parent item))
          'descriptive)
-        (format "\\orgdesc{%s} %s" tag (org-trim contents))
+        (format "\\startorgdesc{%s} %s\n\\stoporgdesc" tag (org-trim contents))
       (format "\\item %s" (org-trim contents)))))
 
 (defun org-context--latex-environment-name (latex-environment)
