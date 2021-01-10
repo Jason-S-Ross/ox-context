@@ -31,7 +31,8 @@
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
                   (:context-highlighted-langs nil nil org-context-highlighted-langs)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
-                  (:context-toc-command nil nil org-context-toc-command))
+                  (:context-toc-command nil nil org-context-toc-command)
+                  (:date "DATE" nil "\\currentdate" parse))
  :translate-alist '((bold . org-context-bold)
                     (center-block . org-context-center-block)
                     (code . org-context-code)
@@ -324,7 +325,7 @@ holding the export options."
        (format "\\setvariable{org}{email}{%s}\n" email))
      (let
          ((date (and (plist-get info :with-date) (org-export-get-date info))))
-       (format "\\setvariable{org}{date}{%s}\n" date))
+       (format "\\setvariable{org}{date}{%s}\n" (org-export-data date info)))
      (format "\\setvariable{org}{title}{%s}\n" title)
      "\\starttext\n"
      "\\placebookmarks\n"
