@@ -812,9 +812,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
        "\n")
      (org-context--wrap-label
       horizontal-rule
-      (format "\\blackrule[width=%s, height=%s]"
-              (or (plist-get attr :width) "\\textwidth")
-              (or (plist-get attr :thickness) "0.5pt"))
+      "\\textrule"
       info))))
 
 (defun org-context-inline-src-block (inline-src-block _contents info)
