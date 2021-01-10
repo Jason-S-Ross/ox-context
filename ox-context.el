@@ -282,6 +282,8 @@ as expected by `org-splice-context-header'."
 \\definemakeup[OrgTitlePage]
 % Create a verse style
 \\definelines[OrgVerse]
+% Create a property drawer style
+\\definestartstop[OrgPropertyDrawer]
 % Create a paragraph style
 \\definestartstop[OrgParagraph]
 % Create a body style
@@ -954,6 +956,13 @@ contextual information."
       contents
       close-command)
      info)))
+
+(defun org-latex-property-drawer (_property-drawer contents _info)
+  "Transcode a PROPERTY-DRAWER element from Org to LaTeX.
+CONTENTS holds the contents of the drawer.  INFO is a plist
+holding contextual information."
+  (and (org-string-nw-p contents)
+       (org-context--text-markup contents 'property-drawer info)))
 
 (defun org-context-math-block (_math-block contents _info)
   "Transcode a MATH-BLOCK object from Org to ConTeXt.
