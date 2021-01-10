@@ -49,7 +49,7 @@
                     (item . org-context-item)
                     (latex-environment . org-context-latex-environment)
                     (latex-fragment . org-context-latex-fragment)
-                    ;;(line-break . org-context-line-break)
+                    (line-break . org-context-line-break)
                     (link . org-context-link)
                     (plain-list . org-context-plain-list)
                     ;;(plain-text . org-context-plain-text)
@@ -894,6 +894,10 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                    (substring value 2 -2)))
           (t value))))
 
+(defun org-context-line-break (_line-break _contents _info)
+  "Transcode a LINE-BREAK object from Org to LaTeX.
+CONTENTS is nil.  INFO is a plist holding contextual information."
+  "\\crlf\n")
 (defun org-context-plain-list (plain-list contents info)
   "Transcode a PLAIN-LIST element from Org to ContTeXt.
 CONTENTS is the contents of the list. INFO is a plist holding
