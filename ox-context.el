@@ -41,7 +41,7 @@
                     (export-block . org-context-export-block)
                     (fixed-width . org-context-fixed-width)
                     ;;(footnote-definition . org-context-footnote-definition)
-                    ;;(footnote-reference . org-context-footnote-reference)
+                    (footnote-reference . org-context-footnote-reference)
                     (headline . org-context-headline)
                     (horizontal-rule . org-context-horizontal-rule)
                     (inline-src-block . org-context-inline-src-block)
@@ -741,6 +741,25 @@ INFO is a plist holding contextual information. See
      (path (format "\\goto{\\hyphenatedurl{%s}}[url(%s)]" path path))
      ;; No path, only description.  Try to do something useful.
      (t (format "\\hyphenatedurl{%s}" desc)))))
+
+(defun org-context-footnote-reference (footnote-reference _contents info)
+  "Transcode a FOOTNOTE-REFERENCE element from Org to ConTeXt.
+CONTENTS is nil.  INFO is a plist holding contextual information."
+  ;; TODO Handle the case where the first appearance of a footnote
+  ;; is inside of another footnote. This could possibly be solved
+  ;; by using \footnotetext. This could also be a problem with
+  ;; my ConTeXt version
+  (let* ((label (org-element-property :label footnote-reference))
+         (footnote-definition
+          (org-export-get-footnote-definition footnote-reference info))
+         (reference-label (org-latex--label footnote-definition info t))
+         (contents (org-trim (org-export-data footnote-definition info))))
+    (cond
+     ;; Footnote has already been defined
+     ((not (org-export-footnote-first-reference-p footnote-reference info))
+      (format "\\note[%s]" reference-label))
+     ;; Otherwise create it
+     (t (format "\\footnote[%s]{%s}" reference-label contents)))))
 
 (defun org-context-headline (headline contents info)
   "Transcodes a HEADLINE element from Org to ConTeXt."
