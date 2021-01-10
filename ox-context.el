@@ -327,6 +327,7 @@ holding the export options."
        (format "\\setvariable{org}{date}{%s}\n" date))
      (format "\\setvariable{org}{title}{%s}\n" title)
      "\\starttext\n"
+     "\\placebookmarks\n"
      "\\startfrontmatter\n"
      "\\starttitlepagemakeup\n"
      (org-context--make-title info)
@@ -758,9 +759,10 @@ INFO is a plist holding contextual information. See
     (concat
      headertemplate
      (format
-      "[reference={%s},\n  title={%s},\n  list={%s},\n  marking={%s}]"
+      "[reference={%s},\n  title={%s},\n  list={%s},\n  marking={%s},\n bookmark={%s}]"
       headline-label
       full-text
+      text
       text
       text)
      "\n"
