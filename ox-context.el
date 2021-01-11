@@ -33,6 +33,7 @@
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
                   (:context-highlighted-langs nil nil org-context-highlighted-langs)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
+                  (:context-export-quotes-alist nil nil org-context-export-quotes-alist)
                   (:description "DESCRIPTION" nil nil parse)
                   (:keywords "KEYWORDS" nil nil parse)
                   (:subtitle "SUBTITLE" nil nil parse)
@@ -57,7 +58,7 @@
                     (link . org-context-link)
                     (paragraph . org-context-paragraph)
                     (plain-list . org-context-plain-list)
-                    ;;(plain-text . org-context-plain-text)
+                    (plain-text . org-context-plain-text)
                     (quote-block . org-context-quote-block)
                     (src-block . org-context-src-block)
                     (special-block . org-context-special-block)
@@ -79,6 +80,13 @@
                     ))
 
 
+
+(defconst org-context-export-quotes-alist
+  '((primary-opening . "\\quotation{")
+    (primary-closing . "}")
+    (secondary-opening . "\\quote{")
+    (secondary-closing . "}")
+    (apostrophe . "'")))
 
 (defcustom org-context-format-headline-function
   'org-context-format-headline-default-function
@@ -454,8 +462,8 @@ as expected by `org-splice-context-header'."
    metadata:title={%t},
    metadata:keywords={%k},
    metadata:subject={%d},
-   metadata:creator={%c},
-   cd:lang={%L}] "
+   metadata:creator={%c}]
+\\language[%l]"
                   spec))
    "
 %===============================================================================
@@ -1146,6 +1154,53 @@ contextual information."
       contents
       close-command)
      info)))
+
+(defun org-context--format-quote (text info original)
+  "Wraps quoted text in `\\quote{}' constructs. ConTeXt provides
+facilities for multilingual quoting so no need to reimplement"
+  (let ((quote-status
+         (copy-sequence (org-export--smart-quote-status (or original text) info))))
+    (replace-regexp-in-string
+     "['\"]"
+     (lambda (match)
+       (cdr (assq (pop quote-status)
+                  (plist-get info :context-export-quotes-alist)))
+)
+     text nil t)))
+
+(defun org-context-plain-text (text info)
+  "Transcode a TEXT string from Org to ConTeXt.
+TEXT is the string to transcode.  INFO is a plist holding
+contextual information."
+  (let* ((specialp (plist-get info :with-special-strings))
+	 (output
+	  ;; Turn LaTeX into \LaTeX{} and TeX into \TeX{}.
+	  (let ((case-fold-search nil))
+	    (replace-regexp-in-string
+	     "\\<\\(?:\\(?:La\\)?TeX\\)\\|\\(?:ConTeXt\\)\\>" "\\\\\\&{}"
+	     ;; Protect ^, ~, %, #, &, $, _, { and }.  Also protect \.
+	     ;; However, if special strings are used, be careful not
+	     ;; to protect "\" in "\-" constructs.
+	     (replace-regexp-in-string
+	      (concat "[%$#&{}_~^]\\|\\\\" (and specialp "\\([^-]\\|$\\)"))
+	      (lambda (m)
+		(cl-case (string-to-char m)
+		  (?\\ "$\\\\backslash$\\1")
+		  (?~ "\\\\textasciitilde{}")
+		  (?^ "\\\\^{}")
+		  (t "\\\\\\&")))
+	      text)))))
+    (when (plist-get info :with-smart-quotes)
+      (setq output (org-context--format-quote output info text)))
+    ;; Convert special strings.
+    (when specialp
+      (setq output (replace-regexp-in-string "\\.\\.\\." "\\\\ldots{}" output)))
+    ;; Handle break preservation if required.
+    (when (plist-get info :preserve-breaks)
+      (setq output (replace-regexp-in-string
+		    "\\(?:[ \t]*\\\\\\\\\\)?[ \t]*\n" "\\\\\n" output nil t)))
+    ;; Return value.
+    output))
 
 (defun org-context-property-drawer (_property-drawer contents _info)
   "Transcode a PROPERTY-DRAWER element from Org to LaTeX.
