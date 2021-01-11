@@ -28,6 +28,8 @@
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
  :options-alist '((:context-format-headline-function nil nil org-context-format-headline-function)
                   (:context-header "CONTEXT_HEADER" nil nil newline)
+                  (:context-preset "CONTEXT_PRESET" nil org-context-default-preset t)
+                  (:context-presets nil nil org-context-presets)
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
                   (:context-highlighted-langs nil nil org-context-highlighted-langs)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
@@ -127,6 +129,139 @@ out-of-the-box so this is a short list."
           (list
            (symbol :tag "Major mode      ")
            (symbol :tag "ConTeXt language"))))
+
+(defcustom org-context-default-preset "empty"
+  "A preamble with no style settings for the document elements."
+  :group 'org-export-context
+  :type '(string :tag "ConTeXt preset"))
+
+(defcustom org-context-presets
+  '(("empty" "")
+    ("article"
+     "\\setuppapersize[letter]
+\\setuplayout[width=4.774in, height=7.61in, backspace=1.863in]
+\\setupxtable
+  [align=center,
+   leftframe=off,
+   rightframe=off,
+   topframe=off,
+   bottomframe=off,
+   loffset=1em,
+   roffset=1em,
+   stretch=on]
+\\setupxtable
+  [OrgTableHeader]
+  [toffset=1ex,
+   foregroundstyle=bold,
+   bottomframe=on]
+\\defineblank[QuoteSkip][1ex]
+\\setupstartstop
+  [OrgBlockQuote]
+  [style=slanted,
+   before={\\blank[QuoteSkip]
+      \\setupnarrower[left=1em, right=1em]
+      \\startnarrower[left, right]
+      \\noindent},
+   after={\\stopnarrower
+      \\blank[QuoteSkip]
+      \\indenting[next]}]
+\\setuplines
+  [OrgVerse]
+  [before={\\blank[QuoteSkip]
+      \\setupnarrower[left=1em, right=1em]
+      \\startnarrower[left, right]},
+   after={\\stopnarrower
+      \\blank[QuoteSkip]},
+   space=on]
+\\setupdescription
+  [OrgDesc]
+  [headstyle=bold,
+   style=normal,
+   align=flushleft,
+   alternative=hanging,
+   width=broad,
+   margin=1cm]
+\\define\\maketitle{%
+  \\startalignment[center]
+   \\blank[force,2*big]
+   \\title{\\getvariable{org}{title}}
+   \\blank[3*medium]
+   {\\tfa \\getvariable{org}{name}}
+   \\blank[3*medium]
+   {\\mono \\getvariable{org}{email}}
+   \\blank[2*medium]
+   {\\tfa \\getvariable{org}{date}}
+   \\blank[3*medium]
+  \\stopalignment}
+")
+    ("report"
+     "\\setuppapersize[letter]
+\\setuplayout[width=4.774in, height=7.61in, backspace=1.863in]
+\\setupxtable
+  [align=center,
+   leftframe=off,
+   rightframe=off,
+   topframe=off,
+   bottomframe=off,
+   loffset=1em,
+   roffset=1em,
+   stretch=on]
+\\setupxtable
+  [OrgTableHeader]
+  [toffset=1ex,
+   foregroundstyle=bold,
+   bottomframe=on]
+\\defineblank[QuoteSkip][1ex]
+\\setupstartstop
+  [OrgBlockQuote]
+  [style=slanted,
+   before={\\blank[QuoteSkip]
+      \\setupnarrower[left=1em, right=1em]
+      \\startnarrower[left, right]
+      \\noindent},
+   after={\\stopnarrower
+      \\blank[QuoteSkip]
+      \\indenting[next]}]
+\\setuplines
+  [OrgVerse]
+  [before={\\blank[QuoteSkip]
+      \\setupnarrower[left=1em, right=1em]
+      \\startnarrower[left, right]},
+   after={\\stopnarrower
+      \\blank[quoteskip]},
+   space=on]
+\\setupdescription
+  [OrgDesc]
+  [headstyle=bold,
+   style=normal,
+   align=flushleft,
+   alternative=hanging,
+   width=broad,
+   margin=1cm]
+\\definehead[subsubsubsection][subsubsection]
+\\definehead[subsubsection][subsection]
+\\definehead[subsection][section]
+\\definehead[section][chapter]
+\\define\\maketitle{%
+  \\startalignment[center]
+   \\blank[force,2*big]
+   \\title{\\getvariable{org}{title}}
+   \\blank[3*medium]
+   {\\tfa \\getvariable{org}{name}}
+   \\blank[3*medium]
+   {\\mono \\getvariable{org}{email}}
+   \\blank[2*medium]
+   {\\tfa \\getvariable{org}{date}}
+   \\blank[3*medium]
+  \\stopalignment}
+"))
+  "Alist of ConTeXt preamble presets.
+if #+CONTEXT_PRESET is set in the buffer, use its value and the
+associated information."
+  :group 'org-export-context
+  :type '(repeat
+          (list (string :tag "ConTeXt Preset Name")
+                (string :tag "ConTeXt Preset Data"))))
 
 ;;; Filters
 (defun org-context-math-block-options-filter (info _backend)
@@ -274,6 +409,14 @@ as expected by `org-splice-context-header'."
 \\define\\maketitle
 
 % From CONTEXT_HEADER_EXTRA
+%===============================================================================
+% Preset Commands
+%===============================================================================
+"
+   (let* ((preset-name (plist-get info :context-preset))
+          (preset
+           (nth 1 (assoc preset-name (plist-get info :context-presets)))))
+     (or preset ""))
 "
    (mapconcat #'org-element-normalize-string
               (list (plist-get info :context-header-extra))
