@@ -31,7 +31,6 @@
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
                   (:context-highlighted-langs nil nil org-context-highlighted-langs)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
-                  (:context-toc-command nil nil org-context-toc-command)
                   (:date "DATE" nil "\\currentdate" parse))
  :translate-alist '((bold . org-context-bold)
                     (center-block . org-context-center-block)
@@ -75,10 +74,6 @@
                     ))
 
 
-(defcustom org-context-toc-command "\\completecontent"
-  "ConTeXt command to set the table of contents."
-  :group 'org-export-context
-  :type 'string)
 
 (defcustom org-context-format-headline-function
   'org-context-format-headline-default-function
@@ -339,7 +334,6 @@ holding the export options."
 \\startfrontmatter
 \\startOrgTitlePagemakeup\n"
      (org-context--make-title info)
-     (plist-get info :context-toc-command)
      "\n\\stopOrgTitlePagemakeup
 \\stopfrontmatter
 \\startbodymatter
