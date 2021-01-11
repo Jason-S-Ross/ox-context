@@ -391,6 +391,8 @@ INFO is a plist used as a communication channel. Optional
 argument TEMPLATE, when non-nil, is the header template string,
 as expected by `org-splice-context-header'."
   (concat
+   (and (plist-get info :time-stamp-file)
+        (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
    "
 %===============================================================================
 % From CONTEXT_HEADER
@@ -509,38 +511,31 @@ as expected by `org-splice-context-header'."
 %===============================================================================
 % Document Body
 %===============================================================================
-"
-   ))
+"))
 
 
 (defun org-context-template (contents info)
   "Return complete document string after ConTeXt conversion.
 CONTENTS is the transcoded contents string. INFO is a plist
 holding the export options."
-  (let ((title (org-export-data (plist-get info :title) info))
-        (spec (org-context--format-spec info)))
-    (concat
-     ;; Time-stamp.
-     (and (plist-get info :time-stamp-file)
-          (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
-     ;; Document class and packages.
-     (org-context-make-preamble info)
-     "\\starttext
+  (concat
+   (org-context-make-preamble info)
+   "\\starttext
 \\placebookmarks
 \\startfrontmatter
 \\startOrgTitlePagemakeup\n"
-     "\\maketitle\n"
-     (when
-         (plist-get info :with-toc)
-       "\\completecontent\n")
-     "\\stopOrgTitlePagemakeup
+   "\\maketitle\n"
+   (when
+       (plist-get info :with-toc)
+     "\\completecontent\n")
+   "\\stopOrgTitlePagemakeup
 \\stopfrontmatter
 \\startbodymatter
 \\startOrgBody\n"
-     contents
-     "\n\\stopOrgBody
+   contents
+   "\n\\stopOrgBody
 \\stopbodymatter
-\\stoptext\n")))
+\\stoptext\n"))
 
 ;;; Internal functions
 
