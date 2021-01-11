@@ -117,7 +117,22 @@ The function result will be used in the section format string."
   :version "26.1"
   :package-version '(Org . "8.3")
   :type 'alist
-  :options '(bold code italic strike-through underline verbatim))
+  :options
+  '(bold
+    code
+    fixed-width
+    italic
+    paragraph
+    property-drawer
+    protectedtexttt
+    quotation
+    strike-through
+    subscript
+    superscript
+    underline
+    verbatim
+    verb
+    verse))
 
 (defcustom org-context-highlighted-langs
   '((metapost "mp"))
