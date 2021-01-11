@@ -28,8 +28,10 @@
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
  :options-alist '((:context-format-headline-function nil nil org-context-format-headline-function)
                   (:context-header "CONTEXT_HEADER" nil nil newline)
+                  (:context-snippet "CONTEXT_SNIPPET" nil nil split)
+                  (:context-snippets nil nil org-context-snippets-alist)
                   (:context-preset "CONTEXT_PRESET" nil org-context-default-preset t)
-                  (:context-presets nil nil org-context-presets)
+                  (:context-presets nil nil org-context-presets-alist)
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
                   (:context-highlighted-langs nil nil org-context-highlighted-langs)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
@@ -157,131 +159,112 @@ out-of-the-box so this is a short list."
            (symbol :tag "Major mode      ")
            (symbol :tag "ConTeXt language"))))
 
+(defcustom org-context-snippets-alist
+  '(;; Margin setup for article style
+    ("layout-article" . "\\setuplayout[width=4.774in, height=7.61in, backspace=1.863in]")
+    ;; US letter paper
+    ("paper-letter" . "\\setuppapersize[letter]")
+    ;; LaTeX-style tables
+    ("table-article" . "\\setupxtable
+  [align=center,
+   leftframe=off,
+   rightframe=off,
+   topframe=off,
+   bottomframe=off,
+   loffset=1em,
+   roffset=1em,
+   stretch=on]
+\\setupxtable
+  [OrgTableHeader]
+  [toffset=1ex,
+   foregroundstyle=bold,
+   bottomframe=on]")
+    ;; Indented quote blocks
+    ("quote-article" . "\\defineblank[QuoteSkip][1ex]
+\\setupstartstop
+  [OrgBlockQuote]
+  [style=slanted,
+   before={\\blank[QuoteSkip]
+      \\setupnarrower[left=1em, right=1em]
+      \\startnarrower[left, right]
+      \\noindent},
+   after={\\stopnarrower
+      \\blank[QuoteSkip]
+      \\indenting[next]}]")
+    ;; Indented verse blocks with spaces preserved
+    ("verse-article" . "\\defineblank[VerseSkip][1ex]
+\\setuplines
+  [OrgVerse]
+  [before={\\blank[VerseSkip]
+      \\setupnarrower[left=1em, right=1em]
+      \\startnarrower[left, right]},
+   after={\\stopnarrower
+      \\blank[VerseSkip]},
+   space=on]")
+    ;; LaTeX-style descriptions
+    ("description-article" . "\\setupdescription
+  [OrgDesc]
+  [headstyle=bold,
+   style=normal,
+   align=flushleft,
+   alternative=hanging,
+   width=broad,
+   margin=1cm]")
+    ;; LaTeX-style title setup
+    ("title-article" . "\\define\\maketitle{%
+  \\startalignment[center]
+   \\blank[force,2*big]
+   \\title{\\getvariable{org}{title}}
+   \\blank[3*medium]
+   {\\tfa \\getvariable{org}{name}}
+   \\blank[3*medium]
+   {\\mono \\getvariable{org}{email}}
+   \\blank[2*medium]
+   {\\tfa \\getvariable{org}{date}}
+   \\blank[3*medium]
+  \\stopalignment}")
+    ;; LaTeX Report-style Headlines
+    ("headlines-report" . "\\definehead[subsubsubsection][subsubsection]
+\\definehead[subsubsection][subsection]
+\\definehead[subsection][section]
+\\definehead[section][chapter]")
+    ;; A simple message
+    ("hello" . "% Hello, World!"))
+  "Alist of snippet names and associated text. These snippets will be
+inserted into the document preamble when calling `org-context-make-preamble'.
+These snippets are also available for use in presets.
+See also `:context-presets'"
+  :group 'org-export-context
+  :type `(repeat
+          (cons
+           (string :tag "Snippet Name")
+           (string :tag "Snippet Value"))))
+
 (defcustom org-context-default-preset "empty"
   "A preamble with no style settings for the document elements."
   :group 'org-export-context
   :type '(string :tag "ConTeXt preset"))
 
-(defcustom org-context-presets
+(defcustom org-context-presets-alist
   '(("empty" "")
     ("article"
-     "\\setuppapersize[letter]
-\\setuplayout[width=4.774in, height=7.61in, backspace=1.863in]
-\\setupxtable
-  [align=center,
-   leftframe=off,
-   rightframe=off,
-   topframe=off,
-   bottomframe=off,
-   loffset=1em,
-   roffset=1em,
-   stretch=on]
-\\setupxtable
-  [OrgTableHeader]
-  [toffset=1ex,
-   foregroundstyle=bold,
-   bottomframe=on]
-\\defineblank[QuoteSkip][1ex]
-\\setupstartstop
-  [OrgBlockQuote]
-  [style=slanted,
-   before={\\blank[QuoteSkip]
-      \\setupnarrower[left=1em, right=1em]
-      \\startnarrower[left, right]
-      \\noindent},
-   after={\\stopnarrower
-      \\blank[QuoteSkip]
-      \\indenting[next]}]
-\\setuplines
-  [OrgVerse]
-  [before={\\blank[QuoteSkip]
-      \\setupnarrower[left=1em, right=1em]
-      \\startnarrower[left, right]},
-   after={\\stopnarrower
-      \\blank[QuoteSkip]},
-   space=on]
-\\setupdescription
-  [OrgDesc]
-  [headstyle=bold,
-   style=normal,
-   align=flushleft,
-   alternative=hanging,
-   width=broad,
-   margin=1cm]
-\\define\\maketitle{%
-  \\startalignment[center]
-   \\blank[force,2*big]
-   \\title{\\getvariable{org}{title}}
-   \\blank[3*medium]
-   {\\tfa \\getvariable{org}{name}}
-   \\blank[3*medium]
-   {\\mono \\getvariable{org}{email}}
-   \\blank[2*medium]
-   {\\tfa \\getvariable{org}{date}}
-   \\blank[3*medium]
-  \\stopalignment}
-")
+     ""
+     "layout-article"
+     "description-article"
+     "quote-article"
+     "verse-article"
+     "table-article"
+     "title-article"
+     "hello")
     ("report"
-     "\\setuppapersize[letter]
-\\setuplayout[width=4.774in, height=7.61in, backspace=1.863in]
-\\setupxtable
-  [align=center,
-   leftframe=off,
-   rightframe=off,
-   topframe=off,
-   bottomframe=off,
-   loffset=1em,
-   roffset=1em,
-   stretch=on]
-\\setupxtable
-  [OrgTableHeader]
-  [toffset=1ex,
-   foregroundstyle=bold,
-   bottomframe=on]
-\\defineblank[QuoteSkip][1ex]
-\\setupstartstop
-  [OrgBlockQuote]
-  [style=slanted,
-   before={\\blank[QuoteSkip]
-      \\setupnarrower[left=1em, right=1em]
-      \\startnarrower[left, right]
-      \\noindent},
-   after={\\stopnarrower
-      \\blank[QuoteSkip]
-      \\indenting[next]}]
-\\setuplines
-  [OrgVerse]
-  [before={\\blank[QuoteSkip]
-      \\setupnarrower[left=1em, right=1em]
-      \\startnarrower[left, right]},
-   after={\\stopnarrower
-      \\blank[QuoteSkip]},
-   space=on]
-\\setupdescription
-  [OrgDesc]
-  [headstyle=bold,
-   style=normal,
-   align=flushleft,
-   alternative=hanging,
-   width=broad,
-   margin=1cm]
-\\definehead[subsubsubsection][subsubsection]
-\\definehead[subsubsection][subsection]
-\\definehead[subsection][section]
-\\definehead[section][chapter]
-\\define\\maketitle{%
-  \\startalignment[center]
-   \\blank[force,2*big]
-   \\title{\\getvariable{org}{title}}
-   \\blank[3*medium]
-   {\\tfa \\getvariable{org}{name}}
-   \\blank[3*medium]
-   {\\mono \\getvariable{org}{email}}
-   \\blank[2*medium]
-   {\\tfa \\getvariable{org}{date}}
-   \\blank[3*medium]
-  \\stopalignment}
-"))
+     ""
+     "layout-article"
+     "description-article"
+     "quote-article"
+     "verse-article"
+     "table-article"
+     "title-article"
+     "headlines-report"))
   "Alist of ConTeXt preamble presets.
 if #+CONTEXT_PRESET is set in the buffer, use its value and the
 associated information."
@@ -544,9 +527,29 @@ as expected by `org-splice-context-header'."
 %===============================================================================
 "
    (let* ((preset-name (plist-get info :context-preset))
-          (preset
-           (nth 1 (assoc preset-name (plist-get info :context-presets)))))
-     (or preset ""))
+          (preset-data (assoc preset-name (plist-get info :context-presets)))
+          (preset-string (cadr preset-data))
+          (preset-snippets
+           (mapconcat
+            (lambda (snippet-name)
+              (cdr (assoc
+                    snippet-name
+                    (plist-get info :context-snippets))))
+            (cddr preset-data)
+                      "\n\n")))
+     (concat preset-string "\n" preset-snippets))
+   "
+%===============================================================================
+% Snippet Commands
+%===============================================================================
+"
+   (mapconcat (lambda (snippet-name)
+                (or (cdr (assoc
+                          snippet-name
+                          (plist-get info :context-snippets)))
+                    (format "% Failed to get snippet %s" snippet-name)))
+              (plist-get info :context-snippet)
+              "\n")
    "
 %===============================================================================
 % Commands from CONTEXT_HEADER_EXTRA
