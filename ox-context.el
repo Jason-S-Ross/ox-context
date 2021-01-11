@@ -373,11 +373,64 @@ INFO is a plist used as a communication channel. Optional
 argument TEMPLATE, when non-nil, is the header template string,
 as expected by `org-splice-context-header'."
   (concat
-   "\n\n%From CONTEXT_HEADER\n"
+   "
+%===============================================================================
+% From CONTEXT_HEADER
+%===============================================================================
+"
    (mapconcat #'org-element-normalize-string
               (list (plist-get info :context-header))
               "")
+
    "
+%===============================================================================
+% Table of Contents Configuration
+%===============================================================================
+"
+   (when (and (plist-get info :with-toc) (not (plist-get info :section-numbers)))
+     "% Add internal numbering to unnumbered sections so they can be included in TOC
+\\setuphead[subject]
+          [incrementnumber=yes,
+            number=no]
+\\setuphead[subsubject]
+          [incrementnumber=yes,
+            number=no]
+\\setuphead[subsubsubject]
+          [incrementnumber=yes,
+            number=no]
+\\setuphead[subsubsubsubject]
+          [incrementnumber=yes,
+            number=no]
+")
+   (let ((sec-num (plist-get info :section-numbers)))
+     (cond
+      ((eq sec-num 1) "\\setupcombinedlist[content][list={section, subject}]\n")
+      ((eq sec-num 2) "\\setupcombinedlist[content][list={subsection, subsubject}]\n")
+      ((eq sec-num 3) "\\setupcombinedlist[content][list={subsubsection, subsubsubject}]\n")
+      ((eq sec-num 4) "\\setupcombinedlist[content][list={subsubsubsection, subsubsubsubject}]\n")
+      (t "\\setupcombinedlist[content][list={section, subject}]\n")))
+   "
+%===============================================================================
+% Document Metadata
+%===============================================================================
+"
+   (let
+       ((author
+         (and (plist-get info :with-author)
+              (let ((auth (plist-get info :author)))
+                (and auth (org-export-data auth info))))))
+     (format "\\setvariable{org}{author}{%s}\n" author))
+   (let
+       ((email (plist-get info :email)))
+     (format "\\setvariable{org}{email}{%s}\n" email))
+   (let
+       ((date (and (plist-get info :with-date) (org-export-get-date info))))
+     (format "\\setvariable{org}{date}{%s}\n" (org-export-data date info)))
+   (format "\\setvariable{org}{title}{%s}\n" title)
+   "
+%===============================================================================
+% Define Environments and Commands
+%===============================================================================
 
 % Turn on interaction to make links work
 \\setupinteraction[state=start]
@@ -408,7 +461,6 @@ as expected by `org-splice-context-header'."
 % Create an empty title command to be overridden by user
 \\define\\maketitle
 
-% From CONTEXT_HEADER_EXTRA
 %===============================================================================
 % Preset Commands
 %===============================================================================
@@ -417,10 +469,19 @@ as expected by `org-splice-context-header'."
           (preset
            (nth 1 (assoc preset-name (plist-get info :context-presets)))))
      (or preset ""))
+   "
+%===============================================================================
+% Commands from CONTEXT_HEADER_EXTRA
+%===============================================================================
 "
    (mapconcat #'org-element-normalize-string
               (list (plist-get info :context-header-extra))
               "\n\n")
+   "
+%===============================================================================
+% Document Body
+%===============================================================================
+"
    ))
 
 
@@ -436,31 +497,6 @@ holding the export options."
           (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
      ;; Document class and packages.
      (org-context-make-preamble info)
-     "\n% Table of Contents \n"
-     ;; Possibly limit depth for headline numbering.
-     (let ((sec-num (plist-get info :section-numbers)))
-       (cond
-         ((eq sec-num 1) "\\setupcombinedlist[content][list={chapter}]\n")
-         ((eq sec-num 2) "\\setupcombinedlist[content][list={section}]\n")
-         ((eq sec-num 3) "\\setupcombinedlist[content][list={subsection}]\n")
-         ((eq sec-num 4) "\\setupcombinedlist[content][list={subsubsection}]\n")
-         (t "\\setupcombinedlist[content]\n")))
-     "\n% Org Document Variables\n"
-     ;; Author.
-     (let
-         ((author
-           (and (plist-get info :with-author)
-                (let ((auth (plist-get info :author)))
-                  (and auth (org-export-data auth info))))))
-       (format "\\setvariable{org}{author}{%s}\n" author))
-     (let
-          ((email (plist-get info :email)))
-       (format "\\setvariable{org}{email}{%s}\n" email))
-     (let
-         ((date (and (plist-get info :with-date) (org-export-get-date info))))
-       (format "\\setvariable{org}{date}{%s}\n" (org-export-data date info)))
-     (format "\\setvariable{org}{title}{%s}\n" title)
-     "\n% Document Start\n\n\n"
      "\\starttext
 \\placebookmarks
 \\startfrontmatter
@@ -484,6 +520,7 @@ holding the export options."
     (todo _todo-type priority text tags _info)
   "Default format function for a headline.
 See `org-latex-format-headline-function' for details."
+  ;; TODO Create custom spans for each part
   (concat
    (and todo (format "\\sansbold{%s} " todo))
    (and priority (format "\\framed{\\#%c} " priority))
@@ -856,7 +893,8 @@ INFO is a plist holding contextual information. See
                        (or desc
                            (org-export-data
                             (org-element-property :title destination) info)
-                           label)))))
+                           label)
+                       label))))
           (otherwise
            (let ((ref (org-context--label destination info t)))
              (if (not desc)
