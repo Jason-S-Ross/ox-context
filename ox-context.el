@@ -59,6 +59,7 @@
                     (paragraph . org-context-paragraph)
                     (plain-list . org-context-plain-list)
                     (plain-text . org-context-plain-text)
+                    (planning . org-context-planning)
                     (quote-block . org-context-quote-block)
                     (src-block . org-context-src-block)
                     (special-block . org-context-special-block)
@@ -497,7 +498,28 @@ as expected by `org-splice-context-header'."
 % Create a body style
 \\definestartstop[OrgBody]
 % Create an empty title command to be overridden by user
-\\define\\maketitle
+\\define\\maketitle{}
+% Define a basic planning command
+% Override this with user code to customize timestamp appearance
+\\unprotect
+\\def\\OrgPlanning#1[#2]{%
+  \\getparameters
+    [OrgPlanning]
+    [ClosedString=,
+     ClosedTime=,
+     DeadlineString=,
+     DeadlineTime=,
+     ScheduledString=,
+     ScheduledTime=,
+     #2]
+  \\OrgPlanningClosedString
+  \\OrgPlanningClosedTime
+  \\OrgPlanningDeadlineString
+  \\OrgPlanningDeadlineTime
+  \\OrgPlanningScheduledString
+  \\OrgPlanningScheduledTime
+}
+\\protect
 
 %===============================================================================
 % Preset Commands
@@ -1201,6 +1223,28 @@ contextual information."
 		    "\\(?:[ \t]*\\\\\\\\\\)?[ \t]*\n" "\\\\\n" output nil t)))
     ;; Return value.
     output))
+
+(defun org-context-planning (planning _contents info)
+  "Transcode a PLANNING element from Org to ConTeXt.
+CONTENTS is nil.  INFO is a plist holding contextual
+information."
+  (let ((closed (org-element-property :closed planning))
+        (deadline (org-element-property :deadline planning))
+        (scheduled (org-element-property :scheduled planning)))
+    (concat "\\OrgPlanning["
+            (when closed
+              (concat
+               (format "\nClosedString={%s}," org-closed-string)
+               (format "\nClosedTime={%s}," (org-timestamp-translate closed))))
+            (when deadline
+              (concat
+               (format "\nDeadlineString={%s}," org-deadline-string)
+               (format "\nDeadlineTime={%s}," (org-timestamp-translate deadline))))
+            (when scheduled
+              (concat
+               (format "\nScheduledString={%s}," org-scheduled-string)
+               (format "\nScheduledTime={%s}," (org-timestamp-translate scheduled))))
+            "]")))
 
 (defun org-context-property-drawer (_property-drawer contents _info)
   "Transcode a PROPERTY-DRAWER element from Org to LaTeX.
