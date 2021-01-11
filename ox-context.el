@@ -499,9 +499,10 @@ as expected by `org-splice-context-header'."
 \\definestartstop[OrgBody]
 % Create an empty title command to be overridden by user
 \\define\\maketitle{}
+
+\\unprotect
 % Define a basic planning command
 % Override this with user code to customize timestamp appearance
-\\unprotect
 \\def\\OrgPlanning#1[#2]{%
   \\getparameters
     [OrgPlanning]
@@ -518,6 +519,23 @@ as expected by `org-splice-context-header'."
   \\OrgPlanningDeadlineTime
   \\OrgPlanningScheduledString
   \\OrgPlanningScheduledTime
+}
+% Define a basic headline command
+% Override this with user code to customize headline appearance
+\\def\\OrgHeadline#1[#2]{%
+  \\getparameters
+    [OrgHeadline]
+    [Todo=,
+     TodoType=,
+     Priority=,
+     Text=,
+     Tags=,
+     #2]
+  \\OrgHeadlineTodo\\quad
+  \\OrgHeadlineTodoType\\quad
+  \\OrgHeadlinePriority\\quad
+  \\OrgHeadlineText\\quad
+  \\OrgHeadlineTags\\quad
 }
 \\protect
 
@@ -570,17 +588,21 @@ holding the export options."
 ;;; Internal functions
 
 (defun org-context-format-headline-default-function
-    (todo _todo-type priority text tags _info)
+    (todo todo-type priority text tags _info)
   "Default format function for a headline.
-See `org-latex-format-headline-function' for details."
-  ;; TODO Create custom spans for each part
-  (concat
-   (and todo (format "\\sansbold{%s} " todo))
-   (and priority (format "\\framed{\\#%c} " priority))
-   text
-   (and tags
-        (format "\\hfill{}{\\tt %s} "
-                (mapconcat #'org-latex--protect-text tags ":")))))
+See `org-context-format-headline-function' for details."
+  (format
+   "\\OrgHeadline
+  [Todo={%s},
+   TodoType={%s},
+   Priority={%s},
+   Text={%s},
+   Tags={%s}]"
+   (or todo "")
+   (or todo-type "")
+   (or priority "")
+   (or text "")
+   (mapconcat #'org-latex--protect-text tags ":")))
 
 
 (defun org-context--wrap-label (element output info)
