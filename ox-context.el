@@ -33,6 +33,9 @@
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
                   (:context-highlighted-langs nil nil org-context-highlighted-langs)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
+                  (:description "DESCRIPTION" nil nil parse)
+                  (:keywords "KEYWORDS" nil nil parse)
+                  (:subtitle "SUBTITLE" nil nil parse)
                   (:date "DATE" nil "\\currentdate" parse))
  :translate-alist '((bold . org-context-bold)
                     (center-block . org-context-center-block)
@@ -441,7 +444,17 @@ as expected by `org-splice-context-header'."
    (let
        ((date (and (plist-get info :with-date) (org-export-get-date info))))
      (format "\\setvariable{org}{date}{%s}\n" (org-export-data date info)))
-   (format "\\setvariable{org}{title}{%s}\n" title)
+   (let ((title (org-export-data (plist-get info :title) info)))
+     (format "\\setvariable{org}{title}{%s}\n" title))
+   (let ((spec (org-context--format-spec info)))
+     (format-spec "\\setupdocument[
+   metadata:author={%a},
+   metadata:title={%t},
+   metadata:keywords={%k},
+   metadata:subject={%d},
+   metadata:creator={%c},
+   cd:lang={%L}] "
+                  spec))
    "
 %===============================================================================
 % Define Environments and Commands
