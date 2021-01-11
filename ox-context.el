@@ -246,7 +246,7 @@ out-of-the-box so this is a short list."
       \\setupnarrower[left=1em, right=1em]
       \\startnarrower[left, right]},
    after={\\stopnarrower
-      \\blank[quoteskip]},
+      \\blank[QuoteSkip]},
    space=on]
 \\setupdescription
   [OrgDesc]
