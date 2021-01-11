@@ -1124,7 +1124,7 @@ contextual information."
       close-command)
      info)))
 
-(defun org-latex-property-drawer (_property-drawer contents _info)
+(defun org-context-property-drawer (_property-drawer contents _info)
   "Transcode a PROPERTY-DRAWER element from Org to LaTeX.
 CONTENTS holds the contents of the drawer.  INFO is a plist
 holding contextual information."
