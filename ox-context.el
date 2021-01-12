@@ -37,6 +37,7 @@
                   (:context-snippet "CONTEXT_SNIPPET" nil nil split)
                   (:context-snippets nil nil org-context-snippets-alist)
                   (:context-preset "CONTEXT_PRESET" nil org-context-default-preset t)
+                  (:context-number-equations nil "numeq" org-context-number-equations)
                   (:context-presets nil nil org-context-presets-alist)
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
                   (:context-highlighted-langs nil nil org-context-highlighted-langs)
@@ -96,6 +97,12 @@
     (secondary-opening . "\\quote{")
     (secondary-closing . "}")
     (apostrophe . "'")))
+
+(defcustom org-context-number-equations nil
+  "Non-nil means insert a \\placeformula line before all formulas
+to allow numbering."
+  :group 'org-export-context
+  :type 'boolean)
 
 (defcustom org-context-logfiles-extensions
   '("aux" "bcf" "blg" "fdb_latexmk" "fls" "figlist" "idx" "log" "nav" "out"
@@ -1233,6 +1240,8 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
            (environment-contents
             (org-context--latex-environment-contents
              latex-environment))
+           (numberedp
+            (not (string-match "\\*$" environment-name)))
            (type (org-latex--environment-type latex-environment))
            (caption (if (eq type 'math)
                         (org-latex--label latex-environment info nil t)
@@ -1249,6 +1258,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
          ;; dmath dseries dgroup darray
          ;; empheq
          (concat
+          (when numberedp "\\placeformula\n")
           "\\startformula\n"
           (pcase environment-name
             ("align" (org-context--transcode-align environment-contents))
@@ -1257,7 +1267,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
           "\\stopformula"))
         (_ value)))))
 
-(defun org-context-latex-fragment (latex-fragment _contents _info)
+(defun org-context-latex-fragment (latex-fragment _contents info)
   "Transcode a LATEX-FRAGMENT object from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((value (org-element-property :value latex-fragment)))
@@ -1268,8 +1278,12 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
           ((or
             (string-prefix-p "\\[" value)
             (string-prefix-p "$$" value))
-           (format "\\startformula\n%s\n\\stopformula"
-                   (substring value 2 -2)))
+           (concat
+            (when (plist-get info :context-number-equations)
+              "\\placeformula\n")
+            (format "\\startformula\n%s\n\\stopformula"
+                    (substring value 2 -2)))
+           )
           (t value))))
 
 (defun org-context-line-break (_line-break _contents _info)
