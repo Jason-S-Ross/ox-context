@@ -161,7 +161,10 @@ out-of-the-box so this is a short list."
 
 (defcustom org-context-snippets-alist
   '(;; Margin setup for article style
-    ("layout-article" . "\\setuplayout[width=4.774in, height=7.61in, backspace=1.863in]")
+    ("layout-article" . "\\setuplayout[width=4.774in,
+   textheight=7.61in,
+   backspace=1.863in,
+   height=fit]")
     ;; US letter paper
     ("paper-letter" . "\\setuppapersize[letter]")
     ;; LaTeX-style tables
@@ -210,26 +213,54 @@ out-of-the-box so this is a short list."
    alternative=hanging,
    width=broad,
    margin=1cm]")
-    ;; LaTeX-style title setup
-    ("title-article" . "\\define\\maketitle{%
+    ;; LaTeX article style title setup
+    ("title-article" . "\\setuphead[title][align=middle]
+\\define\\OrgMakeTitle{%
   \\startalignment[center]
    \\blank[force,2*big]
    \\title{\\getvariable{org}{title}}
    \\blank[3*medium]
-   {\\tfa \\getvariable{org}{name}}
-   \\blank[3*medium]
-   {\\mono \\getvariable{org}{email}}
+   {\\tfa \\getvariable{org}{author}}
    \\blank[2*medium]
    {\\tfa \\getvariable{org}{date}}
    \\blank[3*medium]
   \\stopalignment}")
+    ;; LaTeX report style title setup
+    ("title-report" . "\\setuphead[title][align=middle]
+\\define\\OrgMakeTitle{%
+  \\startstandardmakeup[page=yes]
+  \\startalignment[center]
+   \\blank[force,2*big]
+   \\title{\\getvariable{org}{title}}
+   \\blank[3*medium]
+   {\\tfa \\getvariable{org}{author}}
+   \\blank[2*medium]
+   {\\tfa \\getvariable{org}{date}}
+   \\blank[3*medium]
+  \\stopalignment
+  \\stopstandardmakeup}")
+    ;; Report title setuphead
     ;; LaTeX Report-style Headlines
     ("headlines-report" . "\\definehead[subsubsubsection][subsubsection]
 \\definehead[subsubsection][subsection]
 \\definehead[subsection][section]
-\\definehead[section][chapter]")
+\\definehead[section][chapter]
+\\definehead[subsubsubsubsubject][subsubsubsubject]
+\\definehead[subsubsubsubject][subsubsubject]
+\\definehead[subsubsubject][subsubject]
+\\definehead[subsubject][subject]
+\\definehead[subject][title]
+\\setuphead
+  [subject,section]
+  [before={\\startstandardmakeup[
+        headerstate=normal, footerstate=normal, pagestate=start]},
+    after={\\stopstandardmakeup}]")
     ;; A simple message
-    ("hello" . "% Hello, World!"))
+    ("hello" . "% Hello, World!")
+    ;; Title on same page as body
+    ("sectioning-article" . "\\setupsectionblock[frontpart][page=no]
+\\setupsectionblock[bodypart][page=no]")
+    ("page-numbering-article" . "\\setuppagenumbering[location=footer,middle]"))
   "Alist of snippet names and associated text. These snippets will be
 inserted into the document preamble when calling `org-context-make-preamble'.
 These snippets are also available for use in presets.
@@ -255,7 +286,8 @@ See also `:context-presets'"
      "verse-article"
      "table-article"
      "title-article"
-     "hello")
+     "sectioning-article"
+     "page-numbering-article")
     ("report"
      ""
      "layout-article"
@@ -263,8 +295,9 @@ See also `:context-presets'"
      "quote-article"
      "verse-article"
      "table-article"
-     "title-article"
-     "headlines-report"))
+     "title-report"
+     "headlines-report"
+     "page-numbering-article"))
   "Alist of ConTeXt preamble presets.
 if #+CONTEXT_PRESET is set in the buffer, use its value and the
 associated information."
@@ -471,7 +504,7 @@ as expected by `org-splice-context-header'."
 % Create the table header style
 \\definextable[OrgTableHeader]
 % Create the title page style
-\\definemakeup[OrgTitlePage]
+\\definestartstop[OrgTitlePage]
 % Create a verse style
 \\definelines[OrgVerse]
 % Create a property drawer style
@@ -481,7 +514,11 @@ as expected by `org-splice-context-header'."
 % Create a body style
 \\definestartstop[OrgBody]
 % Create an empty title command to be overridden by user
-\\define\\maketitle{}
+\\define\\OrgMakeTitle{}
+% Create a TOC header command
+\\define\\OrgTitleContents{%
+  {\\tfc Contents}
+}
 
 \\unprotect
 % Define a basic planning command
@@ -514,11 +551,10 @@ as expected by `org-splice-context-header'."
      Text=,
      Tags=,
      #2]
-  \\OrgHeadlineTodo\\quad
-  \\OrgHeadlineTodoType\\quad
-  \\OrgHeadlinePriority\\quad
-  \\OrgHeadlineText\\quad
-  \\OrgHeadlineTags\\quad
+  \\doifnot{\\OrgHeadlineTodo}{}{{\\tfc\\ss\\OrgHeadlineTodo\\quad}}
+  \\doifnot{\\OrgHeadlineTodo}{}{{\\sl \\OrgHeadlinePriority\\quad}}
+  \\OrgHeadlineText
+  \\doifnot{\\OrgHeadlineTags}{}{{\\tt \\tfx \\OrgHeadlineTags\\quad}}
 }
 \\protect
 
@@ -574,12 +610,13 @@ holding the export options."
    "\\starttext
 \\placebookmarks
 \\startfrontmatter
-\\startOrgTitlePagemakeup\n"
-   "\\maketitle\n"
+\\startOrgTitlePage\n"
+   "\\OrgMakeTitle\n"
    (when
        (plist-get info :with-toc)
-     "\\completecontent\n")
-   "\\stopOrgTitlePagemakeup
+     "\\OrgTitleContents
+\\placecontent\n")
+   "\\stopOrgTitlePage
 \\stopfrontmatter
 \\startbodymatter
 \\startOrgBody\n"
@@ -594,18 +631,15 @@ holding the export options."
     (todo todo-type priority text tags _info)
   "Default format function for a headline.
 See `org-context-format-headline-function' for details."
-  (format
+  (concat
    "\\OrgHeadline
-  [Todo={%s},
-   TodoType={%s},
-   Priority={%s},
-   Text={%s},
-   Tags={%s}]"
-   (or todo "")
-   (or todo-type "")
-   (or priority "")
-   (or text "")
-   (mapconcat #'org-latex--protect-text tags ":")))
+  ["
+   (when todo (format "Todo={%s}," todo))
+   (when todo-type (format "TodoType={%s}," todo-type))
+   (when priority (format "Priority={%s}," priority))
+   (when text (format "Text={%s}," text))
+   (when tags (format "Tags={%s}," (mapconcat #'org-latex--protect-text tags ":")))
+   "]"))
 
 
 (defun org-context--wrap-label (element output info)
