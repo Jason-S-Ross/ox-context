@@ -18,7 +18,13 @@
     'context 'latex
   :menu-entry
   '(?C "Export to ConTeXt"
-       ((?c "As ConTeXt file" org-context-export-to-context)))
+       ((?c "As ConTeXt file" org-context-export-to-context)
+        (?C "As ConTeXt buffer" org-context-export-as-context)
+        (?p "As PDF file" org-context-export-to-pdf)
+        (?o "As PDF file and open"
+            (lambda (a s v b)
+              (if a (org-context-export-to-pdf t s v b)
+                (org-open-file (org-context-export-to-pdf s v b)))))))
  :filters-alist '((:filter-options . org-context-math-block-options-filter)
                   (:filter-paragraph . org-context-clean-invalid-line-breaks)
                   (:filter-parse-tree org-context-math-block-tree-filter
@@ -90,6 +96,43 @@
     (secondary-opening . "\\quote{")
     (secondary-closing . "}")
     (apostrophe . "'")))
+
+(defcustom org-context-logfiles-extensions
+  '("aux" "bcf" "blg" "fdb_latexmk" "fls" "figlist" "idx" "log" "nav" "out"
+    "ptc" "run.xml" "snm" "toc" "vrb" "xdv" "tuc")
+  "The list of file extensions to consider as ConTeXt logfiles.
+The logfiles will be removed if `org-context-remove-logfiles' is
+non-nil."
+  :group 'org-export-context
+  :type '(repeat (string :tag "Extension")))
+
+(defcustom org-context-remove-logfiles t
+  "Non-nil means remove the logfiles produced by PDF production.
+By default, logfiles are files with these extensions: .aux, .idx,
+.log, .out, .toc, .nav, .snm and .vrb.  To define the set of
+logfiles to remove, set `org-context-logfiles-extensions'."
+  :group 'org-export-context
+  :type 'boolean)
+
+
+(defcustom org-context-pdf-process
+  '("context %f")
+  "Commands to process a ConTeXt file to a PDF file.
+
+This is a list of strings, each of them will be given to the
+shell as a command.  %f in the command will be replaced by the
+relative file name, %F by the absolute file name, %b by the file
+base name (i.e. without directory and extension parts), %o by the
+base directory of the file, %O by the absolute file name of the
+output file, %context is the ConTeXt compiler (see
+`org-context-compiler').
+
+Alternatively, this may be a Lisp function that does the
+processing, so you could use this to apply the machinery of
+AUCTeX or the Emacs LaTeX mode.  This function should accept the
+file name as its single argument."
+  :group 'org-export-pdf
+  :type '(repeat (string :tag "Command")))
 
 (defcustom org-context-format-headline-function
   'org-context-format-headline-default-function
@@ -300,11 +343,38 @@ See also `:context-presets'"
      "page-numbering-article"))
   "Alist of ConTeXt preamble presets.
 if #+CONTEXT_PRESET is set in the buffer, use its value and the
-associated information."
+associated information. Structure is
+  (preset-name
+   preset-data
+   snippet-name...)
+
+Overview
+--------
+
+First, the preset data will be inserted into the preamble as-is.
+Then, each snippet name you provide will be looked up and the corresponding
+snippet will be inserted.
+
+The preset data
+---------------
+
+The PRESET-DATA is the data that will be inserted into the ConTeXt file
+verbatim. This should include anything specific for this preset that
+isn't reused by other presets.
+
+The snippet names
+-----------------
+
+The snippet names are references to snippets in
+`org-context-presets-alist'. You can use as many snippets as you
+like, including zero.
+"
   :group 'org-export-context
   :type '(repeat
           (list (string :tag "ConTeXt Preset Name")
-                (string :tag "ConTeXt Preset Data"))))
+                (string :tag "ConTeXt Preset Data")
+                (repeat :tag "Snippets"
+                        (string :tag "Snippet")))))
 
 ;;; Filters
 (defun org-context-math-block-options-filter (info _backend)
@@ -1414,10 +1484,151 @@ contextual information."
    info))
 
 ;;;###autoload
+(defun org-context-export-as-context
+  (&optional async subtreep visible-only body-only ext-plist)
+  "Export current buffer as a ConTeXt buffer.
+
+If narrowing is active in the current buffer, only export its
+narrowed part.
+
+If a region is active, export that region.
+
+A non-nil optional argument ASYNC means the process should happen
+asynchronously.  The resulting buffer should be accessible
+through the `org-export-stack' interface.
+
+When optional argument SUBTREEP is non-nil, export the sub-tree
+at point, extracting information from the headline properties
+first.
+
+When optional argument VISIBLE-ONLY is non-nil, don't export
+contents of hidden elements.
+
+When optional argument BODY-ONLY is non-nil, only write code
+between \"\\starttext\" and \"\\stoptext\".
+
+EXT-PLIST, when provided, is a property list with external
+parameters overriding Org default settings, but still inferior to
+file-local settings.
+
+Export is done in a buffer named \"*Org CONTEXT Export*\", which
+will be displayed when `org-export-show-temporary-export-buffer'
+is non-nil."
+  (interactive)
+  (org-export-to-buffer 'context "*Org CONTEXT Export*"
+    async subtreep visible-only body-only ext-plist (lambda () (ConTeXt-mode))))
+
+
+;;;###autoload
 (defun org-context-export-to-context
     (&optional async subtreep visible-only body-only ext-plist)
-  "Export the current buffer as a ConTeXt document (.mkiv)"
+  "Export current buffer to a ConTeXt file.
+
+If narrowing is active in the current buffer, only export its
+narrowed part.
+
+If a region is active, export that region.
+
+A non-nil optional argument ASYNC means the process should happen
+asynchronously.  The resulting file should be accessible through
+the `org-export-stack' interface.
+
+When optional argument SUBTREEP is non-nil, export the sub-tree
+at point, extracting information from the headline properties
+first.
+
+When optional argument VISIBLE-ONLY is non-nil, don't export
+contents of hidden elements.
+
+When optional argument BODY-ONLY is non-nil, only write code
+between \"\\starttext\" and \"\\stoptext\".
+
+EXT-PLIST, when provided, is a property list with external
+parameters overriding Org default settings, but still inferior to
+file-local settings."
   (interactive)
   (let ((file (org-export-output-file-name ".mkiv" subtreep)))
     (org-export-to-file 'context file
       async subtreep visible-only body-only ext-plist)))
+
+
+(defun org-context-export-to-pdf
+  (&optional async subtreep visible-only body-only ext-plist)
+  "Export current buffer to ConTeXt then process through to PDF.
+
+If narrowing is active in the current buffer, only export its
+narrowed part.
+
+If a region is active, export that region.
+
+A non-nil optional argument ASYNC means the process should happen
+asynchronously.  The resulting file should be accessible through
+the `org-export-stack' interface.
+
+When optional argument SUBTREEP is non-nil, export the sub-tree
+at point, extracting information from the headline properties
+first.
+
+When optional argument VISIBLE-ONLY is non-nil, don't export
+contents of hidden elements.
+
+When optional argument BODY-ONLY is non-nil, only write code
+between \"\\starttext\" and \"\\stoptext\".
+
+EXT-PLIST, when provided, is a property list with external
+parameters overriding Org default settings, but still inferior to
+file-local settings.
+
+Return PDF file's name."
+  (interactive)
+  (let ((outfile (org-export-output-file-name ".mkiv" subtreep)))
+    (org-export-to-file 'context outfile
+      async subtreep visible-only body-only ext-plist
+      (lambda (file) (org-context-compile file)))))
+
+(defun org-context-compile (texfile &optional snippet)
+  "Compile a ConTeXt file.
+
+TEXFILE is the name of the file being compiled.  Processing is
+done through the command specified in `org-context-pdf-process',
+which see.  Output is redirected to \"*Org PDF ConTeXt Output*\"
+buffer.
+
+When optional argument SNIPPET is non-nil, TEXFILE is a temporary
+file used to preview a LaTeX snippet.  In this case, do not
+create a log buffer and do not remove log files.
+
+Return PDF file name or raise an error if it couldn't be
+produced."
+  (unless snippet (message "Processing ConTeXt file %s..." texfile))
+  (let* (;; TODO bibtex compiler options?
+         (process org-context-pdf-process)
+         ;; TODO bibtex spec?
+         (log-buf-name "*Org PDF ConTeXt Output*")
+         (log-buf (and (not snippet) (get-buffer-create log-buf-name)))
+         (outfile (org-compile-file texfile process "pdf"
+                                    (format "See %S for details" log-buf-name)
+                                    log-buf )))
+    (unless snippet
+      (when org-context-remove-logfiles
+        (mapc #'delete-file
+              (directory-files
+               (file-name-directory outfile)
+               t
+               (concat (regexp-quote (file-name-base outfile))
+                       "\\(?:\\.[0-9]+\\)?\\."
+                       (regexp-opt org-context-logfiles-extensions))
+               t)))
+      ;; LaTeX warnings should be close enough to ConTeXt warnings
+      (let ((warnings (org-latex--collect-warnings log-buf)))
+        (message (concat "PDF file produced"
+                         (cond
+                          ((eq warnings 'error) " with errors.")
+                          (warnings (concat " with warnings: " warnings))
+                          (t "."))))))
+    ;; Return output file name.
+    outfile))
+
+
+
+(provide 'ox-context)
