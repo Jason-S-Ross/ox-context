@@ -247,10 +247,13 @@ out-of-the-box so this is a short list."
 
 (defcustom org-context-snippets-alist
   '(;; Margin setup for article style
-    ("layout-article" . "\\setuplayout[width=4.774in,
-   textheight=7.61in,
-   backspace=1.863in,
-   height=fit]")
+    ("layout-article" . "\\setuplayout[
+   backspace=103pt,
+   topspace=92pt,
+   header=12pt,
+   headerdistance=25pt,
+   width=middle,
+   height=middle]")
     ;; US letter paper
     ("paper-letter" . "\\setuppapersize[letter]")
     ;; LaTeX-style tables
@@ -962,7 +965,7 @@ used as a communication channel."
                   (or placement (plist-get info :context-float-default-placement))))
           (`sideways (progn (add-to-list 'location-options "90")
                             (add-to-list 'location-options "page")))
-                    ;;;; TODO I don't know if this even works in LaTeX
+          ;; TODO I don't know if this even works in LaTeX
           ;;(`multicolumn "orgmulticolumnfigure")
           ;; TODO What do we do with figure?
           (_ (when placement (add-to-list 'location-options placement))))
