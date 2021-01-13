@@ -789,7 +789,8 @@ For non-floats, see `org-context--wrap-label'."
   ;; TODO This whole function needs a lot of work.
   (let* ((label (org-context--label element info nil t))
 	 (main (org-export-get-caption element))
-	 (attr (org-export-read-attribute :attr_latex element))
+	 (attr (or (org-export-read-attribute :attr_context element)
+          (org-export-read-attribute :attr_latex element)))
 	 (type (org-element-type element))
 	 (nonfloat (or (and (plist-member attr :float)
 			    (not (plist-get attr :float))
