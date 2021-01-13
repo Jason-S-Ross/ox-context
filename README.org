@@ -1,14 +1,95 @@
 * Basic Features
-** Title Page [1/3]
+** Title Page [2/3]
    - [X] Allow the header to be turned off on the title page
-   - [ ] Allow the user to configure the title layout.
+   - [X] Allow the user to configure the title layout.
    - [ ] Add more elements like description, keywords, etc.
-** Prebuilt configurations [0/4]
-   - [ ] Article
-   - [ ] Report
+** Prebuilt configurations [2/4]
+   - [X] Article
+   - [X] Report
    - [ ] Book
    - [ ] Letter
 * Translators
+** TODO clock
+** TODO code
+   This may be OK but need to check against LaTeX
+*** DONE Basic Implementation
+    CLOSED: [2021-01-07 Thu 10:31]
+*** DONE Labels
+    CLOSED: [2021-01-12 Tue 17:05]
+** TODO footnote-reference
+*** DONE Basic Implementation
+    CLOSED: [2021-01-10 Sun 11:59]
+*** TODO Nested Implementation
+    This seems to be a bug in ConTeXt since I can't get their example
+    to work anyway. It's supposed to be trivial.
+** TODO inlinetask
+** TODO item
+*** DONE Basic Implementation
+    CLOSED: [2021-01-07 Thu 08:46]
+*** TODO Bullet Types
+*** TODO Check Boxes
+*** DONE Multiple Levels
+    CLOSED: [2021-01-07 Thu 11:18]
+** TODO keyword
+** TODO latex-environment
+   I might try to escape/replace really common environments
+   and verbatim (or maybe just ignore) anything else. For
+   instance, I could probably just do a regex replace to
+   go from =\begin{align}= to =\startalgin= and replace all
+   the =&= characters with =\nc=
+*** DONE Provide support for align*
+    CLOSED: [2021-01-09 Sat 15:20]
+*** DONE Provide support for numbering/no numbering
+    CLOSED: [2021-01-12 Tue 17:03]
+*** TODO Provide translators for additional math environments
+** TODO latex-fragment
+*** DONE Provide translation for LaTeX to ConTeXt math delimiters
+    CLOSED: [2021-01-09 Sat 15:21]
+** TODO link
+   Could possibly use named urls but this is a simple solution
+*** DONE Provide support for images
+    CLOSED: [2021-01-12 Tue 17:03]
+**** DONE Provide support for captions
+     CLOSED: [2021-01-12 Tue 17:03]
+**** TODO Provide support for additional metadata
+** TODO node-property
+   I don't exactly know what this is
+** TODO plain-list
+*** DONE Basic Implementation
+    CLOSED: [2021-01-07 Thu 08:47]
+*** DONE Metadata
+    CLOSED: [2021-01-12 Tue 17:03]
+*** DONE Testing
+    CLOSED: [2021-01-12 Tue 17:03]
+** TODO radio-target
+** TODO src-block
+*** DONE Basic Implementation
+    CLOSED: [2021-01-07 Thu 08:47]
+*** DONE Line Numbering
+    CLOSED: [2021-01-12 Tue 17:02]
+*** DONE Metadata
+    CLOSED: [2021-01-12 Tue 17:02]
+** TODO statistics-cookie
+** TODO target
+** TODO template
+*** DONE Basic Implementation
+    CLOSED: [2021-01-07 Thu 08:48]
+*** DONE Compiler Info
+    CLOSED: [2021-01-12 Tue 17:01]
+*** DONE Preamble Additional Options
+    CLOSED: [2021-01-12 Tue 17:01]
+*** DONE Headline Numbering Setup
+    CLOSED: [2021-01-12 Tue 17:01]
+*** TODO Subtitle
+*** DONE Configuration
+    CLOSED: [2021-01-12 Tue 17:01]
+    The cleanest way to do the configuration is to let the
+    user use ConTeXt's built-in styling systems. They should
+    be able to do quite a bit just by adding extra code to the
+    preamble.
+** TODO verse-block
+   I'm not planning on touching this any time soon
+** TODO latex-matrices
 ** DONE bold
    CLOSED: [2021-01-07 Thu 08:43]
 ** DONE center-block
@@ -17,12 +98,6 @@
     CLOSED: [2021-01-07 Thu 11:13]
 *** DONE Labels
     CLOSED: [2021-01-09 Sat 15:16]
-** TODO clock
-** TODO code
-   This may be OK but need to check against LaTeX
-*** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 10:31]
-*** TODO Labels
 ** DONE drawer
    CLOSED: [2021-01-08 Fri 17:31]
 ** DONE dynamic-block
@@ -42,166 +117,142 @@
     CLOSED: [2021-01-07 Thu 10:30]
 *** DONE Labels
     CLOSED: [2021-01-08 Fri 13:34]
-** TODO footnote-definition
-** TODO footnote-reference
 ** DONE headline
    CLOSED: [2021-01-08 Fri 17:39]
 ** DONE horizontal-rule
-   CLOSED: [2021-01-08 Fri 17:32]
+   CLOSED: [2021-01-12 Tue 17:04]
 *** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 10:22]
+    CLOSED: [2021-01-10 Sun 12:51]
+    Use =\textrule=
 *** DONE Add labelling
     CLOSED: [2021-01-08 Fri 13:35]
 ** DONE inline-src-block
    CLOSED: [2021-01-07 Thu 08:45]
-** TODO inlinetask
 ** DONE italic
    CLOSED: [2021-01-07 Thu 10:13]
-** TODO item
-*** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 08:46]
-*** TODO Bullet Types
-*** TODO Check Boxes
-*** DONE Multiple Levels
-    CLOSED: [2021-01-07 Thu 11:18]
-** TODO keyword
-** TODO latex-environment
-   I might try to escape/replace really common environments
-   and verbatim (or maybe just ignore) anything else. For
-   instance, I could probably just do a regex replace to
-   go from =\begin{align}= to =\startalgin= and replace all
-   the =&= characters with =\nc=
-*** DONE Provide support for align*
-    CLOSED: [2021-01-09 Sat 15:20]
-*** TODO Provide support for numbering/no numbering
-** TODO latex-fragment
-*** DONE Provide translation for LaTeX to ConTeXt math delimiters
-    CLOSED: [2021-01-09 Sat 15:21]
-** TODO line-break
-** link
-   Could possibly use named urls but this is a simple solution
-*** TODO Provide support for images
-**** TODO Provide support for captions
-**** TODO Provide support for additional metadata
-** TODO node-property
-   I don't exactly know what this is
+** DONE line-break
+   CLOSED: [2021-01-12 Tue 17:03]
+   =\crlf=
 ** DONE paragraph
    CLOSED: [2021-01-07 Thu 09:55]
    Use LaTeX implementation
-** TODO plain-list
-*** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 08:47]
-*** TODO Metadata
-*** TODO Testing
-** TODO plain-text
-** TODO planning
-** TODO property-drawer
+** DONE plain-text
+   CLOSED: [2021-01-12 Tue 17:03]
+** DONE planning
+   CLOSED: [2021-01-12 Tue 17:03]
+** DONE property-drawer
+   CLOSED: [2021-01-12 Tue 17:03]
 ** DONE quote-block
    CLOSED: [2021-01-07 Thu 09:49]
-** TODO radio-target
 ** DONE section
    CLOSED: [2021-01-07 Thu 09:33]
    Just defer to the LaTeX implementation
 ** DONE special-block
    CLOSED: [2021-01-09 Sat 15:23]
-** TODO src-block
-*** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 08:47]
-*** TODO Line Numbering
-*** TODO Metadata
-** TODO statistics-cookie
 ** DONE strike-through
    CLOSED: [2021-01-07 Thu 08:48]
 ** DONE subscript
    CLOSED: [2021-01-07 Thu 09:23]
 ** DONE superscript
    CLOSED: [2021-01-07 Thu 09:23]
-** TODO table
-   Basic implementation done. Need to look into styling options
-** TODO table-cell
-   This should be ok but I'm leaving this open until I can check more things
-** TODO table-row
-   This should be ok but I'm leaving this open until I can check more things
-** TODO target
-** TODO template
-*** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 08:48]
-*** TODO Compiler Info
-*** TODO Preamble Additional Options
-*** TODO Headline Numbering Setup
-*** TODO Subtitle
-*** TODO Configuration
-    The cleanest way to do the configuration is to let the
-    user use ConTeXt's built-in styling systems. They should
-    be able to do quite a bit just by adding extra code to the
-    preamble.
-** TODO timestamp
+** DONE table
+   CLOSED: [2021-01-12 Tue 17:01]
+** DONE table-cell
+   CLOSED: [2021-01-12 Tue 17:01]
+** DONE table-row
+   CLOSED: [2021-01-12 Tue 17:01]
+** DONE timestamp
+   CLOSED: [2021-01-12 Tue 17:02]
 ** DONE underline
    CLOSED: [2021-01-08 Fri 17:34]
 ** DONE verbatim
    CLOSED: [2021-01-07 Thu 08:52]
-** TODO verse-block
-   I'm not planning on touching this any time soon
 ** DONE latex-math-block
    CLOSED: [2021-01-08 Fri 13:39]
-** TODO latex-matrices
 * TODO Menu
 ** DONE Export to ConTeXt File
    CLOSED: [2021-01-07 Thu 08:53]
-** TODO Export to ConTeXt Buffer
-** TODO Export to PDF File
-** TODO Export to PDF File and Open
+** DONE Export to ConTeXt Buffer
+   CLOSED: [2021-01-12 Tue 17:01]
+** DONE Export to PDF File
+   CLOSED: [2021-01-12 Tue 17:01]
+** DONE Export to PDF File and Open
+   CLOSED: [2021-01-12 Tue 17:01]
 * TODO Filters
-** TODO Sanitize Math
-   - Replace surrounding characters
-   - Recognize and translate environments
-   - Replace "&" characters and "\\" in {align}
+** TODO Sanitize Math [2/4]
+   - [X] Replace surrounding characters
+   - [ ] Recognize and translate environments
+   - [X] Replace "&" characters and "\\" in {align}
+   - [ ] Set the correct number of columns in {align}
 ** TODO Matrices
-** TODO Image Links
+** DONE Image Links
+   CLOSED: [2021-01-12 Tue 17:07]
 * TODO Options
   Any of these options that is just raw LaTeX that the user
   interpolates could probably be replaced with additional
   CONTEXT_HEADER_EXTRA lines.
+** TODO context-active-timestamp-format
+** TODO context-caption-above
+   This can probably be a snippet
+** TODO context-default-figure-position
+   This can probably be a snippet
+** TODO context-format-drawer-function
+   This might be a snippet
+** TODO context-format-inlinetask-function
+   This should be a snippet
+** TODO context-image-default-scale
+   This could maybe try the LaTeX version if possible
+** TODO context-image-default-height
+   This could maybe try the LaTeX version if possible
+** TODO context-image-default-option
+** TODO context-image-default-width
+   This could maybe try the LaTeX version if possible
+** TODO context-images-centered
+   This could maybe try the LaTeX version if possible
+** TODO context-inline-image-rules
+** TODO context-link-with-unknown-path-format
+** TODO context-subtitle-format
+** TODO context-tables-centered
+** TODO context-title-command
+** TODO context-toc-command
 ** DONE context-header
    CLOSED: [2021-01-07 Thu 09:01]
 ** DONE context-header-extra
    CLOSED: [2021-01-07 Thu 09:01]
-** TODO description
-** TODO keywords
-** TODO subtitle
-** TODO context-active-timestamp-format
-** TODO context-caption-above
-** TODO context-classes
-** TODO context-default-figure-position
-** TODO context-default-table-environment
-** TODO context-default-table-mode
-** TODO context-diary-timestamp-format
-** TODO context-footnote-defined-format
-** TODO context-footnote-separator
-** TODO context-format-drawer-function
-** TODO context-format-headline-function
-** TODO context-format-inlinetask-function
-** TODO context-hyperref-template
-** TODO context-image-default-scale
-** TODO context-image-default-height
-** TODO context-image-default-option
-** TODO context-image-default-width
-** TODO context-images-centered
-** TODO context-inactive-timestamp-format
-** TODO context-inline-image-rules
-** TODO context-link-with-unknown-path-format
-** TODO context-highlighted-langs
-** TODO context-syntax-highlight-options
-** TODO context-prefer-user-labels
-** TODO context-subtitle-format
-** TODO context-subtitle-separate
-** TODO context-table-scientific-notation
-** TODO context-tables-booktabs
-** TODO context-tables-centered
-** TODO context-text-markup-alist
-** TODO context-title-command
-** TODO context-toc-command
-** TODO context-compiler
+** DONE description
+   CLOSED: [2021-01-12 Tue 16:54]
+** DONE keywords
+   CLOSED: [2021-01-12 Tue 16:54]
+** DONE subtitle
+   CLOSED: [2021-01-12 Tue 16:54]
+** DONE context-diary-timestamp-format
+   CLOSED: [2021-01-12 Tue 16:55]
+   This is configurable with snippets
+** DONE context-format-headline-function
+   CLOSED: [2021-01-12 Tue 16:56]
+   Implemented as a snippet
+** DONE context-hyperref-template
+   CLOSED: [2021-01-12 Tue 16:57]
+   User can handle this with snippets
+** DONE context-inactive-timestamp-format
+   CLOSED: [2021-01-12 Tue 16:59]
+   Implemented as snippet
+** DONE context-highlighted-langs
+   CLOSED: [2021-01-12 Tue 17:00]
+** DONE context-syntax-highlight-options
+   CLOSED: [2021-01-12 Tue 17:00]
+   Implemented with snippets
+** DONE context-subtitle-separate
+   CLOSED: [2021-01-12 Tue 17:00]
+   User can handle this with snippets
+** DONE context-text-markup-alist
+   CLOSED: [2021-01-12 Tue 16:53]
+** DONE context-compiler
+   CLOSED: [2021-01-12 Tue 16:53]
 ** DONE date
    CLOSED: [2021-01-08 Fri 17:36]
-
+* DONE Miscelaneous
+  CLOSED: [2021-01-12 Tue 17:08]
+  - Possibly add a =\defineparagraphs[OrgBody]= to preamble
+    and frame all body text in =\startOrgBody \stopOrgBody=
+  - Rename all custom environments to title case
