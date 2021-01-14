@@ -123,6 +123,11 @@ This option can also be set with the CLOSING keyword."
   :group 'org-export-context
   :type 'string)
 
+(defcustom org-context-default-preset "empty"
+  "A preamble with no style settings for the document elements."
+  :group 'org-export-context
+  :type '(string :tag "ConTeXt preset"))
+
 (defconst org-context-export-quotes-alist
   '((primary-opening . "\\quotation{")
     (primary-closing . "}")
@@ -135,6 +140,24 @@ This option can also be set with the CLOSING keyword."
   :group 'org-export-context
   :type 'string
   :safe #'stringp)
+
+(defcustom org-context-format-headline-function
+  'org-context-format-headline-default-function
+  "Function for formatting the headline's text.
+
+This function will be called with six arguments:
+TODO      the todo keyword (string or nil)
+TODO-TYPE the type of todo (symbol: `todo', `done', nil)
+PRIORITY  the priority of the headline (integer or nil)
+TEXT      the main headline text (string)
+TAGS      the tags (list of strings or nil)
+INFO      the export options (plist)
+
+The function result will be used in the section format string."
+  :group 'org-export-latex
+  :version "24.4"
+  :package-version '(Org . "8.0")
+  :type 'function)
 
 (defcustom org-context-from-address ""
   "Sender's address, as a string.
@@ -285,7 +308,6 @@ This option can also be set with the PLACE keyword."
   signature={\\documentvariable{letter:signature}},
   toname={\\documentvariable{letter:toname}},
   toaddress={\\documentvariable{letter:toaddress}},
-  backaddress={\\documentvariable{letter:fromaddress}},
   opening={\\documentvariable{letter:opening}},
   fromphone={\\documentvariable{metadata:phonenumber}},
   fromurl={\\documentvariable{metadata:url}}]")
