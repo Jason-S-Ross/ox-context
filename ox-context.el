@@ -150,18 +150,16 @@ This option can also be set with the FROM_LOGO keyword."
   :type 'string
   :safe #'stringp)
 
-(defcustom org-context-image-default-scale ""
-  "Default scale for images.
-Scale overrides width and height."
+(defcustom org-context-highlighted-langs
+  '((metapost "mp"))
+  "Alist mapping languages to their counterpart in
+ConTeXt. ConTeXt only supports a couple of languages
+out-of-the-box so this is a short list."
   :group 'org-export-context
-  :type 'string
-  :safe #'stringp)
-
-(defcustom org-context-image-default-width ""
-  "Default width for images."
-  :group 'org-export-context
-  :type 'string
-  :safe #'stringp)
+  :type '(repeat
+          (list
+           (symbol :tag "Major mode      ")
+           (symbol :tag "ConTeXt language"))))
 
 (defcustom org-context-image-default-height ""
   "Default height for images."
@@ -175,35 +173,23 @@ Scale overrides width and height."
   :type 'string
   :safe #'stringp)
 
+(defcustom org-context-image-default-scale ""
+  "Default scale for images.
+Scale overrides width and height."
+  :group 'org-export-context
+  :type 'string
+  :safe #'stringp)
+
+(defcustom org-context-image-default-width ""
+  "Default width for images."
+  :group 'org-export-context
+  :type 'string
+  :safe #'stringp)
+
 (defcustom org-context-location ""
   "Sender's extension field, as a string.
 
 This option can also be set with the LOCATION keyword. "
-  :group 'org-export-context
-  :type 'string)
-
-(defcustom org-context-number-equations nil
-  "Non-nil means insert a \\placeformula line before all formulas
-to allow numbering."
-  :group 'org-export-context
-  :type 'boolean)
-
-(defcustom org-context-opening ""
-  "Letter's opening, as a string.
-
-This option can also be set with the OPENING keyword."
-  :group 'org-export-context
-  :type 'string)
-
-(defcustom org-context-phone-number ""
-  "Sender's phone number, as a string.
-This option can also be set with the PHONE_NUMBER keyword."
-  :group 'org-export-context
-  :type 'string)
-
-(defcustom org-context-place ""
-  "Place from which the letter is sent, as a string.
-This option can also be set with the PLACE keyword."
   :group 'org-export-context
   :type 'string)
 
@@ -216,17 +202,16 @@ non-nil."
   :group 'org-export-context
   :type '(repeat (string :tag "Extension")))
 
-(defcustom org-context-remove-logfiles t
-  "Non-nil means remove the logfiles produced by PDF production.
-By default, logfiles are files with these extensions: .aux, .idx,
-.log, .out, .toc, .nav, .snm and .vrb.  To define the set of
-logfiles to remove, set `org-context-logfiles-extensions'."
+(defcustom org-context-number-equations nil
+  "Non-nil means insert a \\placeformula line before all formulas
+to allow numbering."
   :group 'org-export-context
   :type 'boolean)
 
-(defcustom org-context-signature ""
-  "Signature, as a string.
-This option can also be set with the SIGNATURE keyword."
+(defcustom org-context-opening ""
+  "Letter's opening, as a string.
+
+This option can also be set with the OPENING keyword."
   :group 'org-export-context
   :type 'string)
 
@@ -249,73 +234,112 @@ file name as its single argument."
   :group 'org-export-pdf
   :type '(repeat (string :tag "Command")))
 
-(defcustom org-context-format-headline-function
-  'org-context-format-headline-default-function
-  "Function for formatting the headline's text.
-
-This function will be called with six arguments:
-TODO      the todo keyword (string or nil)
-TODO-TYPE the type of todo (symbol: `todo', `done', nil)
-PRIORITY  the priority of the headline (integer or nil)
-TEXT      the main headline text (string)
-TAGS      the tags (list of strings or nil)
-INFO      the export options (plist)
-
-The function result will be used in the section format string."
-  :group 'org-export-latex
-  :version "24.4"
-  :package-version '(Org . "8.0")
-  :type 'function)
-;;;; Text Markup
-
-(defcustom org-context-text-markup-alist
-  '((bold ."\\bold{%s}")
-    (code . "\\type{%s}")
-    (fixed-width . "\\startOrgFixed\n%s\n\\stopOrgFixed")
-    (italic . "\\italic{%s}")
-    (paragraph . "\n\\startOrgParagraph\n%s\n\\stopOrgParagraph")
-    (property-drawer . "\n\startOrgPropertyDrawer\n%s\n\\stopOrgPropertyDrawer")
-    (protectedtexttt . "\\type{%s}")
-    (quotation . "\\startOrgBlockQuote\n%s\n\\stopOrgBlockQuote")
-    (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
-    (subscript . "\\low{%s}")
-    (superscript . "\\high{%s}")
-    (underline . "\\underbar{%s}")
-    (verbatim . "\\type{%s}")
-    (verb . "\\type{%s}")
-    (verse . "\\startOrgVerse\n%s\n\\stopOrgVerse"))
-  "Alist of ConTeXt expressions to convert text markup."
+(defcustom org-context-phone-number ""
+  "Sender's phone number, as a string.
+This option can also be set with the PHONE_NUMBER keyword."
   :group 'org-export-context
-  :version "26.1"
-  :package-version '(Org . "8.3")
-  :type 'alist
-  :options
-  '(bold
-    code
-    fixed-width
-    italic
-    paragraph
-    property-drawer
-    protectedtexttt
-    quotation
-    strike-through
-    subscript
-    superscript
-    underline
-    verbatim
-    verb
-    verse))
+  :type 'string)
 
-(defcustom org-context-highlighted-langs
-  '((metapost "mp"))
-  "Alist mapping languages to their counterpart in
-ConTeXt. ConTeXt only supports a couple of languages
-out-of-the-box so this is a short list."
+(defcustom org-context-place ""
+  "Place from which the letter is sent, as a string.
+This option can also be set with the PLACE keyword."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-presets-alist
+  '(("empty"
+     :preamble nil
+     :starttext nil
+     :stoptext nil)
+    ("article"
+     :preamble
+     ("\\setupwhitespace[big]"
+      "layout-article"
+      "description-article"
+      "quote-article"
+      "verse-article"
+      "table-article"
+      "title-article"
+      "sectioning-article"
+      "page-numbering-article"))
+    ("report"
+     :preamble
+     ("\\setupwhitespace[big]"
+      "layout-article"
+      "description-article"
+      "quote-article"
+      "verse-article"
+      "table-article"
+      "title-report"
+      "headlines-report"
+      "page-numbering-article"))
+    ("letter"
+     :preamble
+     ("\\setupwhitespace[big]
+\\usemodule[letter]
+\\setupletter[
+  fromname={\\documentvariable{metadata:author}},
+  fromaddress={\\documentvariable{letter:fromaddress}},
+  subject={\\documentvariable{metadata:subject}},
+  closing={\\documentvariable{letter:closing}},
+  signature={\\documentvariable{letter:signature}},
+  toname={\\documentvariable{letter:toname}},
+  toaddress={\\documentvariable{letter:toaddress}},
+  backaddress={\\documentvariable{letter:fromaddress}},
+  opening={\\documentvariable{letter:opening}},
+  fromphone={\\documentvariable{metadata:phonenumber}},
+  fromurl={\\documentvariable{metadata:url}}]")
+     :starttext ("\\startletter")
+     :stoptext ("\\stopletter")))
+  ;; TODO update doc
+  "Alist of ConTeXt preamble presets.
+if #+CONTEXT_PRESET is set in the buffer, use its value and the
+associated information. Structure is
+  (preset-name
+   preset-data
+   snippet-name...)
+
+Overview
+--------
+
+First, the preset data will be inserted into the preamble as-is.
+Then, each snippet name you provide will be looked up and the corresponding
+snippet will be inserted.
+
+The preset data
+---------------
+
+The PRESET-DATA is the data that will be inserted into the ConTeXt file
+verbatim. This should include anything specific for this preset that
+isn't reused by other presets.
+
+The snippet names
+-----------------
+
+The snippet names are references to snippets in
+`org-context-presets-alist'. You can use as many snippets as you
+like, including zero.
+"
   :group 'org-export-context
   :type '(repeat
-          (list
-           (symbol :tag "Major mode      ")
-           (symbol :tag "ConTeXt language"))))
+          (list (string :tag "ConTeXt Preset Name")
+                (string :tag "ConTeXt Preset Data")
+                (repeat :tag "Snippets"
+                        (string :tag "Snippet")))))
+
+(defcustom org-context-remove-logfiles t
+  "Non-nil means remove the logfiles produced by PDF production.
+By default, logfiles are files with these extensions: .aux, .idx,
+.log, .out, .toc, .nav, .snm and .vrb.  To define the set of
+logfiles to remove, set `org-context-logfiles-extensions'."
+  :group 'org-export-context
+  :type 'boolean)
+
+(defcustom org-context-signature ""
+  "Signature, as a string.
+This option can also be set with the SIGNATURE keyword."
+  :group 'org-export-context
+  :type 'string)
 
 (defcustom org-context-snippets-alist
   '(;; Margin setup for article style
@@ -448,79 +472,43 @@ See also `:context-presets'"
            (string :tag "Snippet Name")
            (string :tag "Snippet Value"))))
 
-(defcustom org-context-default-preset "empty"
-  "A preamble with no style settings for the document elements."
+(defcustom org-context-text-markup-alist
+  '((bold ."\\bold{%s}")
+    (code . "\\type{%s}")
+    (fixed-width . "\\startOrgFixed\n%s\n\\stopOrgFixed")
+    (italic . "\\italic{%s}")
+    (paragraph . "\n\\startOrgParagraph\n%s\n\\stopOrgParagraph")
+    (property-drawer . "\n\startOrgPropertyDrawer\n%s\n\\stopOrgPropertyDrawer")
+    (protectedtexttt . "\\type{%s}")
+    (quotation . "\\startOrgBlockQuote\n%s\n\\stopOrgBlockQuote")
+    (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
+    (subscript . "\\low{%s}")
+    (superscript . "\\high{%s}")
+    (underline . "\\underbar{%s}")
+    (verbatim . "\\type{%s}")
+    (verb . "\\type{%s}")
+    (verse . "\\startOrgVerse\n%s\n\\stopOrgVerse"))
+  "Alist of ConTeXt expressions to convert text markup."
   :group 'org-export-context
-  :type '(string :tag "ConTeXt preset"))
-
-(defcustom org-context-presets-alist
-  '(("empty"
-     :preamble nil
-     :starttext nil
-     :stoptext nil)
-    ("article"
-     :preamble
-     ("\\setupwhitespace[big]"
-      "layout-article"
-      "description-article"
-      "quote-article"
-      "verse-article"
-      "table-article"
-      "title-article"
-      "sectioning-article"
-      "page-numbering-article"))
-    ("report"
-     :preamble
-     ("\\setupwhitespace[big]"
-      "layout-article"
-      "description-article"
-      "quote-article"
-      "verse-article"
-      "table-article"
-      "title-report"
-      "headlines-report"
-      "page-numbering-article"))
-    ("letter"
-     :preamble
-     ("\\setupwhitespace[big]
-\\usemodule[letter]")
-     :starttext ("\\startletter")
-     :stoptext ("\\stopletter")))
-  ;; TODO update doc
-  "Alist of ConTeXt preamble presets.
-if #+CONTEXT_PRESET is set in the buffer, use its value and the
-associated information. Structure is
-  (preset-name
-   preset-data
-   snippet-name...)
-
-Overview
---------
-
-First, the preset data will be inserted into the preamble as-is.
-Then, each snippet name you provide will be looked up and the corresponding
-snippet will be inserted.
-
-The preset data
----------------
-
-The PRESET-DATA is the data that will be inserted into the ConTeXt file
-verbatim. This should include anything specific for this preset that
-isn't reused by other presets.
-
-The snippet names
------------------
-
-The snippet names are references to snippets in
-`org-context-presets-alist'. You can use as many snippets as you
-like, including zero.
-"
-  :group 'org-export-context
-  :type '(repeat
-          (list (string :tag "ConTeXt Preset Name")
-                (string :tag "ConTeXt Preset Data")
-                (repeat :tag "Snippets"
-                        (string :tag "Snippet")))))
+  :version "26.1"
+  :package-version '(Org . "8.3")
+  :type 'alist
+  :options
+  '(bold
+    code
+    fixed-width
+    italic
+    paragraph
+    property-drawer
+    protectedtexttt
+    quotation
+    strike-through
+    subscript
+    superscript
+    underline
+    verbatim
+    verb
+    verse))
 
 (defcustom org-context-url ""
   "Sender's URL, e. g., the URL of her homepage.
