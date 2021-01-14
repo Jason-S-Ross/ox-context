@@ -365,7 +365,30 @@ out-of-the-box so this is a short list."
     ;; Title on same page as body
     ("sectioning-article" . "\\setupsectionblock[frontpart][page=no]
 \\setupsectionblock[bodypart][page=no]")
-    ("page-numbering-article" . "\\setuppagenumbering[location=footer,middle]"))
+    ("page-numbering-article" . "\\setuppagenumbering[location=footer,middle]")
+    ;; Header and footer setup for homework assignments
+    ("headfoot-homework" . "\\setupheadertexts[\\documentvariable{metadata:title}]
+\\defineframed
+  [HeaderSection]
+  [frame=off,
+   bottomframe=on,
+   align=flushleft,
+   width=\\makeupwidth,
+   rulethickness=.6pt,
+   location=bottom,
+   height=broad,
+   top={\\blank[small]}]
+\\defineframed[FooterSection][HeaderSection]
+\\setupframed[FooterSection][bottomframe=off, topframe=on]
+\\setupheadertexts[\\documentvariable{metadata:title}]
+\\setupheadertexts
+  [\\HeaderSection{\\getmarking[section]}]
+  [\\documentvariable{metadata:author}]
+\\setupfootertexts
+  [\\FooterSection{Page \\pagenumber \\space of \\totalnumberofpages}]
+  [\\documentvariable{metadata:date}]
+\\setuppagenumbering[location=]
+"))
   "Alist of snippet names and associated text. These snippets will be
 inserted into the document preamble when calling `org-context-make-preamble'.
 These snippets are also available for use in presets.
