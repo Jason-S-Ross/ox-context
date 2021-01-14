@@ -307,11 +307,19 @@ out-of-the-box so this is a short list."
 \\define\\OrgMakeTitle{%
   \\startalignment[center]
    \\blank[force,2*big]
-   \\title{\\getvariable{org}{title}}
+   \\title{\\documentvariable{metadata:title}}
+   \\doifnot{\\documentvariable{metadata:subtitle}}{}{
+     \\blank[force,1*big]
+     \\tfa \\documentvariable{metadata:subtitle}}
+   \\doifelse{\\documentvariable{metadata:author}}{}{
    \\blank[3*medium]
-   {\\tfa \\getvariable{org}{author}}
+   {\\tfa \\documentvariable{metadata:email}}
+   }{
+      \\blank[3*medium]
+      {\\tfa \\documentvariable{metadata:author}}
+   }
    \\blank[2*medium]
-   {\\tfa \\getvariable{org}{date}}
+   {\\tfa \\documentvariable{metadata:date}}
    \\blank[3*medium]
   \\stopalignment}")
     ;; LaTeX report style title setup
@@ -320,11 +328,19 @@ out-of-the-box so this is a short list."
   \\startstandardmakeup[page=yes]
   \\startalignment[center]
    \\blank[force,2*big]
-   \\title{\\getvariable{org}{title}}
+    \\title{\\documentvariable{metadata:title}}
+   \\doifnot{\\documentvariable{metadata:subtitle}}{}{
+     \\blank[force,1*big]
+     \\tfa \\documentvariable{metadata:subtitle}}
+   \\doifelse{\\documentvariable{metadata:author}}{}{
    \\blank[3*medium]
-   {\\tfa \\getvariable{org}{author}}
+   {\\tfa \\documentvariable{metadata:email}}
+   }{
+      \\blank[3*medium]
+      {\\tfa \\documentvariable{metadata:author}}
+   }
    \\blank[2*medium]
-   {\\tfa \\getvariable{org}{date}}
+   {\\tfa \\documentvariable{metadata:date}}
    \\blank[3*medium]
   \\stopalignment
   \\stopstandardmakeup}")
@@ -513,6 +529,7 @@ containing export options. Modify DATA by side-effect and return it."
 INFO is a plist used as a communication channel."
   `((?a . ,(org-export-data (plist-get info :author) info))
     (?t . ,(org-export-data (plist-get info :title) info))
+    (?e . ,(org-export-data (plist-get info :email) info))
     (?s . ,(org-export-data (plist-get info :subtitle) info))
     (?k . ,(org-export-data (org-context--wrap-latex-math-block
                              (plist-get info :keywords) info)
@@ -523,7 +540,7 @@ INFO is a plist used as a communication channel."
     (?c . ,(plist-get info :creator))
     (?l . ,(plist-get info :language))
     (?L . ,(capitalize (plist-get info :language)))
-    (?D . ,(org-export-get-date info))))
+    (?D . ,(org-export-data (org-export-get-date info) info))))
 
 
 (defun org-context-make-preamble (info &optional template)
@@ -575,27 +592,16 @@ as expected by `org-splice-context-header'."
 % Document Metadata
 %===============================================================================
 "
-   (let
-       ((author
-         (and (plist-get info :with-author)
-              (let ((auth (plist-get info :author)))
-                (and auth (org-export-data auth info))))))
-     (format "\\setvariable{org}{author}{%s}\n" author))
-   (let
-       ((email (plist-get info :email)))
-     (format "\\setvariable{org}{email}{%s}\n" email))
-   (let
-       ((date (and (plist-get info :with-date) (org-export-get-date info))))
-     (format "\\setvariable{org}{date}{%s}\n" (org-export-data date info)))
-   (let ((title (org-export-data (plist-get info :title) info)))
-     (format "\\setvariable{org}{title}{%s}\n" title))
    (let ((spec (org-context--format-spec info)))
      (format-spec "\\setupdocument[
    metadata:author={%a},
    metadata:title={%t},
    metadata:keywords={%k},
    metadata:subject={%d},
-   metadata:creator={%c}]
+   metadata:creator={%c},
+   metadata:email={%e},
+   metadata:date={%D},
+   metadata:subtitle={%s}]
 \\language[%l]"
                   spec))
    "
@@ -965,7 +971,7 @@ used as a communication channel."
                   (or placement (plist-get info :context-float-default-placement))))
           (`sideways (progn (add-to-list 'location-options "90")
                             (add-to-list 'location-options "page")))
-          ;; TODO I don't know if this even works in LaTeX
+                    ;;;; TODO I don't know if this even works in LaTeX
           ;;(`multicolumn "orgmulticolumnfigure")
           ;; TODO What do we do with figure?
           (_ (when placement (add-to-list 'location-options placement))))
