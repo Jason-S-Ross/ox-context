@@ -51,7 +51,25 @@
                   (:description "DESCRIPTION" nil nil parse)
                   (:keywords "KEYWORDS" nil nil parse)
                   (:subtitle "SUBTITLE" nil nil parse)
-                  (:date "DATE" nil "\\currentdate" parse))
+                  (:date "DATE" nil "\\currentdate" parse)
+                  (:from-address "FROM_ADDRESS" nil org-context-from-address newline)
+                  (:phone-number "PHONE_NUMBER" nil org-context-phone-number)
+                  (:url "URL" nil org-context-url)
+                  (:from-logo "FROM_LOGO" nil org-context-from-logo)
+                  (:to-address "TO_ADDRESS" nil nil newline)
+                  (:place "PLACE" nil org-context-place)
+                  (:location "LOCATION" nil org-context-location)
+                  (:subject "SUBJECT" nil nil parse)
+                  (:opening "OPENING" nil org-context-opening parse)
+                  (:closing "CLOSING" nil org-context-closing parse)
+                  (:signature "SIGNATURE" nil org-context-closing parse)
+                  (:with-backaddress nil "backaddress" org-context-use-backaddress)
+                  (:with-email nil "email" org-context-use-email)
+                  (:with-foldmarks nil "foldmarks" org-context-use-foldmarks)
+                  (:with-phone nil "phone" org-context-use-phone)
+                  (:with-url nil "url" org-context-use-url)
+                  (:with-from-logo nil "from-logo" org-context-use-from-logo)
+                  (:with-place nil "place" org-context-use-place))
  :translate-alist '((bold . org-context-bold)
                     (center-block . org-context-center-block)
                     (code . org-context-code)
@@ -94,7 +112,16 @@
                     ;;(latex-matrices . org-context-matrices)
                     ))
 
+(defgroup org-export-context nil
+  "Options for exporting to ConTeXt."
+  :tag "Org ConTeXt"
+  :group 'org-export)
 
+(defcustom org-context-closing ""
+  "Letter's closing, as a string.
+This option can also be set with the CLOSING keyword."
+  :group 'org-export-context
+  :type 'string)
 
 (defconst org-context-export-quotes-alist
   '((primary-opening . "\\quotation{")
@@ -105,6 +132,20 @@
 
 (defcustom org-context-float-default-placement "left"
   "Default placement for floats."
+  :group 'org-export-context
+  :type 'string
+  :safe #'stringp)
+
+(defcustom org-context-from-address ""
+  "Sender's address, as a string.
+This option can also be set with one or more FROM_ADDRESS
+keywords."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-from-logo ""
+  "Commands for inserting the sender's logo, e. g., \\externalfigure[logo.pdf].
+This option can also be set with the FROM_LOGO keyword."
   :group 'org-export-context
   :type 'string
   :safe #'stringp)
@@ -134,11 +175,37 @@ Scale overrides width and height."
   :type 'string
   :safe #'stringp)
 
+(defcustom org-context-location ""
+  "Sender's extension field, as a string.
+
+This option can also be set with the LOCATION keyword. "
+  :group 'org-export-context
+  :type 'string)
+
 (defcustom org-context-number-equations nil
   "Non-nil means insert a \\placeformula line before all formulas
 to allow numbering."
   :group 'org-export-context
   :type 'boolean)
+
+(defcustom org-context-opening ""
+  "Letter's opening, as a string.
+
+This option can also be set with the OPENING keyword."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-phone-number ""
+  "Sender's phone number, as a string.
+This option can also be set with the PHONE_NUMBER keyword."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-place ""
+  "Place from which the letter is sent, as a string.
+This option can also be set with the PLACE keyword."
+  :group 'org-export-context
+  :type 'string)
 
 (defcustom org-context-logfiles-extensions
   '("aux" "bcf" "blg" "fdb_latexmk" "fls" "figlist" "idx" "log" "nav" "out"
@@ -157,6 +224,11 @@ logfiles to remove, set `org-context-logfiles-extensions'."
   :group 'org-export-context
   :type 'boolean)
 
+(defcustom org-context-signature ""
+  "Signature, as a string.
+This option can also be set with the SIGNATURE keyword."
+  :group 'org-export-context
+  :type 'string)
 
 (defcustom org-context-pdf-process
   '("context %f")
@@ -365,32 +437,9 @@ out-of-the-box so this is a short list."
     ;; Title on same page as body
     ("sectioning-article" . "\\setupsectionblock[frontpart][page=no]
 \\setupsectionblock[bodypart][page=no]")
-    ("page-numbering-article" . "\\setuppagenumbering[location=footer,middle]")
-    ;; Header and footer setup for homework assignments
-    ("headfoot-homework" . "\\setupheadertexts[\\documentvariable{metadata:title}]
-\\defineframed
-  [HeaderSection]
-  [frame=off,
-   bottomframe=on,
-   align=flushleft,
-   width=\\makeupwidth,
-   rulethickness=.6pt,
-   location=bottom,
-   height=broad,
-   top={\\blank[small]}]
-\\defineframed[FooterSection][HeaderSection]
-\\setupframed[FooterSection][bottomframe=off, topframe=on]
-\\setupheadertexts[\\documentvariable{metadata:title}]
-\\setupheadertexts
-  [\\HeaderSection{\\getmarking[section]}]
-  [\\documentvariable{metadata:author}]
-\\setupfootertexts
-  [\\FooterSection{Page \\pagenumber \\space of \\totalnumberofpages}]
-  [\\documentvariable{metadata:date}]
-\\setuppagenumbering[location=]
-"))
+    ("page-numbering-article" . "\\setuppagenumbering[location=footer,middle]"))
   "Alist of snippet names and associated text. These snippets will be
-inserted into the document preamble when calling `org-context-make-preamble'.
+inserted into the document preamble when calling `org-context-make-template'.
 These snippets are also available for use in presets.
 See also `:context-presets'"
   :group 'org-export-context
@@ -472,6 +521,65 @@ like, including zero.
                 (string :tag "ConTeXt Preset Data")
                 (repeat :tag "Snippets"
                         (string :tag "Snippet")))))
+
+(defcustom org-context-url ""
+  "Sender's URL, e. g., the URL of her homepage.
+This option can also be set with the URL keyword."
+  :group 'org-export-context
+  :type 'string
+  :safe #'stringp)
+
+(defcustom org-context-use-backaddress nil
+  "Non-nil prints return address in line above to address.
+This option can also be set with the OPTIONS keyword, e.g.:
+\"backaddress:t\"."
+  :group 'org-export-context
+  :type 'boolean)
+
+(defcustom org-context-use-email nil
+  "Non-nil prints sender's email address.
+This option can also be set with the OPTIONS keyword, e.g.:
+\"email:t\"."
+  :group 'org-export-context
+  :type 'boolean)
+
+(defcustom org-context-use-foldmarks t
+  "Configure appearance of folding marks.
+
+When t, activate default folding marks.  When nil, do not insert
+folding marks at all. "
+  :group 'org-export-context
+  :type 'boolean)
+
+(defcustom org-context-use-from-logo nil
+  "Non-nil prints sender's FROM_LOGO.
+This option can also be set with the OPTIONS keyword, e.g.:
+\"from-logo:t\"."
+  :group 'org-export-context
+  :type 'boolean
+  :safe #'booleanp)
+
+(defcustom org-context-use-phone nil
+  "Non-nil prints sender's phone number.
+This option can also be set with the OPTIONS keyword, e.g.:
+\"phone:t\"."
+  :group 'org-export-context
+  :type 'boolean)
+
+(defcustom org-context-use-place t
+  "Non-nil prints the letter's place next to the date.
+This option can also be set with the OPTIONS keyword, e.g.:
+\"place:nil\"."
+  :group 'org-export-context
+  :type 'boolean)
+
+(defcustom org-context-use-url nil
+  "Non-nil prints sender's URL.
+This option can also be set with the OPTIONS keyword, e.g.:
+\"url:t\"."
+  :group 'org-export-context
+  :type 'boolean
+  :safe #'booleanp)
 
 ;;; Filters
 (defun org-context-math-block-options-filter (info _backend)
@@ -558,33 +666,35 @@ containing export options. Modify DATA by side-effect and return it."
      info nil '(latex-latex-math-block) t)
     data))
 
-
-(defun org-context--format-spec (info)
+(defun org-context--list-metadata (info)
   "Create a format-spec for document meta-data.
 INFO is a plist used as a communication channel."
-  `((?a . ,(org-export-data (plist-get info :author) info))
-    (?t . ,(org-export-data (plist-get info :title) info))
-    (?e . ,(org-export-data (plist-get info :email) info))
-    (?s . ,(org-export-data (plist-get info :subtitle) info))
-    (?k . ,(org-export-data (org-context--wrap-latex-math-block
-                             (plist-get info :keywords) info)
-                            info))
-    (?d . ,(org-export-data (org-latex--wrap-latex-math-block
-                             (plist-get info :description) info)
-                            info))
-    (?c . ,(plist-get info :creator))
-    (?l . ,(plist-get info :language))
-    (?L . ,(capitalize (plist-get info :language)))
-    (?D . ,(org-export-data (org-export-get-date info) info))))
+  (list
+    (cons "metadata:author" (org-export-data (plist-get info :author) info))
+    (cons "metadata:title" (org-export-data (plist-get info :title) info))
+    (cons "metadata:email" (org-export-data (plist-get info :email) info))
+    (cons "metadata:subtitle" (org-export-data (plist-get info :subtitle) info))
+    (cons "metadata:keywords" (org-export-data (org-context--wrap-latex-math-block
+                                                (plist-get info :keywords) info)
+                                               info))
+    (cons "metadata:description" (org-export-data (org-latex--wrap-latex-math-block
+                                                   (plist-get info :description) info)
+                                                  info))
+    (cons "metadata:creator" (plist-get info :creator))
+    (cons "metadata:language" (plist-get info :language))
+    (cons "Lang" (capitalize (plist-get info :language)))
+    (cons "metadata:date" (org-export-data (org-export-get-date info) info))
+    (cons "letter:fromaddress" (org-export-data (plist-get info :from-address) info))
+    (cons "metadata:phonenumber" (org-export-data (plist-get info :phone-number) info))
+    (cons "metadata:url" (org-export-data (plist-get info :url) info))
+    (cons "letter:toaddress" (org-export-data (plist-get info :to-address) info))
+    (cons "location" (org-export-data (plist-get info :place) info))
+    (cons "letter:location" (org-export-data (plist-get info :location) info))
+    (cons "metadata:subject" (org-export-data (plist-get info :subject) info))
+    (cons "letter:opening" (org-export-data (plist-get info :opening) info))
+    (cons "letter:closing" (org-export-data (plist-get info :closing) info))
+    (cons "letter:signature" (org-export-data (plist-get info :signature) info))))
 
-
-(defun org-context-make-preamble (info &optional template)
-  "Return a formatted ConTeXt preamble.
-INFO is a plist used as a communication channel. Optional
-argument TEMPLATE, when non-nil, is the header template string,
-as expected by `org-splice-context-header'."
-  (concat
-   (and (plist-get info :time-stamp-file)
 (defun org-context--get-snippet-text (info snippet-names)
   "Returns snippets given a list of snippet names.
 SNIPPET_NAMES is a list of snippet names to look up.
@@ -656,30 +766,20 @@ holding the export options."
           [incrementnumber=yes,
             number=no]
 ")
-   (let ((sec-num (plist-get info :section-numbers)))
-     (cond
-      ((eq sec-num 1) "\\setupcombinedlist[content][list={section, subject}]\n")
-      ((eq sec-num 2) "\\setupcombinedlist[content][list={subsection, subsubject}]\n")
-      ((eq sec-num 3) "\\setupcombinedlist[content][list={subsubsection, subsubsubject}]\n")
-      ((eq sec-num 4) "\\setupcombinedlist[content][list={subsubsubsection, subsubsubsubject}]\n")
-      (t "\\setupcombinedlist[content][list={section, subject}]\n")))
+   (cond
+    ((eq with-section-numbers 1) "\\setupcombinedlist[content][list={section, subject}]\n")
+    ((eq with-section-numbers 2) "\\setupcombinedlist[content][list={subsection, subsubject}]\n")
+    ((eq with-section-numbers 3) "\\setupcombinedlist[content][list={subsubsection, subsubsubject}]\n")
+    ((eq with-section-numbers 4) "\\setupcombinedlist[content][list={subsubsubsection, subsubsubsubject}]\n")
+    (t "\\setupcombinedlist[content][list={section, subject}]\n"))
    "
 %===============================================================================
 % Document Metadata
 %===============================================================================
 "
-   (let ((spec (org-context--format-spec info)))
-     (format-spec "\\setupdocument[
-   metadata:author={%a},
-   metadata:title={%t},
-   metadata:keywords={%k},
-   metadata:subject={%d},
-   metadata:creator={%c},
-   metadata:email={%e},
-   metadata:date={%D},
-   metadata:subtitle={%s}]
-\\language[%l]"
-                  spec))
+   (format "\\setupdocument[%s]\n"
+           (org-context--format-arguments metadata))
+   (format "\\language[%s]" (cdr (assoc "metadata:language" metadata)))
    "
 %===============================================================================
 % Define Environments and Commands
@@ -834,9 +934,8 @@ given '((\"key1\" . \"val1\") (\"key2\" . \"val2\")) returns
      (let ((key (car kv))
            (val (cdr kv)))
        (format "%s={%s}" key val)))
-   arguments
+   (seq-filter (lambda (s) (org-string-nw-p (cdr s))) arguments)
    ",\n"))
-
 
 (defun org-context--wrap-label (element output info)
   "Wrap label associated to ELEMENT around OUTPUT, if appropriate.
@@ -1032,7 +1131,7 @@ used as a communication channel."
                   (or placement (plist-get info :context-float-default-placement))))
           (`sideways (progn (add-to-list 'location-options "90")
                             (add-to-list 'location-options "page")))
-                    ;;;; TODO I don't know if this even works in LaTeX
+          ;; TODO I don't know if this even works in LaTeX
           ;;(`multicolumn "orgmulticolumnfigure")
           ;; TODO What do we do with figure?
           (_ (when placement (add-to-list 'location-options placement))))
@@ -1051,7 +1150,6 @@ used as a communication channel."
          ;; TODO allow caption placement
          image-code)))))
 
-
 (defun org-context--org-table (table contents info)
   "Return appropriate ConTeXt code for an Org table.
 
@@ -1066,7 +1164,6 @@ This function assumes TABLE has `org' as its `:type' property and
    "\\startplacetable\n\\startxtable\n"
    contents
    "\n\\stopxtable\n\\stopplacetable\n"))
-
 
 ;;; Transcode Functions
 
@@ -1575,8 +1672,6 @@ CONTENTS is the contents of the table. INFO is a plist holding
 contextual information."
   (org-context--org-table table contents info))
 
-
-
 (defun org-context-table-cell (table-cell contents info)
   "Transcode a TABLE-CELL from Org to ConTeXt.
 CONTENTS is the cell contents. INFO is a plist used as
@@ -1605,7 +1700,6 @@ a communication channel."
   "Transcode a VERBATIM object from Org to ConTeXt"
   (org-context--text-markup
    (org-element-property :value verbatim) 'verbatim info))
-
 
 (defun org-context-verse-block (verse-block contents info)
   "Transcode a VERSE-BLOCK element from Org to ConTeXt.
@@ -1651,7 +1745,6 @@ is non-nil."
   (org-export-to-buffer 'context "*Org CONTEXT Export*"
     async subtreep visible-only body-only ext-plist (lambda () (ConTeXt-mode))))
 
-
 ;;;###autoload
 (defun org-context-export-to-context
     (&optional async subtreep visible-only body-only ext-plist)
@@ -1683,7 +1776,6 @@ file-local settings."
   (let ((file (org-export-output-file-name ".mkiv" subtreep)))
     (org-export-to-file 'context file
       async subtreep visible-only body-only ext-plist)))
-
 
 (defun org-context-export-to-pdf
   (&optional async subtreep visible-only body-only ext-plist)
@@ -1761,7 +1853,5 @@ produced."
                           (t "."))))))
     ;; Return output file name.
     outfile))
-
-
 
 (provide 'ox-context)
