@@ -405,27 +405,39 @@ See also `:context-presets'"
   :type '(string :tag "ConTeXt preset"))
 
 (defcustom org-context-presets-alist
-  '(("empty" "")
+  '(("empty"
+     :preamble nil
+     :starttext nil
+     :stoptext nil)
     ("article"
-     ""
-     "layout-article"
-     "description-article"
-     "quote-article"
-     "verse-article"
-     "table-article"
-     "title-article"
-     "sectioning-article"
-     "page-numbering-article")
+     :preamble
+     ("\\setupwhitespace[big]"
+      "layout-article"
+      "description-article"
+      "quote-article"
+      "verse-article"
+      "table-article"
+      "title-article"
+      "sectioning-article"
+      "page-numbering-article"))
     ("report"
-     ""
-     "layout-article"
-     "description-article"
-     "quote-article"
-     "verse-article"
-     "table-article"
-     "title-report"
-     "headlines-report"
-     "page-numbering-article"))
+     :preamble
+     ("\\setupwhitespace[big]"
+      "layout-article"
+      "description-article"
+      "quote-article"
+      "verse-article"
+      "table-article"
+      "title-report"
+      "headlines-report"
+      "page-numbering-article"))
+    ("letter"
+     :preamble
+     ("\\setupwhitespace[big]
+\\usemodule[letter]")
+     :starttext ("\\startletter")
+     :stoptext ("\\stopletter")))
+  ;; TODO update doc
   "Alist of ConTeXt preamble presets.
 if #+CONTEXT_PRESET is set in the buffer, use its value and the
 associated information. Structure is
@@ -573,6 +585,47 @@ argument TEMPLATE, when non-nil, is the header template string,
 as expected by `org-splice-context-header'."
   (concat
    (and (plist-get info :time-stamp-file)
+(defun org-context--get-snippet-text (info snippet-names)
+  "Returns snippets given a list of snippet names.
+SNIPPET_NAMES is a list of snippet names to look up.
+INFO is a plist used as a communication channel."
+  (mapcar
+   (lambda (snippet-name)
+     (cdr (assoc
+           snippet-name
+           (plist-get info :context-snippets))))
+   snippet-names))
+
+(defun org-context-template (contents info)
+  "Return complete document string after ConTeXt conversion.
+CONTENTS is the transcoded contents string. INFO is a plist
+holding the export options."
+  (let* ((time-stamp (plist-get info :time-stamp-file))
+         (header-lines (list (plist-get info :context-header)))
+         (with-toc (plist-get info :with-toc))
+         (with-section-numbers (plist-get info :section-numbers))
+         (metadata (org-context--list-metadata info))
+         (header-extra-lines (list (plist-get info :context-header-extra)))
+         (preset-name (plist-get info :context-preset))
+         (preset-data (cdr (assoc preset-name (plist-get info :context-presets))))
+         (preset-header-data (plist-get preset-data :preamble))
+         (preset-header-string (car preset-header-data))
+         (preset-header-snippets
+          (org-context--get-snippet-text info (cdr preset-header-data)))
+         (starttext-extra-lines (list (plist-get info :context-starttext)))
+         (preset-starttext-data (plist-get preset-data :starttext))
+         (preset-starttext-string (car preset-starttext-data))
+         (preset-starttext-snippets
+          (org-context--get-snippet-text info preset-starttext-data))
+         (stoptext-extra-lines (list (plist-get info :context-stoptext)))
+         (preset-stoptext-data (plist-get preset-data :stoptext))
+         (preset-stoptext-string (car preset-stoptext-data))
+         (preset-stoptext-snippets
+          (org-context--get-snippet-text info preset-stoptext-data))
+         (user-snippets (plist-get info :context-snippet))
+         )
+    (concat
+   (and time-stamp
         (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
    "
 %===============================================================================
@@ -580,7 +633,7 @@ as expected by `org-splice-context-header'."
 %===============================================================================
 "
    (mapconcat #'org-element-normalize-string
-              (list (plist-get info :context-header))
+              header-lines
               "")
 
    "
@@ -588,7 +641,7 @@ as expected by `org-splice-context-header'."
 % Table of Contents Configuration
 %===============================================================================
 "
-   (when (and (plist-get info :with-toc) (not (plist-get info :section-numbers)))
+   (when (and with-toc (not with-section-numbers))
      "% Add internal numbering to unnumbered sections so they can be included in TOC
 \\setuphead[subject]
           [incrementnumber=yes,
@@ -707,29 +760,15 @@ as expected by `org-splice-context-header'."
 % Preset Commands
 %===============================================================================
 "
-   (let* ((preset-name (plist-get info :context-preset))
-          (preset-data (assoc preset-name (plist-get info :context-presets)))
-          (preset-string (cadr preset-data))
-          (preset-snippets
-           (mapconcat
-            (lambda (snippet-name)
-              (cdr (assoc
-                    snippet-name
-                    (plist-get info :context-snippets))))
-            (cddr preset-data)
-                      "\n\n")))
-     (concat preset-string "\n" preset-snippets))
+   (concat preset-header-string "\n"
+           (mapconcat 'identity preset-header-snippets "\n"))
    "
 %===============================================================================
 % Snippet Commands
 %===============================================================================
 "
-   (mapconcat (lambda (snippet-name)
-                (or (cdr (assoc
-                          snippet-name
-                          (plist-get info :context-snippets)))
-                    (format "% Failed to get snippet %s" snippet-name)))
-              (plist-get info :context-snippet)
+   (mapconcat 'identity
+              user-snippets
               "\n")
    "
 %===============================================================================
@@ -737,26 +776,17 @@ as expected by `org-splice-context-header'."
 %===============================================================================
 "
    (mapconcat #'org-element-normalize-string
-              (list (plist-get info :context-header-extra))
+              header-extra-lines
               "\n\n")
    "
 %===============================================================================
 % Document Body
 %===============================================================================
-"))
-
-
-(defun org-context-template (contents info)
-  "Return complete document string after ConTeXt conversion.
-CONTENTS is the transcoded contents string. INFO is a plist
-holding the export options."
-  (concat
-   (org-context-make-preamble info)
-   "\\starttext
+\\starttext
 \\placebookmarks
 \\startfrontmatter
-\\startOrgTitlePage\n"
-   "\\OrgMakeTitle\n"
+\\startOrgTitlePage
+\\OrgMakeTitle"
    (when
        (plist-get info :with-toc)
      "\\OrgTitleContents
@@ -765,10 +795,18 @@ holding the export options."
 \\stopfrontmatter
 \\startbodymatter
 \\startOrgBody\n"
+
+   (concat preset-starttext-string "\n"
+           (mapconcat 'identity preset-starttext-snippets "\n"))
+
    contents
+
+   (concat preset-stoptext-string "\n"
+           (mapconcat 'identity preset-stoptext-snippets "\n"))
+
    "\n\\stopOrgBody
 \\stopbodymatter
-\\stoptext\n"))
+\\stoptext\n")))
 
 ;;; Internal functions
 
