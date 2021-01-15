@@ -389,7 +389,10 @@ This option can also be set with the PLACE keyword."
   attention={\\documentvariable{letter:attention}},
   opening={\\documentvariable{letter:opening}},
   fromphone={\\documentvariable{metadata:phonenumber}},
-  fromurl={\\documentvariable{metadata:url}}]")
+  fromurl={\\documentvariable{metadata:url}}]
+\\setupletterlayer
+  [topmark,botmark,cutmark]
+  [state=\\documentvariable{letter:foldmarks}]")
      :starttext ("\\startletter")
      :stoptext ("\\stopletter")))
   ;; TODO update doc
@@ -768,7 +771,8 @@ INFO is a plist used as a communication channel."
     (cons "metadata:subject" (org-export-data (plist-get info :subject) info))
     (cons "letter:opening" (org-export-data (plist-get info :opening) info))
     (cons "letter:closing" (org-export-data (plist-get info :closing) info))
-    (cons "letter:signature" (org-export-data (plist-get info :signature) info))))
+    (cons "letter:signature" (org-export-data (plist-get info :signature) info))
+    (cons "letter:foldmarks" (if (plist-get info :with-foldmarks) "start" "stop"))))
 
 (defun org-context--get-snippet-text (info snippet-names)
   "Returns snippets given a list of snippet names.
