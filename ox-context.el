@@ -105,7 +105,7 @@
                     (table . org-context-table)
                     (table-cell . org-context-table-cell)
                     (table-row . org-context-table-row)
-                    ;;(target . org-context-target)
+                    (target . org-context-target)
                     (template . org-context-template)
                     (timestamp . org-context-timestamp)
                     (underline . org-context-underline)
@@ -1857,6 +1857,12 @@ a communication channel."
     (if firstrowp
         (concat "\\startxtablehead[OrgTableHeader]\n" wrappedcontents "\n\\stopxtablehead")
       wrappedcontents)))
+
+(defun org-context-target (target _contents info)
+  "Transcode a TARGET object from Org to ConTeXt.
+CONTENTS is nil.  INFO is a plist holding contextual
+information."
+  (format "\\pagereference[%s]" (org-context--label target info)))
 
 (defun org-context-timestamp (timestamp _contents info)
   "Transcode a TIMESTAMP object from Org to ConTeXt.
