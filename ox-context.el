@@ -846,12 +846,11 @@ holding the export options."
           [incrementnumber=yes,
             number=no]
 ")
-   (cond
-    ((eq with-section-numbers 1) "\\setupcombinedlist[content][list={section, subject}]\n")
-    ((eq with-section-numbers 2) "\\setupcombinedlist[content][list={subsection, subsubject}]\n")
-    ((eq with-section-numbers 3) "\\setupcombinedlist[content][list={subsubsection, subsubsubject}]\n")
-    ((eq with-section-numbers 4) "\\setupcombinedlist[content][list={subsubsubsection, subsubsubsubject}]\n")
-    (t "\\setupcombinedlist[content][list={section, subject}]\n"))
+   (when (and (wholenump with-section-numbers)
+            (/= with-section-numbers 0))
+     (format "\\setupcombinedlist[content][list={%s, %s}]\n"
+             (org-context--get-headline-command t with-section-numbers)
+             (org-context--get-headline-command nil with-section-numbers)))
    "
 %===============================================================================
 % Document Metadata
@@ -1435,6 +1434,13 @@ INFO is a plist holding contextual information. See
      ;; No path, only description.  Try to do something useful.
      (t (format "\\hyphenatedurl{%s}" desc)))))
 
+(defun org-context--get-headline-command (numberedp level)
+  "Creates a headline name with the correct depth."
+  (concat
+   (apply 'concat (make-list (+ level (- 1)) "sub"))
+   (if numberedp "section" "subject"))
+  )
+
 (defun org-context-headline (headline contents info)
   "Transcodes a HEADLINE element from Org to ConTeXt."
   (let* ((level (org-export-get-relative-level headline info))
@@ -1452,10 +1458,7 @@ INFO is a plist holding contextual information. See
          (full-text (funcall (plist-get info :context-format-headline-function)
                              todo todo-type priority text tags info))
          (headertemplate
-          (concat
-           "\\"
-           (apply 'concat (make-list (+ level (- 1)) "sub"))
-           (if numberedp "section" "subject")))
+          (format "\\%s" (org-context--get-headline-command numberedp level)))
          (headline-label (org-context--label headline info t )))
     (concat
      headertemplate
