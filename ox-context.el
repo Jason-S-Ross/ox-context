@@ -34,6 +34,7 @@
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
  :options-alist '((:context-float-default-placement nil nil org-context-float-default-placement)
                   (:context-format-clock-function nil nil org-context-format-clock-function)
+                  (:context-format-drawer-function nil nil org-context-format-drawer-function)
                   (:context-format-inlinetask-function nil nil org-context-format-inlinetask-function)
                   (:context-format-headline-function nil nil org-context-format-headline-function)
                   (:context-format-timestamp-function nil nil org-context-format-timestamp-function)
@@ -79,6 +80,7 @@
                     (center-block . org-context-center-block)
                     (code . org-context-code)
                     (clock . org-context-clock)
+                    (drawer . org-context-drawer)
                     (entity . org-context-entity)
                     (example-block . org-context-example-block)
                     (export-block . org-context-export-block)
@@ -246,6 +248,18 @@ The function result will be used in the section format string."
 
 The function should take one parameter, TIMESTAMP,
 which is an Org timestamp object.
+
+The function should return the string to be exported."
+  :group 'org-export-context
+  :type 'function)
+
+(defcustom org-context-format-drawer-function
+  'org-context-format-drawer-default-function
+  "Function called to format a drawer in ConTeXt code.
+
+The function must accept two parameters:
+  NAME      the drawer name, like \"LOGBOOK\"
+  CONTENTS  the contents of the drawer.
 
 The function should return the string to be exported."
   :group 'org-export-context
@@ -1033,6 +1047,9 @@ holding the export options."
 \\doifnot{\\OrgClockH}{}{T\\OrgClockH:\\OrgClockM%
 \\doifnot{\\OrgClockS}{}{:\\OrgClockS}}
 }
+% Define a basic drawer command
+% Override this with user code to customize the clock appearance
+\\def\\OrgDrawer#1#2{#2}
 \\protect
 
 %===============================================================================
@@ -1387,6 +1404,9 @@ information."
 (defun org-context-code (code contents info)
   "Transcode CODE from Org to ConTeXt"
   (org-context--text-markup (org-element-property :value code) 'code info))
+
+(defun org-context-format-drawer-default-function (name contents)
+  (format "\\OrgDrawer{%s}{%s}" name contents))
 
 (defun org-context-drawer (drawer contents info)
   "Transcode a DRAWER element from Org to ConTeXt.
