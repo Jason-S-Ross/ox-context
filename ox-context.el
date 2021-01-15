@@ -882,6 +882,13 @@ holding the export options."
 \\definetyping[OrgBlkSrc]
 % Create the table header style
 \\definextable[OrgTableHeader]
+\\definextable[OrgTableLeftCell]
+\\definextable[OrgTableRightCell]
+\\definextable[OrgTableLastRow]
+\\definextable[OrgTableTopLeftCell]
+\\definextable[OrgTableTopRightCell]
+\\definextable[OrgTableBottomLeftCell]
+\\definextable[OrgTableBottomRightCell]
 % Create the title page style
 \\definestartstop[OrgTitlePage]
 % Create a verse style
@@ -1803,18 +1810,40 @@ contextual information."
   "Transcode a TABLE-CELL from Org to ConTeXt.
 CONTENTS is the cell contents. INFO is a plist used as
 a communication channel."
-  (concat
-   "\\startxcell "
-   ;; TODO
-   contents
-   " \\stopxcell\n"))
+  (let* ((firstrowp (not
+                     (org-export-get-previous-element
+                      (org-export-get-parent-element table-cell)
+                      info)))
+         (lastrowp (not
+                    (org-export-get-next-element
+                     (org-export-get-parent-element table-cell)
+                     info)))
+         (firstcolp (not (org-export-get-previous-element table-cell info)))
+         (lastcolp (not (org-export-get-next-element table-cell info)))
+         (suffix
+          (cond ((and firstrowp firstcolp) "[OrgTableTopLeftCell]")
+                ((and firstrowp lastcolp) "[OrgTableTopRightCell]")
+                ((and lastrowp firstcolp) "[OrgTableBottomLeftCell]")
+                ((and lastrowp firstcolp) "[OrgTableBottomLeftCell]")
+                (firstcolp "[OrgTableLeftCell]")
+                (lastcolp "[OrgTableRightCell]")
+                (t ""))))
+    (concat
+     (format "\\startxcell%s " suffix)
+     contents
+     " \\stopxcell\n")))
 
 (defun org-context-table-row (table-row contents info)
   "Transcode a TABLE-ROW element from Org to ConTeXt.
 CONTENTS is the contents of the row.  INFO is a plist used as
 a communication channel."
-  (let ((firstrowp (not (org-export-get-previous-element table-row info)))
-        (wrappedcontents (concat "\\startxrow\n" contents "\\stopxrow")))
+  (let* ((firstrowp (not (org-export-get-previous-element table-row info)))
+         (lastrowp (not (org-export-get-next-element table-row info)))
+         (wrappedcontents
+          (concat (format "\\startxrow%s\n"
+                          (if lastrowp "[OrgTableLastRow]" ""))
+                  contents
+                  "\\stopxrow")))
     (if firstrowp
         (concat "\\startxtablehead[OrgTableHeader]\n" wrappedcontents "\n\\stopxtablehead")
       wrappedcontents)))
