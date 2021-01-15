@@ -114,6 +114,8 @@
                     ;;(latex-matrices . org-context-matrices)
                     ))
 
+
+
 (defgroup org-export-context nil
   "Options for exporting to ConTeXt."
   :tag "Org ConTeXt"
@@ -140,7 +142,77 @@ This option can also be set with the CLOSING keyword."
 (defcustom org-context-float-default-placement "left"
   "Default placement for floats."
   :group 'org-export-context
-  :type 'string
+  :type '(choice
+          (const "split")
+          (const "always")
+          (const "left")
+          (const "right")
+          (const "inner")
+          (const "outer")
+          (const "backspace")
+          (const "cutspace")
+          (const "inleft")
+          (const "inright")
+          (const "inmargin")
+          (const "leftmargin")
+          (const "rightmargin")
+          (const "leftedge")
+          (const "rightedge")
+          (const "innermargin")
+          (const "outermargin")
+          (const "inneredge")
+          (const "outeredge")
+          (const "text")
+          (const "opposite")
+          (const "reset")
+          (const "height")
+          (const "depth")
+          (const "line")
+          (const "+line")
+          (const "-line")
+          (const "halfline")
+          (const "grid")
+          (const "high")
+          (const "low")
+          (const "fit")
+          (const "90")
+          (const "180")
+          (const "270")
+          (const "nonumber")
+          (const "none")
+          (const "local")
+          (const "here")
+          (const "force")
+          (const "margin")
+          (const "hang")
+          (const "+hang")
+          (const "-hang")
+          (const "hanging")
+          (const "tall")
+          (const "both")
+          (const "middle")
+          (const "offset")
+          (const "top")
+          (const "bottom")
+          (const "auto")
+          (const "page")
+          (const "leftpage")
+          (const "rightpage")
+          (const "somewhere")
+          (const "effective")
+          (const "header")
+          (const "footer")
+          (const "tblr")
+          (const "lrtb")
+          (const "tbrl")
+          (const "rltb")
+          (const "fxtb")
+          (const "btlr")
+          (const "lrbt")
+          (const "btrl")
+          (const "rlbt")
+          (const "fxbt")
+          (const "fixd"))
   :safe #'stringp)
 
 (defcustom org-context-format-headline-function
@@ -185,6 +257,8 @@ out-of-the-box so this is a short list."
           (list
            (symbol :tag "Major mode      ")
            (symbol :tag "ConTeXt language"))))
+
+
 
 (defcustom org-context-image-default-height ""
   "Default height for images."
@@ -271,11 +345,13 @@ This option can also be set with the PLACE keyword."
   :group 'org-export-context
   :type 'string)
 
+
+
 (defcustom org-context-presets-alist
   '(("empty"
-     :preamble nil
-     :starttext nil
-     :stoptext nil)
+     :preamble ("")
+     :starttext ("")
+     :stoptext (""))
     ("article"
      :preamble
      ("\\setupwhitespace[big]"
@@ -317,40 +393,24 @@ This option can also be set with the PLACE keyword."
      :starttext ("\\startletter")
      :stoptext ("\\stopletter")))
   ;; TODO update doc
-  "Alist of ConTeXt preamble presets.
-if #+CONTEXT_PRESET is set in the buffer, use its value and the
-associated information. Structure is
-  (preset-name
-   preset-data
-   snippet-name...)
-
-Overview
---------
-
-First, the preset data will be inserted into the preamble as-is.
-Then, each snippet name you provide will be looked up and the corresponding
-snippet will be inserted.
-
-The preset data
----------------
-
-The PRESET-DATA is the data that will be inserted into the ConTeXt file
-verbatim. This should include anything specific for this preset that
-isn't reused by other presets.
-
-The snippet names
------------------
-
-The snippet names are references to snippets in
-`org-context-presets-alist'. You can use as many snippets as you
-like, including zero.
-"
+  "Alist of ConTeXt preamble presets. "
   :group 'org-export-context
   :type '(repeat
-          (list (string :tag "ConTeXt Preset Name")
-                (string :tag "ConTeXt Preset Data")
-                (repeat :tag "Snippets"
-                        (string :tag "Snippet")))))
+          (cons
+           (string :tag "Preset Name")
+           (plist
+            :tag "Presets"
+            :value-type
+            (cons
+             :tag "Location Settings"
+             (string :tag "Literal Text")
+             (repeat (string :tag "Snippets")))
+            :key-type
+            (choice
+             (const :tag "Preamble Location" :preamble )
+             (const :tag "After \\starttext" :starttext )
+             (const :tag "Before \\stoptext" :stoptext ))))))
+
 
 (defcustom org-context-remove-logfiles t
   "Non-nil means remove the logfiles produced by PDF production.
