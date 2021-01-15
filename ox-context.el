@@ -105,7 +105,7 @@
                     (table-row . org-context-table-row)
                     ;;(target . org-context-target)
                     (template . org-context-template)
-                    ;;(timestamp . org-context-timestamp)
+                    (timestamp . org-context-timestamp)
                     (underline . org-context-underline)
                     (verbatim . org-context-verbatim)
                     (verse-block . org-context-verse-block)
@@ -1770,6 +1770,16 @@ a communication channel."
     (if firstrowp
         (concat "\\startxtablehead[OrgTableHeader]\n" wrappedcontents "\n\\stopxtablehead")
       wrappedcontents)))
+
+(defun org-context-timestamp (timestamp _contents info)
+  "Transcode a TIMESTAMP object from Org to ConTeXt.
+CONTENTS is nil.  INFO is a plist holding contextual
+information."
+  (let* ((time (org-timestamp-to-time timestamp))
+         (year (format-time-string "%Y" time))
+         (month (format-time-string "%m" time))
+         (day (format-time-string "%d")))
+    (format "\\date[d=%s,m=%s,y=%s]" day month year)))
 
 (defun org-context-underline (_underline contents info)
   "Transcode UNDERLINE from Org to ConTeXt"
