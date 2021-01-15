@@ -96,6 +96,7 @@
                     (plain-text . org-context-plain-text)
                     (planning . org-context-planning)
                     (quote-block . org-context-quote-block)
+                    (radio-target . org-context-radio-target)
                     (src-block . org-context-src-block)
                     (special-block . org-context-special-block)
                     (strike-through . org-context-strike-through)
@@ -1404,7 +1405,7 @@ INFO is a plist holding contextual information. See
       (let ((destination (org-export-resolve-radio-link link info)))
         (if (not destination)
             desc
-          (format "\\about{%s}[%s]"
+          (format "\\goto{%s}[%s]"
                   desc
                   (org-export-get-reference destination info)))))
      ;; Links pointing to a headline: Find destination and build
@@ -1757,6 +1758,15 @@ channel."
   "Transcodes a QUOTE-BLOCK element from Org to ConTeXt."
   (org-context--wrap-label
    quote-block (org-context--text-markup contents 'quotation info) info))
+
+(defun org-context-radio-target (radio-target text info)
+  "Transcode a RADIO-TARGET object from Org to ConTeXt.
+TEXT is the text of the target.  INFO is a plist holding
+contextual information."
+  (format "\\reference[%s]{%s} %s"
+          (org-export-get-reference radio-target info)
+          text
+          text))
 
 (defun org-context-strike-through (_strike-through contents info)
   "Transcode STRIKE_THROUGH from Org to ConTeXt"
