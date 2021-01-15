@@ -86,6 +86,7 @@
                     (inline-src-block . org-context-inline-src-block)
                     (italic . org-context-italic)
                     (item . org-context-item)
+                    (keyword . org-context-keyword)
                     (latex-environment . org-context-latex-environment)
                     (latex-fragment . org-context-latex-fragment)
                     (line-break . org-context-line-break)
@@ -1332,6 +1333,23 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
       (format "\\note[%s]" reference-label))
      ;; Otherwise create it
      (t (format "\\footnote[%s]{%s}" reference-label contents)))))
+
+(defun org-context-keyword (keyword _contents info)
+  "Transcode a KEYWORD element from Org to ConTeXt.
+CONTENTS is nil.  INFO is a plist holding contextual information."
+  (let ((key (org-element-property :key keyword))
+        (value (org-element-property :value keyword)))
+    (cond
+     ((string= key "CONTEXT") value)
+     ((string= key "INDEX") (format "\\index{%s}" value))
+     ((string= key "TOC")
+      (let ((case-fold-search t))
+        (cond
+         ((string-match-p "\\<tables\\>" value) "\\placelistoftables")
+         ((string-match-p "\\<figures\\>" value) "\\placelistoffigures")
+         ((string-match-p "\\<headlines\\>" value)
+          (let* ((localp (string-match-p "\\<local\\>" value)))
+            (if localp "\\placecontent[criterium=local]" "\\placecontent")))))))))
 
 (defun org-context-link (link desc info)
   "Transcode a LINK object from Org to ConTeXt.
