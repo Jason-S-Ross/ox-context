@@ -920,12 +920,12 @@ holding the export options."
      ScheduledString=,
      ScheduledTime=,
      #2]
-  \\OrgPlanningClosedString
-  \\OrgPlanningClosedTime
-  \\OrgPlanningDeadlineString
-  \\OrgPlanningDeadlineTime
-  \\OrgPlanningScheduledString
-  \\OrgPlanningScheduledTime
+  \\doifnot{\\OrgPlanningClosedString}{}{\\OrgPlanningClosedString\\space}
+  \\doifnot{\\OrgPlanningClosedTime}{}{\\OrgPlanningClosedTime\\space}
+  \\doifnot{\\OrgPlanningDeadlineString}{}{\\OrgPlanningDeadlineString\\space}
+  \\doifnot{\\OrgPlanningDeadlineTime}{}{\\OrgPlanningDeadlineTime\\space}
+  \\doifnot{\\OrgPlanningScheduledString}{}{\\OrgPlanningScheduledString\\space}
+  \\doifnot{\\OrgPlanningScheduledTime}{}{\\OrgPlanningScheduledTime\\space}
 }
 % Define a basic headline command
 % Override this with user code to customize headline appearance
