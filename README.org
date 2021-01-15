@@ -3,15 +3,15 @@
    - [X] Allow the header to be turned off on the title page
    - [X] Allow the user to configure the title layout.
    - [ ] Add more elements like description, keywords, etc.
-** Prebuilt configurations [2/4]
+** Prebuilt configurations [3/4]
    - [X] Article
    - [X] Report
    - [ ] Book
-   - [ ] Letter
+   - [X] Letter
 * Translators
 ** TODO clock
 ** TODO code
-   This may be OK but need to check against LaTeX
+   Table of listings
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 10:31]
 *** DONE Labels
@@ -30,7 +30,8 @@
 *** TODO Check Boxes
 *** DONE Multiple Levels
     CLOSED: [2021-01-07 Thu 11:18]
-** TODO keyword
+** DONE keyword
+   CLOSED: [2021-01-15 Fri 09:16]
 ** TODO latex-environment
    I might try to escape/replace really common environments
    and verbatim (or maybe just ignore) anything else. For
@@ -42,7 +43,8 @@
 *** DONE Provide support for numbering/no numbering
     CLOSED: [2021-01-12 Tue 17:03]
 *** TODO Provide translators for additional math environments
-** TODO latex-fragment
+** DONE latex-fragment
+   CLOSED: [2021-01-15 Fri 09:16]
 *** DONE Provide translation for LaTeX to ConTeXt math delimiters
     CLOSED: [2021-01-09 Sat 15:21]
 ** TODO link
@@ -54,7 +56,8 @@
 **** TODO Provide support for additional metadata
 ** TODO node-property
    I don't exactly know what this is
-** TODO plain-list
+** DONE plain-list
+   CLOSED: [2021-01-15 Fri 09:16]
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 08:47]
 *** DONE Metadata
@@ -71,7 +74,8 @@
     CLOSED: [2021-01-12 Tue 17:02]
 ** TODO statistics-cookie
 ** TODO target
-** TODO template
+** DONE template
+   CLOSED: [2021-01-15 Fri 09:16]
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 08:48]
 *** DONE Compiler Info
@@ -80,15 +84,16 @@
     CLOSED: [2021-01-12 Tue 17:01]
 *** DONE Headline Numbering Setup
     CLOSED: [2021-01-12 Tue 17:01]
-*** TODO Subtitle
+*** DONE Subtitle
+    CLOSED: [2021-01-15 Fri 09:16]
 *** DONE Configuration
     CLOSED: [2021-01-12 Tue 17:01]
     The cleanest way to do the configuration is to let the
     user use ConTeXt's built-in styling systems. They should
     be able to do quite a bit just by adding extra code to the
     preamble.
-** TODO verse-block
-   I'm not planning on touching this any time soon
+** DONE verse-block
+   CLOSED: [2021-01-15 Fri 09:17]
 ** TODO latex-matrices
 ** DONE bold
    CLOSED: [2021-01-07 Thu 08:43]
@@ -169,7 +174,8 @@
    CLOSED: [2021-01-07 Thu 08:52]
 ** DONE latex-math-block
    CLOSED: [2021-01-08 Fri 13:39]
-* TODO Menu
+* DONE Menu
+  CLOSED: [2021-01-15 Fri 09:17]
 ** DONE Export to ConTeXt File
    CLOSED: [2021-01-07 Thu 08:53]
 ** DONE Export to ConTeXt Buffer
@@ -191,30 +197,40 @@
   Any of these options that is just raw LaTeX that the user
   interpolates could probably be replaced with additional
   CONTEXT_HEADER_EXTRA lines.
-** TODO context-active-timestamp-format
+** DONE context-active-timestamp-format
+   CLOSED: [2021-01-15 Fri 09:18]
+   Can be configured using ConTeXt language settings
 ** TODO context-caption-above
    This can probably be a snippet
-** TODO context-default-figure-position
-   This can probably be a snippet
+** DONE context-default-figure-position
+   CLOSED: [2021-01-15 Fri 09:18]
 ** TODO context-format-drawer-function
    This might be a snippet
 ** TODO context-format-inlinetask-function
    This should be a snippet
-** TODO context-image-default-scale
+** DONE context-image-default-scale
+   CLOSED: [2021-01-15 Fri 09:18]
    This could maybe try the LaTeX version if possible
-** TODO context-image-default-height
+** DONE context-image-default-height
+   CLOSED: [2021-01-15 Fri 09:18]
    This could maybe try the LaTeX version if possible
-** TODO context-image-default-option
-** TODO context-image-default-width
+** DONE context-image-default-option
+   CLOSED: [2021-01-15 Fri 09:18]
+** DONE context-image-default-width
+   CLOSED: [2021-01-15 Fri 09:18]
    This could maybe try the LaTeX version if possible
 ** TODO context-images-centered
    This could maybe try the LaTeX version if possible
 ** TODO context-inline-image-rules
 ** TODO context-link-with-unknown-path-format
-** TODO context-subtitle-format
+** DONE context-subtitle-format
+   CLOSED: [2021-01-15 Fri 09:19]
+   This can be handled using ConTeXt
 ** TODO context-tables-centered
 ** TODO context-title-command
-** TODO context-toc-command
+** DONE context-toc-command
+   CLOSED: [2021-01-15 Fri 09:19]
+   This can be configured arbitrarily by the user using ConTeXt
 ** DONE context-header
    CLOSED: [2021-01-07 Thu 09:01]
 ** DONE context-header-extra
