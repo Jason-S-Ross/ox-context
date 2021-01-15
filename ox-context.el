@@ -848,9 +848,8 @@ holding the export options."
 ")
    (when (and (wholenump with-section-numbers)
             (/= with-section-numbers 0))
-     (format "\\setupcombinedlist[content][list={%s, %s}]\n"
-             (org-context--get-headline-command t with-section-numbers)
-             (org-context--get-headline-command nil with-section-numbers)))
+     (format "\\setupcombinedlist[content][list={%s}]\n"
+             (org-context--get-all-headline-commands with-section-numbers)))
    "
 %===============================================================================
 % Document Metadata
@@ -1347,8 +1346,21 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
          ((string-match-p "\\<tables\\>" value) "\\placelistoftables")
          ((string-match-p "\\<figures\\>" value) "\\placelistoffigures")
          ((string-match-p "\\<headlines\\>" value)
-          (let* ((localp (string-match-p "\\<local\\>" value)))
-            (if localp "\\placecontent[criterium=local]" "\\placecontent")))))))))
+          (let* ((localp (string-match-p "\\<local\\>" value))
+                 (parent (org-element-lineage keyword '(headline)))
+                 (depth
+                  (if (string-match "\\<[0-9]+\\>" value)
+                      (string-to-number (match-string 0 value))
+                    0))
+                 (level (+ depth
+                           (if (not (and localp parent)) 0
+                             (org-export-get-relative-level parent info))))
+                 (levelstring (if (> level 0)
+                                  (format "list={%s}"
+                                          (org-context--get-all-headline-commands level))
+                                "")))
+            (if localp (format  "\\placecontent[criterium=local,%s]" levelstring)
+              (format  "\\placecontent[%s]" levelstring))))))))))
 
 (defun org-context-link (link desc info)
   "Transcode a LINK object from Org to ConTeXt.
@@ -1433,6 +1445,17 @@ INFO is a plist holding contextual information. See
      (path (format "\\goto{\\hyphenatedurl{%s}}[url(%s)]" path path))
      ;; No path, only description.  Try to do something useful.
      (t (format "\\hyphenatedurl{%s}" desc)))))
+
+(defun org-context--get-all-headline-commands (max-depth)
+  (concat
+   (mapconcat
+    (lambda (depth)
+      (concat
+       (org-context--get-headline-command t depth)
+       ","
+       (org-context--get-headline-command nil depth)))
+    (number-sequence 1 max-depth)
+    ",")))
 
 (defun org-context--get-headline-command (numberedp level)
   "Creates a headline name with the correct depth."
