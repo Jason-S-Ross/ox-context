@@ -34,6 +34,7 @@
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
  :options-alist '((:context-float-default-placement nil nil org-context-float-default-placement)
                   (:context-format-headline-function nil nil org-context-format-headline-function)
+                  (:context-format-timestamp-function nil nil org-context-format-timestamp-function)
                   (:context-header "CONTEXT_HEADER" nil nil newline)
                   (:context-image-default-scale nil nil org-context-image-default-scale)
                   (:context-image-default-height nil nil org-context-image-default-height)
@@ -233,6 +234,17 @@ The function result will be used in the section format string."
   :group 'org-export-latex
   :version "24.4"
   :package-version '(Org . "8.0")
+  :type 'function)
+
+(defcustom org-context-format-timestamp-function
+  'org-context-format-timestamp-default-function
+  "Function called to format a timestamp in ConTeXt code.
+
+The function should take one parameter, TIMESTAMP,
+which is an Org timestamp object.
+
+The function should return the string to be exported."
+  :group 'org-export-context
   :type 'function)
 
 (defcustom org-context-from-address ""
@@ -1724,20 +1736,21 @@ CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (let ((closed (org-element-property :closed planning))
         (deadline (org-element-property :deadline planning))
-        (scheduled (org-element-property :scheduled planning)))
+        (scheduled (org-element-property :scheduled planning))
+        (formatter (plist-get info :context-format-timestamp-function)))
     (concat "\\OrgPlanning["
             (when closed
               (concat
                (format "\nClosedString={%s}," org-closed-string)
-               (format "\nClosedTime={%s}," (org-timestamp-translate closed))))
+               (format "\nClosedTime={%s}," (funcall formatter closed))))
             (when deadline
               (concat
                (format "\nDeadlineString={%s}," org-deadline-string)
-               (format "\nDeadlineTime={%s}," (org-timestamp-translate deadline))))
+               (format "\nDeadlineTime={%s}," (funcall formatter deadline))))
             (when scheduled
               (concat
                (format "\nScheduledString={%s}," org-scheduled-string)
-               (format "\nScheduledTime={%s}," (org-timestamp-translate scheduled))))
+               (format "\nScheduledTime={%s}," (funcall formatter scheduled))))
             "]")))
 
 (defun org-context-property-drawer (_property-drawer contents _info)
@@ -1864,15 +1877,18 @@ CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (format "\\pagereference[%s]" (org-context--label target info)))
 
-(defun org-context-timestamp (timestamp _contents info)
-  "Transcode a TIMESTAMP object from Org to ConTeXt.
-CONTENTS is nil.  INFO is a plist holding contextual
-information."
+(defun org-context-format-timestamp-default-function (timestamp)
   (let* ((time (org-timestamp-to-time timestamp))
          (year (format-time-string "%Y" time))
          (month (format-time-string "%m" time))
          (day (format-time-string "%d")))
     (format "\\date[d=%s,m=%s,y=%s]" day month year)))
+
+(defun org-context-timestamp (timestamp _contents info)
+  "Transcode a TIMESTAMP object from Org to ConTeXt.
+CONTENTS is nil.  INFO is a plist holding contextual
+information."
+  (funcall (plist-get info :context-format-timestamp-function) timestamp))
 
 (defun org-context-underline (_underline contents info)
   "Transcode UNDERLINE from Org to ConTeXt"
