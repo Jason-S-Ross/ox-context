@@ -816,8 +816,7 @@ holding the export options."
          (preset-stoptext-string (car preset-stoptext-data))
          (preset-stoptext-snippets
           (org-context--get-snippet-text info preset-stoptext-data))
-         (user-snippets (plist-get info :context-snippet))
-         )
+         (user-snippets (org-context--get-snippet-text info (plist-get info :context-snippet))))
     (concat
    (and time-stamp
         (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
