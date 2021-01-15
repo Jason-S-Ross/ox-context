@@ -33,6 +33,7 @@
                                       )
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
  :options-alist '((:context-float-default-placement nil nil org-context-float-default-placement)
+                  (:context-format-inlinetask-function nil nil org-context-format-inlinetask-function)
                   (:context-format-headline-function nil nil org-context-format-headline-function)
                   (:context-format-timestamp-function nil nil org-context-format-timestamp-function)
                   (:context-header "CONTEXT_HEADER" nil nil newline)
@@ -85,6 +86,7 @@
                     (headline . org-context-headline)
                     (horizontal-rule . org-context-horizontal-rule)
                     (inline-src-block . org-context-inline-src-block)
+                    (inlinetask . org-context-inlinetask)
                     (italic . org-context-italic)
                     (item . org-context-item)
                     (keyword . org-context-keyword)
@@ -234,6 +236,23 @@ The function result will be used in the section format string."
   :group 'org-export-latex
   :version "24.4"
   :package-version '(Org . "8.0")
+  :type 'function)
+
+(defcustom org-context-format-inlinetask-function
+  'org-context-format-inlinetask-default-function
+  "Function called to format an inlinetask in LaTeX code.
+
+The function must accept seven parameters:
+  TODO      the todo keyword (string or nil)
+  TODO-TYPE the todo type (symbol: `todo', `done', nil)
+  PRIORITY  the inlinetask priority (integer or nil)
+  NAME      the inlinetask name (string)
+  TAGS      the inlinetask tags (list of strings or nil)
+  CONTENTS  the contents of the inlinetask (string or nil)
+  INFO      the export options (plist)
+
+The function should return the string to be exported."
+  :group 'org-export-context
   :type 'function)
 
 (defcustom org-context-format-timestamp-function
@@ -939,6 +958,33 @@ holding the export options."
   \\doifnot{\\OrgPlanningScheduledString}{}{\\OrgPlanningScheduledString\\space}
   \\doifnot{\\OrgPlanningScheduledTime}{}{\\OrgPlanningScheduledTime\\space}
 }
+
+% Define a basic inline task command
+% Override this with user code to customize inline task appearance
+\\def\\OrgInlineTask#1[#2]{%
+  \\getparameters
+    [OrgInlineTask]
+    [Todo=,
+     TodoType=,
+     Priority=,
+     Title=,
+     Tags=,
+     Contents=,
+     #2]
+  \\blank[big]
+  \\startframedtext[align=normal, location=middle, width=0.6\\textwidth]
+  \\startalignment[middle]
+  \\doifnot{\\OrgInlineTaskTodo}{}{\\sansbold{\\smallcaps{\\OrgInlineTaskTodo}} }%
+  \\doifnot{\\OrgInlineTaskPriority}{}{\\inframed{\\OrgInlineTaskPriority} }%
+  \\OrgInlineTaskTitle %
+  \\doifnot{\\OrgInlineTaskTags}{}{{\\crlf\\tt\\OrgInlineTaskTags} }%
+  \\crlf%
+  \\textrule
+  \\stopalignment
+  \\OrgInlineTaskContents
+  \\stopframedtext
+  \\blank[big]
+}
 % Define a basic headline command
 % Override this with user code to customize headline appearance
 \\def\\OrgHeadline#1[#2]{%
@@ -1547,6 +1593,39 @@ contextual information."
                             (plist-get info :context-highlighted-langs)))
                      (downcase org-lang))))
       (format "\\startOrgInlineSrc[option=%s] %s \\stopOrgInlineSrc " lang code))))
+
+(defun org-context-inlinetask (inlinetask contents info)
+  "Transcode an INLNETASK element from Org to ConTeXt.
+CONTENTS holds the contents of the block. INFO is a plist
+holding contextual information."
+  (let ((title (org-export-data (org-element-property :title inlinetask) info))
+        (todo (and (plist-get info :with-todo-keywords)
+                   (let ((todo (org-element-property :todo-keyword inlinetask)))
+                     (and todo (org-export-data todo info)))))
+        (todo-type (org-element-property :todo-type inlinetask))
+        (tags (and (plist-get info :with-tags)
+                   (org-export-get-tags inlinetask info)))
+        (priority (make-string 1 (org-element-property :priority inlinetask)))
+        (label (org-context--label inlinetask info))
+        (format-func (plist-get info :context-format-inlinetask-function)))
+    (funcall format-func
+             todo todo-type priority title tags contents info)))
+
+(defun org-context-format-inlinetask-default-function
+    (todo todo-type priority title tags contents _info)
+  "Default format function for inlinetasks.
+See `org-context-format-inlinetask-function' for details."
+  (format
+   "\\OrgInlineTask
+  [%s]"
+   (org-context--format-arguments
+    (list
+     (cons "Todo" todo)
+     (cons "TodoType" todo-type)
+     (cons "Priority" priority)
+     (cons "Title" title)
+     (cons "Tags" (org-make-tag-string (mapcar #'org-latex--protect-text tags)))
+     (cons "Contents" contents)))))
 
 (defun org-context-italic (_italic contents info)
   "Transcode ITALIC from Org to ConTeXt"
