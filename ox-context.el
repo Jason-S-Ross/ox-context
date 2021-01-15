@@ -1314,6 +1314,25 @@ CONTENTS is nil. INFO is a plist holding contextual information."
     info)
    info))
 
+(defun org-context-footnote-reference (footnote-reference _contents info)
+  "Transcode a FOOTNOTE-REFERENCE element from Org to ConTeXt.
+CONTENTS is nil.  INFO is a plist holding contextual information."
+  ;; TODO Handle the case where the first appearance of a footnote
+  ;; is inside of another footnote. This could possibly be solved
+  ;; by using \footnotetext. This could also be a problem with
+  ;; my ConTeXt version
+  (let* ((label (org-element-property :label footnote-reference))
+         (footnote-definition
+          (org-export-get-footnote-definition footnote-reference info))
+         (reference-label (org-latex--label footnote-definition info t))
+         (contents (org-trim (org-export-data footnote-definition info))))
+    (cond
+     ;; Footnote has already been defined
+     ((not (org-export-footnote-first-reference-p footnote-reference info))
+      (format "\\note[%s]" reference-label))
+     ;; Otherwise create it
+     (t (format "\\footnote[%s]{%s}" reference-label contents)))))
+
 (defun org-context-link (link desc info)
   "Transcode a LINK object from Org to ConTeXt.
 
@@ -1397,25 +1416,6 @@ INFO is a plist holding contextual information. See
      (path (format "\\goto{\\hyphenatedurl{%s}}[url(%s)]" path path))
      ;; No path, only description.  Try to do something useful.
      (t (format "\\hyphenatedurl{%s}" desc)))))
-
-(defun org-context-footnote-reference (footnote-reference _contents info)
-  "Transcode a FOOTNOTE-REFERENCE element from Org to ConTeXt.
-CONTENTS is nil.  INFO is a plist holding contextual information."
-  ;; TODO Handle the case where the first appearance of a footnote
-  ;; is inside of another footnote. This could possibly be solved
-  ;; by using \footnotetext. This could also be a problem with
-  ;; my ConTeXt version
-  (let* ((label (org-element-property :label footnote-reference))
-         (footnote-definition
-          (org-export-get-footnote-definition footnote-reference info))
-         (reference-label (org-latex--label footnote-definition info t))
-         (contents (org-trim (org-export-data footnote-definition info))))
-    (cond
-     ;; Footnote has already been defined
-     ((not (org-export-footnote-first-reference-p footnote-reference info))
-      (format "\\note[%s]" reference-label))
-     ;; Otherwise create it
-     (t (format "\\footnote[%s]{%s}" reference-label contents)))))
 
 (defun org-context-headline (headline contents info)
   "Transcodes a HEADLINE element from Org to ConTeXt."
