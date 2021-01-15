@@ -33,6 +33,7 @@
                                       )
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
  :options-alist '((:context-float-default-placement nil nil org-context-float-default-placement)
+                  (:context-format-clock-function nil nil org-context-format-clock-function)
                   (:context-format-inlinetask-function nil nil org-context-format-inlinetask-function)
                   (:context-format-headline-function nil nil org-context-format-headline-function)
                   (:context-format-timestamp-function nil nil org-context-format-timestamp-function)
@@ -77,6 +78,7 @@
  :translate-alist '((bold . org-context-bold)
                     (center-block . org-context-center-block)
                     (code . org-context-code)
+                    (clock . org-context-clock)
                     (entity . org-context-entity)
                     (example-block . org-context-example-block)
                     (export-block . org-context-export-block)
@@ -236,6 +238,17 @@ The function result will be used in the section format string."
   :group 'org-export-latex
   :version "24.4"
   :package-version '(Org . "8.0")
+  :type 'function)
+
+(defcustom org-context-format-clock-function
+  'org-context-format-clock-default-function
+  "Function called to format a clock in ConTeXt code.
+
+The function should take one parameter, TIMESTAMP,
+which is an Org timestamp object.
+
+The function should return the string to be exported."
+  :group 'org-export-context
   :type 'function)
 
 (defcustom org-context-format-inlinetask-function
@@ -1001,6 +1014,25 @@ holding the export options."
   \\OrgHeadlineText
   \\doifnot{\\OrgHeadlineTags}{}{{\\tt \\tfx \\OrgHeadlineTags\\quad}}
 }
+% Define a basic clock command
+% Override this with user code to customize the clock appearance
+\\def\\OrgClock#1[#2]{%
+  \\getparameters
+    [OrgClock]
+    [y=,
+     m=,
+     d=,
+     H=,
+     M=,
+     I=,
+     S=,
+     #2]
+\\doifnot{\\OrgClocky}{}{%
+  \\date[year=\\OrgClocky,month=\\OrgClockm,day=\\OrgClockd]
+        [year, --, mm, --, dd]}%
+\\doifnot{\\OrgClockH}{}{T\\OrgClockH:\\OrgClockM%
+\\doifnot{\\OrgClockS}{}{:\\OrgClockS}}
+}
 \\protect
 
 %===============================================================================
@@ -1329,6 +1361,28 @@ CONTENTS holds the contents of the center block.  INFO is a plist
 holding contextual information."
   (org-context--wrap-label
    center-block (format "\\startalignment[middle]\n%s\\stopalignment" contents) info))
+
+(defun org-context-format-clock-default-function (timestamp)
+  "Formats a timestamp in ConTeXt format"
+  (let* ((time (org-timestamp-to-time timestamp))
+         (args
+          (list
+           (cons "y" (format-time-string "%Y" time))
+           (cons "m" (format-time-string "%m" time))
+           (cons "d" (format-time-string "%d" time))
+           (cons "H" (format-time-string "%H" time))
+           (cons "M" (format-time-string "%M" time))
+           (cons "I" (format-time-string "%I" time))
+           (cons "S" (format-time-string "%S" time)))))
+    (format "\\OrgClock[%s]" (org-context--format-arguments args))))
+
+(defun org-context-clock (clock _contents info)
+  "Transcode a CLOCK element from Org to ConTeXt.
+CONTENTS is nil.  INFO is a plist holding contextual
+information."
+  (let ((timestamp (org-element-property :value clock))
+        (formatter (plist-get info :context-format-clock-function)))
+    (funcall formatter timestamp)))
 
 (defun org-context-code (code contents info)
   "Transcode CODE from Org to ConTeXt"
