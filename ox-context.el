@@ -57,6 +57,8 @@
                   (:url "URL" nil org-context-url)
                   (:from-logo "FROM_LOGO" nil org-context-from-logo)
                   (:to-address "TO_ADDRESS" nil nil newline)
+                  (:to-name "TO_NAME" nil nil newline)
+                  (:attention "ATTENTION" nil nil newline)
                   (:place "PLACE" nil org-context-place)
                   (:location "LOCATION" nil org-context-location)
                   (:subject "SUBJECT" nil nil parse)
@@ -308,6 +310,7 @@ This option can also be set with the PLACE keyword."
   signature={\\documentvariable{letter:signature}},
   toname={\\documentvariable{letter:toname}},
   toaddress={\\documentvariable{letter:toaddress}},
+  attention={\\documentvariable{letter:attention}},
   opening={\\documentvariable{letter:opening}},
   fromphone={\\documentvariable{metadata:phonenumber}},
   fromurl={\\documentvariable{metadata:url}}]")
@@ -698,6 +701,8 @@ INFO is a plist used as a communication channel."
     (cons "metadata:phonenumber" (org-export-data (plist-get info :phone-number) info))
     (cons "metadata:url" (org-export-data (plist-get info :url) info))
     (cons "letter:toaddress" (org-export-data (plist-get info :to-address) info))
+    (cons "letter:toname" (org-export-data (plist-get info :to-name) info))
+    (cons "letter:attention" (org-export-data (plist-get info :attention) info))
     (cons "location" (org-export-data (plist-get info :place) info))
     (cons "letter:location" (org-export-data (plist-get info :location) info))
     (cons "metadata:subject" (org-export-data (plist-get info :subject) info))
