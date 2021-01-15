@@ -969,7 +969,8 @@ holding the export options."
        (plist-get info :with-toc)
      "\\OrgTitleContents
 \\placecontent\n")
-   "\\stopOrgTitlePage
+   "
+\\stopOrgTitlePage
 \\stopfrontmatter
 \\startbodymatter
 \\startOrgBody\n"
