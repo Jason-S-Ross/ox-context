@@ -1607,8 +1607,7 @@ INFO is a plist holding contextual information. See
   "Creates a headline name with the correct depth."
   (concat
    (apply 'concat (make-list (+ level (- 1)) "sub"))
-   (if numberedp "section" "subject"))
-  )
+   (if numberedp "section" "subject")))
 
 (defun org-context-headline (headline contents info)
   "Transcodes a HEADLINE element from Org to ConTeXt."
