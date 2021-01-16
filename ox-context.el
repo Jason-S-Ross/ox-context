@@ -1112,15 +1112,16 @@ holding the export options."
     (todo todo-type priority text tags _info)
   "Default format function for a headline.
 See `org-context-format-headline-function' for details."
-  (concat
+  (format
    "\\OrgHeadline
-  ["
-   (when todo (format "Todo={%s}," todo))
-   (when todo-type (format "TodoType={%s}," todo-type))
-   (when priority (format "Priority={%s}," priority))
-   (when text (format "Text={%s}," text))
-   (when tags (format "Tags={%s}," (mapconcat #'org-latex--protect-text tags ":")))
-   "]"))
+   [%s]"
+   (org-context--format-arguments
+    (list
+     (cons "Todo" todo)
+     (cons "TodoType" todo-type)
+     (cons "Priority" priority)
+     (cons "Text" text)
+     (cons "Tags" (mapconcat #'org-latex--protect-text tags ":"))))))
 
 (defun org-context--format-arguments (arguments)
   "Formats ARGUMENTS into a ConTeXt argument string.
