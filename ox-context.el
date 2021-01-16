@@ -1718,12 +1718,22 @@ See `org-context-format-inlinetask-function' for details."
 (defun org-context-item (item contents info)
   "Transcode and ITEM element from Org to ConTeXt"
   (let ((tag (let ((tag (org-element-property :tag item)))
-               (and tag (org-export-data tag info)))))
+               (and tag (org-export-data tag info))))
+        (checkbox (cl-case (org-element-property :checkbox item)
+                    (on "\\boxtimes")
+                    (off "\\square")
+                    (trans "\\boxminus"))))
     (if (eq
          (org-element-property :type (org-export-get-parent item))
          'descriptive)
-        (format "\\startOrgDesc{%s} %s\n\\stopOrgDesc" tag (org-trim contents))
-      (format "\\item %s" (org-trim contents)))))
+        (format "\\startOrgDesc{%s} %s\n\\stopOrgDesc"
+                (if (org-string-nw-p checkbox)
+                    (format "%s\\space\\space %s" checkbox tag)
+                  tag)
+                (org-trim contents))
+      (if (org-string-nw-p checkbox)
+          (format "\\sym{%s} %s" checkbox contents)
+        (format "\\item %s" (org-trim contents))))))
 
 (defun org-context--latex-environment-name (latex-environment)
   "Return the NAME of LATEX-ENVIRONMENT.
