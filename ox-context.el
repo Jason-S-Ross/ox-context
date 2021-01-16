@@ -1622,8 +1622,10 @@ INFO is a plist holding contextual information. See
          (todo-type (and todo (org-element-property :todo-type headline)))
          (tags (and (plist-get info :with-tags)
                     (org-export-get-tags headline info)))
+         (priority-num (org-element-property :priority headline))
          (priority (and (plist-get info :with-priority)
-                        (org-element-property :priority headline)))
+                        priority-num
+                        (string priority-num)))
          (full-text (funcall (plist-get info :context-format-headline-function)
                              todo todo-type priority text tags info))
          (headertemplate
@@ -1678,16 +1680,19 @@ contextual information."
   "Transcode an INLNETASK element from Org to ConTeXt.
 CONTENTS holds the contents of the block. INFO is a plist
 holding contextual information."
-  (let ((title (org-export-data (org-element-property :title inlinetask) info))
-        (todo (and (plist-get info :with-todo-keywords)
-                   (let ((todo (org-element-property :todo-keyword inlinetask)))
-                     (and todo (org-export-data todo info)))))
-        (todo-type (org-element-property :todo-type inlinetask))
-        (tags (and (plist-get info :with-tags)
-                   (org-export-get-tags inlinetask info)))
-        (priority (make-string 1 (org-element-property :priority inlinetask)))
-        (label (org-context--label inlinetask info))
-        (format-func (plist-get info :context-format-inlinetask-function)))
+  (let* ((title (org-export-data (org-element-property :title inlinetask) info))
+         (todo (and (plist-get info :with-todo-keywords)
+                    (let ((todo (org-element-property :todo-keyword inlinetask)))
+                      (and todo (org-export-data todo info)))))
+         (todo-type (org-element-property :todo-type inlinetask))
+         (tags (and (plist-get info :with-tags)
+                    (org-export-get-tags inlinetask info)))
+         (priority-num (org-element-property :priority inlinetask))
+         (priority (and (plist-get info :with-priority)
+                        priority-num
+                        (make-string 1 priority-num)))
+         (label (org-context--label inlinetask info))
+         (format-func (plist-get info :context-format-inlinetask-function)))
     (funcall format-func
              todo todo-type priority title tags contents info)))
 
