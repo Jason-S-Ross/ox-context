@@ -1024,10 +1024,10 @@ holding the export options."
      Text=,
      Tags=,
      #2]
-  \\doifnot{\\OrgHeadlineTodo}{}{{\\tfc\\ss\\OrgHeadlineTodo\\quad}}
-  \\doifnot{\\OrgHeadlineTodo}{}{{\\sl \\OrgHeadlinePriority\\quad}}
-  \\OrgHeadlineText
-  \\doifnot{\\OrgHeadlineTags}{}{{\\tt \\tfx \\OrgHeadlineTags\\quad}}
+  \\doifnot{\\OrgHeadlineTodo}{}{{\\sansbold{\\smallcaps{\\OrgHeadlineTodo}}\\space}}%
+  \\doifnot{\\OrgHeadlinePriority}{}{{\\inframed{\\OrgHeadlinePriority}\\space}}%
+  \\OrgHeadlineText%
+  \\doifnot{\\OrgHeadlineTags}{}{{\\space\\tt\\OrgHeadlineTags}}%
 }
 % Define a basic clock command
 % Override this with user code to customize the clock appearance
