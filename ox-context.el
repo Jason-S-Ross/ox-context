@@ -102,6 +102,7 @@
                     (plain-list . org-context-plain-list)
                     (plain-text . org-context-plain-text)
                     (planning . org-context-planning)
+                    (property-drawer . org-context-property-drawer)
                     (quote-block . org-context-quote-block)
                     (radio-target . org-context-radio-target)
                     (src-block . org-context-src-block)
@@ -628,8 +629,8 @@ See also `:context-presets'"
     (code . "\\type{%s}")
     (fixed-width . "\\startOrgFixed\n%s\n\\stopOrgFixed")
     (italic . "\\italic{%s}")
-    (paragraph . "\n\\startOrgParagraph\n%s\n\\stopOrgParagraph")
-    (property-drawer . "\n\startOrgPropertyDrawer\n%s\n\\stopOrgPropertyDrawer")
+    (paragraph . "\n\\startOrgParagraph\n%s\\stopOrgParagraph")
+    (property-drawer . "\n\\startOrgPropertyDrawer\n%s\\stopOrgPropertyDrawer")
     (protectedtexttt . "\\type{%s}")
     (quotation . "\\startOrgBlockQuote\n%s\n\\stopOrgBlockQuote")
     (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
@@ -953,7 +954,7 @@ holding the export options."
 % Create a verse style
 \\definelines[OrgVerse]
 % Create a property drawer style
-\\definestartstop[OrgPropertyDrawer]
+\\definetyping[OrgPropertyDrawer]
 % Create a paragraph style
 \\definestartstop[OrgParagraph]
 % Create a body style
@@ -1906,7 +1907,7 @@ information."
                (format "\nScheduledTime={%s}," (funcall formatter scheduled))))
             "]")))
 
-(defun org-context-property-drawer (_property-drawer contents _info)
+(defun org-context-property-drawer (_property-drawer contents info)
   "Transcode a PROPERTY-DRAWER element from Org to LaTeX.
 CONTENTS holds the contents of the drawer.  INFO is a plist
 holding contextual information."
