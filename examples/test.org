@@ -14,191 +14,304 @@
 
 #+TITLE: Org Mode ConTeXt Export Demo
 #+DESCRIPTION: Simple demo of the Org Mode ConTeXt exporter
+#+KEYWORDS: context org-mode
+#+SUBTITLE: Sampling of Features
 #+AUTHOR: Jason Ross
 #+EMAIL: jasonross1024@gmail.com
-#+OPTIONS: toc:nil num:t
+#+CREATOR: Jason Ross
+#+LANGUAGE: en
+#+OPTIONS: foldmarks:nil toc:t backaddress:t pri:t p:t c:t prop:t d:t
 #+CONTEXT_HEADER: \usemodule[pret-python]
-
-#+CONTEXT_HEADER_EXTRA: \setuppapersize[letter]
-#+CONTEXT_HEADER_EXTRA: \setuplayout[backspace=1.85in, width=4.8in, height=7.64in]
-#+CONTEXT_HEADER_EXTRA: \setupxtable [align=center, leftframe=off, rightframe=off, topframe=off,
-#+CONTEXT_HEADER_EXTRA: bottomframe=off, loffset=1em, roffset=1em, stretch=on]
-#+CONTEXT_HEADER_EXTRA: \setupxtable[orgheader][toffset=1ex, foregroundstyle=bold, bottomframe=on]
-#+CONTEXT_HEADER_EXTRA: \setuptyping[orgblksrc]
-#+CONTEXT_HEADER_EXTRA:    [before={\startframedtext[width=\makeupwidth,
-#+CONTEXT_HEADER_EXTRA:                              background=color,
-#+CONTEXT_HEADER_EXTRA:                              backgroundcolor=lightgray]},
-#+CONTEXT_HEADER_EXTRA:     after={\stopframedtext},
-#+CONTEXT_HEADER_EXTRA:     style={\small\tt},
-#+CONTEXT_HEADER_EXTRA:     numbering=line]
-#+CONTEXT_HEADER_EXTRA: \setupheadertexts[{\getvariable{org}{author}}][{\getvariable{org}{title}}]
-#+CONTEXT_HEADER_EXTRA: \setupfootertexts[][{Page \pagenumber}]
-#+CONTEXT_HEADER_EXTRA: \setuppagenumbering[location=]
-#+CONTEXT_HEADER_EXTRA: \setuplinenumbering[style={\small\tt}]
-#+CONTEXT_HEADER_EXTRA: \setupframedtext
-#+CONTEXT_HEADER_EXTRA:   [orgblockquote]
-#+CONTEXT_HEADER_EXTRA:   [style={\sl}, frame=off, location=middle]
+#+CONTEXT_HEADER: \setuppaper[letter]
+#+CONTEXT_PRESET: article
 #+DATE: 2021-01-07
 
-* Problem 1
-  - Problem :: Evaluate numerically the integral
-
-  \[
-  I = \int_0^{\pi/2}{\ln\left(\sin{x}\right) dx}
-  \]
-
-  and compare with the exact value $I = -\frac{\pi}{2}\ln{2}$
-
-  - Solution :: ...
-
-    Note that $\ln{\left(\sin x\right)} = \ln{\left(x \frac{\sin x}{x}\right)}
-    = \ln{x} + \ln{\frac{\sin x}{x}}$
-
-    Therefore we just need to find
-    $\int_0^{\pi/2}{\ln{x} dx}$ analytically and evaluate
-    $\int_0^{\pi/2}{\ln{\frac{\sin x}{x}} dx}$ numerically.
-
-    $\int_0^{\pi/2}{\ln{x} dx}$ can be integrated by parts.
-
-    Let $u = \ln x, v^{'} = dx, u^{'} = \frac{1}{x}, v = x$. Therefore,
-    $$\int{ln{x} dx} = \int{u v^{'} dx} = u v - \int{v u^{'} dx}$$
-    $$ u v - \int{v u^{'} dx} = x \ln x - \int{x \frac{1}{x} dx} = x \ln x - x$$
-    And so, $\int_0^{\pi/2}{\ln x dx} = \left. x \ln x - x \right|_0^{\pi/2}$
-
-    \begin{align*}
-    \frac{d^4}{dx^4} e^{a x} + e^{a x} &= 0 \\
-    a^4 e^{a x} + e^{a x} &= 0 \\
-    a^4 + 1 &= 0 \\
-    a^4 &= -1 \\
-    \end{align*}
-
-    And, $\int_0^{\pi/2}{\ln x dx} = \frac{pi}{2} \left(\ln x - 1\right) \approx -0.861$
-
-    #+BEGIN_SRC python :results output code :exports both
-    from sympy import log, pi, integrate
-    from sympy.abc import x
-    print((pi/2 * (log(pi/2) - 1)).evalf())
-    print(integrate(log(x), (x, 0, pi/2)).evalf())
-    #+END_SRC
-
-    #+RESULTS:
-    #+begin_src python
-    -0.861451872082119
-    -0.861451872082119
-    #+end_src
-
-    So we have a value for part of our problem. The other part is to evaluate the integral
-    $$\int_0^{\pi/2}{\ln{\frac{\sin x}{x}} dx}$$
-    We can do this with Simpson's rule. Recall that
-    \[S = \frac{H}{9}\sum_{i=0}^{n-1}{f(x_0 + i H)+
-    4 f\left(x_0 + \left(i + \frac{1}{2}\right) H\right) +
-    f\left(x_0 + \left(i + 1\right) H\right)}\]
-    
-    #+begin_src python :results file :exports both
-      import matplotlib.pyplot as plt
-      import numpy as np
-      x, y = np.meshgrid(np.linspace(0, 1, 25), np.linspace(0, 1, 25))
-      def slope(x, y):
-          return x - y**2
-      u = np.ones_like(x)
-      v = slope(x, y)
-      plt.figure(figsize=(8, 8))
-      plt.quiver(x, y, u, v, scale=30)
-      plt.gcf().tight_layout()
-      plt.plot(
-          np.linspace(0, 1, 11),
-          [0.000, 0.005, 0.020, 0.045, 0.080, 0.124,
-           0.177, 0.238, 0.306, 0.380, 0.458]
-      )
-      plt.savefig("temp.pdf")
-      return "temp.pdf"
-
-    #+end_src
-
-    #+CAPTION: Quiver Plot
-    #+results:
-    [[file:temp.pdf]]
-
-** Sample Subheading
-   - Item
-     
-     Some prose
-   - Item 2
-
-     Some more prose
-
-   Here's some prose in the middle
-
-   1. Numbered item
-      - A subitem
-        - A subsubitem
-   2. Another numbered item
-
-   *Here's some bold* /here's some italics/ +Here's some strikethrough+
-   ~here's some code~ =here's some verbatim= _here's some underline!?_
-   _/Here's some underlined italics/_
-
-
-  
-:TestDrawer:
-Here's some junk in a drawer
-:END:
- 
-   #+BEGIN_SRC lua
-     local function s(a)
-       if control[s] then
-         foo(s)
-       end
-     end
-   #+END_SRC
-
-   #+BEGIN_SRC metapost
-     beginfig(1)
-       draw fullcircle scaled 3cm ;
-     endfig ;
-     end ;
+List of Tables
+#+TOC: tables
+List of Figures
+#+TOC: figures
+* DONE [#A] Block Elements
+  This section demonstrates different elements delimited by different =#+BEGIN/END= tags.
+  #+INDEX: Source Block
+** Source Blocks
+   Syntax highlighting is supported in ConTeXt, but you may have to install
+   a module to support it.
+   #+BEGIN_SRC python 
+     import this
+     for i in range(5):
+         print(i * i)
    #+END_SRC
  
+   #+RESULTS:
+   : None
+   #+INDEX: Verse Block
+** Verse Blocks
+   /The Monks and the Giants/ by John Hookham Frere
+   #+BEGIN_VERSE
+   But chiefly, when the shadowy moon had shed
+     O'er woods and waters her mysterious hue,
+   Their passive hearts and vacant fancies fed
+       With thoughts and aspirations strange and new,
+   Till their brute souls with inward working bred
+        Dark hints that in the depths of instinct grew
+   Subjection not from Locke's associations,
+         Nor David Hartley's doctrine of vibrations.
+   #+END_VERSE
+   #+INDEX: Example Block
+** Example Blocks
+   #+begin_example
+   The Zen of Python, by Tim Peters
+ 
+   Beautiful is better than ugly.
+   Explicit is better than implicit.
+   Simple is better than complex.
+   Complex is better than complicated.
+   Flat is better than nested.
+   Sparse is better than dense.
+   Readability counts.
+   Special cases aren't special enough to break the rules.
+   Although practicality beats purity.
+   Errors should never pass silently.
+   Unless explicitly silenced.
+   In the face of ambiguity, refuse the temptation to guess.
+   There should be one-- and preferably only one --obvious way to do it.
+   Although that way may not be obvious at first unless you're Dutch.
+   Now is better than never.
+   Although never is often better than *right* now.
+   If the implementation is hard to explain, it's a bad idea.
+   If the implementation is easy to explain, it may be a good idea.
+   Namespaces are one honking great idea -- let's do more of those!
+   #+end_example
+   #+INDEX: Export Block
+** Export Blocks
+   Both TeX and ConTeXt export blocks are supported.
 
-   Here's a link to [[Problem 1]]
+   #+BEGIN_EXPORT tex
+   ABC \quad 123
+   #+END_EXPORT
 
-   Here's a link to [[http://google.com][google]]
-
-   Here's a bare link to https://orgmode.org
-   
    #+BEGIN_EXPORT context
    \pagebreak
    \input{knuth}
    \pagebreak
    #+END_EXPORT
+   #+INDEX: Centering
+** Centering
+   #+BEGIN_CENTER
+   This is some centered text
+   #+END_CENTER
+   #+INDEX: Quote Block
+** Quote Block
+  #+BEGIN_QUOTE
+  Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+  commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+  lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+  felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+  dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+  quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
+  tortor. Nam euismod tellus id erat.
+  #+END_QUOTE
+* Inline Elements
+
+** Code
+   Here's some source code: ~with open("file.txt") as f:~
+  
+** Links
+*** Named URL
+   Here's a link to [[https://orgmode.org][Org Mode]]
+*** Heading Link
+    Here's a link to [[Block Elements]]
+    These are still a bit wonky.
+*** Anonymous url
+    Here's a link to [[https://orgmode.org]]
+*** Anonymous Unmarked url
+    https://orgmode.org
+** Radio Targets
+   This is a <<<sample radio target>>>
+
+   and this is a link to a sample radio target
+
+   <<SimpleTarget>>
+** Target
+   This is a link to [[SimpleTarget]]
+   TODO
+** Bold
+   This is *Some bold text*
+** LaTeX Fragments
+   Here's some inline LaTeX: $e=m c^2$
+** Inline Source
+   src_python{return "Hello, world!"}
+** Italic
+   /This is some italic text/
+** Line breaks
+   Here is a\\
+   line break
+** Strikethrough
+   +This is strikethrough+
+** Subscripts
+   This_is sub_script
+** Superscripts
+   This^is super^script
+** Underline
+   _Here's some underlined text_
+** Verbatim
+   =This is verbatim text=
+** Footnote Reference
+  This should link to a footnote at the bottom of the page. [fn:1] 
+
+* Paragraph Elements
+  These elements form their own paragraph or section in the export
+** Clock
+   The default clock is set to use the ISO format.
+  CLOCK: [2021-01-15 Fri 16:58]
+** LaTeX Environments
+   Common math environments are translated from LaTeX to ConTeXt.
    
+   \begin{align*}
+   \frac{d^4}{dx^4} e^{a x} + e^{a x} &= 0 \\
+   a^4 e^{a x} + e^{a x} &= 0 \\
+   a^4 + 1 &= 0 \\
+   a^4 &= -1 \\
+   \end{align*}
+** Drawer
+   :MyDrawer:
+   This is a simple drawer
+   :END:
+** Horizontal Rule
+   This is a horizontal rule:
+   -----
+** Fixed width
+   :   This is Some fixed-width text
 
-*** DONE Sample SubSubHeading                                     :sampletag:
-    CLOSED: [2021-01-08 Fri 09:33]
+** Here's a property drawer
+   :PROPERTIES:
+   :Title:    Goldberg Variations
+   :Composer: J.S. Bach
+   :Artist:   Glenn Gould
+   :Publisher: Deutsche Grammophon
+   :NDisks:   1
+   :END:
+** Inline Task
+  
+*************** TODO [#B] Check Inline Task                            :tag1:
+                DEADLINE: <2021-01-22 Fri> SCHEDULED: <2021-01-15 Fri>
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit tempor
+tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et, mattis
+eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
+parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
+Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
+Nam vestibulum accumsan nisl.
 
-    Here's a quote from Donald Knuth:
-    #+BEGIN_QUOTE
-    The best programs are written so that computing machines can perform them
-    quickly and so that human beings can understand them clearly. A programmer
-    is ideally an essayist who works with traditional aesthetic and literary
-    forms as well as mathematical concepts, to communicate the way that an
-    algorithm works and to convince a reader that the results will be correct.
-    #+END_QUOTE
-    -----
-    
-   #+BEGIN_EXPORT context
-   \pagebreak
-   #+END_EXPORT
-**** Sample SubSubSubHeading
 
-     Here's a table
+*************** END
+** Lists and items
+   - Bullet 1
+   - Bullet 2
+   - Bullet 3
+     - SubBullet 1 
+     - [-] SubBullet 2 [1/2]
+       - [X] SubSubBullet 1
+       - [ ] SubSubBullet 2
 
-     | Head 1 | Head 2 |
-     |--------+--------|
-     | Row 1  | Row 2  |
 
-     That was the table
+   - Description item 1 :: Nullam eu ante vel est convallis dignissim. Fusce
+     suscipit, wisi nec facilisis facilisis, est dui fermentum leo, quis tempor
+     ligula erat quis odio. Nunc porta vulputate tellus. Nunc rutrum turpis sed
+     pede. Sed bibendum. Aliquam posuere. Nunc aliquet, augue nec adipiscing
+     interdum, lacus tellus malesuada massa, quis varius mi purus non odio.
+     Pellentesque condimentum, magna ut suscipit hendrerit, ipsum augue ornare
+     nulla, non luctus diam neque sit amet urna. Curabitur vulputate vestibulum
+     lorem. Fusce sagittis, libero non molestie mollis, magna orci ultrices
+     dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis est
+     convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
 
-***** Sample SubSubSubSubHeading
 
-****** Sample SubSubSubSubSubHeading
+   1. Numbered item
+   2. Another Number
+
+** Tables
+  Here's a table
+  |  A  |  B  |  C  |  D  |  E  |  F  |  G  |  H  |  I  |  J  |
+  |-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
+  |  0  |  0  |  0  |  0  |  0  |  0  |  0  |  0  |  0  |  0  |
+  |  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |
+  |  0  |  2  |  4  |  6  |  8  | 10  | 12  | 14  | 16  | 18  |
+  |  0  |  3  |  6  |  9  | 12  | 15  | 18  | 21  | 24  | 27  |
+  |  0  |  4  |  8  | 12  | 16  | 20  | 24  | 28  | 32  | 36  |
+  |  0  |  5  | 10  | 15  | 20  | 25  | 30  | 35  | 40  | 45  |
+  |  0  |  6  | 12  | 18  | 24  | 30  | 36  | 42  | 48  | 54  |
+  |  0  |  7  | 14  | 21  | 28  | 35  | 42  | 49  | 56  | 63  |
+  |  0  |  8  | 16  | 24  | 32  | 40  | 48  | 56  | 64  | 72  |
+  |  0  |  9  | 18  | 27  | 36  | 45  | 54  | 63  | 72  | 81  |
+** Timestamp
+  <2021-01-15 Fri>
+* Other Features
+  Lots of levels
+** Level 2
+*** Level 3
+****  Level 4
+***** Level 5
+****** Level 6
+******* Level 7
+******** Level 8
+********* Level 9
+** Images
+  Different inline images. 
+
+  #+BEGIN_SRC
+  [[./bessel11.pdf]]
+  #+END_SRC
+
+  [[./bessel11.pdf]]
+
+  Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+  facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+  vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+  Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+  varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+  ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+  vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+  orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+  est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+
+  #+BEGIN_SRC
+  #+ATTR_CONTEXT: :width 0.5\textwidth :float wrap 
+  [[./bessel11.pdf]]
+  #+END_SRC
+
+  #+ATTR_CONTEXT: :width 0.5\textwidth :float wrap 
+  [[./bessel11.pdf]]
+
+  Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+  facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+  vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+  Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+  varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+  ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+  vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+  orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+  est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+
+  #+BEGIN_SRC
+  #+ATTR_CONTEXT: :width 0.5\textwidth :float t :placement right 
+  [[./bessel11.pdf]]
+  #+END_SRC
+
+  #+ATTR_CONTEXT: :width 0.5\textwidth :float t :placement right
+  [[./bessel11.pdf]]
+
+  Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+  facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+  vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+  Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+  varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+  ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+  vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+  orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+  est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+
+  
+
+* Index
+#+CONTEXT: \placeindex
+[fn:1] This is a sample footnote

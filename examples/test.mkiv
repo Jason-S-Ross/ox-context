@@ -1,284 +1,1119 @@
-% Created 2021-01-09 Sat 15:09
-%From CONTEXT_HEADER
-\usemodule[pret-python]
+% Created 2021-01-15 Fri 20:01
 
+%===============================================================================
+% From CONTEXT_HEADER
+%===============================================================================
+\usemodule[pret-python]
+\setuppaper[letter]
+
+%===============================================================================
+% Table of Contents Configuration
+%===============================================================================
+
+%===============================================================================
+% Document Metadata
+%===============================================================================
+\setupdocument[metadata:author={Jason Ross},
+metadata:title={Org Mode \ConTeXt{} Export Demo},
+metadata:email={jasonross1024@gmail.com},
+metadata:subtitle={Sampling of Features},
+metadata:keywords={context org-mode},
+metadata:description={Simple demo of the Org Mode \ConTeXt{} exporter},
+metadata:creator={Jason Ross},
+metadata:language={en},
+Lang={En},
+metadata:date={2021-01-07},
+letter:foldmarks={stop},
+letter:withbackaddress={start}]
+\language[en]
+%===============================================================================
+% Define Environments and Commands
+%===============================================================================
 
 % Turn on interaction to make links work
 \setupinteraction[state=start]
-
-
 % LaTeX-style descriptive enumerations
-\definedescription[orgdesc]
-
+\definedescription[OrgDesc]
 % blockquote environment
-\defineframedtext[orgblockquote]
-
+\definestartstop[OrgBlockQuote]
 % Create the example environment
-\definetyping[orgexample]
-
+\definetyping[OrgExample]
 % Create the fixed width environment
-\definetyping[orgfixed]
-
+\definetyping[OrgFixed]
 % Create the inline source environment
-\definetyping[orginlinesrc]
-
+\definetyping[OrgInlineSrc]
 % Create the block source environment
-\definetyping[orgblksrc]
-
+\definetyping[OrgBlkSrc]
 % Create the table header style
-\definextable[orgheader]
-
+\definextable[OrgTableHeader]
+\definextable[OrgTableLeftCell]
+\definextable[OrgTableRightCell]
+\definextable[OrgTableLastRow]
+\definextable[OrgTableTopLeftCell]
+\definextable[OrgTableTopRightCell]
+\definextable[OrgTableBottomLeftCell]
+\definextable[OrgTableBottomRightCell]
 % Create the title page style
-\definemakeup[titlepage]
+\definestartstop[OrgTitlePage]
+% Create a verse style
+\definelines[OrgVerse]
+% Create a property drawer style
+\definetyping[OrgPropertyDrawer]
+% Create a paragraph style
+\definestartstop[OrgParagraph]
+% Create a body style
+\definestartstop[OrgBody]
+% Create an empty title command to be overridden by user
+\define\OrgMakeTitle{}
+% Create a TOC header command
+\define\OrgTitleContents{%
+  {\tfc Contents}
+}
 
-% From CONTEXT_HEADER_EXTRA
-\setuppapersize[letter]
-\setuplayout[backspace=1.85in, width=4.8in, height=7.64in]
-\setupxtable [align=center, leftframe=off, rightframe=off, topframe=off,
-bottomframe=off, loffset=1em, roffset=1em, stretch=on]
-\setupxtable[orgheader][toffset=1ex, foregroundstyle=bold, bottomframe=on]
-\setuptyping[orgblksrc]
-[before={\startframedtext[width=\makeupwidth,
-background=color,
-backgroundcolor=lightgray]},
-after={\stopframedtext},
-style={\small\tt},
-numbering=line]
-\setupheadertexts[{\getvariable{org}{author}}][{\getvariable{org}{title}}]
-\setupfootertexts[][{Page \pagenumber}]
-\setuppagenumbering[location=]
-\setuplinenumbering[style={\small\tt}]
-\setupframedtext
-[orgblockquote]
-[style={\sl}, frame=off, location=middle]
-\setupcombinedlist[content]
-\setvariable{org}{author}{Jason Ross}
-\setvariable{org}{email}{jasonross1024@gmail.com}
-\setvariable{org}{date}{(2021-01-07)}
-\setvariable{org}{title}{Org Mode ConTeXt Export Demo}
+\unprotect
+% Define a basic planning command
+% Override this with user code to customize timestamp appearance
+\def\OrgPlanning#1[#2]{%
+  \getparameters
+    [OrgPlanning]
+    [ClosedString=,
+     ClosedTime=,
+     DeadlineString=,
+     DeadlineTime=,
+     ScheduledString=,
+     ScheduledTime=,
+     #2]
+  \doifnot{\OrgPlanningClosedString}{}{\OrgPlanningClosedString\space}
+  \doifnot{\OrgPlanningClosedTime}{}{\OrgPlanningClosedTime\space}
+  \doifnot{\OrgPlanningDeadlineString}{}{\OrgPlanningDeadlineString\space}
+  \doifnot{\OrgPlanningDeadlineTime}{}{\OrgPlanningDeadlineTime\space}
+  \doifnot{\OrgPlanningScheduledString}{}{\OrgPlanningScheduledString\space}
+  \doifnot{\OrgPlanningScheduledTime}{}{\OrgPlanningScheduledTime\space}
+}
+
+% Define a basic inline task command
+% Override this with user code to customize inline task appearance
+\def\OrgInlineTask#1[#2]{%
+  \getparameters
+    [OrgInlineTask]
+    [Todo=,
+     TodoType=,
+     Priority=,
+     Title=,
+     Tags=,
+     Contents=,
+     #2]
+  \blank[big]
+  \startframedtext[align=normal, location=middle, width=0.6\textwidth]
+  \startalignment[middle]
+  \doifnot{\OrgInlineTaskTodo}{}{\sansbold{\smallcaps{\OrgInlineTaskTodo}} }%
+  \doifnot{\OrgInlineTaskPriority}{}{\inframed{\OrgInlineTaskPriority} }%
+  \OrgInlineTaskTitle %
+  \doifnot{\OrgInlineTaskTags}{}{{\crlf\tt\OrgInlineTaskTags} }%
+  \crlf%
+  \textrule
+  \stopalignment
+  \OrgInlineTaskContents
+  \stopframedtext
+  \blank[big]
+}
+% Define a basic headline command
+% Override this with user code to customize headline appearance
+\def\OrgHeadline#1[#2]{%
+  \getparameters
+    [OrgHeadline]
+    [Todo=,
+     TodoType=,
+     Priority=,
+     Text=,
+     Tags=,
+     #2]
+  \doifnot{\OrgHeadlineTodo}{}{{\sansbold{\smallcaps{\OrgHeadlineTodo}}\space}}%
+  \doifnot{\OrgHeadlinePriority}{}{{\inframed{\OrgHeadlinePriority}\space}}%
+  \OrgHeadlineText%
+  \doifnot{\OrgHeadlineTags}{}{{\space\tt\OrgHeadlineTags}}%
+}
+% Define a basic clock command
+% Override this with user code to customize the clock appearance
+\def\OrgClock#1[#2]{%
+  \getparameters
+    [OrgClock]
+    [y=,
+     m=,
+     d=,
+     H=,
+     M=,
+     I=,
+     S=,
+     #2]
+\doifnot{\OrgClocky}{}{%
+  \date[year=\OrgClocky,month=\OrgClockm,day=\OrgClockd]
+        [year, --, mm, --, dd]}%
+\doifnot{\OrgClockH}{}{T\OrgClockH:\OrgClockM%
+\doifnot{\OrgClockS}{}{:\OrgClockS}}
+}
+% Define a basic drawer command
+% Override this with user code to customize the clock appearance
+\def\OrgDrawer#1#2{#2}
+\protect
+
+%===============================================================================
+% Preset Commands
+%===============================================================================
+\setupwhitespace[big]
+\setuplayout[
+   backspace=103pt,
+   topspace=92pt,
+   header=12pt,
+   headerdistance=25pt,
+   width=middle,
+   height=middle]
+\setupdescription
+  [OrgDesc]
+  [headstyle=bold,
+   style=normal,
+   align=flushleft,
+   alternative=hanging,
+   width=broad,
+   margin=1cm]
+\defineblank[QuoteSkip][1ex]
+\setupstartstop
+  [OrgBlockQuote]
+  [style=slanted,
+   before={\blank[QuoteSkip]
+      \setupnarrower[left=1em, right=1em]
+      \startnarrower[left, right]
+      \noindent},
+   after={\stopnarrower
+      \blank[QuoteSkip]
+      \indenting[next]}]
+\defineblank[VerseSkip][1ex]
+\setuplines
+  [OrgVerse]
+  [before={\blank[VerseSkip]
+      \setupnarrower[left=1em, right=1em]
+      \startnarrower[left, right]},
+   after={\stopnarrower
+      \blank[VerseSkip]},
+   space=on]
+\setupxtable
+  [align=center,
+   leftframe=off,
+   rightframe=off,
+   topframe=off,
+   bottomframe=off,
+   loffset=1em,
+   roffset=1em,
+   stretch=on]
+\setupxtable
+  [OrgTableHeader]
+  [toffset=1ex,
+   foregroundstyle=bold,
+   bottomframe=on]
+\setuphead[title][align=middle]
+\define\OrgMakeTitle{%
+  \startalignment[center]
+   \blank[force,2*big]
+   \title{\documentvariable{metadata:title}}
+   \doifnot{\documentvariable{metadata:subtitle}}{}{
+     \blank[force,1*big]
+     \tfa \documentvariable{metadata:subtitle}}
+   \doifelse{\documentvariable{metadata:author}}{}{
+   \blank[3*medium]
+   {\tfa \documentvariable{metadata:email}}
+   }{
+      \blank[3*medium]
+      {\tfa \documentvariable{metadata:author}}
+   }
+   \blank[2*medium]
+   {\tfa \documentvariable{metadata:date}}
+   \blank[3*medium]
+  \stopalignment}
+\setupsectionblock[frontpart][page=no]
+\setupsectionblock[bodypart][page=no]
+\setuppagenumbering[location=footer,middle]
+%===============================================================================
+% Snippet Commands
+%===============================================================================
+
+%===============================================================================
+% Commands from CONTEXT_HEADER_EXTRA
+%===============================================================================
+
+%===============================================================================
+% Document Body
+%===============================================================================
 \starttext
+\placebookmarks
 \startfrontmatter
-\starttitlepagemakeup
- \startalignment[center]
-  \blank[force,2*big]
-  \title{\getvariable{org}{title}}
-  \blank[3*medium]
-  {\tfa \getvariable{org}{name}}
-  \blank[3*medium]
-  {\mono \getvariable{org}{email}}
-  \blank[2*medium]
-  {\tfa \getvariable{org}{date}}
-  \blank[3*medium]
-  \stopalignment\completecontent
-\stoptitlepagemakeup
+\startOrgTitlePage
+\OrgMakeTitle\OrgTitleContents
+\placecontent
+
+\stopOrgTitlePage
 \stopfrontmatter
 \startbodymatter
+\startOrgBody
 
-\section[reference={sec:orgd9c5c9d},
-  title={Problem 1},
-  list={Problem 1},
-  marking={Problem 1}]
-\orgdesc{Problem} Evaluate numerically the integral
 
-\startformula
+\startOrgParagraph
+List of Tables
+\stopOrgParagraph
+\placelistoftables
 
-  I = \int_0^{\pi/2}{\ln\left(\sin{x}\right) dx}
-  
-\stopformula
+\startOrgParagraph
+List of Figures
+\stopOrgParagraph
+\placelistoffigures
+\section[reference={sec:orgaa9451a},
+  title={\OrgHeadline
+   [Todo={DONE},
+Priority={A},
+Text={Block Elements}]},
+  list={Block Elements},
+  marking={Block Elements},
+ bookmark={Block Elements}]
 
-and compare with the exact value \m{I = -\frac{\pi}{2}\ln{2}}
+\startOrgParagraph
+This section demonstrates different elements delimited by different \type{#+BEGIN/END} tags.
+\stopOrgParagraph
+\index{Source Block}
+\subsection[reference={sec:orgdfa9d07},
+  title={\OrgHeadline
+   [Text={Source Blocks}]},
+  list={Source Blocks},
+  marking={Source Blocks},
+ bookmark={Source Blocks}]
 
-\orgdesc{Solution} \ldots{}
+\startOrgParagraph
+Syntax highlighting is supported in \ConTeXt{}, but you may have to install
+a module to support it.
+\stopOrgParagraph
+\startOrgBlkSrc[option=python]
+import this
+for i in range(5):
+    print(i * i)
+\stopOrgBlkSrc
+\index{Verse Block}
+\subsection[reference={sec:org059f789},
+  title={\OrgHeadline
+   [Text={Verse Blocks}]},
+  list={Verse Blocks},
+  marking={Verse Blocks},
+ bookmark={Verse Blocks}]
 
-Note that \m{\ln{\left(\sin x\right)} = \ln{\left(x \frac{\sin x}{x}\right)}
-    = \ln{x} + \ln{\frac{\sin x}{x}}}
+\startOrgParagraph
+\italic{The Monks and the Giants} by John Hookham Frere
+\stopOrgParagraph
+\startOrgVerse
+But chiefly, when the shadowy moon had shed
+  O'er woods and waters her mysterious hue,
+Their passive hearts and vacant fancies fed
+    With thoughts and aspirations strange and new,
+Till their brute souls with inward working bred
+     Dark hints that in the depths of instinct grew
+Subjection not from Locke's associations,
+      Nor David Hartley's doctrine of vibrations.
 
-Therefore we just need to find
-\m{\int_0^{\pi/2}{\ln{x} dx}} analytically and evaluate
-\m{\int_0^{\pi/2}{\ln{\frac{\sin x}{x}} dx}} numerically.
+\stopOrgVerse
+\index{Example Block}
+\subsection[reference={sec:org784e390},
+  title={\OrgHeadline
+   [Text={Example Blocks}]},
+  list={Example Blocks},
+  marking={Example Blocks},
+ bookmark={Example Blocks}]
+\startOrgExample
+The Zen of Python, by Tim Peters
 
-\m{\int_0^{\pi/2}{\ln{x} dx}} can be integrated by parts.
+Beautiful is better than ugly.
+Explicit is better than implicit.
+Simple is better than complex.
+Complex is better than complicated.
+Flat is better than nested.
+Sparse is better than dense.
+Readability counts.
+Special cases aren't special enough to break the rules.
+Although practicality beats purity.
+Errors should never pass silently.
+Unless explicitly silenced.
+In the face of ambiguity, refuse the temptation to guess.
+There should be one-- and preferably only one --obvious way to do it.
+Although that way may not be obvious at first unless you're Dutch.
+Now is better than never.
+Although never is often better than *right* now.
+If the implementation is hard to explain, it's a bad idea.
+If the implementation is easy to explain, it may be a good idea.
+Namespaces are one honking great idea -- let's do more of those!
+\stopOrgExample
+\index{Export Block}
+\subsection[reference={sec:orgb9caba6},
+  title={\OrgHeadline
+   [Text={Export Blocks}]},
+  list={Export Blocks},
+  marking={Export Blocks},
+ bookmark={Export Blocks}]
 
-Let \m{u = \ln x, v^{'} = dx, u^{'} = \frac{1}{x}, v = x}. Therefore,
-\startformula
-\int{ln{x} dx} = \int{u v^{'} dx} = u v - \int{v u^{'} dx}
-\stopformula
-\startformula
- u v - \int{v u^{'} dx} = x \ln x - \int{x \frac{1}{x} dx} = x \ln x - x
-\stopformula
-And so, \m{\int_0^{\pi/2}{\ln x dx} = \left. x \ln x - x \right|_0^{\pi/2}}
+\startOrgParagraph
+Both \TeX{} and \ConTeXt{} export blocks are supported.
+\stopOrgParagraph
+
+ABC \quad 123
+
+\pagebreak
+\input{knuth}
+\pagebreak
+\index{Centering}
+\subsection[reference={sec:org3793d61},
+  title={\OrgHeadline
+   [Text={Centering}]},
+  list={Centering},
+  marking={Centering},
+ bookmark={Centering}]
+\startalignment[middle]
+
+\startOrgParagraph
+This is some centered text
+\stopOrgParagraph
+\stopalignment
+\index{Quote Block}
+\subsection[reference={sec:org1374545},
+  title={\OrgHeadline
+   [Text={Quote Block}]},
+  list={Quote Block},
+  marking={Quote Block},
+ bookmark={Quote Block}]
+\startOrgBlockQuote
+
+\startOrgParagraph
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
+tortor. Nam euismod tellus id erat.
+\stopOrgParagraph
+
+\stopOrgBlockQuote
+\section[reference={sec:org0c8034d},
+  title={\OrgHeadline
+   [Text={Inline Elements}]},
+  list={Inline Elements},
+  marking={Inline Elements},
+ bookmark={Inline Elements}]
+\subsection[reference={sec:org565c870},
+  title={\OrgHeadline
+   [Text={Code}]},
+  list={Code},
+  marking={Code},
+ bookmark={Code}]
+
+\startOrgParagraph
+Here's some source code: \type{with open("file.txt") as f:}
+\stopOrgParagraph
+
+\subsection[reference={sec:org5257cdd},
+  title={\OrgHeadline
+   [Text={Links}]},
+  list={Links},
+  marking={Links},
+ bookmark={Links}]
+\subsubsection[reference={sec:orgd18d6b5},
+  title={\OrgHeadline
+   [Text={Named URL}]},
+  list={Named URL},
+  marking={Named URL},
+ bookmark={Named URL}]
+
+\startOrgParagraph
+Here's a link to \goto{Org Mode}[url(https://orgmode.org)]
+\stopOrgParagraph
+\subsubsection[reference={sec:orgeb8e6a2},
+  title={\OrgHeadline
+   [Text={Heading Link}]},
+  list={Heading Link},
+  marking={Heading Link},
+ bookmark={Heading Link}]
+
+\startOrgParagraph
+Here's a link to \about[sec:orgaa9451a]
+These are still a bit wonky.
+\stopOrgParagraph
+\subsubsection[reference={sec:orgef27eb6},
+  title={\OrgHeadline
+   [Text={Anonymous url}]},
+  list={Anonymous url},
+  marking={Anonymous url},
+ bookmark={Anonymous url}]
+
+\startOrgParagraph
+Here's a link to \goto{\hyphenatedurl{https://orgmode.org}}[url(https://orgmode.org)]
+\stopOrgParagraph
+\subsubsection[reference={sec:orgefe3efa},
+  title={\OrgHeadline
+   [Text={Anonymous Unmarked url}]},
+  list={Anonymous Unmarked url},
+  marking={Anonymous Unmarked url},
+ bookmark={Anonymous Unmarked url}]
+
+\startOrgParagraph
+\goto{\hyphenatedurl{https://orgmode.org}}[url(https://orgmode.org)]
+\stopOrgParagraph
+\subsection[reference={sec:org291977f},
+  title={\OrgHeadline
+   [Text={Radio Targets}]},
+  list={Radio Targets},
+  marking={Radio Targets},
+ bookmark={Radio Targets}]
+
+\startOrgParagraph
+This is a \reference[org71815ae]{sample radio target} sample radio target
+\stopOrgParagraph
+
+
+\startOrgParagraph
+and this is a link to a \goto{sample radio target}[org71815ae]
+\stopOrgParagraph
+
+
+\startOrgParagraph
+\pagereference[org9a0a0af]
+\stopOrgParagraph
+\subsection[reference={sec:org2dc4efa},
+  title={\OrgHeadline
+   [Text={Target}]},
+  list={Target},
+  marking={Target},
+ bookmark={Target}]
+
+\startOrgParagraph
+This is a link to \about[org9a0a0af]
+TODO
+\stopOrgParagraph
+\subsection[reference={sec:org4f9a5ca},
+  title={\OrgHeadline
+   [Text={Bold}]},
+  list={Bold},
+  marking={Bold},
+ bookmark={Bold}]
+
+\startOrgParagraph
+This is \bold{Some bold text}
+\stopOrgParagraph
+\subsection[reference={sec:orgeb87ebb},
+  title={\OrgHeadline
+   [Text={\LaTeX{} Fragments}]},
+  list={\LaTeX{} Fragments},
+  marking={\LaTeX{} Fragments},
+ bookmark={\LaTeX{} Fragments}]
+
+\startOrgParagraph
+Here's some inline \LaTeX{}: \m{e=m c^2}
+\stopOrgParagraph
+\subsection[reference={sec:org47c6a08},
+  title={\OrgHeadline
+   [Text={Inline Source}]},
+  list={Inline Source},
+  marking={Inline Source},
+ bookmark={Inline Source}]
+
+\startOrgParagraph
+\type{Hello, world!}
+\stopOrgParagraph
+\subsection[reference={sec:org0a1d0ac},
+  title={\OrgHeadline
+   [Text={Italic}]},
+  list={Italic},
+  marking={Italic},
+ bookmark={Italic}]
+
+\startOrgParagraph
+\italic{This is some italic text}
+\stopOrgParagraph
+\subsection[reference={sec:org348af03},
+  title={\OrgHeadline
+   [Text={Line breaks}]},
+  list={Line breaks},
+  marking={Line breaks},
+ bookmark={Line breaks}]
+
+\startOrgParagraph
+Here is a\crlf
+line break
+\stopOrgParagraph
+\subsection[reference={sec:org7000cb6},
+  title={\OrgHeadline
+   [Text={Strikethrough}]},
+  list={Strikethrough},
+  marking={Strikethrough},
+ bookmark={Strikethrough}]
+
+\startOrgParagraph
+\inframed[frame=off]{\overstrike{This is strikethrough}}
+\stopOrgParagraph
+\subsection[reference={sec:org5369104},
+  title={\OrgHeadline
+   [Text={Subscripts}]},
+  list={Subscripts},
+  marking={Subscripts},
+ bookmark={Subscripts}]
+
+\startOrgParagraph
+This\low{is} sub\low{script}
+\stopOrgParagraph
+\subsection[reference={sec:orga2a9394},
+  title={\OrgHeadline
+   [Text={Superscripts}]},
+  list={Superscripts},
+  marking={Superscripts},
+ bookmark={Superscripts}]
+
+\startOrgParagraph
+This\high{is} super\high{script}
+\stopOrgParagraph
+\subsection[reference={sec:org7156bd6},
+  title={\OrgHeadline
+   [Text={Underline}]},
+  list={Underline},
+  marking={Underline},
+ bookmark={Underline}]
+
+\startOrgParagraph
+\underbar{Here's some underlined text}
+\stopOrgParagraph
+\subsection[reference={sec:orge83b54a},
+  title={\OrgHeadline
+   [Text={Verbatim}]},
+  list={Verbatim},
+  marking={Verbatim},
+ bookmark={Verbatim}]
+
+\startOrgParagraph
+\type{This is verbatim text}
+\stopOrgParagraph
+\subsection[reference={sec:orgdb8f97f},
+  title={\OrgHeadline
+   [Text={Footnote Reference}]},
+  list={Footnote Reference},
+  marking={Footnote Reference},
+ bookmark={Footnote Reference}]
+
+\startOrgParagraph
+This should link to a footnote at the bottom of the page. \footnote[orgd2a2fc8]{\startOrgParagraph
+This is a sample footnote
+\stopOrgParagraph} 
+\stopOrgParagraph
+
+\section[reference={sec:org85b27e4},
+  title={\OrgHeadline
+   [Text={Paragraph Elements}]},
+  list={Paragraph Elements},
+  marking={Paragraph Elements},
+ bookmark={Paragraph Elements}]
+
+\startOrgParagraph
+These elements form their own paragraph or section in the export
+\stopOrgParagraph
+\subsection[reference={sec:org7f8c901},
+  title={\OrgHeadline
+   [Text={Clock}]},
+  list={Clock},
+  marking={Clock},
+ bookmark={Clock}]
+
+\startOrgParagraph
+The default clock is set to use the ISO format.
+\stopOrgParagraph
+\OrgClock[y={2021},
+m={01},
+d={15},
+H={16},
+M={58},
+I={04},
+S={00}]
+\subsection[reference={sec:orgf92f519},
+  title={\OrgHeadline
+   [Text={\LaTeX{} Environments}]},
+  list={\LaTeX{} Environments},
+  marking={\LaTeX{} Environments},
+ bookmark={\LaTeX{} Environments}]
+
+\startOrgParagraph
+Common math environments are translated from \LaTeX{} to \ConTeXt{}.
+\stopOrgParagraph
 
 \startformula
 \startalign
 \NC 
 \frac{d^4}{dx^4} e^{a x} + e^{a x} \NC = 0 \NR
-\NC a^4 e^{a x} + e^{a x} \NC = 0 \NR
-\NC a^4 + 1 \NC = 0 \NR
-\NC a^4 \NC = -1 \NR
-\NC \stopalign
+\NC 
+a^4 e^{a x} + e^{a x} \NC = 0 \NR
+\NC 
+a^4 + 1 \NC = 0 \NR
+\NC 
+a^4 \NC = -1 \NR
+\NC 
+\stopalign
 \stopformula
+\subsection[reference={sec:org34e2dba},
+  title={\OrgHeadline
+   [Text={Drawer}]},
+  list={Drawer},
+  marking={Drawer},
+ bookmark={Drawer}]
+\OrgDrawer{MyDrawer}{
+\startOrgParagraph
+This is a simple drawer
+\stopOrgParagraph
+}
+\subsection[reference={sec:org944b704},
+  title={\OrgHeadline
+   [Text={Horizontal Rule}]},
+  list={Horizontal Rule},
+  marking={Horizontal Rule},
+ bookmark={Horizontal Rule}]
 
-And, \m{\int_0^{\pi/2}{\ln x dx} = \frac{pi}{2} \left(\ln x - 1\right) \approx -0.861}
+\startOrgParagraph
+This is a horizontal rule:
+\stopOrgParagraph
 
-\startorgblksrc[option=python]
-from sympy import log, pi, integrate
-from sympy.abc import x
-print((pi/2 * (log(pi/2) - 1)).evalf())
-print(integrate(log(x), (x, 0, pi/2)).evalf())
-\stoporgblksrc
+\textrule
+\subsection[reference={sec:orgd491535},
+  title={\OrgHeadline
+   [Text={Fixed width}]},
+  list={Fixed width},
+  marking={Fixed width},
+ bookmark={Fixed width}]
+\startOrgFixed
+This is Some fixed-width text
+\stopOrgFixed
 
-\startorgblksrc[option=python]
--0.861451872082119
--0.861451872082119
-\stoporgblksrc
+\subsection[reference={sec:orgd796daf},
+  title={\OrgHeadline
+   [Text={Here's a property drawer}]},
+  list={Here's a property drawer},
+  marking={Here's a property drawer},
+ bookmark={Here's a property drawer}]
 
-So we have a value for part of our problem. The other part is to evaluate the integral
-\startformula
-\int_0^{\pi/2}{\ln{\frac{\sin x}{x}} dx}
-\stopformula
-We can do this with Simpson's rule. Recall that
-\startformula
-S = \frac{H}{9}\sum_{i=0}^{n-1}{f(x_0 + i H)+
-    4 f\left(x_0 + \left(i + \frac{1}{2}\right) H\right) +
-    f\left(x_0 + \left(i + 1\right) H\right)}
-\stopformula
+\startOrgPropertyDrawer
+Title: Goldberg Variations
+Composer: J.S. Bach
+Artist: Glenn Gould
+Publisher: Deutsche Grammophon
+NDisks: 1
+\stopOrgPropertyDrawer
+\subsection[reference={sec:org9fdd296},
+  title={\OrgHeadline
+   [Text={Inline Task}]},
+  list={Inline Task},
+  marking={Inline Task},
+ bookmark={Inline Task}]
+\subsubsubsubsubsubsubsubsubsubsubsubsubsubsection[reference={sec:org6f2c67a},
+  title={\OrgHeadline
+   [Todo={TODO},
+Priority={B},
+Text={Check Inline Task},
+Tags={tag1}]},
+  list={Check Inline Task},
+  marking={Check Inline Task},
+ bookmark={Check Inline Task}]
+\OrgPlanning[
+DeadlineString={DEADLINE:},
+DeadlineTime={\date[d=15,m=01,y=2021]},
+ScheduledString={SCHEDULED:},
+ScheduledTime={\date[d=15,m=01,y=2021]},]
 
-\startorgblksrc[option=python]
-import matplotlib.pyplot as plt
-import numpy as np
-x, y = np.meshgrid(np.linspace(0, 1, 25), np.linspace(0, 1, 25))
-def slope(x, y):
-    return x - y**2
-u = np.ones_like(x)
-v = slope(x, y)
-plt.figure(figsize=(8, 8))
-plt.quiver(x, y, u, v, scale=30)
-plt.gcf().tight_layout()
-plt.plot(
-    np.linspace(0, 1, 11),
-    [0.000, 0.005, 0.020, 0.045, 0.080, 0.124,
-     0.177, 0.238, 0.306, 0.380, 0.458]
-)
-plt.savefig("temp.pdf")
-return "temp.pdf"
+\startOrgParagraph
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit tempor
+tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et, mattis
+eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
+parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
+Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
+Nam vestibulum accumsan nisl.
+\stopOrgParagraph
 
-\stoporgblksrc
 
-\startplacefigure[location={force,middle},title={Quiver Plot}]
-\externalfigure[temp.pdf][]
-\stopplacefigure
-
-\subsection[reference={sec:org421b871},
-  title={Sample Subheading},
-  list={Sample Subheading},
-  marking={Sample Subheading}]
+\subsubsubsubsubsubsubsubsubsubsubsubsubsubsection[reference={sec:orgea3f125},
+  title={\OrgHeadline
+   [Text={END}]},
+  list={END},
+  marking={END},
+ bookmark={END}]
+\subsection[reference={sec:org8c9bc32},
+  title={\OrgHeadline
+   [Text={Lists and items}]},
+  list={Lists and items},
+  marking={Lists and items},
+ bookmark={Lists and items}]
 \startitemize
-\item Item
-
-Some prose
-\item Item 2
-
-Some more prose
+\item \startOrgParagraph
+Bullet 1
+\stopOrgParagraph
+\item \startOrgParagraph
+Bullet 2
+\stopOrgParagraph
+\item \startOrgParagraph
+Bullet 3
+\stopOrgParagraph
+\startitemize
+\item \startOrgParagraph
+SubBullet 1 
+\stopOrgParagraph
+\item \startOrgParagraph
+SubBullet 2 [1/2]
+\stopOrgParagraph
+\startitemize
+\item \startOrgParagraph
+SubSubBullet 1
+\stopOrgParagraph
+\item \startOrgParagraph
+SubSubBullet 2
+\stopOrgParagraph
+\stopitemize
+\stopitemize
 \stopitemize
 
-Here's some prose in the middle
+
+\startOrgDesc{Description item 1} \startOrgParagraph
+Nullam eu ante vel est convallis dignissim. Fusce
+suscipit, wisi nec facilisis facilisis, est dui fermentum leo, quis tempor
+ligula erat quis odio. Nunc porta vulputate tellus. Nunc rutrum turpis sed
+pede. Sed bibendum. Aliquam posuere. Nunc aliquet, augue nec adipiscing
+interdum, lacus tellus malesuada massa, quis varius mi purus non odio.
+Pellentesque condimentum, magna ut suscipit hendrerit, ipsum augue ornare
+nulla, non luctus diam neque sit amet urna. Curabitur vulputate vestibulum
+lorem. Fusce sagittis, libero non molestie mollis, magna orci ultrices
+dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis est
+convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+\stopOrgParagraph
+\stopOrgDesc
+
 
 \startitemize[n]
-\item Numbered item
-\startitemize
-\item A subitem
-\startitemize
-\item A subsubitem
-\stopitemize
-\stopitemize
-\item Another numbered item
+\item \startOrgParagraph
+Numbered item
+\stopOrgParagraph
+\item \startOrgParagraph
+Another Number
+\stopOrgParagraph
 \stopitemize
 
-\bold{Here's some bold} \italic{here's some italics} \inframed[frame=off]{\overstrike{Here's some strikethrough}}
-\type{here's some code} \type{here's some verbatim} \underbar{here's some underline!?}
-\underbar{\italic{Here's some underlined italics}}
+\subsection[reference={sec:org6f44f48},
+  title={\OrgHeadline
+   [Text={Tables}]},
+  list={Tables},
+  marking={Tables},
+ bookmark={Tables}]
 
-
-
-Here's some junk in a drawer
-
-\startorgblksrc[option=lua]
-local function s(a)
-  if control[s] then
-    foo(s)
-  end
-end
-\stoporgblksrc
-
-\startorgblksrc[option=mp]
-beginfig(1)
-  draw fullcircle scaled 3cm ;
-endfig ;
-end ;
-\stoporgblksrc
-
-
-Here's a link to \about[sec:orgd9c5c9d]
-
-Here's a link to \goto{google}[url(http://google.com)]
-
-Here's a bare link to \goto{\hyphenatedurl{https://orgmode.org}}[url(https://orgmode.org)]
-
-\pagebreak
-\input{knuth}
-\pagebreak
-
-
-\subsubsection[reference={sec:orgf51ac22},
-  title={\sansbold{DONE} Sample SubSubHeading\hfill{}{\tt sampletag} },
-  list={Sample SubSubHeading},
-  marking={Sample SubSubHeading}]
-Here's a quote from Donald Knuth:
-\startorgblockquote
-The best programs are written so that computing machines can perform them
-quickly and so that human beings can understand them clearly. A programmer
-is ideally an essayist who works with traditional aesthetic and literary
-forms as well as mathematical concepts, to communicate the way that an
-algorithm works and to convince a reader that the results will be correct.
-
-\stoporgblockquote
-
-\blackrule[width=\textwidth, height=0.5pt]
-
-\pagebreak
-\subsubsubsection[reference={sec:org817c7ef},
-  title={Sample SubSubSubHeading},
-  list={Sample SubSubSubHeading},
-  marking={Sample SubSubSubHeading}]
+\startOrgParagraph
 Here's a table
-
+\stopOrgParagraph
 \startplacetable
 \startxtable
-\startxtablehead[orgheader]
+\startxtablehead[OrgTableHeader]
 \startxrow
-\startxcell Head 1 \stopxcell
-\startxcell Head 2 \stopxcell
+\startxcell[OrgTableTopLeftCell] A \stopxcell
+\startxcell B \stopxcell
+\startxcell C \stopxcell
+\startxcell D \stopxcell
+\startxcell E \stopxcell
+\startxcell F \stopxcell
+\startxcell G \stopxcell
+\startxcell H \stopxcell
+\startxcell I \stopxcell
+\startxcell[OrgTableTopRightCell] J \stopxcell
 \stopxrow
 \stopxtablehead
 \startxrow
 \stopxrow
 \startxrow
-\startxcell Row 1 \stopxcell
-\startxcell Row 2 \stopxcell
+\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell[OrgTableRightCell] 0 \stopxcell
+\stopxrow
+\startxrow
+\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell 1 \stopxcell
+\startxcell 2 \stopxcell
+\startxcell 3 \stopxcell
+\startxcell 4 \stopxcell
+\startxcell 5 \stopxcell
+\startxcell 6 \stopxcell
+\startxcell 7 \stopxcell
+\startxcell 8 \stopxcell
+\startxcell[OrgTableRightCell] 9 \stopxcell
+\stopxrow
+\startxrow
+\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell 2 \stopxcell
+\startxcell 4 \stopxcell
+\startxcell 6 \stopxcell
+\startxcell 8 \stopxcell
+\startxcell 10 \stopxcell
+\startxcell 12 \stopxcell
+\startxcell 14 \stopxcell
+\startxcell 16 \stopxcell
+\startxcell[OrgTableRightCell] 18 \stopxcell
+\stopxrow
+\startxrow
+\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell 3 \stopxcell
+\startxcell 6 \stopxcell
+\startxcell 9 \stopxcell
+\startxcell 12 \stopxcell
+\startxcell 15 \stopxcell
+\startxcell 18 \stopxcell
+\startxcell 21 \stopxcell
+\startxcell 24 \stopxcell
+\startxcell[OrgTableRightCell] 27 \stopxcell
+\stopxrow
+\startxrow
+\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell 4 \stopxcell
+\startxcell 8 \stopxcell
+\startxcell 12 \stopxcell
+\startxcell 16 \stopxcell
+\startxcell 20 \stopxcell
+\startxcell 24 \stopxcell
+\startxcell 28 \stopxcell
+\startxcell 32 \stopxcell
+\startxcell[OrgTableRightCell] 36 \stopxcell
+\stopxrow
+\startxrow
+\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell 5 \stopxcell
+\startxcell 10 \stopxcell
+\startxcell 15 \stopxcell
+\startxcell 20 \stopxcell
+\startxcell 25 \stopxcell
+\startxcell 30 \stopxcell
+\startxcell 35 \stopxcell
+\startxcell 40 \stopxcell
+\startxcell[OrgTableRightCell] 45 \stopxcell
+\stopxrow
+\startxrow
+\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell 6 \stopxcell
+\startxcell 12 \stopxcell
+\startxcell 18 \stopxcell
+\startxcell 24 \stopxcell
+\startxcell 30 \stopxcell
+\startxcell 36 \stopxcell
+\startxcell 42 \stopxcell
+\startxcell 48 \stopxcell
+\startxcell[OrgTableRightCell] 54 \stopxcell
+\stopxrow
+\startxrow
+\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell 7 \stopxcell
+\startxcell 14 \stopxcell
+\startxcell 21 \stopxcell
+\startxcell 28 \stopxcell
+\startxcell 35 \stopxcell
+\startxcell 42 \stopxcell
+\startxcell 49 \stopxcell
+\startxcell 56 \stopxcell
+\startxcell[OrgTableRightCell] 63 \stopxcell
+\stopxrow
+\startxrow
+\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell 8 \stopxcell
+\startxcell 16 \stopxcell
+\startxcell 24 \stopxcell
+\startxcell 32 \stopxcell
+\startxcell 40 \stopxcell
+\startxcell 48 \stopxcell
+\startxcell 56 \stopxcell
+\startxcell 64 \stopxcell
+\startxcell[OrgTableRightCell] 72 \stopxcell
+\stopxrow
+\startxrow[OrgTableLastRow]
+\startxcell[OrgTableBottomLeftCell] 0 \stopxcell
+\startxcell 9 \stopxcell
+\startxcell 18 \stopxcell
+\startxcell 27 \stopxcell
+\startxcell 36 \stopxcell
+\startxcell 45 \stopxcell
+\startxcell 54 \stopxcell
+\startxcell 63 \stopxcell
+\startxcell 72 \stopxcell
+\startxcell[OrgTableRightCell] 81 \stopxcell
 \stopxrow
 
 \stopxtable
 \stopplacetable
+\subsection[reference={sec:org09fd6d6},
+  title={\OrgHeadline
+   [Text={Timestamp}]},
+  list={Timestamp},
+  marking={Timestamp},
+ bookmark={Timestamp}]
 
-That was the table
+\startOrgParagraph
+\date[d=15,m=01,y=2021]
+\stopOrgParagraph
+\section[reference={sec:orge9abb38},
+  title={\OrgHeadline
+   [Text={Other Features}]},
+  list={Other Features},
+  marking={Other Features},
+ bookmark={Other Features}]
 
-\subsubsubsubsection[reference={sec:orgacacfd3},
-  title={Sample SubSubSubSubHeading},
-  list={Sample SubSubSubSubHeading},
-  marking={Sample SubSubSubSubHeading}]
-\subsubsubsubsubsection[reference={sec:org4b948b5},
-  title={Sample SubSubSubSubSubHeading},
-  list={Sample SubSubSubSubSubHeading},
-  marking={Sample SubSubSubSubSubHeading}]
+\startOrgParagraph
+Lots of levels
+\stopOrgParagraph
+\subsection[reference={sec:org3ff3617},
+  title={\OrgHeadline
+   [Text={Level 2}]},
+  list={Level 2},
+  marking={Level 2},
+ bookmark={Level 2}]
+\subsubsection[reference={sec:orgaf067ea},
+  title={\OrgHeadline
+   [Text={Level 3}]},
+  list={Level 3},
+  marking={Level 3},
+ bookmark={Level 3}]
+\subsubsubsection[reference={sec:org6a4e6c0},
+  title={\OrgHeadline
+   [Text={Level 4}]},
+  list={Level 4},
+  marking={Level 4},
+ bookmark={Level 4}]
+\subsubsubsubsection[reference={sec:org0cd6a10},
+  title={\OrgHeadline
+   [Text={Level 5}]},
+  list={Level 5},
+  marking={Level 5},
+ bookmark={Level 5}]
+\subsubsubsubsubsection[reference={sec:orgaac4193},
+  title={\OrgHeadline
+   [Text={Level 6}]},
+  list={Level 6},
+  marking={Level 6},
+ bookmark={Level 6}]
+\subsubsubsubsubsubsection[reference={sec:org8787468},
+  title={\OrgHeadline
+   [Text={Level 7}]},
+  list={Level 7},
+  marking={Level 7},
+ bookmark={Level 7}]
+\subsubsubsubsubsubsubsection[reference={sec:org7c12e4a},
+  title={\OrgHeadline
+   [Text={Level 8}]},
+  list={Level 8},
+  marking={Level 8},
+ bookmark={Level 8}]
+\subsubsubsubsubsubsubsubsection[reference={sec:org9845c00},
+  title={\OrgHeadline
+   [Text={Level 9}]},
+  list={Level 9},
+  marking={Level 9},
+ bookmark={Level 9}]
+\subsection[reference={sec:orgcf1ec8c},
+  title={\OrgHeadline
+   [Text={Images}]},
+  list={Images},
+  marking={Images},
+ bookmark={Images}]
+
+\startOrgParagraph
+Different inline images. 
+\stopOrgParagraph
+
+\startOrgBlkSrc
+[[./bessel11.pdf]]
+\stopOrgBlkSrc
+
+
+\startOrgParagraph
+\startplacefigure[location={here,middle}]
+\externalfigure[./bessel11.pdf][]
+\stopplacefigure
+\stopOrgParagraph
+
+
+\startOrgParagraph
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+\stopOrgParagraph
+
+\startOrgBlkSrc
+#+ATTR_CONTEXT: :width 0.5\textwidth :float wrap 
+[[./bessel11.pdf]]
+\stopOrgBlkSrc
+
+
+\startOrgParagraph
+\startplacefigure[location={here,left}]
+\externalfigure[./bessel11.pdf][maxwidth={0.5\textwidth}]
+\stopplacefigure
+\stopOrgParagraph
+
+
+\startOrgParagraph
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+\stopOrgParagraph
+
+\startOrgBlkSrc
+#+ATTR_CONTEXT: :width 0.5\textwidth :float t :placement right 
+[[./bessel11.pdf]]
+\stopOrgBlkSrc
+
+
+\startOrgParagraph
+\startplacefigure[location={here,right}]
+\externalfigure[./bessel11.pdf][maxwidth={0.5\textwidth}]
+\stopplacefigure
+\stopOrgParagraph
+
+
+\startOrgParagraph
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+\stopOrgParagraph
+
+
+
+\section[reference={sec:org90dd653},
+  title={\OrgHeadline
+   [Text={Index}]},
+  list={Index},
+  marking={Index},
+ bookmark={Index}]
+\placeindex
+
+
+\stopOrgBody
 \stopbodymatter
 \stoptext
