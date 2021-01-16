@@ -935,7 +935,7 @@ holding the export options."
 % Create the example environment
 \\definetyping[OrgExample]
 % Create the fixed width environment
-\\definestartstop[OrgFixed]
+\\definetyping[OrgFixed]
 % Create the inline source environment
 \\definetyping[OrgInlineSrc]
 % Create the block source environment
