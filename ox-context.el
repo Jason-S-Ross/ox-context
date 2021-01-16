@@ -1668,7 +1668,11 @@ contextual information."
                       (assq (intern org-lang)
                             (plist-get info :context-highlighted-langs)))
                      (downcase org-lang))))
-      (format "\\startOrgInlineSrc[option=%s] %s \\stopOrgInlineSrc " lang code))))
+      (format "\\startOrgInlineSrc%s %s \\stopOrgInlineSrc "
+              (if (org-string-nw-p lang)
+                  (format "[option=%s]" lang)
+                "")
+              code))))
 
 (defun org-context-inlinetask (inlinetask contents info)
   "Transcode an INLNETASK element from Org to ConTeXt.
@@ -1968,9 +1972,11 @@ CONTENTS holds the contents of the item. INFO is a plist holding
 contextual information."
   (when (org-string-nw-p (org-element-property :value src-block))
     (let* ((org-lang (org-element-property :language src-block))
-           (lang (or (cadr (assq (intern org-lang)
-                                 (plist-get info :context-highlighted-langs)))
-                     (downcase org-lang))))
+           (lang (and
+                  org-lang
+                  (or (cadr (assq (intern org-lang)
+                                  (plist-get info :context-highlighted-langs)))
+                      (downcase org-lang)))))
       (cond
        ((not lang) (format "\\startOrgBlkSrc\n%s\\stopOrgBlkSrc"
                            (org-export-format-code-default src-block info)))
