@@ -965,6 +965,10 @@ holding the export options."
 \\define\\OrgTitleContents{%
   {\\tfc Contents}
 }
+% Define bullets
+\\define\\OrgItemOn{\\boxplus}
+\\define\\OrgItemOff{\\square}
+\\define\\OrgItemTrans{\\boxtimes}
 
 \\unprotect
 % Define a basic planning command
@@ -1720,9 +1724,9 @@ See `org-context-format-inlinetask-function' for details."
   (let ((tag (let ((tag (org-element-property :tag item)))
                (and tag (org-export-data tag info))))
         (checkbox (cl-case (org-element-property :checkbox item)
-                    (on "\\boxtimes")
-                    (off "\\square")
-                    (trans "\\boxminus"))))
+                    (on "\\OrgItemOn")
+                    (off "\\OrgItemOff")
+                    (trans "\\OrgItemTrans"))))
     (if (eq
          (org-element-property :type (org-export-get-parent item))
          'descriptive)
