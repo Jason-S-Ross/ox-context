@@ -1,10 +1,8 @@
-% Created 2021-01-15 Fri 20:01
+% Created 2021-01-17 Sun 09:59
 
 %===============================================================================
 % From CONTEXT_HEADER
 %===============================================================================
-\usemodule[pret-python]
-\setuppaper[letter]
 
 %===============================================================================
 % Table of Contents Configuration
@@ -44,11 +42,11 @@ letter:withbackaddress={start}]
 \definetyping[OrgInlineSrc]
 % Create the block source environment
 \definetyping[OrgBlkSrc]
-% Create the table header style
-\definextable[OrgTableHeader]
-\definextable[OrgTableLeftCell]
-\definextable[OrgTableRightCell]
-\definextable[OrgTableLastRow]
+% Create table styles
+\definextable[OrgTableTopRow]
+\definextable[OrgTableBottomRow]
+\definextable[OrgTableLeftCol]
+\definextable[OrgTableRightCol]
 \definextable[OrgTableTopLeftCell]
 \definextable[OrgTableTopRightCell]
 \definextable[OrgTableBottomLeftCell]
@@ -69,6 +67,10 @@ letter:withbackaddress={start}]
 \define\OrgTitleContents{%
   {\tfc Contents}
 }
+% Define bullets
+\define\OrgItemOn{\boxplus}
+\define\OrgItemOff{\square}
+\define\OrgItemTrans{\boxtimes}
 
 \unprotect
 % Define a basic planning command
@@ -197,7 +199,8 @@ letter:withbackaddress={start}]
       \blank[VerseSkip]},
    space=on]
 \setupxtable
-  [align=center,
+  [split=yes,
+   header=repeat,
    leftframe=off,
    rightframe=off,
    topframe=off,
@@ -206,7 +209,7 @@ letter:withbackaddress={start}]
    roffset=1em,
    stretch=on]
 \setupxtable
-  [OrgTableHeader]
+  [OrgTableTopRow]
   [toffset=1ex,
    foregroundstyle=bold,
    bottomframe=on]
@@ -255,56 +258,48 @@ letter:withbackaddress={start}]
 \startbodymatter
 \startOrgBody
 
-
-\startOrgParagraph
 List of Tables
-\stopOrgParagraph
 \placelistoftables
-
-\startOrgParagraph
 List of Figures
-\stopOrgParagraph
 \placelistoffigures
-\section[reference={sec:orgaa9451a},
-  title={\OrgHeadline
+\reference[sec:org0360f60]{Block Elements}
+\section[title={\OrgHeadline
    [Todo={DONE},
 Priority={A},
 Text={Block Elements}]},
-  list={Block Elements},
-  marking={Block Elements},
- bookmark={Block Elements}]
-
-\startOrgParagraph
-This section demonstrates different elements delimited by different \type{#+BEGIN/END} tags.
-\stopOrgParagraph
+list={Block Elements},
+marking={Block Elements},
+bookmark={Block Elements}]
+This section demonstrates different elements delimited by different
+\type{#+BEGIN/END} tags.
 \index{Source Block}
-\subsection[reference={sec:orgdfa9d07},
-  title={\OrgHeadline
+\reference[sec:orgfbbbaf9]{Source Blocks}
+\subsection[title={\OrgHeadline
    [Text={Source Blocks}]},
-  list={Source Blocks},
-  marking={Source Blocks},
- bookmark={Source Blocks}]
-
-\startOrgParagraph
-Syntax highlighting is supported in \ConTeXt{}, but you may have to install
-a module to support it.
-\stopOrgParagraph
+list={Source Blocks},
+marking={Source Blocks},
+bookmark={Source Blocks}]
+Syntax highlighting is supported in \ConTeXt{}, but you may have to install a
+module to support it. By default, there is a custom \ConTeXt{} \type{typing} called
+\type{OrgBlkSrc} defined in the header that can be customized by adding
+\type{#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgBlkSrc][...]}.
 \startOrgBlkSrc[option=python]
 import this
 for i in range(5):
     print(i * i)
 \stopOrgBlkSrc
 \index{Verse Block}
-\subsection[reference={sec:org059f789},
-  title={\OrgHeadline
+\reference[sec:org5c4b941]{Verse Blocks}
+\subsection[title={\OrgHeadline
    [Text={Verse Blocks}]},
-  list={Verse Blocks},
-  marking={Verse Blocks},
- bookmark={Verse Blocks}]
+list={Verse Blocks},
+marking={Verse Blocks},
+bookmark={Verse Blocks}]
+By default, verse blocks are enclosed in a custom \type{\lines} environment called
+\type{OrgVerse} that can be customized by adding
+\type{#+CONTEXT_HEADER_EXTRA: \setuplines[OrgVerse][...]}.
 
-\startOrgParagraph
 \italic{The Monks and the Giants} by John Hookham Frere
-\stopOrgParagraph
 \startOrgVerse
 But chiefly, when the shadowy moon had shed
   O'er woods and waters her mysterious hue,
@@ -317,12 +312,16 @@ Subjection not from Locke's associations,
 
 \stopOrgVerse
 \index{Example Block}
-\subsection[reference={sec:org784e390},
-  title={\OrgHeadline
+\reference[sec:orgb3923b0]{Example Blocks}
+\subsection[title={\OrgHeadline
    [Text={Example Blocks}]},
-  list={Example Blocks},
-  marking={Example Blocks},
- bookmark={Example Blocks}]
+list={Example Blocks},
+marking={Example Blocks},
+bookmark={Example Blocks}]
+By default, example blocks are enclosed in a custom \type{\typing} environment
+called \type{OrgExample} that can be customized by adding
+\type{#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgExample][...]}.
+
 \startOrgExample
 The Zen of Python, by Tim Peters
 
@@ -347,16 +346,13 @@ If the implementation is easy to explain, it may be a good idea.
 Namespaces are one honking great idea -- let's do more of those!
 \stopOrgExample
 \index{Export Block}
-\subsection[reference={sec:orgb9caba6},
-  title={\OrgHeadline
+\reference[sec:orgb761905]{Export Blocks}
+\subsection[title={\OrgHeadline
    [Text={Export Blocks}]},
-  list={Export Blocks},
-  marking={Export Blocks},
- bookmark={Export Blocks}]
-
-\startOrgParagraph
+list={Export Blocks},
+marking={Export Blocks},
+bookmark={Export Blocks}]
 Both \TeX{} and \ConTeXt{} export blocks are supported.
-\stopOrgParagraph
 
 ABC \quad 123
 
@@ -364,28 +360,38 @@ ABC \quad 123
 \input{knuth}
 \pagebreak
 \index{Centering}
-\subsection[reference={sec:org3793d61},
-  title={\OrgHeadline
+\reference[sec:org4b210db]{Centering}
+\subsection[title={\OrgHeadline
    [Text={Centering}]},
-  list={Centering},
-  marking={Centering},
- bookmark={Centering}]
-\startalignment[middle]
+list={Centering},
+marking={Centering},
+bookmark={Centering}]
+Centered text just in an \type{alignment} environment.
 
-\startOrgParagraph
-This is some centered text
-\stopOrgParagraph
+\startalignment[middle]
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec
+facilisis facilisis, est dui fermentum leo, quis tempor ligula erat quis
+odio. Nunc porta vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum.
+Aliquam posuere. Nunc aliquet, augue nec adipiscing interdum, lacus tellus
+malesuada massa, quis varius mi purus non odio. Pellentesque condimentum,
+magna ut suscipit hendrerit, ipsum augue ornare nulla, non luctus diam neque
+sit amet urna. Curabitur vulputate vestibulum lorem. Fusce sagittis, libero
+non molestie mollis, magna orci ultrices dolor, at vulputate neque nulla
+lacinia eros. Sed id ligula quis est convallis tempor. Curabitur lacinia
+pulvinar nibh. Nam a sapien.
 \stopalignment
 \index{Quote Block}
-\subsection[reference={sec:org1374545},
-  title={\OrgHeadline
+\reference[sec:orged0727d]{Quote Block}
+\subsection[title={\OrgHeadline
    [Text={Quote Block}]},
-  list={Quote Block},
-  marking={Quote Block},
- bookmark={Quote Block}]
-\startOrgBlockQuote
+list={Quote Block},
+marking={Quote Block},
+bookmark={Quote Block}]
+By default, block quotes are enclosed in a custom \type{startstop} environment
+called \type{OrgBlockQuote} that can be customized by adding
+\type{#+CONTEXT_HEADER_EXTRA: \setupstartstop[OrgBlockQuote][...]}.
 
-\startOrgParagraph
+\startOrgBlockQuote
 Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
 commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
 lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
@@ -393,238 +399,185 @@ felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
 dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
 quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
 tortor. Nam euismod tellus id erat.
-\stopOrgParagraph
 
 \stopOrgBlockQuote
-\section[reference={sec:org0c8034d},
-  title={\OrgHeadline
+\reference[sec:org33c511a]{Inline Elements}
+\section[title={\OrgHeadline
    [Text={Inline Elements}]},
-  list={Inline Elements},
-  marking={Inline Elements},
- bookmark={Inline Elements}]
-\subsection[reference={sec:org565c870},
-  title={\OrgHeadline
+list={Inline Elements},
+marking={Inline Elements},
+bookmark={Inline Elements}]
+\reference[sec:org9fed876]{Code}
+\subsection[title={\OrgHeadline
    [Text={Code}]},
-  list={Code},
-  marking={Code},
- bookmark={Code}]
+list={Code},
+marking={Code},
+bookmark={Code}]
+Here's some code: \type{with open("file.txt") as f:}
 
-\startOrgParagraph
-Here's some source code: \type{with open("file.txt") as f:}
-\stopOrgParagraph
-
-\subsection[reference={sec:org5257cdd},
-  title={\OrgHeadline
+\reference[sec:orgf05ea1a]{Links}
+\subsection[title={\OrgHeadline
    [Text={Links}]},
-  list={Links},
-  marking={Links},
- bookmark={Links}]
-\subsubsection[reference={sec:orgd18d6b5},
-  title={\OrgHeadline
+list={Links},
+marking={Links},
+bookmark={Links}]
+\reference[sec:orge23a56a]{Named URL}
+\subsubsection[title={\OrgHeadline
    [Text={Named URL}]},
-  list={Named URL},
-  marking={Named URL},
- bookmark={Named URL}]
-
-\startOrgParagraph
+list={Named URL},
+marking={Named URL},
+bookmark={Named URL}]
 Here's a link to \goto{Org Mode}[url(https://orgmode.org)]
-\stopOrgParagraph
-\subsubsection[reference={sec:orgeb8e6a2},
-  title={\OrgHeadline
+\reference[sec:orgbb32b55]{Heading Link}
+\subsubsection[title={\OrgHeadline
    [Text={Heading Link}]},
-  list={Heading Link},
-  marking={Heading Link},
- bookmark={Heading Link}]
-
-\startOrgParagraph
-Here's a link to \about[sec:orgaa9451a]
-These are still a bit wonky.
-\stopOrgParagraph
-\subsubsection[reference={sec:orgef27eb6},
-  title={\OrgHeadline
+list={Heading Link},
+marking={Heading Link},
+bookmark={Heading Link}]
+Here's a link to \about[sec:org0360f60]
+\reference[sec:orgbb3c1b2]{Anonymous url}
+\subsubsection[title={\OrgHeadline
    [Text={Anonymous url}]},
-  list={Anonymous url},
-  marking={Anonymous url},
- bookmark={Anonymous url}]
-
-\startOrgParagraph
+list={Anonymous url},
+marking={Anonymous url},
+bookmark={Anonymous url}]
 Here's a link to \goto{\hyphenatedurl{https://orgmode.org}}[url(https://orgmode.org)]
-\stopOrgParagraph
-\subsubsection[reference={sec:orgefe3efa},
-  title={\OrgHeadline
+\reference[sec:org8aa9626]{Anonymous Unmarked url}
+\subsubsection[title={\OrgHeadline
    [Text={Anonymous Unmarked url}]},
-  list={Anonymous Unmarked url},
-  marking={Anonymous Unmarked url},
- bookmark={Anonymous Unmarked url}]
-
-\startOrgParagraph
+list={Anonymous Unmarked url},
+marking={Anonymous Unmarked url},
+bookmark={Anonymous Unmarked url}]
 \goto{\hyphenatedurl{https://orgmode.org}}[url(https://orgmode.org)]
-\stopOrgParagraph
-\subsection[reference={sec:org291977f},
-  title={\OrgHeadline
+\reference[sec:org57768b1]{Radio Targets}
+\subsection[title={\OrgHeadline
    [Text={Radio Targets}]},
-  list={Radio Targets},
-  marking={Radio Targets},
- bookmark={Radio Targets}]
+list={Radio Targets},
+marking={Radio Targets},
+bookmark={Radio Targets}]
+This is a \reference[orgf30748c]{sample radio target} sample radio target
 
-\startOrgParagraph
-This is a \reference[org71815ae]{sample radio target} sample radio target
-\stopOrgParagraph
+and this is a link to a \goto{sample radio target}[orgf30748c]
 
-
-\startOrgParagraph
-and this is a link to a \goto{sample radio target}[org71815ae]
-\stopOrgParagraph
-
-
-\startOrgParagraph
-\pagereference[org9a0a0af]
-\stopOrgParagraph
-\subsection[reference={sec:org2dc4efa},
-  title={\OrgHeadline
+\pagereference[org165b03f]
+\reference[sec:org191fa6c]{Target}
+\subsection[title={\OrgHeadline
    [Text={Target}]},
-  list={Target},
-  marking={Target},
- bookmark={Target}]
+list={Target},
+marking={Target},
+bookmark={Target}]
+This is a link to \about[org165b03f]
 
-\startOrgParagraph
-This is a link to \about[org9a0a0af]
 TODO
-\stopOrgParagraph
-\subsection[reference={sec:org4f9a5ca},
-  title={\OrgHeadline
+
+This should refer to the number to match \LaTeX{}
+\reference[sec:orgbd457c8]{Bold}
+\subsection[title={\OrgHeadline
    [Text={Bold}]},
-  list={Bold},
-  marking={Bold},
- bookmark={Bold}]
-
-\startOrgParagraph
+list={Bold},
+marking={Bold},
+bookmark={Bold}]
 This is \bold{Some bold text}
-\stopOrgParagraph
-\subsection[reference={sec:orgeb87ebb},
-  title={\OrgHeadline
+\reference[sec:orgadd7e2d]{\LaTeX{} Fragments}
+\subsection[title={\OrgHeadline
    [Text={\LaTeX{} Fragments}]},
-  list={\LaTeX{} Fragments},
-  marking={\LaTeX{} Fragments},
- bookmark={\LaTeX{} Fragments}]
-
-\startOrgParagraph
+list={\LaTeX{} Fragments},
+marking={\LaTeX{} Fragments},
+bookmark={\LaTeX{} Fragments}]
 Here's some inline \LaTeX{}: \m{e=m c^2}
-\stopOrgParagraph
-\subsection[reference={sec:org47c6a08},
-  title={\OrgHeadline
+\reference[sec:org4bf0a3f]{Inline Source}
+\subsection[title={\OrgHeadline
    [Text={Inline Source}]},
-  list={Inline Source},
-  marking={Inline Source},
- bookmark={Inline Source}]
-
-\startOrgParagraph
+list={Inline Source},
+marking={Inline Source},
+bookmark={Inline Source}]
 \type{Hello, world!}
-\stopOrgParagraph
-\subsection[reference={sec:org0a1d0ac},
-  title={\OrgHeadline
+\reference[sec:orge65983e]{Italic}
+\subsection[title={\OrgHeadline
    [Text={Italic}]},
-  list={Italic},
-  marking={Italic},
- bookmark={Italic}]
-
-\startOrgParagraph
+list={Italic},
+marking={Italic},
+bookmark={Italic}]
 \italic{This is some italic text}
-\stopOrgParagraph
-\subsection[reference={sec:org348af03},
-  title={\OrgHeadline
+\reference[sec:org2daf5f4]{Line breaks}
+\subsection[title={\OrgHeadline
    [Text={Line breaks}]},
-  list={Line breaks},
-  marking={Line breaks},
- bookmark={Line breaks}]
-
-\startOrgParagraph
+list={Line breaks},
+marking={Line breaks},
+bookmark={Line breaks}]
 Here is a\crlf
 line break
-\stopOrgParagraph
-\subsection[reference={sec:org7000cb6},
-  title={\OrgHeadline
+\reference[sec:orgda60f0a]{Strikethrough}
+\subsection[title={\OrgHeadline
    [Text={Strikethrough}]},
-  list={Strikethrough},
-  marking={Strikethrough},
- bookmark={Strikethrough}]
-
-\startOrgParagraph
+list={Strikethrough},
+marking={Strikethrough},
+bookmark={Strikethrough}]
 \inframed[frame=off]{\overstrike{This is strikethrough}}
-\stopOrgParagraph
-\subsection[reference={sec:org5369104},
-  title={\OrgHeadline
+\reference[sec:org8ba6a28]{Subscripts}
+\subsection[title={\OrgHeadline
    [Text={Subscripts}]},
-  list={Subscripts},
-  marking={Subscripts},
- bookmark={Subscripts}]
-
-\startOrgParagraph
+list={Subscripts},
+marking={Subscripts},
+bookmark={Subscripts}]
 This\low{is} sub\low{script}
-\stopOrgParagraph
-\subsection[reference={sec:orga2a9394},
-  title={\OrgHeadline
+\reference[sec:orge982f14]{Superscripts}
+\subsection[title={\OrgHeadline
    [Text={Superscripts}]},
-  list={Superscripts},
-  marking={Superscripts},
- bookmark={Superscripts}]
-
-\startOrgParagraph
+list={Superscripts},
+marking={Superscripts},
+bookmark={Superscripts}]
 This\high{is} super\high{script}
-\stopOrgParagraph
-\subsection[reference={sec:org7156bd6},
-  title={\OrgHeadline
+\reference[sec:orgea3d34b]{Underline}
+\subsection[title={\OrgHeadline
    [Text={Underline}]},
-  list={Underline},
-  marking={Underline},
- bookmark={Underline}]
-
-\startOrgParagraph
+list={Underline},
+marking={Underline},
+bookmark={Underline}]
 \underbar{Here's some underlined text}
-\stopOrgParagraph
-\subsection[reference={sec:orge83b54a},
-  title={\OrgHeadline
+\reference[sec:org139abdd]{Verbatim}
+\subsection[title={\OrgHeadline
    [Text={Verbatim}]},
-  list={Verbatim},
-  marking={Verbatim},
- bookmark={Verbatim}]
-
-\startOrgParagraph
+list={Verbatim},
+marking={Verbatim},
+bookmark={Verbatim}]
 \type{This is verbatim text}
-\stopOrgParagraph
-\subsection[reference={sec:orgdb8f97f},
-  title={\OrgHeadline
+\reference[sec:orgbedf561]{Footnote Reference}
+\subsection[title={\OrgHeadline
    [Text={Footnote Reference}]},
-  list={Footnote Reference},
-  marking={Footnote Reference},
- bookmark={Footnote Reference}]
+list={Footnote Reference},
+marking={Footnote Reference},
+bookmark={Footnote Reference}]
+Footnotes are formatted with the \type{\footnote} macro. Nested footnotes are
+not yet supported.
 
-\startOrgParagraph
-This should link to a footnote at the bottom of the page. \footnote[orgd2a2fc8]{\startOrgParagraph
-This is a sample footnote
-\stopOrgParagraph} 
-\stopOrgParagraph
+This should link to a footnote at the bottom of the page. \footnote[orge3b16cd]{This is a sample footnote} 
+\reference[sec:org4471b77]{Smart Quotes}
+\subsection[title={\OrgHeadline
+   [Text={Smart Quotes}]},
+list={Smart Quotes},
+marking={Smart Quotes},
+bookmark={Smart Quotes}]
+Smart quotes are formatted using the \type{\quote} and \type{\quotation} macros,
+which respect language settings.
 
-\section[reference={sec:org85b27e4},
-  title={\OrgHeadline
-   [Text={Paragraph Elements}]},
-  list={Paragraph Elements},
-  marking={Paragraph Elements},
- bookmark={Paragraph Elements}]
+Here's an English quotation: \quotation{Here's a \quote{nested} quote}
 
-\startOrgParagraph
-These elements form their own paragraph or section in the export
-\stopOrgParagraph
-\subsection[reference={sec:org7f8c901},
-  title={\OrgHeadline
+\language[cz]
+
+Here's a Czech quotation: \quotation{Here's a \quote{nested} quote}
+
+\language[en]
+
+\reference[sec:org710dbe7]{Clock}
+\subsection[title={\OrgHeadline
    [Text={Clock}]},
-  list={Clock},
-  marking={Clock},
- bookmark={Clock}]
-
-\startOrgParagraph
-The default clock is set to use the ISO format.
-\stopOrgParagraph
+list={Clock},
+marking={Clock},
+bookmark={Clock}]
+The default clock is set to use the ISO format. \ConTeXt{} doesn't provide
+a locale-aware timestamp but the user can customize the clock appearance
+by overriding the \type{\OrgClock} macro. Example: 
 \OrgClock[y={2021},
 m={01},
 d={15},
@@ -632,16 +585,46 @@ H={16},
 M={58},
 I={04},
 S={00}]
-\subsection[reference={sec:orgf92f519},
-  title={\OrgHeadline
-   [Text={\LaTeX{} Environments}]},
-  list={\LaTeX{} Environments},
-  marking={\LaTeX{} Environments},
- bookmark={\LaTeX{} Environments}]
 
-\startOrgParagraph
+
+\reference[sec:org741e31d]{Timestamp}
+\subsection[title={\OrgHeadline
+   [Text={Timestamp}]},
+list={Timestamp},
+marking={Timestamp},
+bookmark={Timestamp}]
+Timestamps are supported by the \type{\date} macro, so different locales
+are supported.
+Here's an English timestamp: \date[d=17,m=01,y=2021]
+
+\language[fr]
+Here's a French timestamp: \date[d=17,m=01,y=2021]
+\language[en]
+
+\reference[sec:org8dd0f50]{Paragraph Elements}
+\section[title={\OrgHeadline
+   [Text={Paragraph Elements}]},
+list={Paragraph Elements},
+marking={Paragraph Elements},
+bookmark={Paragraph Elements}]
+These elements form their own paragraph or section in the export.
+\reference[sec:orgf3cc072]{Headlines}
+\subsection[title={\OrgHeadline
+   [Text={Headlines}]},
+list={Headlines},
+marking={Headlines},
+bookmark={Headlines}]
+Headline text is formatted by a custom macro called \type{OrgHeadline}
+that receives the headline's todo, todo type, priority, text, and
+tags. This macro can be overriden by the user to customize the
+appearance of headlines.
+\reference[sec:org5733a82]{\LaTeX{} Environments}
+\subsection[title={\OrgHeadline
+   [Text={\LaTeX{} Environments}]},
+list={\LaTeX{} Environments},
+marking={\LaTeX{} Environments},
+bookmark={\LaTeX{} Environments}]
 Common math environments are translated from \LaTeX{} to \ConTeXt{}.
-\stopOrgParagraph
 
 \startformula
 \startalign
@@ -656,45 +639,43 @@ a^4 \NC = -1 \NR
 \NC 
 \stopalign
 \stopformula
-\subsection[reference={sec:org34e2dba},
-  title={\OrgHeadline
+\reference[sec:org2396f1a]{Drawer}
+\subsection[title={\OrgHeadline
    [Text={Drawer}]},
-  list={Drawer},
-  marking={Drawer},
- bookmark={Drawer}]
-\OrgDrawer{MyDrawer}{
-\startOrgParagraph
-This is a simple drawer
-\stopOrgParagraph
+list={Drawer},
+marking={Drawer},
+bookmark={Drawer}]
+\OrgDrawer{MyDrawer}{This is a simple drawer
 }
-\subsection[reference={sec:org944b704},
-  title={\OrgHeadline
+\reference[sec:orgc9f267f]{Horizontal Rule}
+\subsection[title={\OrgHeadline
    [Text={Horizontal Rule}]},
-  list={Horizontal Rule},
-  marking={Horizontal Rule},
- bookmark={Horizontal Rule}]
-
-\startOrgParagraph
+list={Horizontal Rule},
+marking={Horizontal Rule},
+bookmark={Horizontal Rule}]
 This is a horizontal rule:
-\stopOrgParagraph
 
 \textrule
-\subsection[reference={sec:orgd491535},
-  title={\OrgHeadline
+\reference[sec:org144a41a]{Fixed width}
+\subsection[title={\OrgHeadline
    [Text={Fixed width}]},
-  list={Fixed width},
-  marking={Fixed width},
- bookmark={Fixed width}]
+list={Fixed width},
+marking={Fixed width},
+bookmark={Fixed width}]
+Fixed-width text is enclosed in a custom =typing\textasciitilde{} environment
+called \type{OrgFixed} by default. To customize this environment,
+add \type{#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgFixed][...]}
+to the document.
 \startOrgFixed
 This is Some fixed-width text
 \stopOrgFixed
 
-\subsection[reference={sec:orgd796daf},
-  title={\OrgHeadline
-   [Text={Here's a property drawer}]},
-  list={Here's a property drawer},
-  marking={Here's a property drawer},
- bookmark={Here's a property drawer}]
+\reference[sec:orgb7d3188]{Property Drawers}
+\subsection[title={\OrgHeadline
+   [Text={Property Drawers}]},
+list={Property Drawers},
+marking={Property Drawers},
+bookmark={Property Drawers}]
 
 \startOrgPropertyDrawer
 Title: Goldberg Variations
@@ -703,80 +684,73 @@ Artist: Glenn Gould
 Publisher: Deutsche Grammophon
 NDisks: 1
 \stopOrgPropertyDrawer
-\subsection[reference={sec:org9fdd296},
-  title={\OrgHeadline
-   [Text={Inline Task}]},
-  list={Inline Task},
-  marking={Inline Task},
- bookmark={Inline Task}]
-\subsubsubsubsubsubsubsubsubsubsubsubsubsubsection[reference={sec:org6f2c67a},
-  title={\OrgHeadline
-   [Todo={TODO},
-Priority={B},
-Text={Check Inline Task},
-Tags={tag1}]},
-  list={Check Inline Task},
-  marking={Check Inline Task},
- bookmark={Check Inline Task}]
-\OrgPlanning[
-DeadlineString={DEADLINE:},
-DeadlineTime={\date[d=15,m=01,y=2021]},
-ScheduledString={SCHEDULED:},
-ScheduledTime={\date[d=15,m=01,y=2021]},]
+Property drawers are enclosed in a custom \type{typing} environment
+called \type{OrgPropertyDrawer} by default. To customize this environment,
+add \type{#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgPropertyDrawer][...]}
+to the document.
 
-\startOrgParagraph
+
+\reference[sec:org69030fd]{Inline Task}
+\subsection[title={\OrgHeadline
+   [Text={Inline Task}]},
+list={Inline Task},
+marking={Inline Task},
+bookmark={Inline Task}]
+Inline tasks are supported by a custom \type{\OrgInlineTask} macro.
+Arguments to the macro include the todo keyword, the todo type,
+the priority, the name of the task, tags, and contents.
+
+Alternatively, for higher-level customization, the user can
+provide their own \type{org-context-format-inlinetask-function}.
+
+\OrgInlineTask
+  [Todo={TODO},
+Priority={B},
+Title={Check Inline Task},
+Tags={:tag1:},
+Contents={\OrgPlanning[
+DeadlineString={DEADLINE:},
+DeadlineTime={\date[d=17,m=01,y=2021]},
+ScheduledString={SCHEDULED:},
+ScheduledTime={\date[d=17,m=01,y=2021]},]
 Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit tempor
 tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et, mattis
 eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
 parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
 Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
 Nam vestibulum accumsan nisl.
-\stopOrgParagraph
+}]
 
-
-\subsubsubsubsubsubsubsubsubsubsubsubsubsubsection[reference={sec:orgea3f125},
-  title={\OrgHeadline
-   [Text={END}]},
-  list={END},
-  marking={END},
- bookmark={END}]
-\subsection[reference={sec:org8c9bc32},
-  title={\OrgHeadline
+\reference[sec:orgb864575]{Lists and items}
+\subsection[title={\OrgHeadline
    [Text={Lists and items}]},
-  list={Lists and items},
-  marking={Lists and items},
- bookmark={Lists and items}]
+list={Lists and items},
+marking={Lists and items},
+bookmark={Lists and items}]
+Standard bulleted lists are enclosed in an \type{itemize} environment.
+Description lists use a custom \type{description} element called
+\type{OrgDesc}. Additionally, checkbox items use custom macros called
+\type{OrgItemOn}, \type{OrgItemOff}, and \type{OrgItemTrans} for the glyphs, so
+these can be overriden by the user by adding
+\type{#+CONTEXT_HEADER_EXTRA: \define\OrgItemOn{...}}
+to the document.
+
 \startitemize
-\item \startOrgParagraph
-Bullet 1
-\stopOrgParagraph
-\item \startOrgParagraph
-Bullet 2
-\stopOrgParagraph
-\item \startOrgParagraph
-Bullet 3
-\stopOrgParagraph
+\item Bullet 1
+\item Bullet 2
+\item Bullet 3
 \startitemize
-\item \startOrgParagraph
-SubBullet 1 
-\stopOrgParagraph
-\item \startOrgParagraph
-SubBullet 2 [1/2]
-\stopOrgParagraph
+\item SubBullet 1
+\sym{\OrgItemTrans} SubBullet 2 [1/2]
 \startitemize
-\item \startOrgParagraph
-SubSubBullet 1
-\stopOrgParagraph
-\item \startOrgParagraph
-SubSubBullet 2
-\stopOrgParagraph
+\sym{\OrgItemOn} SubSubBullet 1
+\sym{\OrgItemOff} SubSubBullet 2
 \stopitemize
 \stopitemize
 \stopitemize
 
 
-\startOrgDesc{Description item 1} \startOrgParagraph
-Nullam eu ante vel est convallis dignissim. Fusce
+\startOrgDesc{Description Item 1} Nullam eu ante vel est convallis dignissim. Fusce
 suscipit, wisi nec facilisis facilisis, est dui fermentum leo, quis tempor
 ligula erat quis odio. Nunc porta vulputate tellus. Nunc rutrum turpis sed
 pede. Sed bibendum. Aliquam posuere. Nunc aliquet, augue nec adipiscing
@@ -786,33 +760,135 @@ nulla, non luctus diam neque sit amet urna. Curabitur vulputate vestibulum
 lorem. Fusce sagittis, libero non molestie mollis, magna orci ultrices
 dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis est
 convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
-\stopOrgParagraph
+\stopOrgDesc
+\startOrgDesc{\OrgItemOn\space\space Description Item 2} Checked
+\stopOrgDesc
+\startOrgDesc{\OrgItemOff\space\space Description Item 3} Unchecked
+\stopOrgDesc
+\startOrgDesc{\OrgItemTrans\space\space Description Item 4 [1/2]} Transatory
+\startitemize
+\sym{\OrgItemOff} Sub1
+\sym{\OrgItemOn} Sub2
+\stopitemize
 \stopOrgDesc
 
 
 \startitemize[n]
-\item \startOrgParagraph
-Numbered item
-\stopOrgParagraph
-\item \startOrgParagraph
-Another Number
-\stopOrgParagraph
+\item Numbered item
+\item Another Number
 \stopitemize
 
-\subsection[reference={sec:org6f44f48},
-  title={\OrgHeadline
+\reference[sec:org984810f]{Tables}
+\subsection[title={\OrgHeadline
    [Text={Tables}]},
-  list={Tables},
-  marking={Tables},
- bookmark={Tables}]
+list={Tables},
+marking={Tables},
+bookmark={Tables}]
+Tables are supported by the \type{xtables} environment.
 
-\startOrgParagraph
-Here's a table
-\stopOrgParagraph
 \startplacetable
+  [location={force,here},
+title={Default Layout Table}]
 \startxtable
-\startxtablehead[OrgTableHeader]
+  
+\startxrow[OrgTableTopRow]
+\startxcell[OrgTableTopLeftCell] A \stopxcell
+\startxcell[OrgTableTopRightCell] B \stopxcell
+ \stopxrow
 \startxrow
+\startxcell[OrgTableLeftCol] 1 \stopxcell
+\startxcell[OrgTableRightCol] 2 \stopxcell
+ \stopxrow
+\startxrow[OrgTableBottomRow]
+\startxcell[OrgTableBottomLeftCell] 3 \stopxcell
+\startxcell[OrgTableBottomRightCell] 4 \stopxcell
+ \stopxrow
+
+\stopxtable
+\stopplacetable
+
+Here's the same table with \type{:option width}
+
+\startplacetable
+  [location={force,here},
+title={Wide Layout Table}]
+\startxtable
+  [option={width}]
+\startxrow[OrgTableTopRow]
+\startxcell[OrgTableTopLeftCell] A \stopxcell
+\startxcell[OrgTableTopRightCell] B \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 1 \stopxcell
+\startxcell[OrgTableRightCol] 2 \stopxcell
+ \stopxrow
+\startxrow[OrgTableBottomRow]
+\startxcell[OrgTableBottomLeftCell] 3 \stopxcell
+\startxcell[OrgTableBottomRightCell] 4 \stopxcell
+ \stopxrow
+
+\stopxtable
+\stopplacetable
+
+Here's the same table with \type{:option tight}
+
+\startplacetable
+  [location={force,here},
+title={Tight Layout Table}]
+\startxtable
+  [option={tight}]
+\startxrow[OrgTableTopRow]
+\startxcell[OrgTableTopLeftCell] A \stopxcell
+\startxcell[OrgTableTopRightCell] B \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 1 \stopxcell
+\startxcell[OrgTableRightCol] 2 \stopxcell
+ \stopxrow
+\startxrow[OrgTableBottomRow]
+\startxcell[OrgTableBottomLeftCell] 3 \stopxcell
+\startxcell[OrgTableBottomRightCell] 4 \stopxcell
+ \stopxrow
+
+\stopxtable
+\stopplacetable
+
+
+Here's the same table with \type{:option stretch}
+
+\startplacetable
+  [location={force,here},
+title={Stretch Layout Table}]
+\startxtable
+  [option={stretch}]
+\startxrow[OrgTableTopRow]
+\startxcell[OrgTableTopLeftCell] A \stopxcell
+\startxcell[OrgTableTopRightCell] B \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 1 \stopxcell
+\startxcell[OrgTableRightCol] 2 \stopxcell
+ \stopxrow
+\startxrow[OrgTableBottomRow]
+\startxcell[OrgTableBottomLeftCell] 3 \stopxcell
+\startxcell[OrgTableBottomRightCell] 4 \stopxcell
+ \stopxrow
+
+\stopxtable
+\stopplacetable
+
+
+Here's a very long table. We can split it by setting
+\type{:split t} and \type{:header repeat} in \type{#+ATTR_CONTEXT}.
+
+\startplacetable
+  [location={split,force,here},
+title={Giant Table}]
+\startxtable
+  [split={yes},
+header={repeat}]
+\startxtablehead
+\startxrow[OrgTableTopRow]
 \startxcell[OrgTableTopLeftCell] A \stopxcell
 \startxcell B \stopxcell
 \startxcell C \stopxcell
@@ -823,24 +899,23 @@ Here's a table
 \startxcell H \stopxcell
 \startxcell I \stopxcell
 \startxcell[OrgTableTopRightCell] J \stopxcell
-\stopxrow
+ \stopxrow
+
 \stopxtablehead
 \startxrow
-\stopxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell[OrgTableRightCol] 0 \stopxcell
+ \stopxrow
 \startxrow
-\startxcell[OrgTableLeftCell] 0 \stopxcell
-\startxcell 0 \stopxcell
-\startxcell 0 \stopxcell
-\startxcell 0 \stopxcell
-\startxcell 0 \stopxcell
-\startxcell 0 \stopxcell
-\startxcell 0 \stopxcell
-\startxcell 0 \stopxcell
-\startxcell 0 \stopxcell
-\startxcell[OrgTableRightCell] 0 \stopxcell
-\stopxrow
-\startxrow
-\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell[OrgTableLeftCol] 0 \stopxcell
 \startxcell 1 \stopxcell
 \startxcell 2 \stopxcell
 \startxcell 3 \stopxcell
@@ -849,10 +924,10 @@ Here's a table
 \startxcell 6 \stopxcell
 \startxcell 7 \stopxcell
 \startxcell 8 \stopxcell
-\startxcell[OrgTableRightCell] 9 \stopxcell
-\stopxrow
+\startxcell[OrgTableRightCol] 9 \stopxcell
+ \stopxrow
 \startxrow
-\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell[OrgTableLeftCol] 0 \stopxcell
 \startxcell 2 \stopxcell
 \startxcell 4 \stopxcell
 \startxcell 6 \stopxcell
@@ -861,10 +936,10 @@ Here's a table
 \startxcell 12 \stopxcell
 \startxcell 14 \stopxcell
 \startxcell 16 \stopxcell
-\startxcell[OrgTableRightCell] 18 \stopxcell
-\stopxrow
+\startxcell[OrgTableRightCol] 18 \stopxcell
+ \stopxrow
 \startxrow
-\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell[OrgTableLeftCol] 0 \stopxcell
 \startxcell 3 \stopxcell
 \startxcell 6 \stopxcell
 \startxcell 9 \stopxcell
@@ -873,10 +948,10 @@ Here's a table
 \startxcell 18 \stopxcell
 \startxcell 21 \stopxcell
 \startxcell 24 \stopxcell
-\startxcell[OrgTableRightCell] 27 \stopxcell
-\stopxrow
+\startxcell[OrgTableRightCol] 27 \stopxcell
+ \stopxrow
 \startxrow
-\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell[OrgTableLeftCol] 0 \stopxcell
 \startxcell 4 \stopxcell
 \startxcell 8 \stopxcell
 \startxcell 12 \stopxcell
@@ -885,10 +960,10 @@ Here's a table
 \startxcell 24 \stopxcell
 \startxcell 28 \stopxcell
 \startxcell 32 \stopxcell
-\startxcell[OrgTableRightCell] 36 \stopxcell
-\stopxrow
+\startxcell[OrgTableRightCol] 36 \stopxcell
+ \stopxrow
 \startxrow
-\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell[OrgTableLeftCol] 0 \stopxcell
 \startxcell 5 \stopxcell
 \startxcell 10 \stopxcell
 \startxcell 15 \stopxcell
@@ -897,10 +972,10 @@ Here's a table
 \startxcell 30 \stopxcell
 \startxcell 35 \stopxcell
 \startxcell 40 \stopxcell
-\startxcell[OrgTableRightCell] 45 \stopxcell
-\stopxrow
+\startxcell[OrgTableRightCol] 45 \stopxcell
+ \stopxrow
 \startxrow
-\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell[OrgTableLeftCol] 0 \stopxcell
 \startxcell 6 \stopxcell
 \startxcell 12 \stopxcell
 \startxcell 18 \stopxcell
@@ -909,10 +984,10 @@ Here's a table
 \startxcell 36 \stopxcell
 \startxcell 42 \stopxcell
 \startxcell 48 \stopxcell
-\startxcell[OrgTableRightCell] 54 \stopxcell
-\stopxrow
+\startxcell[OrgTableRightCol] 54 \stopxcell
+ \stopxrow
 \startxrow
-\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell[OrgTableLeftCol] 0 \stopxcell
 \startxcell 7 \stopxcell
 \startxcell 14 \stopxcell
 \startxcell 21 \stopxcell
@@ -921,10 +996,10 @@ Here's a table
 \startxcell 42 \stopxcell
 \startxcell 49 \stopxcell
 \startxcell 56 \stopxcell
-\startxcell[OrgTableRightCell] 63 \stopxcell
-\stopxrow
+\startxcell[OrgTableRightCol] 63 \stopxcell
+ \stopxrow
 \startxrow
-\startxcell[OrgTableLeftCell] 0 \stopxcell
+\startxcell[OrgTableLeftCol] 0 \stopxcell
 \startxcell 8 \stopxcell
 \startxcell 16 \stopxcell
 \startxcell 24 \stopxcell
@@ -933,10 +1008,10 @@ Here's a table
 \startxcell 48 \stopxcell
 \startxcell 56 \stopxcell
 \startxcell 64 \stopxcell
-\startxcell[OrgTableRightCell] 72 \stopxcell
-\stopxrow
-\startxrow[OrgTableLastRow]
-\startxcell[OrgTableBottomLeftCell] 0 \stopxcell
+\startxcell[OrgTableRightCol] 72 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
 \startxcell 9 \stopxcell
 \startxcell 18 \stopxcell
 \startxcell 27 \stopxcell
@@ -945,103 +1020,769 @@ Here's a table
 \startxcell 54 \stopxcell
 \startxcell 63 \stopxcell
 \startxcell 72 \stopxcell
-\startxcell[OrgTableRightCell] 81 \stopxcell
-\stopxrow
+\startxcell[OrgTableRightCol] 81 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 10 \stopxcell
+\startxcell 20 \stopxcell
+\startxcell 30 \stopxcell
+\startxcell 40 \stopxcell
+\startxcell 50 \stopxcell
+\startxcell 60 \stopxcell
+\startxcell 70 \stopxcell
+\startxcell 80 \stopxcell
+\startxcell[OrgTableRightCol] 90 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 11 \stopxcell
+\startxcell 22 \stopxcell
+\startxcell 33 \stopxcell
+\startxcell 44 \stopxcell
+\startxcell 55 \stopxcell
+\startxcell 66 \stopxcell
+\startxcell 77 \stopxcell
+\startxcell 88 \stopxcell
+\startxcell[OrgTableRightCol] 99 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 12 \stopxcell
+\startxcell 24 \stopxcell
+\startxcell 36 \stopxcell
+\startxcell 48 \stopxcell
+\startxcell 60 \stopxcell
+\startxcell 72 \stopxcell
+\startxcell 84 \stopxcell
+\startxcell 96 \stopxcell
+\startxcell[OrgTableRightCol] 108 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 13 \stopxcell
+\startxcell 26 \stopxcell
+\startxcell 39 \stopxcell
+\startxcell 52 \stopxcell
+\startxcell 65 \stopxcell
+\startxcell 78 \stopxcell
+\startxcell 91 \stopxcell
+\startxcell 104 \stopxcell
+\startxcell[OrgTableRightCol] 117 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 14 \stopxcell
+\startxcell 28 \stopxcell
+\startxcell 42 \stopxcell
+\startxcell 56 \stopxcell
+\startxcell 70 \stopxcell
+\startxcell 84 \stopxcell
+\startxcell 98 \stopxcell
+\startxcell 112 \stopxcell
+\startxcell[OrgTableRightCol] 126 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 15 \stopxcell
+\startxcell 30 \stopxcell
+\startxcell 45 \stopxcell
+\startxcell 60 \stopxcell
+\startxcell 75 \stopxcell
+\startxcell 90 \stopxcell
+\startxcell 105 \stopxcell
+\startxcell 120 \stopxcell
+\startxcell[OrgTableRightCol] 135 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 16 \stopxcell
+\startxcell 32 \stopxcell
+\startxcell 48 \stopxcell
+\startxcell 64 \stopxcell
+\startxcell 80 \stopxcell
+\startxcell 96 \stopxcell
+\startxcell 112 \stopxcell
+\startxcell 128 \stopxcell
+\startxcell[OrgTableRightCol] 144 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 17 \stopxcell
+\startxcell 34 \stopxcell
+\startxcell 51 \stopxcell
+\startxcell 68 \stopxcell
+\startxcell 85 \stopxcell
+\startxcell 102 \stopxcell
+\startxcell 119 \stopxcell
+\startxcell 136 \stopxcell
+\startxcell[OrgTableRightCol] 153 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 18 \stopxcell
+\startxcell 36 \stopxcell
+\startxcell 54 \stopxcell
+\startxcell 72 \stopxcell
+\startxcell 90 \stopxcell
+\startxcell 108 \stopxcell
+\startxcell 126 \stopxcell
+\startxcell 144 \stopxcell
+\startxcell[OrgTableRightCol] 162 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 19 \stopxcell
+\startxcell 38 \stopxcell
+\startxcell 57 \stopxcell
+\startxcell 76 \stopxcell
+\startxcell 95 \stopxcell
+\startxcell 114 \stopxcell
+\startxcell 133 \stopxcell
+\startxcell 152 \stopxcell
+\startxcell[OrgTableRightCol] 171 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 20 \stopxcell
+\startxcell 40 \stopxcell
+\startxcell 60 \stopxcell
+\startxcell 80 \stopxcell
+\startxcell 100 \stopxcell
+\startxcell 120 \stopxcell
+\startxcell 140 \stopxcell
+\startxcell 160 \stopxcell
+\startxcell[OrgTableRightCol] 180 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 21 \stopxcell
+\startxcell 42 \stopxcell
+\startxcell 63 \stopxcell
+\startxcell 84 \stopxcell
+\startxcell 105 \stopxcell
+\startxcell 126 \stopxcell
+\startxcell 147 \stopxcell
+\startxcell 168 \stopxcell
+\startxcell[OrgTableRightCol] 189 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 22 \stopxcell
+\startxcell 44 \stopxcell
+\startxcell 66 \stopxcell
+\startxcell 88 \stopxcell
+\startxcell 110 \stopxcell
+\startxcell 132 \stopxcell
+\startxcell 154 \stopxcell
+\startxcell 176 \stopxcell
+\startxcell[OrgTableRightCol] 198 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 23 \stopxcell
+\startxcell 46 \stopxcell
+\startxcell 69 \stopxcell
+\startxcell 92 \stopxcell
+\startxcell 115 \stopxcell
+\startxcell 138 \stopxcell
+\startxcell 161 \stopxcell
+\startxcell 184 \stopxcell
+\startxcell[OrgTableRightCol] 207 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 24 \stopxcell
+\startxcell 48 \stopxcell
+\startxcell 72 \stopxcell
+\startxcell 96 \stopxcell
+\startxcell 120 \stopxcell
+\startxcell 144 \stopxcell
+\startxcell 168 \stopxcell
+\startxcell 192 \stopxcell
+\startxcell[OrgTableRightCol] 216 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 25 \stopxcell
+\startxcell 50 \stopxcell
+\startxcell 75 \stopxcell
+\startxcell 100 \stopxcell
+\startxcell 125 \stopxcell
+\startxcell 150 \stopxcell
+\startxcell 175 \stopxcell
+\startxcell 200 \stopxcell
+\startxcell[OrgTableRightCol] 225 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 26 \stopxcell
+\startxcell 52 \stopxcell
+\startxcell 78 \stopxcell
+\startxcell 104 \stopxcell
+\startxcell 130 \stopxcell
+\startxcell 156 \stopxcell
+\startxcell 182 \stopxcell
+\startxcell 208 \stopxcell
+\startxcell[OrgTableRightCol] 234 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 27 \stopxcell
+\startxcell 54 \stopxcell
+\startxcell 81 \stopxcell
+\startxcell 108 \stopxcell
+\startxcell 135 \stopxcell
+\startxcell 162 \stopxcell
+\startxcell 189 \stopxcell
+\startxcell 216 \stopxcell
+\startxcell[OrgTableRightCol] 243 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 28 \stopxcell
+\startxcell 56 \stopxcell
+\startxcell 84 \stopxcell
+\startxcell 112 \stopxcell
+\startxcell 140 \stopxcell
+\startxcell 168 \stopxcell
+\startxcell 196 \stopxcell
+\startxcell 224 \stopxcell
+\startxcell[OrgTableRightCol] 252 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 29 \stopxcell
+\startxcell 58 \stopxcell
+\startxcell 87 \stopxcell
+\startxcell 116 \stopxcell
+\startxcell 145 \stopxcell
+\startxcell 174 \stopxcell
+\startxcell 203 \stopxcell
+\startxcell 232 \stopxcell
+\startxcell[OrgTableRightCol] 261 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 30 \stopxcell
+\startxcell 60 \stopxcell
+\startxcell 90 \stopxcell
+\startxcell 120 \stopxcell
+\startxcell 150 \stopxcell
+\startxcell 180 \stopxcell
+\startxcell 210 \stopxcell
+\startxcell 240 \stopxcell
+\startxcell[OrgTableRightCol] 270 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 31 \stopxcell
+\startxcell 62 \stopxcell
+\startxcell 93 \stopxcell
+\startxcell 124 \stopxcell
+\startxcell 155 \stopxcell
+\startxcell 186 \stopxcell
+\startxcell 217 \stopxcell
+\startxcell 248 \stopxcell
+\startxcell[OrgTableRightCol] 279 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 32 \stopxcell
+\startxcell 64 \stopxcell
+\startxcell 96 \stopxcell
+\startxcell 128 \stopxcell
+\startxcell 160 \stopxcell
+\startxcell 192 \stopxcell
+\startxcell 224 \stopxcell
+\startxcell 256 \stopxcell
+\startxcell[OrgTableRightCol] 288 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 33 \stopxcell
+\startxcell 66 \stopxcell
+\startxcell 99 \stopxcell
+\startxcell 132 \stopxcell
+\startxcell 165 \stopxcell
+\startxcell 198 \stopxcell
+\startxcell 231 \stopxcell
+\startxcell 264 \stopxcell
+\startxcell[OrgTableRightCol] 297 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 34 \stopxcell
+\startxcell 68 \stopxcell
+\startxcell 102 \stopxcell
+\startxcell 136 \stopxcell
+\startxcell 170 \stopxcell
+\startxcell 204 \stopxcell
+\startxcell 238 \stopxcell
+\startxcell 272 \stopxcell
+\startxcell[OrgTableRightCol] 306 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 35 \stopxcell
+\startxcell 70 \stopxcell
+\startxcell 105 \stopxcell
+\startxcell 140 \stopxcell
+\startxcell 175 \stopxcell
+\startxcell 210 \stopxcell
+\startxcell 245 \stopxcell
+\startxcell 280 \stopxcell
+\startxcell[OrgTableRightCol] 315 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 36 \stopxcell
+\startxcell 72 \stopxcell
+\startxcell 108 \stopxcell
+\startxcell 144 \stopxcell
+\startxcell 180 \stopxcell
+\startxcell 216 \stopxcell
+\startxcell 252 \stopxcell
+\startxcell 288 \stopxcell
+\startxcell[OrgTableRightCol] 324 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 37 \stopxcell
+\startxcell 74 \stopxcell
+\startxcell 111 \stopxcell
+\startxcell 148 \stopxcell
+\startxcell 185 \stopxcell
+\startxcell 222 \stopxcell
+\startxcell 259 \stopxcell
+\startxcell 296 \stopxcell
+\startxcell[OrgTableRightCol] 333 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 38 \stopxcell
+\startxcell 76 \stopxcell
+\startxcell 114 \stopxcell
+\startxcell 152 \stopxcell
+\startxcell 190 \stopxcell
+\startxcell 228 \stopxcell
+\startxcell 266 \stopxcell
+\startxcell 304 \stopxcell
+\startxcell[OrgTableRightCol] 342 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 39 \stopxcell
+\startxcell 78 \stopxcell
+\startxcell 117 \stopxcell
+\startxcell 156 \stopxcell
+\startxcell 195 \stopxcell
+\startxcell 234 \stopxcell
+\startxcell 273 \stopxcell
+\startxcell 312 \stopxcell
+\startxcell[OrgTableRightCol] 351 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 40 \stopxcell
+\startxcell 80 \stopxcell
+\startxcell 120 \stopxcell
+\startxcell 160 \stopxcell
+\startxcell 200 \stopxcell
+\startxcell 240 \stopxcell
+\startxcell 280 \stopxcell
+\startxcell 320 \stopxcell
+\startxcell[OrgTableRightCol] 360 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 41 \stopxcell
+\startxcell 82 \stopxcell
+\startxcell 123 \stopxcell
+\startxcell 164 \stopxcell
+\startxcell 205 \stopxcell
+\startxcell 246 \stopxcell
+\startxcell 287 \stopxcell
+\startxcell 328 \stopxcell
+\startxcell[OrgTableRightCol] 369 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 42 \stopxcell
+\startxcell 84 \stopxcell
+\startxcell 126 \stopxcell
+\startxcell 168 \stopxcell
+\startxcell 210 \stopxcell
+\startxcell 252 \stopxcell
+\startxcell 294 \stopxcell
+\startxcell 336 \stopxcell
+\startxcell[OrgTableRightCol] 378 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 43 \stopxcell
+\startxcell 86 \stopxcell
+\startxcell 129 \stopxcell
+\startxcell 172 \stopxcell
+\startxcell 215 \stopxcell
+\startxcell 258 \stopxcell
+\startxcell 301 \stopxcell
+\startxcell 344 \stopxcell
+\startxcell[OrgTableRightCol] 387 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 44 \stopxcell
+\startxcell 88 \stopxcell
+\startxcell 132 \stopxcell
+\startxcell 176 \stopxcell
+\startxcell 220 \stopxcell
+\startxcell 264 \stopxcell
+\startxcell 308 \stopxcell
+\startxcell 352 \stopxcell
+\startxcell[OrgTableRightCol] 396 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 45 \stopxcell
+\startxcell 90 \stopxcell
+\startxcell 135 \stopxcell
+\startxcell 180 \stopxcell
+\startxcell 225 \stopxcell
+\startxcell 270 \stopxcell
+\startxcell 315 \stopxcell
+\startxcell 360 \stopxcell
+\startxcell[OrgTableRightCol] 405 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 46 \stopxcell
+\startxcell 92 \stopxcell
+\startxcell 138 \stopxcell
+\startxcell 184 \stopxcell
+\startxcell 230 \stopxcell
+\startxcell 276 \stopxcell
+\startxcell 322 \stopxcell
+\startxcell 368 \stopxcell
+\startxcell[OrgTableRightCol] 414 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 47 \stopxcell
+\startxcell 94 \stopxcell
+\startxcell 141 \stopxcell
+\startxcell 188 \stopxcell
+\startxcell 235 \stopxcell
+\startxcell 282 \stopxcell
+\startxcell 329 \stopxcell
+\startxcell 376 \stopxcell
+\startxcell[OrgTableRightCol] 423 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 48 \stopxcell
+\startxcell 96 \stopxcell
+\startxcell 144 \stopxcell
+\startxcell 192 \stopxcell
+\startxcell 240 \stopxcell
+\startxcell 288 \stopxcell
+\startxcell 336 \stopxcell
+\startxcell 384 \stopxcell
+\startxcell[OrgTableRightCol] 432 \stopxcell
+ \stopxrow
+\startxrow[OrgTableBottomRow]
+\startxcell[OrgTableBottomLeftCell] 0 \stopxcell
+\startxcell 49 \stopxcell
+\startxcell 98 \stopxcell
+\startxcell 147 \stopxcell
+\startxcell 196 \stopxcell
+\startxcell 245 \stopxcell
+\startxcell 294 \stopxcell
+\startxcell 343 \stopxcell
+\startxcell 392 \stopxcell
+\startxcell[OrgTableBottomRightCell] 441 \stopxcell
+ \stopxrow
 
 \stopxtable
 \stopplacetable
-\subsection[reference={sec:org09fd6d6},
-  title={\OrgHeadline
-   [Text={Timestamp}]},
-  list={Timestamp},
-  marking={Timestamp},
- bookmark={Timestamp}]
 
-\startOrgParagraph
-\date[d=15,m=01,y=2021]
-\stopOrgParagraph
-\section[reference={sec:orge9abb38},
-  title={\OrgHeadline
+Here's a table with paragraphs in it.
+
+\startplacetable
+  [location={force,here}]
+\startxtable
+  
+\startxrow[OrgTableTopRow]
+\startxcell[OrgTableTopLeftCell] Description \stopxcell
+\startxcell[OrgTableTopRightCell] Contents \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] First Thing \stopxcell
+\startxcell[OrgTableRightCol] Aliquam erat volutpat.  Nunc eleifend leo vitae magna.  In id erat non orci commodo lobortis.  Proin neque massa, cursus ut, gravida ut, lobortis eget, lacus.  Sed diam.  Praesent fermentum tempor tellus.  Nullam tempus.  Mauris ac felis vel velit tristique imperdiet.  Donec at pede.  Etiam vel neque nec dui dignissim bibendum.  Vivamus id enim.  Phasellus neque orci, porta a, aliquet quis, semper a, massa.  Phasellus purus.  Pellentesque tristique imperdiet tortor.  Nam euismod tellus id erat. \stopxcell
+ \stopxrow
+\startxrow[OrgTableBottomRow]
+\startxcell[OrgTableBottomLeftCell] Second Thing \stopxcell
+\startxcell[OrgTableBottomRightCell] Pellentesque dapibus suscipit ligula.  Donec posuere augue in quam.  Etiam vel tortor sodales tellus ultricies commodo.  Suspendisse potenti.  Aenean in sem ac leo mollis blandit.  Donec neque quam, dignissim in, mollis nec, sagittis eu, wisi.  Phasellus lacus.  Etiam laoreet quam sed arcu.  Phasellus at dui in ligula mollis ultricies.  Integer placerat tristique nisl.  Praesent augue.  Fusce commodo.  Vestibulum convallis, lorem a tempus semper, dui dui euismod elit, vitae placerat urna tortor vitae lacus.  Nullam libero mauris, consequat quis, varius et, dictum id, arcu.  Mauris mollis tincidunt felis.  Aliquam feugiat tellus ut neque.  Nulla facilisis, risus a rhoncus fermentum, tellus tellus lacinia purus, et dictum nunc justo sit amet elit. \stopxcell
+ \stopxrow
+
+\stopxtable
+\stopplacetable
+
+Here's a shorter table.
+
+\startplacetable
+  [location={force,here},
+title={Short Table}]
+\startxtable
+  
+\startxrow[OrgTableTopRow]
+\startxcell[OrgTableTopLeftCell] A \stopxcell
+\startxcell B \stopxcell
+\startxcell C \stopxcell
+\startxcell D \stopxcell
+\startxcell E \stopxcell
+\startxcell F \stopxcell
+\startxcell G \stopxcell
+\startxcell H \stopxcell
+\startxcell I \stopxcell
+\startxcell[OrgTableTopRightCell] J \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell[OrgTableRightCol] 0 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 1 \stopxcell
+\startxcell 2 \stopxcell
+\startxcell 3 \stopxcell
+\startxcell 4 \stopxcell
+\startxcell 5 \stopxcell
+\startxcell 6 \stopxcell
+\startxcell 7 \stopxcell
+\startxcell 8 \stopxcell
+\startxcell[OrgTableRightCol] 9 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 2 \stopxcell
+\startxcell 4 \stopxcell
+\startxcell 6 \stopxcell
+\startxcell 8 \stopxcell
+\startxcell 10 \stopxcell
+\startxcell 12 \stopxcell
+\startxcell 14 \stopxcell
+\startxcell 16 \stopxcell
+\startxcell[OrgTableRightCol] 18 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 3 \stopxcell
+\startxcell 6 \stopxcell
+\startxcell 9 \stopxcell
+\startxcell 12 \stopxcell
+\startxcell 15 \stopxcell
+\startxcell 18 \stopxcell
+\startxcell 21 \stopxcell
+\startxcell 24 \stopxcell
+\startxcell[OrgTableRightCol] 27 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 4 \stopxcell
+\startxcell 8 \stopxcell
+\startxcell 12 \stopxcell
+\startxcell 16 \stopxcell
+\startxcell 20 \stopxcell
+\startxcell 24 \stopxcell
+\startxcell 28 \stopxcell
+\startxcell 32 \stopxcell
+\startxcell[OrgTableRightCol] 36 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 5 \stopxcell
+\startxcell 10 \stopxcell
+\startxcell 15 \stopxcell
+\startxcell 20 \stopxcell
+\startxcell 25 \stopxcell
+\startxcell 30 \stopxcell
+\startxcell 35 \stopxcell
+\startxcell 40 \stopxcell
+\startxcell[OrgTableRightCol] 45 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[OrgTableLeftCol] 0 \stopxcell
+\startxcell 6 \stopxcell
+\startxcell 12 \stopxcell
+\startxcell 18 \stopxcell
+\startxcell 24 \stopxcell
+\startxcell 30 \stopxcell
+\startxcell 36 \stopxcell
+\startxcell 42 \stopxcell
+\startxcell 48 \stopxcell
+\startxcell[OrgTableRightCol] 54 \stopxcell
+ \stopxrow
+\startxrow[OrgTableBottomRow]
+\startxcell[OrgTableBottomLeftCell] 0 \stopxcell
+\startxcell 7 \stopxcell
+\startxcell 14 \stopxcell
+\startxcell 21 \stopxcell
+\startxcell 28 \stopxcell
+\startxcell 35 \stopxcell
+\startxcell 42 \stopxcell
+\startxcell 49 \stopxcell
+\startxcell 56 \stopxcell
+\startxcell[OrgTableBottomRightCell] 63 \stopxcell
+ \stopxrow
+
+\stopxtable
+\stopplacetable
+
+TODO: Allow table-style to take keyword arguments
+
+Tables can be customized in several ways. By default, the top and bottom rows,
+the left and right columns, and the four corners of the table have special
+styles which default to \type{OrgTableTopRow}, \type{OrgTableBottomRow},
+\type{OrgTableLeftCol}, \type{OrgTableRightCol}, \type{OrgTableTopLeftCell},
+\type{OrgTableTopRightCell}, \type{OrgTableBottomRightCell}, and
+\type{OrgTableBottomLeftCell}. These styles can be configured by adding
+\type{#+CONTEXT_HEADER_EXTRA: \setupxtable[OrgTable...][...]} to the document.
+Styling options for individual tables can be configured using the
+\type{:top}, \type{:bottom}, \type{:left}, \type{:right}, \type{:topleft}, \type{:topright}, \type{:bottomright}
+and \type{:bottomleft} keywords in \type{#+ATTR_CONTEXT}.
+\setupxtable[Top][background=color,backgroundcolor=red]
+\setupxtable[Bottom][background=color,backgroundcolor=blue]
+\setupxtable[Left][background=color,backgroundcolor=green]
+\setupxtable[Right][background=color,backgroundcolor=yellow]
+\setupxtable[Body][foregroundstyle=italic]
+\startplacetable
+  [location={force,here},
+title={Short Table}]
+\startxtable[Body]
+  
+\startxrow[Top]
+\startxcell[foregroundstyle=sansbold] A \stopxcell
+\startxcell B \stopxcell
+\startxcell C \stopxcell
+\startxcell[foregroundstyle=smallitalicbold] D \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[Left] 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell 0 \stopxcell
+\startxcell[Right] 0 \stopxcell
+ \stopxrow
+\startxrow
+\startxcell[Left] 0 \stopxcell
+\startxcell 1 \stopxcell
+\startxcell 2 \stopxcell
+\startxcell[Right] 3 \stopxcell
+ \stopxrow
+\startxrow[Bottom]
+\startxcell[foregroundstyle=bold] 0 \stopxcell
+\startxcell 2 \stopxcell
+\startxcell 4 \stopxcell
+\startxcell[foregroundstyle=smallbold] 6 \stopxcell
+ \stopxrow
+
+\stopxtable
+\stopplacetable
+
+
+
+\reference[sec:org0915000]{Other Features}
+\section[title={\OrgHeadline
    [Text={Other Features}]},
-  list={Other Features},
-  marking={Other Features},
- bookmark={Other Features}]
+list={Other Features},
+marking={Other Features},
+bookmark={Other Features}]
+\reference[sec:org76ce798]{Levels}
+\subsection[title={\OrgHeadline
+   [Text={Levels}]},
+list={Levels},
+marking={Levels},
+bookmark={Levels}]
+Many levels of subheading are supported by \ConTeXt{} (up to 9). If more levels
+are needed, the user can create them using the \type{\definehead} macro. To handle
+10 levels, for example, add \crlf
+\type{#+CONTEXT_HEADER_EXTRA: \definehead[subsubsubsubsubsubsubsubsubsection]
+   [subsubsubsubsubsubsubsubsection]} \crlf
+to the document.
+\startOrgBlockQuote
+The \LaTeX{} exporter handles arbitrarily deep nesting by treating deeper
+headings as list elements, but true headlines are only supported down
+to 5 levels deep.
 
-\startOrgParagraph
-Lots of levels
-\stopOrgParagraph
-\subsection[reference={sec:org3ff3617},
-  title={\OrgHeadline
-   [Text={Level 2}]},
-  list={Level 2},
-  marking={Level 2},
- bookmark={Level 2}]
-\subsubsection[reference={sec:orgaf067ea},
-  title={\OrgHeadline
+\stopOrgBlockQuote
+\reference[sec:org5091940]{Level 3}
+\subsubsection[title={\OrgHeadline
    [Text={Level 3}]},
-  list={Level 3},
-  marking={Level 3},
- bookmark={Level 3}]
-\subsubsubsection[reference={sec:org6a4e6c0},
-  title={\OrgHeadline
+list={Level 3},
+marking={Level 3},
+bookmark={Level 3}]
+\reference[sec:orgee9a016]{Level 4}
+\subsubsubsection[title={\OrgHeadline
    [Text={Level 4}]},
-  list={Level 4},
-  marking={Level 4},
- bookmark={Level 4}]
-\subsubsubsubsection[reference={sec:org0cd6a10},
-  title={\OrgHeadline
+list={Level 4},
+marking={Level 4},
+bookmark={Level 4}]
+\reference[sec:orgdd27913]{Level 5}
+\subsubsubsubsection[title={\OrgHeadline
    [Text={Level 5}]},
-  list={Level 5},
-  marking={Level 5},
- bookmark={Level 5}]
-\subsubsubsubsubsection[reference={sec:orgaac4193},
-  title={\OrgHeadline
+list={Level 5},
+marking={Level 5},
+bookmark={Level 5}]
+\reference[sec:org2774b37]{Level 6}
+\subsubsubsubsubsection[title={\OrgHeadline
    [Text={Level 6}]},
-  list={Level 6},
-  marking={Level 6},
- bookmark={Level 6}]
-\subsubsubsubsubsubsection[reference={sec:org8787468},
-  title={\OrgHeadline
+list={Level 6},
+marking={Level 6},
+bookmark={Level 6}]
+\reference[sec:orgcb38c1d]{Level 7}
+\subsubsubsubsubsubsection[title={\OrgHeadline
    [Text={Level 7}]},
-  list={Level 7},
-  marking={Level 7},
- bookmark={Level 7}]
-\subsubsubsubsubsubsubsection[reference={sec:org7c12e4a},
-  title={\OrgHeadline
+list={Level 7},
+marking={Level 7},
+bookmark={Level 7}]
+\reference[sec:org90ec31a]{Level 8}
+\subsubsubsubsubsubsubsection[title={\OrgHeadline
    [Text={Level 8}]},
-  list={Level 8},
-  marking={Level 8},
- bookmark={Level 8}]
-\subsubsubsubsubsubsubsubsection[reference={sec:org9845c00},
-  title={\OrgHeadline
+list={Level 8},
+marking={Level 8},
+bookmark={Level 8}]
+\reference[sec:org95e5793]{Level 9}
+\subsubsubsubsubsubsubsubsection[title={\OrgHeadline
    [Text={Level 9}]},
-  list={Level 9},
-  marking={Level 9},
- bookmark={Level 9}]
-\subsection[reference={sec:orgcf1ec8c},
-  title={\OrgHeadline
+list={Level 9},
+marking={Level 9},
+bookmark={Level 9}]
+\reference[sec:org37a7b34]{Images}
+\subsection[title={\OrgHeadline
    [Text={Images}]},
-  list={Images},
-  marking={Images},
- bookmark={Images}]
+list={Images},
+marking={Images},
+bookmark={Images}]
+Inline images are supported.
 
-\startOrgParagraph
-Different inline images. 
-\stopOrgParagraph
-
-\startOrgBlkSrc
+\startOrgBlkSrc[option=org]
+#+CAPTION: Default Figure
 [[./bessel11.pdf]]
 \stopOrgBlkSrc
 
-
-\startOrgParagraph
-\startplacefigure[location={here,middle}]
+\startplacefigure[title={Default Figure},
+location={middle}]
 \externalfigure[./bessel11.pdf][]
 \stopplacefigure
-\stopOrgParagraph
 
-
-\startOrgParagraph
 Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
 facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
 vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
@@ -1051,66 +1792,93 @@ ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
 vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
 orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
 est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
-\stopOrgParagraph
 
-\startOrgBlkSrc
-#+ATTR_CONTEXT: :width 0.5\textwidth :float wrap 
+\startOrgBlkSrc[option=org]
+#+ATTR_CONTEXT: :float wrap :caption Default Wrapped Figure
 [[./bessel11.pdf]]
 \stopOrgBlkSrc
 
-
-\startOrgParagraph
-\startplacefigure[location={here,left}]
-\externalfigure[./bessel11.pdf][maxwidth={0.5\textwidth}]
+\startplacefigure[title={Default Wrapped Figure
+},
+location={left}]
+\externalfigure[./bessel11.pdf][maxwidth={0.48\textwidth}]
 \stopplacefigure
-\stopOrgParagraph
 
-
-\startOrgParagraph
 Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
-facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
-vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
-Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
-varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
-ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
-vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
-orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
-est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
-\stopOrgParagraph
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc
+porta vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam
+posuere. Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada
+massa, quis varius mi purus non odio. Pellentesque condimentum, magna ut
+suscipit hendrerit, ipsum augue ornare nulla, non luctus diam neque sit amet
+urna. Curabitur vulputate vestibulum lorem. Fusce sagittis, libero non
+molestie mollis, magna orci ultrices dolor, at vulputate neque nulla lacinia
+eros. Sed id ligula quis est convallis tempor. Curabitur lacinia pulvinar
+nibh. Nam a sapien.
 
-\startOrgBlkSrc
-#+ATTR_CONTEXT: :width 0.5\textwidth :float t :placement right 
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
+tortor. Nam euismod tellus id erat.
+
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc
+porta vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam
+posuere. Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada
+massa, quis varius mi purus non odio. Pellentesque condimentum, magna ut
+suscipit hendrerit, ipsum augue ornare nulla, non luctus diam neque sit amet
+urna. Curabitur vulputate vestibulum lorem. Fusce sagittis, libero non
+molestie mollis, magna orci ultrices dolor, at vulputate neque nulla lacinia
+eros. Sed id ligula quis est convallis tempor. Curabitur lacinia pulvinar
+nibh. Nam a sapien.
+
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit
+tempor tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et,
+mattis eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
+parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
+Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
+Nam vestibulum accumsan nisl.
+
+\startOrgBlkSrc[option=org]
+#+ATTR_CONTEXT: :width 1in :placement rightmargin 
+#+CAPTION: Margin Figure
 [[./bessel11.pdf]]
 \stopOrgBlkSrc
 
-
-\startOrgParagraph
-\startplacefigure[location={here,right}]
-\externalfigure[./bessel11.pdf][maxwidth={0.5\textwidth}]
+\startplacefigure[title={Margin Figure},
+location={rightmargin,middle}]
+\externalfigure[./bessel11.pdf][maxwidth={1in}]
 \stopplacefigure
-\stopOrgParagraph
+
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
+tortor. Nam euismod tellus id erat.
+
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet tortor.
+Nam euismod tellus id erat.
 
 
-\startOrgParagraph
-Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
-facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
-vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
-Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
-varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
-ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
-vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
-orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
-est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
-\stopOrgParagraph
 
 
-
-\section[reference={sec:org90dd653},
-  title={\OrgHeadline
+\reference[sec:orgef877ec]{Index}
+\section[title={\OrgHeadline
    [Text={Index}]},
-  list={Index},
-  marking={Index},
- bookmark={Index}]
+list={Index},
+marking={Index},
+bookmark={Index}]
+We can place an index in the document using \type{#+CONTEXT: \placeindex}
 \placeindex
 
 

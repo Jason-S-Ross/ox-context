@@ -20,9 +20,7 @@
 #+EMAIL: jasonross1024@gmail.com
 #+CREATOR: Jason Ross
 #+LANGUAGE: en
-#+OPTIONS: foldmarks:nil toc:t backaddress:t pri:t p:t c:t prop:t d:t
-#+CONTEXT_HEADER: \usemodule[pret-python]
-#+CONTEXT_HEADER: \setuppaper[letter]
+#+OPTIONS: foldmarks:nil toc:t backaddress:t pri:t p:t c:t prop:t d:t ':t
 #+CONTEXT_PRESET: article
 #+DATE: 2021-01-07
 
@@ -31,11 +29,14 @@ List of Tables
 List of Figures
 #+TOC: figures
 * DONE [#A] Block Elements
-  This section demonstrates different elements delimited by different =#+BEGIN/END= tags.
+  This section demonstrates different elements delimited by different
+  ~#+BEGIN/END~ tags.
   #+INDEX: Source Block
 ** Source Blocks
-   Syntax highlighting is supported in ConTeXt, but you may have to install
-   a module to support it.
+   Syntax highlighting is supported in ConTeXt, but you may have to install a
+   module to support it. By default, there is a custom ConTeXt ~typing~ called
+   ~OrgBlkSrc~ defined in the header that can be customized by adding
+   ~#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgBlkSrc][...]~.
    #+BEGIN_SRC python 
      import this
      for i in range(5):
@@ -46,6 +47,10 @@ List of Figures
    : None
    #+INDEX: Verse Block
 ** Verse Blocks
+   By default, verse blocks are enclosed in a custom ~\lines~ environment called
+   ~OrgVerse~ that can be customized by adding
+   ~#+CONTEXT_HEADER_EXTRA: \setuplines[OrgVerse][...]~.
+   
    /The Monks and the Giants/ by John Hookham Frere
    #+BEGIN_VERSE
    But chiefly, when the shadowy moon had shed
@@ -59,6 +64,10 @@ List of Figures
    #+END_VERSE
    #+INDEX: Example Block
 ** Example Blocks
+   By default, example blocks are enclosed in a custom ~\typing~ environment
+   called ~OrgExample~ that can be customized by adding
+   ~#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgExample][...]~.
+   
    #+begin_example
    The Zen of Python, by Tim Peters
  
@@ -97,31 +106,45 @@ List of Figures
    #+END_EXPORT
    #+INDEX: Centering
 ** Centering
+   Centered text just in an ~alignment~ environment.
+   
    #+BEGIN_CENTER
-   This is some centered text
+   Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec
+   facilisis facilisis, est dui fermentum leo, quis tempor ligula erat quis
+   odio. Nunc porta vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum.
+   Aliquam posuere. Nunc aliquet, augue nec adipiscing interdum, lacus tellus
+   malesuada massa, quis varius mi purus non odio. Pellentesque condimentum,
+   magna ut suscipit hendrerit, ipsum augue ornare nulla, non luctus diam neque
+   sit amet urna. Curabitur vulputate vestibulum lorem. Fusce sagittis, libero
+   non molestie mollis, magna orci ultrices dolor, at vulputate neque nulla
+   lacinia eros. Sed id ligula quis est convallis tempor. Curabitur lacinia
+   pulvinar nibh. Nam a sapien.
    #+END_CENTER
    #+INDEX: Quote Block
 ** Quote Block
-  #+BEGIN_QUOTE
-  Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
-  commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
-  lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
-  felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
-  dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
-  quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
-  tortor. Nam euismod tellus id erat.
-  #+END_QUOTE
+   By default, block quotes are enclosed in a custom ~startstop~ environment
+   called ~OrgBlockQuote~ that can be customized by adding
+   ~#+CONTEXT_HEADER_EXTRA: \setupstartstop[OrgBlockQuote][...]~.
+   
+   #+BEGIN_QUOTE
+   Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+   commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+   lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+   felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+   dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+   quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
+   tortor. Nam euismod tellus id erat.
+   #+END_QUOTE
 * Inline Elements
 
 ** Code
-   Here's some source code: ~with open("file.txt") as f:~
+   Here's some code: ~with open("file.txt") as f:~
   
 ** Links
 *** Named URL
    Here's a link to [[https://orgmode.org][Org Mode]]
 *** Heading Link
     Here's a link to [[Block Elements]]
-    These are still a bit wonky.
 *** Anonymous url
     Here's a link to [[https://orgmode.org]]
 *** Anonymous Unmarked url
@@ -134,7 +157,10 @@ List of Figures
    <<SimpleTarget>>
 ** Target
    This is a link to [[SimpleTarget]]
+
    TODO
+
+   This should refer to the number to match LaTeX
 ** Bold
    This is *Some bold text*
 ** LaTeX Fragments
@@ -155,15 +181,47 @@ List of Figures
 ** Underline
    _Here's some underlined text_
 ** Verbatim
-   =This is verbatim text=
+   ~This is verbatim text~
 ** Footnote Reference
-  This should link to a footnote at the bottom of the page. [fn:1] 
+   Footnotes are formatted with the ~\footnote~ macro. Nested footnotes are
+   not yet supported.
+   
+   This should link to a footnote at the bottom of the page. [fn:1] 
+** Smart Quotes
+   Smart quotes are formatted using the ~\quote~ and ~\quotation~ macros,
+   which respect language settings.
+
+   Here's an English quotation: "Here's a 'nested' quote"
+
+   #+CONTEXT: \language[cz]
+
+   Here's a Czech quotation: "Here's a 'nested' quote"
+   
+   #+CONTEXT: \language[en]
+
+** Clock
+   The default clock is set to use the ISO format. ConTeXt doesn't provide
+   a locale-aware timestamp but the user can customize the clock appearance
+   by overriding the ~\OrgClock~ macro. Example: 
+   CLOCK: [2021-01-15 Fri 16:58]
+
+
+** Timestamp
+   Timestamps are supported by the ~\date~ macro, so different locales
+   are supported.
+   Here's an English timestamp: <2021-01-15 Fri>
+
+   #+CONTEXT: \language[fr]
+   Here's a French timestamp: <2021-01-15 Fri>
+   #+CONTEXT: \language[en]
 
 * Paragraph Elements
-  These elements form their own paragraph or section in the export
-** Clock
-   The default clock is set to use the ISO format.
-  CLOCK: [2021-01-15 Fri 16:58]
+  These elements form their own paragraph or section in the export.
+** Headlines
+   Headline text is formatted by a custom macro called ~OrgHeadline~
+   that receives the headline's todo, todo type, priority, text, and
+   tags. This macro can be overriden by the user to customize the
+   appearance of headlines.
 ** LaTeX Environments
    Common math environments are translated from LaTeX to ConTeXt.
    
@@ -181,17 +239,33 @@ List of Figures
    This is a horizontal rule:
    -----
 ** Fixed width
+   Fixed-width text is enclosed in a custom =typing~ environment
+   called ~OrgFixed~ by default. To customize this environment,
+   add ~#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgFixed][...]~
+   to the document.
    :   This is Some fixed-width text
 
-** Here's a property drawer
-   :PROPERTIES:
-   :Title:    Goldberg Variations
-   :Composer: J.S. Bach
-   :Artist:   Glenn Gould
-   :Publisher: Deutsche Grammophon
-   :NDisks:   1
-   :END:
+** Property Drawers
+  :PROPERTIES:
+  :Title:    Goldberg Variations
+  :Composer: J.S. Bach
+  :Artist:   Glenn Gould
+  :Publisher: Deutsche Grammophon
+  :NDisks:   1
+  :END:
+   Property drawers are enclosed in a custom ~typing~ environment
+   called ~OrgPropertyDrawer~ by default. To customize this environment,
+   add ~#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgPropertyDrawer][...]~
+   to the document.
+   
+
 ** Inline Task
+   Inline tasks are supported by a custom ~\OrgInlineTask~ macro.
+   Arguments to the macro include the todo keyword, the todo type,
+   the priority, the name of the task, tags, and contents.
+   
+   Alternatively, for higher-level customization, the user can
+   provide their own ~org-context-format-inlinetask-function~.
   
 *************** TODO [#B] Check Inline Task                            :tag1:
                 DEADLINE: <2021-01-22 Fri> SCHEDULED: <2021-01-15 Fri>
@@ -201,10 +275,17 @@ eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
 parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
 Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
 Nam vestibulum accumsan nisl.
-
-
 *************** END
+
 ** Lists and items
+   Standard bulleted lists are enclosed in an ~itemize~ environment.
+   Description lists use a custom ~description~ element called
+   ~OrgDesc~. Additionally, checkbox items use custom macros called
+   ~OrgItemOn~, ~OrgItemOff~, and ~OrgItemTrans~ for the glyphs, so
+   these can be overriden by the user by adding
+   ~#+CONTEXT_HEADER_EXTRA: \define\OrgItemOn{...}~
+   to the document.
+
    - Bullet 1
    - Bullet 2
    - Bullet 3
@@ -214,7 +295,7 @@ Nam vestibulum accumsan nisl.
        - [ ] SubSubBullet 2
 
 
-   - Description item 1 :: Nullam eu ante vel est convallis dignissim. Fusce
+   - Description Item 1 :: Nullam eu ante vel est convallis dignissim. Fusce
      suscipit, wisi nec facilisis facilisis, est dui fermentum leo, quis tempor
      ligula erat quis odio. Nunc porta vulputate tellus. Nunc rutrum turpis sed
      pede. Sed bibendum. Aliquam posuere. Nunc aliquet, augue nec adipiscing
@@ -224,30 +305,182 @@ Nam vestibulum accumsan nisl.
      lorem. Fusce sagittis, libero non molestie mollis, magna orci ultrices
      dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis est
      convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+   - [X] Description Item 2 :: Checked
+   - [ ] Description Item 3 :: Unchecked
+   - [-] Description Item 4 [1/2] :: Transatory
+     - [ ] Sub1
+     - [X] Sub2
 
 
    1. Numbered item
    2. Another Number
 
 ** Tables
-  Here's a table
-  |  A  |  B  |  C  |  D  |  E  |  F  |  G  |  H  |  I  |  J  |
-  |-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
-  |  0  |  0  |  0  |  0  |  0  |  0  |  0  |  0  |  0  |  0  |
-  |  0  |  1  |  2  |  3  |  4  |  5  |  6  |  7  |  8  |  9  |
-  |  0  |  2  |  4  |  6  |  8  | 10  | 12  | 14  | 16  | 18  |
-  |  0  |  3  |  6  |  9  | 12  | 15  | 18  | 21  | 24  | 27  |
-  |  0  |  4  |  8  | 12  | 16  | 20  | 24  | 28  | 32  | 36  |
-  |  0  |  5  | 10  | 15  | 20  | 25  | 30  | 35  | 40  | 45  |
-  |  0  |  6  | 12  | 18  | 24  | 30  | 36  | 42  | 48  | 54  |
-  |  0  |  7  | 14  | 21  | 28  | 35  | 42  | 49  | 56  | 63  |
-  |  0  |  8  | 16  | 24  | 32  | 40  | 48  | 56  | 64  | 72  |
-  |  0  |  9  | 18  | 27  | 36  | 45  | 54  | 63  | 72  | 81  |
-** Timestamp
-  <2021-01-15 Fri>
+   Tables are supported by the ~xtables~ environment.
+
+   #+CAPTION: Default Layout Table
+  | A | B |
+  |---+---|
+  | 1 | 2 |
+  | 3 | 4 |
+   
+  Here's the same table with ~:option width~
+  
+  #+CAPTION: Wide Layout Table
+  #+ATTR_CONTEXT: :option width
+  | A | B |
+  |---+---|
+  | 1 | 2 |
+  | 3 | 4 |
+
+  Here's the same table with ~:option tight~
+  
+  #+CAPTION: Tight Layout Table
+  #+ATTR_CONTEXT: :option tight
+  | A | B |
+  |---+---|
+  | 1 | 2 |
+  | 3 | 4 |
+
+
+  Here's the same table with ~:option stretch~
+  
+  #+CAPTION: Stretch Layout Table
+  #+ATTR_CONTEXT: :option stretch
+  | A | B |
+  |---+---|
+  | 1 | 2 |
+  | 3 | 4 |
+
+
+  Here's a very long table. We can split it by setting
+  ~:split t~ and ~:header repeat~ in ~#+ATTR_CONTEXT~.
+
+  #+CAPTION: Giant Table
+  #+ATTR_CONTEXT: :split t :header repeat 
+  | A |  B |  C |   D |   E |   F |   G |   H |   I |   J |
+  |---+----+----+-----+-----+-----+-----+-----+-----+-----|
+  | 0 |  0 |  0 |   0 |   0 |   0 |   0 |   0 |   0 |   0 |
+  | 0 |  1 |  2 |   3 |   4 |   5 |   6 |   7 |   8 |   9 |
+  | 0 |  2 |  4 |   6 |   8 |  10 |  12 |  14 |  16 |  18 |
+  | 0 |  3 |  6 |   9 |  12 |  15 |  18 |  21 |  24 |  27 |
+  | 0 |  4 |  8 |  12 |  16 |  20 |  24 |  28 |  32 |  36 |
+  | 0 |  5 | 10 |  15 |  20 |  25 |  30 |  35 |  40 |  45 |
+  | 0 |  6 | 12 |  18 |  24 |  30 |  36 |  42 |  48 |  54 |
+  | 0 |  7 | 14 |  21 |  28 |  35 |  42 |  49 |  56 |  63 |
+  | 0 |  8 | 16 |  24 |  32 |  40 |  48 |  56 |  64 |  72 |
+  | 0 |  9 | 18 |  27 |  36 |  45 |  54 |  63 |  72 |  81 |
+  | 0 | 10 | 20 |  30 |  40 |  50 |  60 |  70 |  80 |  90 |
+  | 0 | 11 | 22 |  33 |  44 |  55 |  66 |  77 |  88 |  99 |
+  | 0 | 12 | 24 |  36 |  48 |  60 |  72 |  84 |  96 | 108 |
+  | 0 | 13 | 26 |  39 |  52 |  65 |  78 |  91 | 104 | 117 |
+  | 0 | 14 | 28 |  42 |  56 |  70 |  84 |  98 | 112 | 126 |
+  | 0 | 15 | 30 |  45 |  60 |  75 |  90 | 105 | 120 | 135 |
+  | 0 | 16 | 32 |  48 |  64 |  80 |  96 | 112 | 128 | 144 |
+  | 0 | 17 | 34 |  51 |  68 |  85 | 102 | 119 | 136 | 153 |
+  | 0 | 18 | 36 |  54 |  72 |  90 | 108 | 126 | 144 | 162 |
+  | 0 | 19 | 38 |  57 |  76 |  95 | 114 | 133 | 152 | 171 |
+  | 0 | 20 | 40 |  60 |  80 | 100 | 120 | 140 | 160 | 180 |
+  | 0 | 21 | 42 |  63 |  84 | 105 | 126 | 147 | 168 | 189 |
+  | 0 | 22 | 44 |  66 |  88 | 110 | 132 | 154 | 176 | 198 |
+  | 0 | 23 | 46 |  69 |  92 | 115 | 138 | 161 | 184 | 207 |
+  | 0 | 24 | 48 |  72 |  96 | 120 | 144 | 168 | 192 | 216 |
+  | 0 | 25 | 50 |  75 | 100 | 125 | 150 | 175 | 200 | 225 |
+  | 0 | 26 | 52 |  78 | 104 | 130 | 156 | 182 | 208 | 234 |
+  | 0 | 27 | 54 |  81 | 108 | 135 | 162 | 189 | 216 | 243 |
+  | 0 | 28 | 56 |  84 | 112 | 140 | 168 | 196 | 224 | 252 |
+  | 0 | 29 | 58 |  87 | 116 | 145 | 174 | 203 | 232 | 261 |
+  | 0 | 30 | 60 |  90 | 120 | 150 | 180 | 210 | 240 | 270 |
+  | 0 | 31 | 62 |  93 | 124 | 155 | 186 | 217 | 248 | 279 |
+  | 0 | 32 | 64 |  96 | 128 | 160 | 192 | 224 | 256 | 288 |
+  | 0 | 33 | 66 |  99 | 132 | 165 | 198 | 231 | 264 | 297 |
+  | 0 | 34 | 68 | 102 | 136 | 170 | 204 | 238 | 272 | 306 |
+  | 0 | 35 | 70 | 105 | 140 | 175 | 210 | 245 | 280 | 315 |
+  | 0 | 36 | 72 | 108 | 144 | 180 | 216 | 252 | 288 | 324 |
+  | 0 | 37 | 74 | 111 | 148 | 185 | 222 | 259 | 296 | 333 |
+  | 0 | 38 | 76 | 114 | 152 | 190 | 228 | 266 | 304 | 342 |
+  | 0 | 39 | 78 | 117 | 156 | 195 | 234 | 273 | 312 | 351 |
+  | 0 | 40 | 80 | 120 | 160 | 200 | 240 | 280 | 320 | 360 |
+  | 0 | 41 | 82 | 123 | 164 | 205 | 246 | 287 | 328 | 369 |
+  | 0 | 42 | 84 | 126 | 168 | 210 | 252 | 294 | 336 | 378 |
+  | 0 | 43 | 86 | 129 | 172 | 215 | 258 | 301 | 344 | 387 |
+  | 0 | 44 | 88 | 132 | 176 | 220 | 264 | 308 | 352 | 396 |
+  | 0 | 45 | 90 | 135 | 180 | 225 | 270 | 315 | 360 | 405 |
+  | 0 | 46 | 92 | 138 | 184 | 230 | 276 | 322 | 368 | 414 |
+  | 0 | 47 | 94 | 141 | 188 | 235 | 282 | 329 | 376 | 423 |
+  | 0 | 48 | 96 | 144 | 192 | 240 | 288 | 336 | 384 | 432 |
+  | 0 | 49 | 98 | 147 | 196 | 245 | 294 | 343 | 392 | 441 |
+
+  Here's a table with paragraphs in it. ConTeXt handles this gracefully by
+  default.
+
+  | Description  | Contents                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+  |--------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+  | First Thing  | Aliquam erat volutpat.  Nunc eleifend leo vitae magna.  In id erat non orci commodo lobortis.  Proin neque massa, cursus ut, gravida ut, lobortis eget, lacus.  Sed diam.  Praesent fermentum tempor tellus.  Nullam tempus.  Mauris ac felis vel velit tristique imperdiet.  Donec at pede.  Etiam vel neque nec dui dignissim bibendum.  Vivamus id enim.  Phasellus neque orci, porta a, aliquet quis, semper a, massa.  Phasellus purus.  Pellentesque tristique imperdiet tortor.  Nam euismod tellus id erat.                                                                                                                                                                                                                                                                 |
+  | Second Thing | Pellentesque dapibus suscipit ligula.  Donec posuere augue in quam.  Etiam vel tortor sodales tellus ultricies commodo.  Suspendisse potenti.  Aenean in sem ac leo mollis blandit.  Donec neque quam, dignissim in, mollis nec, sagittis eu, wisi.  Phasellus lacus.  Etiam laoreet quam sed arcu.  Phasellus at dui in ligula mollis ultricies.  Integer placerat tristique nisl.  Praesent augue.  Fusce commodo.  Vestibulum convallis, lorem a tempus semper, dui dui euismod elit, vitae placerat urna tortor vitae lacus.  Nullam libero mauris, consequat quis, varius et, dictum id, arcu.  Mauris mollis tincidunt felis.  Aliquam feugiat tellus ut neque.  Nulla facilisis, risus a rhoncus fermentum, tellus tellus lacinia purus, et dictum nunc justo sit amet elit. |
+
+  Here's a shorter table.
+
+  #+CAPTION: Short Table
+  |  A   |  B   |  C   |  D   |  E   |  F   |  G   |  H   |  I   |  J   |
+  |------|------|------|------|------|------|------|------|------|------|
+  |   0  |   0  |   0  |   0  |   0  |   0  |   0  |   0  |   0  |   0  |
+  |   0  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |
+  |   0  |   2  |   4  |   6  |   8  |  10  |  12  |  14  |  16  |  18  |
+  |   0  |   3  |   6  |   9  |  12  |  15  |  18  |  21  |  24  |  27  |
+  |   0  |   4  |   8  |  12  |  16  |  20  |  24  |  28  |  32  |  36  |
+  |   0  |   5  |  10  |  15  |  20  |  25  |  30  |  35  |  40  |  45  |
+  |   0  |   6  |  12  |  18  |  24  |  30  |  36  |  42  |  48  |  54  |
+  |   0  |   7  |  14  |  21  |  28  |  35  |  42  |  49  |  56  |  63  |
+
+  TODO: Allow table-style to take keyword arguments
+
+  Tables can be customized in several ways. By default, the top and bottom rows,
+  the left and right columns, and the four corners of the table have special
+  styles which default to ~OrgTableTopRow~, ~OrgTableBottomRow~,
+  ~OrgTableLeftCol~, ~OrgTableRightCol~, ~OrgTableTopLeftCell~,
+  ~OrgTableTopRightCell~, ~OrgTableBottomRightCell~, and
+  ~OrgTableBottomLeftCell~. These styles can be configured by adding
+  ~#+CONTEXT_HEADER_EXTRA: \setupxtable[OrgTable...][...]~ to the document.
+  Styling options for individual tables can be configured using the
+  ~:top~, ~:bottom~, ~:left~, ~:right~, ~:topleft~, ~:topright~, ~:bottomright~
+  and ~:bottomleft~ keywords in ~#+ATTR_CONTEXT~.
+  #+CONTEXT: \setupxtable[Top][background=color,backgroundcolor=red]
+  #+CONTEXT: \setupxtable[Bottom][background=color,backgroundcolor=blue]
+  #+CONTEXT: \setupxtable[Left][background=color,backgroundcolor=green]
+  #+CONTEXT: \setupxtable[Right][background=color,backgroundcolor=yellow]
+  #+CONTEXT: \setupxtable[Body][foregroundstyle=italic]
+  #+CAPTION: Short Table
+  #+ATTR_CONTEXT: :top Top
+  #+ATTR_CONTEXT: :bottom Bottom
+  #+ATTR_CONTEXT: :left Left
+  #+ATTR_CONTEXT: :right Right
+  #+ATTR_CONTEXT: :topleft foregroundstyle=sansbold
+  #+ATTR_CONTEXT: :topright foregroundstyle=smallitalicbold
+  #+ATTR_CONTEXT: :bottomright foregroundstyle=smallbold
+  #+ATTR_CONTEXT: :bottomleft foregroundstyle=bold
+  #+ATTR_CONTEXT: :table-style Body
+  |  A   |  B   |  C   |  D   |
+  |------|------|------|------|
+  |   0  |   0  |   0  |   0  |
+  |   0  |   1  |   2  |   3  |
+  |   0  |   2  |   4  |   6  |
+
+  
+
 * Other Features
-  Lots of levels
-** Level 2
+** Levels
+   Many levels of subheading are supported by ConTeXt (up to 9). If more levels
+   are needed, the user can create them using the ~\definehead~ macro. To handle
+   10 levels, for example, add \\
+   ~#+CONTEXT_HEADER_EXTRA: \definehead[subsubsubsubsubsubsubsubsubsection]
+   [subsubsubsubsubsubsubsubsection]~ \\
+   to the document.
+   #+BEGIN_QUOTE
+   The LaTeX exporter handles arbitrarily deep nesting by treating deeper
+   headings as list elements, but true headlines are only supported down
+   to 5 levels deep.
+   #+END_QUOTE
 *** Level 3
 ****  Level 4
 ***** Level 5
@@ -256,62 +489,102 @@ Nam vestibulum accumsan nisl.
 ******** Level 8
 ********* Level 9
 ** Images
-  Different inline images. 
-
-  #+BEGIN_SRC
-  [[./bessel11.pdf]]
-  #+END_SRC
-
-  [[./bessel11.pdf]]
-
-  Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
-  facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
-  vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
-  Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
-  varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
-  ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
-  vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
-  orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
-  est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
-
-  #+BEGIN_SRC
-  #+ATTR_CONTEXT: :width 0.5\textwidth :float wrap 
-  [[./bessel11.pdf]]
-  #+END_SRC
-
-  #+ATTR_CONTEXT: :width 0.5\textwidth :float wrap 
-  [[./bessel11.pdf]]
-
-  Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
-  facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
-  vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
-  Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
-  varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
-  ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
-  vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
-  orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
-  est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
-
-  #+BEGIN_SRC
-  #+ATTR_CONTEXT: :width 0.5\textwidth :float t :placement right 
-  [[./bessel11.pdf]]
-  #+END_SRC
-
-  #+ATTR_CONTEXT: :width 0.5\textwidth :float t :placement right
-  [[./bessel11.pdf]]
-
-  Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
-  facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
-  vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
-  Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
-  varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
-  ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
-  vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
-  orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
-  est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
-
+  Inline images are supported.
   
+  #+BEGIN_SRC org
+  #+CAPTION: Default Figure
+  [[./bessel11.pdf]]
+  #+END_SRC
+
+  #+CAPTION: Default Figure
+  [[./bessel11.pdf]]
+
+  Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+  facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+  vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+  Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+  varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+  ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+  vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+  orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+  est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+
+  #+BEGIN_SRC org
+  #+ATTR_CONTEXT: :float wrap :caption Default Wrapped Figure
+  [[./bessel11.pdf]]
+  #+END_SRC
+
+  #+ATTR_CONTEXT: :float wrap :caption Default Wrapped Figure
+  [[./bessel11.pdf]]
+
+  Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+  facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc
+  porta vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam
+  posuere. Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada
+  massa, quis varius mi purus non odio. Pellentesque condimentum, magna ut
+  suscipit hendrerit, ipsum augue ornare nulla, non luctus diam neque sit amet
+  urna. Curabitur vulputate vestibulum lorem. Fusce sagittis, libero non
+  molestie mollis, magna orci ultrices dolor, at vulputate neque nulla lacinia
+  eros. Sed id ligula quis est convallis tempor. Curabitur lacinia pulvinar
+  nibh. Nam a sapien.
+
+  Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+  commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+  lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+  felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+  dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+  quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
+  tortor. Nam euismod tellus id erat.
+
+  Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+  facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc
+  porta vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam
+  posuere. Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada
+  massa, quis varius mi purus non odio. Pellentesque condimentum, magna ut
+  suscipit hendrerit, ipsum augue ornare nulla, non luctus diam neque sit amet
+  urna. Curabitur vulputate vestibulum lorem. Fusce sagittis, libero non
+  molestie mollis, magna orci ultrices dolor, at vulputate neque nulla lacinia
+  eros. Sed id ligula quis est convallis tempor. Curabitur lacinia pulvinar
+  nibh. Nam a sapien.
+ 
+
+  Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit
+  tempor tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et,
+  mattis eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
+  parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
+  Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
+  Nam vestibulum accumsan nisl.
+
+  #+BEGIN_SRC org
+  #+ATTR_CONTEXT: :width 1in :placement rightmargin 
+  #+CAPTION: Margin Figure
+  [[./bessel11.pdf]]
+  #+END_SRC
+
+  #+ATTR_CONTEXT: :width 1in :placement rightmargin
+  #+CAPTION: Margin Figure
+  [[./bessel11.pdf]]
+ 
+  Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+  commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+  lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+  felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+  dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+  quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
+  tortor. Nam euismod tellus id erat.
+
+  Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+  commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+  lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+  felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+  dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+  quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet tortor.
+  Nam euismod tellus id erat.
+
+
+ 
 
 * Index
+  We can place an index in the document using ~#+CONTEXT: \placeindex~
 #+CONTEXT: \placeindex
 [fn:1] This is a sample footnote
