@@ -1729,16 +1729,18 @@ INFO is a plist holding contextual information. See
                              todo todo-type priority text tags info))
          (headertemplate
           (format "\\%s" (org-context--get-headline-command numberedp level)))
-         (headline-label (org-context--label headline info t )))
+         (headline-label (org-context--label headline info t ))
+         (headline-args
+          (org-context--format-arguments
+           (list
+            (cons "title" full-text)
+            (cons "list" text)
+            (cons "marking" text)
+            (cons "bookmark" text)))))
     (concat
+     (format "\\reference[%s]{%s}\n" headline-label text)
      headertemplate
-     (format
-      "[reference={%s},\n  title={%s},\n  list={%s},\n  marking={%s},\n bookmark={%s}]"
-      headline-label
-      full-text
-      text
-      text
-      text)
+     (format "[%s]" headline-args)
      "\n"
      contents)))
 
