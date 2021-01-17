@@ -45,6 +45,16 @@
                   (:context-image-default-option nil nil org-context-image-default-option)
                   (:context-snippet "CONTEXT_SNIPPET" nil nil split)
                   (:context-snippets nil nil org-context-snippets-alist)
+                  (:context-table-leftcol-style nil nil org-context-table-leftcol-style)
+                  (:context-table-rightcol-style nil nil org-context-table-rightcol-style)
+                  (:context-table-toprow-style nil nil org-context-table-toprow-style)
+                  (:context-table-bottomrow-style nil nil org-context-table-bottomrow-style)
+                  (:context-table-topleft-style nil nil org-context-table-topleft-style)
+                  (:context-table-topright-style nil nil org-context-table-topright-style)
+                  (:context-table-bottomleft-style nil nil org-context-table-bottomleft-style)
+                  (:context-table-bottomright-style nil nil org-context-table-bottomright-style)
+                  (:context-table-use-header nil "tablehead" org-context-table-use-header)
+                  (:context-table-use-footer nil "tablefoot" org-context-table-use-footer)
                   (:context-preset "CONTEXT_PRESET" nil org-context-default-preset t)
                   (:context-number-equations nil "numeq" org-context-number-equations)
                   (:context-presets nil nil org-context-presets-alist)
@@ -624,12 +634,47 @@ See also `:context-presets'"
            (string :tag "Snippet Name")
            (string :tag "Snippet Value"))))
 
+
+(defconst org-context-table-leftcol-style "OrgTableLeftCol"
+  "The default style name for the left column in tables.")
+
+(defconst org-context-table-rightcol-style "OrgTableRightCol"
+  "The default style name for the right column in tables.")
+
+(defconst org-context-table-toprow-style "OrgTableTopRow"
+  "The default style name for the top row in tables.")
+
+(defconst org-context-table-bottomrow-style "OrgTableBottomRow"
+  "The default style name for the bottom row in tables.")
+
+(defconst org-context-table-topleft-style "OrgTableTopLeftCell"
+  "The default style name for the top left cell in tables.")
+
+(defconst org-context-table-topright-style "OrgTableTopRightCell"
+  "The default style name for the top right cell in tables.")
+
+(defconst org-context-table-bottomleft-style "OrgTableBottomLeftCell"
+  "The default style name for the bottom left cell in tables.")
+
+(defconst org-context-table-bottomright-style "OrgTableBottomRightCell"
+  "The default style name for the bottom right cell in tables.")
+
+(defcustom org-context-table-use-header ""
+  "If \"repeat\", header rows will be repeated on all pages."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-use-footer ""
+  "If \"repeat\", footer rows will be repeated on all pages. "
+  :group 'org-export-context
+  :type 'string)
+
 (defcustom org-context-text-markup-alist
   '((bold ."\\bold{%s}")
     (code . "\\type{%s}")
     (fixed-width . "\\startOrgFixed\n%s\n\\stopOrgFixed")
     (italic . "\\italic{%s}")
-    (paragraph . "\n\\startOrgParagraph\n%s\\stopOrgParagraph")
+    (paragraph . "%s")
     (property-drawer . "\n\\startOrgPropertyDrawer\n%s\\stopOrgPropertyDrawer")
     (protectedtexttt . "\\type{%s}")
     (quotation . "\\startOrgBlockQuote\n%s\n\\stopOrgBlockQuote")
@@ -940,15 +985,28 @@ holding the export options."
 \\definetyping[OrgInlineSrc]
 % Create the block source environment
 \\definetyping[OrgBlkSrc]
-% Create the table header style
-\\definextable[OrgTableHeader]
-\\definextable[OrgTableLeftCell]
-\\definextable[OrgTableRightCell]
-\\definextable[OrgTableLastRow]
-\\definextable[OrgTableTopLeftCell]
-\\definextable[OrgTableTopRightCell]
-\\definextable[OrgTableBottomLeftCell]
-\\definextable[OrgTableBottomRightCell]
+% Create table styles
+"
+   (mapconcat
+    'identity
+    (seq-filter
+     'identity
+     (delete-dups
+      (mapcar
+       (lambda
+         (kw)
+         (let ((style (plist-get info kw)))
+           (when (org-string-nw-p style) (format "\\definextable[%s]" style))))
+       (list :context-table-toprow-style
+             :context-table-bottomrow-style
+             :context-table-leftcol-style
+             :context-table-rightcol-style
+             :context-table-topleft-style
+             :context-table-topright-style
+             :context-table-bottomleft-style
+             :context-table-bottomright-style))))
+    "\n")
+   "
 % Create the title page style
 \\definestartstop[OrgTitlePage]
 % Create a verse style
@@ -1363,10 +1421,48 @@ channel.
 This function assumes TABLE has `org' as its `:type' property and
 `table' as its `:mode' attribute."
   ;; TODO
-  (concat
-   "\\startplacetable\n\\startxtable\n"
-   contents
-   "\n\\stopxtable\n\\stopplacetable\n"))
+  (let* ((attr (org-export-read-attribute :attr_context table))
+         (caption (org-context--caption/label-string table info))
+         (location (or (plist-get attr :location) "force,here"))
+         (header (or (plist-get attr :header)
+                     ;; TODO add `:org-context-header' option
+                     (plist-get info :org-context-header)))
+         (footer (or (plist-get attr :footer)
+                     ;; TODO add `:org-context-footer' option
+                     (plist-get info :org-context-footer)))
+         (option (or (plist-get attr :option)
+                     ;; TODO add `:org-context-table-option' option
+                     (plist-get info :org-context-table-option)))
+         (table-style (or (plist-get attr :table-style)
+                    ;; TODO add `org-context-table-style'
+                    (plist-get info :org-context-table-style)))
+         (float-style (or (plist-get attr :float-style)
+                          ;; TODO add `org-context-table-float-style'
+                          (plist-get info :org-context-table-float-style)))
+         (split (plist-get attr :split))
+         (location-string (concat (when split "split,") location))
+         (float-args (org-context--format-arguments
+                      (list
+                       (cons "location" location-string)
+                       (cons "title" caption))))
+         (table-args (org-context--format-arguments
+                      (list
+                       (cons "split" (when split "yes"))
+                       (cons "header" (when (string= header "repeat") "repeat"))
+                       (cons "footer" (when (string= footer "repeat") "repeat"))
+                       (cons "option" option)))))
+    (format
+     "\\startplacetable%s%s
+\\startxtable%s
+  %s
+%s
+\\stopxtable
+\\stopplacetable\n"
+     (if (org-string-nw-p float-style) (format "\n[%s]" float-style) "")
+     (if (org-string-nw-p float-args) (format "\n[%s]" float-args) "")
+     (if (org-string-nw-p table-style) (format "\n[%s]" table-style) "")
+     (if (org-string-nw-p table-args) (format "\n[%s]" table-args) "")
+     contents)))
 
 ;;; Transcode Functions
 
@@ -2012,7 +2108,11 @@ contextual information."
   "Transcode a TABLE-CELL from Org to ConTeXt.
 CONTENTS is the cell contents. INFO is a plist used as
 a communication channel."
-  (let* ((firstrowp (not
+  (let* ((attr (org-export-read-attribute
+                :attr_context
+                (org-export-get-parent-element
+                 (org-export-get-parent-element table-cell))))
+         (firstrowp (not
                      (org-export-get-previous-element
                       (org-export-get-parent-element table-cell)
                       info)))
@@ -2021,14 +2121,32 @@ a communication channel."
                      (org-export-get-parent-element table-cell)
                      info)))
          (firstcolp (not (org-export-get-previous-element table-cell info)))
+         (firstcol-style (or (plist-get attr :left)
+                             (org-string-nw-p
+                              (plist-get info :context-table-leftcol-style))))
          (lastcolp (not (org-export-get-next-element table-cell info)))
+         (lastcol-style (or (plist-get attr :right)
+                            (org-string-nw-p
+                             (plist-get info :context-table-rightcol-style))))
+         (topleft-style (or (plist-get attr :topleft)
+                            (org-string-nw-p
+                             (plist-get info :context-table-topleft-style))))
+         (topright-style (or (plist-get attr :topright)
+                             (org-string-nw-p
+                              (plist-get info :context-table-topright-style))))
+         (bottomleft-style (or (plist-get attr :bottomleft)
+                               (org-string-nw-p
+                                (plist-get info :context-table-bottomleft-style))))
+         (bottomright-style (or (plist-get attr :bottomright)
+                                (org-string-nw-p
+                                 (plist-get info :context-table-bottomright-style))))
          (suffix
-          (cond ((and firstrowp firstcolp) "[OrgTableTopLeftCell]")
-                ((and firstrowp lastcolp) "[OrgTableTopRightCell]")
-                ((and lastrowp firstcolp) "[OrgTableBottomLeftCell]")
-                ((and lastrowp firstcolp) "[OrgTableBottomLeftCell]")
-                (firstcolp "[OrgTableLeftCell]")
-                (lastcolp "[OrgTableRightCell]")
+          (cond ((and firstrowp firstcolp topleft-style) (format "[%s]" topleft-style))
+                ((and firstrowp lastcolp topright-style) (format "[%s]" topright-style))
+                ((and lastrowp firstcolp bottomleft-style) (format "[%s]" bottomleft-style))
+                ((and lastrowp lastcolp bottomright-style) (format "[%s]" bottomright-style))
+                ((and firstcolp firstcol-style) (format "[%s]" firstcol-style))
+                ((and lastcolp lastcol-style) (format "[%s]" lastcol-style))
                 (t ""))))
     (concat
      (format "\\startxcell%s " suffix)
@@ -2039,16 +2157,39 @@ a communication channel."
   "Transcode a TABLE-ROW element from Org to ConTeXt.
 CONTENTS is the contents of the row.  INFO is a plist used as
 a communication channel."
-  (let* ((firstrowp (not (org-export-get-previous-element table-row info)))
+  ;; TODO Allow the user to enable or disable different parts.
+  ;; Parts include head, next, body, foot
+  (let* ((attr (org-export-read-attribute
+                :attr_context
+                (org-export-get-parent-element table-row)))
+         (headerp (or (plist-get attr :header)
+                      (org-string-nw-p
+                       (plist-get info :context-table-use-header))))
+         (footerp (or (plist-get attr :footer)
+                      (org-string-nw-p
+                       (plist-get info :context-table-use-footer))))
+         (toprow-style (or (plist-get attr :top)
+                           (org-string-nw-p
+                            (plist-get info :context-table-toprow-style))))
+         (bottomrow-style (or (plist-get attr :bottom)
+                              (org-string-nw-p
+                               (plist-get info :context-table-bottomrow-style))))
+         (firstrowp (not (org-export-get-previous-element table-row info)))
          (lastrowp (not (org-export-get-next-element table-row info)))
          (wrappedcontents
-          (concat (format "\\startxrow%s\n"
-                          (if lastrowp "[OrgTableLastRow]" ""))
-                  contents
-                  "\\stopxrow")))
-    (if firstrowp
-        (concat "\\startxtablehead[OrgTableHeader]\n" wrappedcontents "\n\\stopxtablehead")
-      wrappedcontents)))
+          (when contents
+            (format "\\startxrow%s\n%s \\stopxrow\n"
+                    (cond
+                     ((and firstrowp toprow-style) (format "[%s]" toprow-style))
+                     ((and lastrowp bottomrow-style) (format "[%s]" bottomrow-style ))
+                     (t ""))
+                    contents))))
+    (cond
+     ((and firstrowp headerp)
+      (format "\\startxtablehead\n%s\n\\stopxtablehead" wrappedcontents))
+     ((and lastrowp footerp)
+      (format "\\startxtablefoot\n%s\n\\stopxtablefoot" wrappedcontents))
+     (t wrappedcontents))))
 
 (defun org-context-target (target _contents info)
   "Transcode a TARGET object from Org to ConTeXt.
