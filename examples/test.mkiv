@@ -1,4 +1,4 @@
-% Created 2021-01-17 Sun 09:59
+% Created 2021-01-17 Sun 19:05
 
 %===============================================================================
 % From CONTEXT_HEADER
@@ -32,33 +32,31 @@ letter:withbackaddress={start}]
 \setupinteraction[state=start]
 % LaTeX-style descriptive enumerations
 \definedescription[OrgDesc]
+
 % blockquote environment
 \definestartstop[OrgBlockQuote]
+
 % Create the example environment
 \definetyping[OrgExample]
+
 % Create the fixed width environment
 \definetyping[OrgFixed]
+
 % Create the inline source environment
 \definetyping[OrgInlineSrc]
+
 % Create the block source environment
 \definetyping[OrgBlkSrc]
-% Create table styles
-\definextable[OrgTableTopRow]
-\definextable[OrgTableBottomRow]
-\definextable[OrgTableLeftCol]
-\definextable[OrgTableRightCol]
-\definextable[OrgTableTopLeftCell]
-\definextable[OrgTableTopRightCell]
-\definextable[OrgTableBottomLeftCell]
-\definextable[OrgTableBottomRightCell]
+
 % Create the title page style
 \definestartstop[OrgTitlePage]
+
 % Create a verse style
 \definelines[OrgVerse]
+
 % Create a property drawer style
-\definetyping[OrgPropertyDrawer]
-% Create a paragraph style
-\definestartstop[OrgParagraph]
+\definetyping[OrgBlkSrc]
+
 % Create a body style
 \definestartstop[OrgBody]
 % Create an empty title command to be overridden by user
@@ -67,14 +65,13 @@ letter:withbackaddress={start}]
 \define\OrgTitleContents{%
   {\tfc Contents}
 }
-% Define bullets
+% Define on bullet command
 \define\OrgItemOn{\boxplus}
+% Define off bullet command
 \define\OrgItemOff{\square}
+% Define incomplete bullet command
 \define\OrgItemTrans{\boxtimes}
-
-\unprotect
 % Define a basic planning command
-% Override this with user code to customize timestamp appearance
 \def\OrgPlanning#1[#2]{%
   \getparameters
     [OrgPlanning]
@@ -92,9 +89,7 @@ letter:withbackaddress={start}]
   \doifnot{\OrgPlanningScheduledString}{}{\OrgPlanningScheduledString\space}
   \doifnot{\OrgPlanningScheduledTime}{}{\OrgPlanningScheduledTime\space}
 }
-
 % Define a basic inline task command
-% Override this with user code to customize inline task appearance
 \def\OrgInlineTask#1[#2]{%
   \getparameters
     [OrgInlineTask]
@@ -120,7 +115,6 @@ letter:withbackaddress={start}]
   \blank[big]
 }
 % Define a basic headline command
-% Override this with user code to customize headline appearance
 \def\OrgHeadline#1[#2]{%
   \getparameters
     [OrgHeadline]
@@ -136,7 +130,6 @@ letter:withbackaddress={start}]
   \doifnot{\OrgHeadlineTags}{}{{\space\tt\OrgHeadlineTags}}%
 }
 % Define a basic clock command
-% Override this with user code to customize the clock appearance
 \def\OrgClock#1[#2]{%
   \getparameters
     [OrgClock]
@@ -155,10 +148,14 @@ letter:withbackaddress={start}]
 \doifnot{\OrgClockS}{}{:\OrgClockS}}
 }
 % Define a basic drawer command
-% Override this with user code to customize the clock appearance
-\def\OrgDrawer#1#2{#2}
-\protect
-
+\def\OrgDrawer#1#2{#2}\definextable[OrgTableTopRow]
+\definextable[OrgTableBottomRow]
+\definextable[OrgTableLeftCol]
+\definextable[OrgTableRightCol]
+\definextable[OrgTableTopLeftCell]
+\definextable[OrgTableTopRightCell]
+\definextable[OrgTableBottomLeftCell]
+\definextable[OrgTableBottomRightCell]
 %===============================================================================
 % Preset Commands
 %===============================================================================
@@ -250,10 +247,12 @@ letter:withbackaddress={start}]
 \placebookmarks
 \startfrontmatter
 \startOrgTitlePage
-\OrgMakeTitle\OrgTitleContents
-\placecontent
+\OrgMakeTitle
+\OrgTitleContents
 
+\placecontent
 \stopOrgTitlePage
+
 \stopfrontmatter
 \startbodymatter
 \startOrgBody
@@ -262,8 +261,61 @@ List of Tables
 \placelistoftables
 List of Figures
 \placelistoffigures
-\reference[sec:org0360f60]{Block Elements}
+\reference[sec:org9ec432d]{Overview and Goals}
 \section[title={\OrgHeadline
+   [Text={Overview and Goals}]},
+list={Overview and Goals},
+marking={Overview and Goals},
+bookmark={Overview and Goals}]
+\reference[sec:org0093e0f]{Document Structure}
+\subsection[title={\OrgHeadline
+   [Text={Document Structure}]},
+list={Document Structure},
+marking={Document Structure},
+bookmark={Document Structure}]
+This exporter is intended to provide a lot of flexibility through plain
+\ConTeXt{} code with minimal elisp intervention. The output \ConTeXt{} is
+structured to have as much setup code as possible in the document preamble
+and in general formatting instructions won't appear in the document body
+beyond simple semantic markers. In other words, unless you provide
+additional markup directives in the \type{org} file, there won't be any additional
+inline styling in the output \ConTeXt{} file.
+\reference[sec:org497ea3a]{Customization}
+\subsection[title={\OrgHeadline
+   [Text={Customization}]},
+list={Customization},
+marking={Customization},
+bookmark={Customization}]
+Customization can occur at three different levels of granularity. The
+coarsest control is the \italic{preset} which is set by the \type{#+CONTEXT_PRESET}
+directive and is most similar to the \LaTeX{} class. The next level of control
+is with \italic{snippets} which are predefined pieces of code that the user can
+define. For instance, the user can select just the \type{layout-article} snippet
+to select a page layout similar to the default \LaTeX{} article. The lowest
+level of control is provided by inserting literal \ConTeXt{} code directly into
+the document using \type{#+CONTEXT_HEADER}, \type{#+CONTEXT_HEADER_EXTRA}, and
+\type{#+CONTEXT} directives.
+
+Additional configuration can be inserted into the document preamble by using
+preset, snippet, or literal directives to customize the display of any of the
+different elements of the document.
+\reference[sec:org42837b3]{Compatibility}
+\subsection[title={\OrgHeadline
+   [Text={Compatibility}]},
+list={Compatibility},
+marking={Compatibility},
+bookmark={Compatibility}]
+This exporter is intended to provide as much compatibility as is reasonable
+with options and configuration for the \LaTeX{} exporter.
+
+\reference[sec:org17ab685]{Features}
+\section[title={\OrgHeadline
+   [Text={Features}]},
+list={Features},
+marking={Features},
+bookmark={Features}]
+\reference[sec:org7f00bdc]{Block Elements}
+\subsection[title={\OrgHeadline
    [Todo={DONE},
 Priority={A},
 Text={Block Elements}]},
@@ -273,30 +325,30 @@ bookmark={Block Elements}]
 This section demonstrates different elements delimited by different
 \type{#+BEGIN/END} tags.
 \index{Source Block}
-\reference[sec:orgfbbbaf9]{Source Blocks}
-\subsection[title={\OrgHeadline
+\reference[sec:orgcec88d2]{Source Blocks}
+\subsubsection[title={\OrgHeadline
    [Text={Source Blocks}]},
 list={Source Blocks},
 marking={Source Blocks},
 bookmark={Source Blocks}]
 Syntax highlighting is supported in \ConTeXt{}, but you may have to install a
 module to support it. By default, there is a custom \ConTeXt{} \type{typing} called
-\type{OrgBlkSrc} defined in the header that can be customized by adding
+\type{OrgBlkSrc} defined in the header that can be customized by adding\crlf
 \type{#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgBlkSrc][...]}.
-\startOrgBlkSrc[option=python]
+\starttyping[option=python]
 import this
 for i in range(5):
     print(i * i)
-\stopOrgBlkSrc
+\stoptyping
 \index{Verse Block}
-\reference[sec:org5c4b941]{Verse Blocks}
-\subsection[title={\OrgHeadline
+\reference[sec:org9042127]{Verse Blocks}
+\subsubsection[title={\OrgHeadline
    [Text={Verse Blocks}]},
 list={Verse Blocks},
 marking={Verse Blocks},
 bookmark={Verse Blocks}]
 By default, verse blocks are enclosed in a custom \type{\lines} environment called
-\type{OrgVerse} that can be customized by adding
+\type{OrgVerse} that can be customized by adding\crlf
 \type{#+CONTEXT_HEADER_EXTRA: \setuplines[OrgVerse][...]}.
 
 \italic{The Monks and the Giants} by John Hookham Frere
@@ -309,17 +361,16 @@ Till their brute souls with inward working bred
      Dark hints that in the depths of instinct grew
 Subjection not from Locke's associations,
       Nor David Hartley's doctrine of vibrations.
-
 \stopOrgVerse
 \index{Example Block}
-\reference[sec:orgb3923b0]{Example Blocks}
-\subsection[title={\OrgHeadline
+\reference[sec:org0fbea2d]{Example Blocks}
+\subsubsection[title={\OrgHeadline
    [Text={Example Blocks}]},
 list={Example Blocks},
 marking={Example Blocks},
 bookmark={Example Blocks}]
 By default, example blocks are enclosed in a custom \type{\typing} environment
-called \type{OrgExample} that can be customized by adding
+called \type{OrgExample} that can be customized by adding\crlf
 \type{#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgExample][...]}.
 
 \startOrgExample
@@ -346,22 +397,46 @@ If the implementation is easy to explain, it may be a good idea.
 Namespaces are one honking great idea -- let's do more of those!
 \stopOrgExample
 \index{Export Block}
-\reference[sec:orgb761905]{Export Blocks}
-\subsection[title={\OrgHeadline
+\reference[sec:orgd10396b]{Export Blocks}
+\subsubsection[title={\OrgHeadline
    [Text={Export Blocks}]},
 list={Export Blocks},
 marking={Export Blocks},
 bookmark={Export Blocks}]
-Both \TeX{} and \ConTeXt{} export blocks are supported.
-
+Both \TeX{} and \ConTeXt{} export blocks are supported. Note that you may
+have incompatibility issues with \LaTeX{} if your \ConTeXt{} code is labeled
+as \TeX{}.
+\reference[sec:org86cb2e8]{Plain \TeX{}}
+\subsubsubsection[title={\OrgHeadline
+   [Text={Plain \TeX{}}]},
+list={Plain \TeX{}},
+marking={Plain \TeX{}},
+bookmark={Plain \TeX{}}]
 ABC \quad 123
 
-\pagebreak
-\input{knuth}
-\pagebreak
+\reference[sec:orgdf9d488]{\ConTeXt{}}
+\subsubsubsection[title={\OrgHeadline
+   [Text={\ConTeXt{}}]},
+list={\ConTeXt{}},
+marking={\ConTeXt{}},
+bookmark={\ConTeXt{}}]
+\startuseMPgraphic{name}
+beginfig(13)
+  pair A, B, C;
+  A:=(0,0); B:=(1cm,0); C:=(0,1cm);
+  draw A--B--C--cycle;
+  draw 1/2[A,B] -- C dashed evenly;
+  draw 1/2[B,C] -- A dashed evenly;
+  draw 1/2[C,A] -- B dashed evenly;
+  draw 1/3 A + 1/3 B + 1/3 C
+       withpen pencircle scaled 4bp
+       withcolor red;
+endfig;
+\stopuseMPgraphic
+\useMPgraphic{name}
 \index{Centering}
-\reference[sec:org4b210db]{Centering}
-\subsection[title={\OrgHeadline
+\reference[sec:org4919664]{Centering}
+\subsubsection[title={\OrgHeadline
    [Text={Centering}]},
 list={Centering},
 marking={Centering},
@@ -381,14 +456,14 @@ lacinia eros. Sed id ligula quis est convallis tempor. Curabitur lacinia
 pulvinar nibh. Nam a sapien.
 \stopalignment
 \index{Quote Block}
-\reference[sec:orged0727d]{Quote Block}
-\subsection[title={\OrgHeadline
+\reference[sec:orgd17a40f]{Quote Block}
+\subsubsection[title={\OrgHeadline
    [Text={Quote Block}]},
 list={Quote Block},
 marking={Quote Block},
 bookmark={Quote Block}]
 By default, block quotes are enclosed in a custom \type{startstop} environment
-called \type{OrgBlockQuote} that can be customized by adding
+called \type{OrgBlockQuote} that can be customized by adding\crlf
 \type{#+CONTEXT_HEADER_EXTRA: \setupstartstop[OrgBlockQuote][...]}.
 
 \startOrgBlockQuote
@@ -399,151 +474,150 @@ felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
 dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
 quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
 tortor. Nam euismod tellus id erat.
-
 \stopOrgBlockQuote
-\reference[sec:org33c511a]{Inline Elements}
-\section[title={\OrgHeadline
+\reference[sec:org86fac9b]{Inline Elements}
+\subsection[title={\OrgHeadline
    [Text={Inline Elements}]},
 list={Inline Elements},
 marking={Inline Elements},
 bookmark={Inline Elements}]
-\reference[sec:org9fed876]{Code}
-\subsection[title={\OrgHeadline
+\reference[sec:orgd9d499c]{Code}
+\subsubsection[title={\OrgHeadline
    [Text={Code}]},
 list={Code},
 marking={Code},
 bookmark={Code}]
 Here's some code: \type{with open("file.txt") as f:}
 
-\reference[sec:orgf05ea1a]{Links}
-\subsection[title={\OrgHeadline
+\reference[sec:org05e46a7]{Links}
+\subsubsection[title={\OrgHeadline
    [Text={Links}]},
 list={Links},
 marking={Links},
 bookmark={Links}]
-\reference[sec:orge23a56a]{Named URL}
-\subsubsection[title={\OrgHeadline
+\reference[sec:org387eed2]{Named URL}
+\subsubsubsection[title={\OrgHeadline
    [Text={Named URL}]},
 list={Named URL},
 marking={Named URL},
 bookmark={Named URL}]
 Here's a link to \goto{Org Mode}[url(https://orgmode.org)]
-\reference[sec:orgbb32b55]{Heading Link}
-\subsubsection[title={\OrgHeadline
+\reference[sec:org9c83aab]{Heading Link}
+\subsubsubsection[title={\OrgHeadline
    [Text={Heading Link}]},
 list={Heading Link},
 marking={Heading Link},
 bookmark={Heading Link}]
-Here's a link to \about[sec:org0360f60]
-\reference[sec:orgbb3c1b2]{Anonymous url}
-\subsubsection[title={\OrgHeadline
+Here's a link to \about[sec:org7f00bdc]
+\reference[sec:orga241369]{Anonymous url}
+\subsubsubsection[title={\OrgHeadline
    [Text={Anonymous url}]},
 list={Anonymous url},
 marking={Anonymous url},
 bookmark={Anonymous url}]
 Here's a link to \goto{\hyphenatedurl{https://orgmode.org}}[url(https://orgmode.org)]
-\reference[sec:org8aa9626]{Anonymous Unmarked url}
-\subsubsection[title={\OrgHeadline
+\reference[sec:org9e7d820]{Anonymous Unmarked url}
+\subsubsubsection[title={\OrgHeadline
    [Text={Anonymous Unmarked url}]},
 list={Anonymous Unmarked url},
 marking={Anonymous Unmarked url},
 bookmark={Anonymous Unmarked url}]
 \goto{\hyphenatedurl{https://orgmode.org}}[url(https://orgmode.org)]
-\reference[sec:org57768b1]{Radio Targets}
-\subsection[title={\OrgHeadline
+\reference[sec:org183a6cd]{Radio Targets}
+\subsubsection[title={\OrgHeadline
    [Text={Radio Targets}]},
 list={Radio Targets},
 marking={Radio Targets},
 bookmark={Radio Targets}]
-This is a \reference[orgf30748c]{sample radio target} sample radio target
+This is a \reference[org670e8ff]{sample radio target} sample radio target
 
-and this is a link to a \goto{sample radio target}[orgf30748c]
+and this is a link to a \goto{sample radio target}[org670e8ff]
 
-\pagereference[org165b03f]
-\reference[sec:org191fa6c]{Target}
-\subsection[title={\OrgHeadline
+\pagereference[org0334781]
+\reference[sec:orgba7a0c7]{Target}
+\subsubsection[title={\OrgHeadline
    [Text={Target}]},
 list={Target},
 marking={Target},
 bookmark={Target}]
-This is a link to \about[org165b03f]
+This is a link to \about[org0334781]
 
 TODO
 
 This should refer to the number to match \LaTeX{}
-\reference[sec:orgbd457c8]{Bold}
-\subsection[title={\OrgHeadline
+\reference[sec:orgde32288]{Bold}
+\subsubsection[title={\OrgHeadline
    [Text={Bold}]},
 list={Bold},
 marking={Bold},
 bookmark={Bold}]
 This is \bold{Some bold text}
-\reference[sec:orgadd7e2d]{\LaTeX{} Fragments}
-\subsection[title={\OrgHeadline
+\reference[sec:org8e2ae60]{\LaTeX{} Fragments}
+\subsubsection[title={\OrgHeadline
    [Text={\LaTeX{} Fragments}]},
 list={\LaTeX{} Fragments},
 marking={\LaTeX{} Fragments},
 bookmark={\LaTeX{} Fragments}]
 Here's some inline \LaTeX{}: \m{e=m c^2}
-\reference[sec:org4bf0a3f]{Inline Source}
-\subsection[title={\OrgHeadline
+\reference[sec:org30bf0ab]{Inline Source}
+\subsubsection[title={\OrgHeadline
    [Text={Inline Source}]},
 list={Inline Source},
 marking={Inline Source},
 bookmark={Inline Source}]
 \type{Hello, world!}
-\reference[sec:orge65983e]{Italic}
-\subsection[title={\OrgHeadline
+\reference[sec:org6973768]{Italic}
+\subsubsection[title={\OrgHeadline
    [Text={Italic}]},
 list={Italic},
 marking={Italic},
 bookmark={Italic}]
 \italic{This is some italic text}
-\reference[sec:org2daf5f4]{Line breaks}
-\subsection[title={\OrgHeadline
+\reference[sec:orgf76ff17]{Line breaks}
+\subsubsection[title={\OrgHeadline
    [Text={Line breaks}]},
 list={Line breaks},
 marking={Line breaks},
 bookmark={Line breaks}]
 Here is a\crlf
 line break
-\reference[sec:orgda60f0a]{Strikethrough}
-\subsection[title={\OrgHeadline
+\reference[sec:orgb1f268b]{Strikethrough}
+\subsubsection[title={\OrgHeadline
    [Text={Strikethrough}]},
 list={Strikethrough},
 marking={Strikethrough},
 bookmark={Strikethrough}]
 \inframed[frame=off]{\overstrike{This is strikethrough}}
-\reference[sec:org8ba6a28]{Subscripts}
-\subsection[title={\OrgHeadline
+\reference[sec:orgd10007d]{Subscripts}
+\subsubsection[title={\OrgHeadline
    [Text={Subscripts}]},
 list={Subscripts},
 marking={Subscripts},
 bookmark={Subscripts}]
 This\low{is} sub\low{script}
-\reference[sec:orge982f14]{Superscripts}
-\subsection[title={\OrgHeadline
+\reference[sec:orgaecb4fc]{Superscripts}
+\subsubsection[title={\OrgHeadline
    [Text={Superscripts}]},
 list={Superscripts},
 marking={Superscripts},
 bookmark={Superscripts}]
 This\high{is} super\high{script}
-\reference[sec:orgea3d34b]{Underline}
-\subsection[title={\OrgHeadline
+\reference[sec:org6a698cd]{Underline}
+\subsubsection[title={\OrgHeadline
    [Text={Underline}]},
 list={Underline},
 marking={Underline},
 bookmark={Underline}]
 \underbar{Here's some underlined text}
-\reference[sec:org139abdd]{Verbatim}
-\subsection[title={\OrgHeadline
+\reference[sec:org2eda53b]{Verbatim}
+\subsubsection[title={\OrgHeadline
    [Text={Verbatim}]},
 list={Verbatim},
 marking={Verbatim},
 bookmark={Verbatim}]
 \type{This is verbatim text}
-\reference[sec:orgbedf561]{Footnote Reference}
-\subsection[title={\OrgHeadline
+\reference[sec:orgd947693]{Footnote Reference}
+\subsubsection[title={\OrgHeadline
    [Text={Footnote Reference}]},
 list={Footnote Reference},
 marking={Footnote Reference},
@@ -551,9 +625,9 @@ bookmark={Footnote Reference}]
 Footnotes are formatted with the \type{\footnote} macro. Nested footnotes are
 not yet supported.
 
-This should link to a footnote at the bottom of the page. \footnote[orge3b16cd]{This is a sample footnote} 
-\reference[sec:org4471b77]{Smart Quotes}
-\subsection[title={\OrgHeadline
+This should link to a footnote at the bottom of the page. \footnote[org7584db7]{This is a sample footnote} 
+\reference[sec:org75c3136]{Smart Quotes}
+\subsubsection[title={\OrgHeadline
    [Text={Smart Quotes}]},
 list={Smart Quotes},
 marking={Smart Quotes},
@@ -569,8 +643,8 @@ Here's a Czech quotation: \quotation{Here's a \quote{nested} quote}
 
 \language[en]
 
-\reference[sec:org710dbe7]{Clock}
-\subsection[title={\OrgHeadline
+\reference[sec:org2f4767d]{Clock}
+\subsubsection[title={\OrgHeadline
    [Text={Clock}]},
 list={Clock},
 marking={Clock},
@@ -587,29 +661,30 @@ I={04},
 S={00}]
 
 
-\reference[sec:org741e31d]{Timestamp}
-\subsection[title={\OrgHeadline
+\reference[sec:org8878598]{Timestamp}
+\subsubsection[title={\OrgHeadline
    [Text={Timestamp}]},
 list={Timestamp},
 marking={Timestamp},
 bookmark={Timestamp}]
 Timestamps are supported by the \type{\date} macro, so different locales
 are supported.
+
 Here's an English timestamp: \date[d=17,m=01,y=2021]
 
 \language[fr]
 Here's a French timestamp: \date[d=17,m=01,y=2021]
 \language[en]
 
-\reference[sec:org8dd0f50]{Paragraph Elements}
-\section[title={\OrgHeadline
+\reference[sec:org52a7936]{Paragraph Elements}
+\subsection[title={\OrgHeadline
    [Text={Paragraph Elements}]},
 list={Paragraph Elements},
 marking={Paragraph Elements},
 bookmark={Paragraph Elements}]
 These elements form their own paragraph or section in the export.
-\reference[sec:orgf3cc072]{Headlines}
-\subsection[title={\OrgHeadline
+\reference[sec:org7968448]{Headlines}
+\subsubsection[title={\OrgHeadline
    [Text={Headlines}]},
 list={Headlines},
 marking={Headlines},
@@ -618,8 +693,8 @@ Headline text is formatted by a custom macro called \type{OrgHeadline}
 that receives the headline's todo, todo type, priority, text, and
 tags. This macro can be overriden by the user to customize the
 appearance of headlines.
-\reference[sec:org5733a82]{\LaTeX{} Environments}
-\subsection[title={\OrgHeadline
+\reference[sec:orgb804982]{\LaTeX{} Environments}
+\subsubsection[title={\OrgHeadline
    [Text={\LaTeX{} Environments}]},
 list={\LaTeX{} Environments},
 marking={\LaTeX{} Environments},
@@ -639,16 +714,16 @@ a^4 \NC = -1 \NR
 \NC 
 \stopalign
 \stopformula
-\reference[sec:org2396f1a]{Drawer}
-\subsection[title={\OrgHeadline
+\reference[sec:orgc109924]{Drawer}
+\subsubsection[title={\OrgHeadline
    [Text={Drawer}]},
 list={Drawer},
 marking={Drawer},
 bookmark={Drawer}]
 \OrgDrawer{MyDrawer}{This is a simple drawer
 }
-\reference[sec:orgc9f267f]{Horizontal Rule}
-\subsection[title={\OrgHeadline
+\reference[sec:org69e7597]{Horizontal Rule}
+\subsubsection[title={\OrgHeadline
    [Text={Horizontal Rule}]},
 list={Horizontal Rule},
 marking={Horizontal Rule},
@@ -656,42 +731,39 @@ bookmark={Horizontal Rule}]
 This is a horizontal rule:
 
 \textrule
-\reference[sec:org144a41a]{Fixed width}
-\subsection[title={\OrgHeadline
+\reference[sec:org6ba9a98]{Fixed width}
+\subsubsection[title={\OrgHeadline
    [Text={Fixed width}]},
 list={Fixed width},
 marking={Fixed width},
 bookmark={Fixed width}]
 Fixed-width text is enclosed in a custom =typing\textasciitilde{} environment
-called \type{OrgFixed} by default. To customize this environment,
+called \type{OrgFixed} by default. To customize this environment,\crlf
 add \type{#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgFixed][...]}
 to the document.
 \startOrgFixed
-This is Some fixed-width text
-\stopOrgFixed
+This is Some fixed-width text\stopOrgFixed
 
-\reference[sec:orgb7d3188]{Property Drawers}
-\subsection[title={\OrgHeadline
+\reference[sec:org92b04a2]{Property Drawers}
+\subsubsection[title={\OrgHeadline
    [Text={Property Drawers}]},
 list={Property Drawers},
 marking={Property Drawers},
 bookmark={Property Drawers}]
-
-\startOrgPropertyDrawer
+\startOrgBlkSrc
 Title: Goldberg Variations
 Composer: J.S. Bach
 Artist: Glenn Gould
 Publisher: Deutsche Grammophon
 NDisks: 1
-\stopOrgPropertyDrawer
+\stopOrgBlkSrc
 Property drawers are enclosed in a custom \type{typing} environment
-called \type{OrgPropertyDrawer} by default. To customize this environment,
+called \type{OrgPropertyDrawer} by default. To customize this environment,\crlf
 add \type{#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgPropertyDrawer][...]}
 to the document.
 
-
-\reference[sec:org69030fd]{Inline Task}
-\subsection[title={\OrgHeadline
+\reference[sec:org369fc23]{Inline Task}
+\subsubsection[title={\OrgHeadline
    [Text={Inline Task}]},
 list={Inline Task},
 marking={Inline Task},
@@ -701,7 +773,10 @@ Arguments to the macro include the todo keyword, the todo type,
 the priority, the name of the task, tags, and contents.
 
 Alternatively, for higher-level customization, the user can
-provide their own \type{org-context-format-inlinetask-function}.
+provide their own\crlf
+\type{org-context-format-inlinetask-function}.
+
+
 
 \OrgInlineTask
   [Todo={TODO},
@@ -721,8 +796,8 @@ Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
 Nam vestibulum accumsan nisl.
 }]
 
-\reference[sec:orgb864575]{Lists and items}
-\subsection[title={\OrgHeadline
+\reference[sec:org2a6f9f2]{Lists and items}
+\subsubsection[title={\OrgHeadline
    [Text={Lists and items}]},
 list={Lists and items},
 marking={Lists and items},
@@ -731,7 +806,7 @@ Standard bulleted lists are enclosed in an \type{itemize} environment.
 Description lists use a custom \type{description} element called
 \type{OrgDesc}. Additionally, checkbox items use custom macros called
 \type{OrgItemOn}, \type{OrgItemOff}, and \type{OrgItemTrans} for the glyphs, so
-these can be overriden by the user by adding
+these can be overriden by the user by adding\crlf
 \type{#+CONTEXT_HEADER_EXTRA: \define\OrgItemOn{...}}
 to the document.
 
@@ -778,8 +853,8 @@ convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
 \item Another Number
 \stopitemize
 
-\reference[sec:org984810f]{Tables}
-\subsection[title={\OrgHeadline
+\reference[sec:org4fb3fc9]{Tables}
+\subsubsection[title={\OrgHeadline
    [Text={Tables}]},
 list={Tables},
 marking={Tables},
@@ -787,10 +862,9 @@ bookmark={Tables}]
 Tables are supported by the \type{xtables} environment.
 
 \startplacetable
-  [location={force,here},
+[location={force,here},
 title={Default Layout Table}]
 \startxtable
-  
 \startxrow[OrgTableTopRow]
 \startxcell[OrgTableTopLeftCell] A \stopxcell
 \startxcell[OrgTableTopRightCell] B \stopxcell
@@ -810,10 +884,10 @@ title={Default Layout Table}]
 Here's the same table with \type{:option width}
 
 \startplacetable
-  [location={force,here},
+[location={force,here},
 title={Wide Layout Table}]
 \startxtable
-  [option={width}]
+[option={width}]
 \startxrow[OrgTableTopRow]
 \startxcell[OrgTableTopLeftCell] A \stopxcell
 \startxcell[OrgTableTopRightCell] B \stopxcell
@@ -833,10 +907,10 @@ title={Wide Layout Table}]
 Here's the same table with \type{:option tight}
 
 \startplacetable
-  [location={force,here},
+[location={force,here},
 title={Tight Layout Table}]
 \startxtable
-  [option={tight}]
+[option={tight}]
 \startxrow[OrgTableTopRow]
 \startxcell[OrgTableTopLeftCell] A \stopxcell
 \startxcell[OrgTableTopRightCell] B \stopxcell
@@ -857,10 +931,10 @@ title={Tight Layout Table}]
 Here's the same table with \type{:option stretch}
 
 \startplacetable
-  [location={force,here},
+[location={force,here},
 title={Stretch Layout Table}]
 \startxtable
-  [option={stretch}]
+[option={stretch}]
 \startxrow[OrgTableTopRow]
 \startxcell[OrgTableTopLeftCell] A \stopxcell
 \startxcell[OrgTableTopRightCell] B \stopxcell
@@ -882,10 +956,10 @@ Here's a very long table. We can split it by setting
 \type{:split t} and \type{:header repeat} in \type{#+ATTR_CONTEXT}.
 
 \startplacetable
-  [location={split,force,here},
+[location={split,force,here},
 title={Giant Table}]
 \startxtable
-  [split={yes},
+[split={yes},
 header={repeat}]
 \startxtablehead
 \startxrow[OrgTableTopRow]
@@ -1506,12 +1580,13 @@ header={repeat}]
 \stopxtable
 \stopplacetable
 
-Here's a table with paragraphs in it.
+Here's a table with paragraphs in it. \ConTeXt{} handles this gracefully by
+default.
 
 \startplacetable
-  [location={force,here}]
+[location={force,here},
+title={Wrapped Table}]
 \startxtable
-  
 \startxrow[OrgTableTopRow]
 \startxcell[OrgTableTopLeftCell] Description \stopxcell
 \startxcell[OrgTableTopRightCell] Contents \stopxcell
@@ -1531,10 +1606,9 @@ Here's a table with paragraphs in it.
 Here's a shorter table.
 
 \startplacetable
-  [location={force,here},
+[location={force,here},
 title={Short Table}]
 \startxtable
-  
 \startxrow[OrgTableTopRow]
 \startxcell[OrgTableTopLeftCell] A \stopxcell
 \startxcell B \stopxcell
@@ -1654,7 +1728,7 @@ the left and right columns, and the four corners of the table have special
 styles which default to \type{OrgTableTopRow}, \type{OrgTableBottomRow},
 \type{OrgTableLeftCol}, \type{OrgTableRightCol}, \type{OrgTableTopLeftCell},
 \type{OrgTableTopRightCell}, \type{OrgTableBottomRightCell}, and
-\type{OrgTableBottomLeftCell}. These styles can be configured by adding
+\type{OrgTableBottomLeftCell}. These styles can be configured by adding\crlf
 \type{#+CONTEXT_HEADER_EXTRA: \setupxtable[OrgTable...][...]} to the document.
 Styling options for individual tables can be configured using the
 \type{:top}, \type{:bottom}, \type{:left}, \type{:right}, \type{:topleft}, \type{:topright}, \type{:bottomright}
@@ -1665,10 +1739,10 @@ and \type{:bottomleft} keywords in \type{#+ATTR_CONTEXT}.
 \setupxtable[Right][background=color,backgroundcolor=yellow]
 \setupxtable[Body][foregroundstyle=italic]
 \startplacetable
-  [location={force,here},
-title={Short Table}]
-\startxtable[Body]
-  
+[location={force,here},
+title={Fancy Table}]
+\startxtable
+[Body]
 \startxrow[Top]
 \startxcell[foregroundstyle=sansbold] A \stopxcell
 \startxcell B \stopxcell
@@ -1698,15 +1772,14 @@ title={Short Table}]
 \stopplacetable
 
 
-
-\reference[sec:org0915000]{Other Features}
-\section[title={\OrgHeadline
+\reference[sec:orgf3219c4]{Other Features}
+\subsubsection[title={\OrgHeadline
    [Text={Other Features}]},
 list={Other Features},
 marking={Other Features},
 bookmark={Other Features}]
-\reference[sec:org76ce798]{Levels}
-\subsection[title={\OrgHeadline
+\reference[sec:org8af1a15]{Levels}
+\subsubsubsection[title={\OrgHeadline
    [Text={Levels}]},
 list={Levels},
 marking={Levels},
@@ -1715,68 +1788,61 @@ Many levels of subheading are supported by \ConTeXt{} (up to 9). If more levels
 are needed, the user can create them using the \type{\definehead} macro. To handle
 10 levels, for example, add \crlf
 \type{#+CONTEXT_HEADER_EXTRA: \definehead[subsubsubsubsubsubsubsubsubsection]
-   [subsubsubsubsubsubsubsubsection]} \crlf
+    [subsubsubsubsubsubsubsubsection]} \crlf
 to the document.
 \startOrgBlockQuote
 The \LaTeX{} exporter handles arbitrarily deep nesting by treating deeper
 headings as list elements, but true headlines are only supported down
 to 5 levels deep.
-
 \stopOrgBlockQuote
-\reference[sec:org5091940]{Level 3}
-\subsubsection[title={\OrgHeadline
-   [Text={Level 3}]},
-list={Level 3},
-marking={Level 3},
-bookmark={Level 3}]
-\reference[sec:orgee9a016]{Level 4}
-\subsubsubsection[title={\OrgHeadline
+\reference[sec:org6025f35]{Level 4}
+\subsubsubsubsection[title={\OrgHeadline
    [Text={Level 4}]},
 list={Level 4},
 marking={Level 4},
 bookmark={Level 4}]
-\reference[sec:orgdd27913]{Level 5}
-\subsubsubsubsection[title={\OrgHeadline
+\reference[sec:orgcd1fc58]{Level 5}
+\subsubsubsubsubsection[title={\OrgHeadline
    [Text={Level 5}]},
 list={Level 5},
 marking={Level 5},
 bookmark={Level 5}]
-\reference[sec:org2774b37]{Level 6}
-\subsubsubsubsubsection[title={\OrgHeadline
+\reference[sec:org7dfeb5d]{Level 6}
+\subsubsubsubsubsubsection[title={\OrgHeadline
    [Text={Level 6}]},
 list={Level 6},
 marking={Level 6},
 bookmark={Level 6}]
-\reference[sec:orgcb38c1d]{Level 7}
-\subsubsubsubsubsubsection[title={\OrgHeadline
+\reference[sec:org20481db]{Level 7}
+\subsubsubsubsubsubsubsection[title={\OrgHeadline
    [Text={Level 7}]},
 list={Level 7},
 marking={Level 7},
 bookmark={Level 7}]
-\reference[sec:org90ec31a]{Level 8}
-\subsubsubsubsubsubsubsection[title={\OrgHeadline
+\reference[sec:orge1b6f31]{Level 8}
+\subsubsubsubsubsubsubsubsection[title={\OrgHeadline
    [Text={Level 8}]},
 list={Level 8},
 marking={Level 8},
 bookmark={Level 8}]
-\reference[sec:org95e5793]{Level 9}
-\subsubsubsubsubsubsubsubsection[title={\OrgHeadline
+\reference[sec:orgfc676bc]{Level 9}
+\subsubsubsubsubsubsubsubsubsection[title={\OrgHeadline
    [Text={Level 9}]},
 list={Level 9},
 marking={Level 9},
 bookmark={Level 9}]
-\reference[sec:org37a7b34]{Images}
-\subsection[title={\OrgHeadline
+\reference[sec:orgeed1a3a]{Images}
+\subsubsubsection[title={\OrgHeadline
    [Text={Images}]},
 list={Images},
 marking={Images},
 bookmark={Images}]
 Inline images are supported.
 
-\startOrgBlkSrc[option=org]
+\starttyping[option=org]
 #+CAPTION: Default Figure
 [[./bessel11.pdf]]
-\stopOrgBlkSrc
+\stoptyping
 
 \startplacefigure[title={Default Figure},
 location={middle}]
@@ -1793,10 +1859,10 @@ vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
 orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
 est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
 
-\startOrgBlkSrc[option=org]
+\starttyping[option=org]
 #+ATTR_CONTEXT: :float wrap :caption Default Wrapped Figure
 [[./bessel11.pdf]]
-\stopOrgBlkSrc
+\stoptyping
 
 \startplacefigure[title={Default Wrapped Figure
 },
@@ -1842,11 +1908,11 @@ parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
 Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
 Nam vestibulum accumsan nisl.
 
-\startOrgBlkSrc[option=org]
+\starttyping[option=org]
 #+ATTR_CONTEXT: :width 1in :placement rightmargin 
 #+CAPTION: Margin Figure
 [[./bessel11.pdf]]
-\stopOrgBlkSrc
+\stoptyping
 
 \startplacefigure[title={Margin Figure},
 location={rightmargin,middle}]
@@ -1869,11 +1935,8 @@ dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
 quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet tortor.
 Nam euismod tellus id erat.
 
-
-
-
-\reference[sec:orgef877ec]{Index}
-\section[title={\OrgHeadline
+\reference[sec:orgbffd47c]{Index}
+\subsection[title={\OrgHeadline
    [Text={Index}]},
 list={Index},
 marking={Index},
