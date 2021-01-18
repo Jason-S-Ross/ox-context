@@ -1,0 +1,13 @@
+#+TITLE: Org Mode ConTeXt Letter Template Demo
+#+DESCRIPTION: Simple demo of the Org Mode ConTeXt exporter
+#+KEYWORDS: context org-mode
+#+SUBTITLE: Sampling of Features
+#+AUTHOR: Jason Ross
+#+EMAIL: jasonross1024@gmail.com
+#+CREATOR: Jason Ross
+#+LANGUAGE: en
+#+OPTIONS: foldmarks:nil toc:nil num:nil backaddress:t pri:t p:t c:t prop:t d:t ':t
+#+CONTEXT_PRESET: letter
+#+DATE: 2021-01-07
+
+#+INCLUDE: "./demo.org" 
