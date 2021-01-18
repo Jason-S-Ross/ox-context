@@ -73,7 +73,11 @@
                   (:context-table-topright-style nil nil org-context-table-topright-style)
                   (:context-table-bottomleft-style nil nil org-context-table-bottomleft-style)
                   (:context-table-bottomright-style nil nil org-context-table-bottomright-style)
-                  (:context-table-use-header nil "tablehead" org-context-table-use-header)
+                  (:context-table-header-style nil nil org-context-table-header-style)
+                  (:context-table-footer-style nil nil org-context-table-footer-style)
+                  (:context-table-body-style nil nil org-context-table-body-style)
+                  (:context-table-rowgroup-start-style nil nil org-context-table-rowgroup-start-style)
+                  (:context-table-rowgroup-end-style nil nil org-context-table-rowgroup-end-style)
                   (:context-table-use-footer nil "tablefoot" org-context-table-use-footer)
                   (:context-preset "CONTEXT_PRESET" nil org-context-default-preset t)
                   (:context-number-equations nil "numeq" org-context-number-equations)
@@ -777,10 +781,23 @@ This option can also be set with the SIGNATURE keyword."
    roffset=1em,
    stretch=on]
 \\setupxtable
-  [OrgTableTopRow]
+  [OrgTableHeader]
   [toffset=1ex,
-   foregroundstyle=bold,
-   bottomframe=on]")
+   foregroundstyle=bold]
+\\setupxtable
+  [OrgTableTopRow]
+  [topframe=on]
+\\setupxtable
+  [OrgTableRowGroupStart]
+  [topframe=on]
+\\setupxtable
+  [OrgTableRowGroupEnd]
+  [bottomframe=on]
+\\setupxtable
+  [OrgTableBottomRow]
+  [bottomframe=on]
+\\definextable[OrgTableFooter][OrgTableHeader]
+")
     ;; Indented quote blocks
     ("quote-article" . "\\defineblank[QuoteSkip][1ex]
 \\setupstartstop
@@ -911,10 +928,20 @@ See also `:context-presets'"
 (defconst org-context-table-bottomright-style "OrgTableBottomRightCell"
   "The default style name for the bottom right cell in tables.")
 
-(defcustom org-context-table-use-header ""
-  "If \"repeat\", header rows will be repeated on all pages."
-  :group 'org-export-context
-  :type 'string)
+(defconst org-context-table-header-style "OrgTableHeader"
+  "The default style name for the header row group in tables.")
+
+(defconst org-context-table-footer-style "OrgTableFooter"
+  "The default style name for the footer row group in tables.")
+
+(defconst org-context-table-body-style "OrgTableBody"
+  "The default style name for the body row group in tables.")
+
+(defconst org-context-table-rowgroup-start-style "OrgTableRowGroupStart"
+  "The default style name for rows starting row groups in tables.")
+
+(defconst org-context-table-rowgroup-end-style "OrgTableRowGroupEnd"
+  "The default style name for rows ending row groups in tables.")
 
 (defcustom org-context-table-use-footer ""
   "If \"repeat\", footer rows will be repeated on all pages. "
@@ -1290,7 +1317,12 @@ holding the export options."
                                :context-table-topleft-style
                                :context-table-topright-style
                                :context-table-bottomleft-style
-                               :context-table-bottomright-style))))
+                               :context-table-bottomright-style
+                               :context-table-header-style
+                               :context-table-footer-style
+                               :context-table-body-style
+                               :context-table-rowgroup-start-style
+                               :context-table-rowgroup-end-style))))
                       "\n")))
     (concat
    (and time-stamp
@@ -1345,7 +1377,9 @@ holding the export options."
 \\setupinteraction[state=start]
 "
    environment-defs
+   "\n"
    command-defs
+   "\n"
    table-defs
    "
 %===============================================================================
@@ -1699,8 +1733,7 @@ This function assumes TABLE has `org' as its `:type' property and
     (format
      "\\startplacetable%s%s
 \\startxtable%s%s
-%s
-\\stopxtable
+%s\\stopxtable
 \\stopplacetable\n"
      (if (org-string-nw-p float-style) (format "\n[%s]" float-style) "")
      (if (org-string-nw-p float-args) (format "\n[%s]" float-args) "")
@@ -1831,6 +1864,9 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   ;; is inside of another footnote. This could possibly be solved
   ;; by using \footnotetext. This could also be a problem with
   ;; my ConTeXt version
+  ;;
+  ;; Use `org-export-collect-elements' to collect all
+  ;; footnotes in the document
   (let* ((label (org-element-property :label footnote-reference))
          (footnote-definition
           (org-export-get-footnote-definition footnote-reference info))
@@ -1976,6 +2012,10 @@ INFO is a plist holding contextual information. See
 
 (defun org-context-headline (headline contents info)
   "Transcodes a HEADLINE element from Org to ConTeXt."
+  ;; TODO Handle alternate title from `org-export-get-alt-title'
+  ;; TODO Handle category from `org-export-get-category'
+  ;; TODO Handle node property from `org-export-get-node-property'
+  ;; TODO Handle if headline should be numbered from `org-export-numbered-headline-p'
   (let* ((level (org-export-get-relative-level headline info))
          (numberedp (org-export-numbered-headline-p headline info))
          (text (org-export-data (org-element-property :title headline) info))
@@ -2414,16 +2454,34 @@ contextual information."
   "Transcode a TABLE element from Org to ConTeXt.
 CONTENTS is the contents of the table. INFO is a plist holding
 contextual information."
+  ;; The following functions are provided in "ox.el".
+  ;; TODO `org-export-table-has-special-column-p'
+  ;; TODO `org-export-table-has-header-p'
+  ;; TODO `org-export-table-row-is-special-p'
+  ;; TODO `org-export-table-row-group'
+  ;; TODO `org-export-table-cell-width'
+  ;; TODO `org-export-table-cell-alignment'
+  ;; TODO `org-export-table-cell-borders'
+  ;; TODO `org-export-table-cell-starts-colgroup-p'
+  ;; TODO `org-export-table-cell-ends-colgroup-p'
+  ;; TODO `org-export-table-row-starts-rowgroup-p'
+  ;; TODO `org-export-table-row-ends-rowgroup-p'
+  ;; TODO `org-export-table-row-in-header-p'
+  ;; TODO `org-export-table-row-starts-header-p'
+  ;; TODO `org-export-table-row-ends-header-p'
+  ;; TODO `org-export-table-row-number'
+  ;; TODO `org-export-table-dimensions'
+  ;; TODO `org-export-table-cell-address'
   (org-context--org-table table contents info))
 
 (defun org-context-table-cell (table-cell contents info)
   "Transcode a TABLE-CELL from Org to ConTeXt.
 CONTENTS is the cell contents. INFO is a plist used as
 a communication channel."
-  (let* ((attr (org-export-read-attribute
+  (let* ((table (org-export-get-parent-table table-cell))
+         (attr (org-export-read-attribute
                 :attr_context
-                (org-export-get-parent-element
-                 (org-export-get-parent-element table-cell))))
+                (org-export-get-parent-table table-cell)))
          (firstrowp (not
                      (org-export-get-previous-element
                       (org-export-get-parent-element table-cell)
@@ -2471,37 +2529,88 @@ CONTENTS is the contents of the row.  INFO is a plist used as
 a communication channel."
   ;; TODO Allow the user to enable or disable different parts.
   ;; Parts include head, next, body, foot
-  (let* ((attr (org-export-read-attribute
-                :attr_context
-                (org-export-get-parent-element table-row)))
-         (headerp (or (plist-get attr :header)
-                      (org-string-nw-p
-                       (plist-get info :context-table-use-header))))
-         (footerp (or (plist-get attr :footer)
-                      (org-string-nw-p
-                       (plist-get info :context-table-use-footer))))
-         (toprow-style (or (plist-get attr :top)
+  (let* ((table (org-export-get-parent-table table-row))
+         (attr (org-export-read-attribute :attr_context table))
+         (dimensions (org-export-table-dimensions table info))
+         (row-num (or (org-export-table-row-number table-row info) 0))
+         (row-group-num (org-export-table-row-group table-row info))
+         (headerp (org-export-table-row-in-header-p table-row info))
+         (footerp
+          (let* ((last-row-num (org-export-get-parent-element
+                                (org-export-get-table-cell-at
+                                 (cons (- (car dimensions) 1) (- (cdr dimensions) 1))
+                                 table info)))
+                 (last-row-group-num (org-export-table-row-group last-row-num info))
+                 (table-has-footer-p
+                  ;; Table has a footer if it has 3 or more row groups and footer
+                  ;; is selected
+                  (and (> last-row-group-num 2)
+                       (or (plist-member attr :foot)
                            (org-string-nw-p
-                            (plist-get info :context-table-toprow-style))))
-         (bottomrow-style (or (plist-get attr :bottom)
-                              (org-string-nw-p
-                               (plist-get info :context-table-bottomrow-style))))
-         (firstrowp (not (org-export-get-previous-element table-row info)))
-         (lastrowp (not (org-export-get-next-element table-row info)))
+                            (plist-get info :context-table-use-footer)))))
+                 (last-row-group-p (and row-group-num (= row-group-num last-row-group-num))))
+            (and last-row-group-p table-has-footer-p)))
+         (header-style (or (plist-get attr :head)
+                           (org-string-nw-p
+                            (plist-get info :context-table-header-style))))
+         (footer-style (or (plist-get attr :foot)
+                           (org-string-nw-p
+                            (plist-get info :context-table-footer-style))))
+         (body-style (or (plist-get attr :body)
+                           (org-string-nw-p
+                            (plist-get info :context-table-body-style))))
+         (row-group-start-style
+          (or (plist-get attr :rgs)
+              (org-string-nw-p
+               (plist-get info :context-table-rowgroup-start-style))))
+         (row-group-end-style
+          (or (plist-get attr :rge)
+              (org-string-nw-p
+               (plist-get info :context-table-rowgroup-end-style))))
+         (first-row-style
+          (or
+           (or (plist-get attr :top)
+               (org-string-nw-p
+                (plist-get info :context-table-toprow-style)))
+           row-group-start-style))
+         (last-row-style
+          (or
+           (or (plist-get attr :top)
+               (org-string-nw-p
+                (plist-get info :context-table-bottomrow-style)))
+           row-group-end-style))
+         (first-row-p (= row-num 0))
+         (last-row-p (= row-num (- (car dimensions) 1)))
+         (starts-row-group-p (org-export-table-row-starts-rowgroup-p table-row info))
+         (ends-row-group-p (org-export-table-row-ends-rowgroup-p table-row info))
          (wrappedcontents
           (when contents
-            (format "\\startxrow%s\n%s \\stopxrow\n"
-                    (cond
-                     ((and firstrowp toprow-style) (format "[%s]" toprow-style))
-                     ((and lastrowp bottomrow-style) (format "[%s]" bottomrow-style ))
-                     (t ""))
-                    contents))))
-    (cond
-     ((and firstrowp headerp)
-      (format "\\startxtablehead\n%s\n\\stopxtablehead" wrappedcontents))
-     ((and lastrowp footerp)
-      (format "\\startxtablefoot\n%s\n\\stopxtablefoot" wrappedcontents))
-     (t wrappedcontents))))
+            (format "\\startxrow%s\n%s\\stopxrow\n"
+                    ;; TODO The order of this should maybe be configurable
+                    (cond ((and first-row-p first-row-style)
+                           (format "[%s]" first-row-style))
+                          ((and last-row-p last-row-style)
+                           (format "[%s]" last-row-style))
+                          ((and ends-row-group-p row-group-end-style)
+                           (format "[%s]" row-group-end-style))
+                          ((and starts-row-group-p row-group-start-style)
+                           (format "[%s]" row-group-start-style))
+                          (t ""))
+                    contents)))
+         (group-tags
+          (cond
+           (headerp
+            (list "\\startxtablehead%s\n" header-style "\\stopxtablehead"))
+           (footerp
+            (list "\\startxtablefoot%s\n" footer-style "\\stopxtablefoot"))
+           (t (list "\\startxtablebody%s\n" body-style "\\stopxtablebody")))))
+    (concat (and starts-row-group-p
+                 (format (nth 0 group-tags)
+                         (if (org-string-nw-p (nth 1 group-tags))
+                             (format "[%s]" (nth 1 group-tags))
+                           "")))
+            wrappedcontents
+            (and ends-row-group-p (nth 2 group-tags)))))
 
 (defun org-context-target (target _contents info)
   "Transcode a TARGET object from Org to ConTeXt.
