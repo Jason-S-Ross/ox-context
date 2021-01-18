@@ -1,282 +1,59 @@
-* Basic Features
-** Title Page [2/3]
-   - [X] Allow the header to be turned off on the title page
-   - [X] Allow the user to configure the title layout.
-   - [ ] Add more elements like description, keywords, etc.
-** Prebuilt configurations [3/4]
-   - [X] Article
-   - [X] Report
-   - [ ] Book
-   - [X] Letter
-* Translators
-** DONE clock
-   CLOSED: [2021-01-15 Fri 16:20]
-** TODO code
-   Table of listings
-*** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 10:31]
-*** DONE Labels
-    CLOSED: [2021-01-12 Tue 17:05]
-** TODO footnote-reference
-*** DONE Basic Implementation
-    CLOSED: [2021-01-10 Sun 11:59]
-*** TODO Nested Implementation
-    This seems to be a bug in ConTeXt since I can't get their example
-    to work anyway. It's supposed to be trivial.
-** DONE inlinetask
-   CLOSED: [2021-01-15 Fri 13:23]
-** TODO item
-*** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 08:46]
-*** TODO Bullet Types
-*** TODO Check Boxes
-*** DONE Multiple Levels
-    CLOSED: [2021-01-07 Thu 11:18]
-** DONE keyword
-   CLOSED: [2021-01-15 Fri 09:16]
-** TODO latex-environment
-   I might try to escape/replace really common environments
-   and verbatim (or maybe just ignore) anything else. For
-   instance, I could probably just do a regex replace to
-   go from =\begin{align}= to =\startalgin= and replace all
-   the =&= characters with =\nc=
-*** DONE Provide support for align*
-    CLOSED: [2021-01-09 Sat 15:20]
-*** DONE Provide support for numbering/no numbering
-    CLOSED: [2021-01-12 Tue 17:03]
-*** TODO Provide translators for additional math environments
-** DONE latex-fragment
-   CLOSED: [2021-01-15 Fri 09:16]
-*** DONE Provide translation for LaTeX to ConTeXt math delimiters
-    CLOSED: [2021-01-09 Sat 15:21]
-** DONE link
-   CLOSED: [2021-01-15 Fri 16:20]
-   Could possibly use named urls but this is a simple solution
-*** DONE Provide support for images
-    CLOSED: [2021-01-12 Tue 17:03]
-**** DONE Provide support for captions
-     CLOSED: [2021-01-12 Tue 17:03]
-**** TODO Provide support for additional metadata
-** TODO node-property
-   I don't exactly know what this is
-** DONE plain-list
-   CLOSED: [2021-01-15 Fri 09:16]
-*** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 08:47]
-*** DONE Metadata
-    CLOSED: [2021-01-12 Tue 17:03]
-*** DONE Testing
-    CLOSED: [2021-01-12 Tue 17:03]
-** DONE radio-target
-   CLOSED: [2021-01-15 Fri 10:31]
-** TODO src-block
-*** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 08:47]
-*** Line Numbering
-*** Metadata
-** TODO statistics-cookie
-** DONE target
-   CLOSED: [2021-01-15 Fri 10:31]
-** DONE template
-   CLOSED: [2021-01-15 Fri 09:16]
-*** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 08:48]
-*** DONE Compiler Info
-    CLOSED: [2021-01-12 Tue 17:01]
-*** DONE Preamble Additional Options
-    CLOSED: [2021-01-12 Tue 17:01]
-*** DONE Headline Numbering Setup
-    CLOSED: [2021-01-12 Tue 17:01]
-*** DONE Subtitle
-    CLOSED: [2021-01-15 Fri 09:16]
-*** DONE Configuration
-    CLOSED: [2021-01-12 Tue 17:01]
-    The cleanest way to do the configuration is to let the
-    user use ConTeXt's built-in styling systems. They should
-    be able to do quite a bit just by adding extra code to the
-    preamble.
-** DONE verse-block
-   CLOSED: [2021-01-15 Fri 09:17]
-** TODO latex-matrices
-** DONE bold
-   CLOSED: [2021-01-07 Thu 08:43]
-** DONE center-block
-   CLOSED: [2021-01-09 Sat 15:16]
-*** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 11:13]
-*** DONE Labels
-    CLOSED: [2021-01-09 Sat 15:16]
-    - [X]  
-  
-** DONE drawer
-   CLOSED: [2021-01-08 Fri 17:31]
-** DONE dynamic-block
-   CLOSED: [2021-01-09 Sat 15:18]
-** DONE entity
-   CLOSED: [2021-01-09 Sat 15:18]
-** DONE example-block
-   CLOSED: [2021-01-07 Thu 10:58]
-** DONE export-block
-   CLOSED: [2021-01-07 Thu 10:37]
-** DONE export-snippet
-   CLOSED: [2021-01-07 Thu 10:31]
-   Deferring to the LaTeX implementation
-** DONE fixed-width
-   CLOSED: [2021-01-08 Fri 13:35]
-*** DONE Basic Implementation
-    CLOSED: [2021-01-07 Thu 10:30]
-*** DONE Labels
-    CLOSED: [2021-01-08 Fri 13:34]
-** DONE headline
-   CLOSED: [2021-01-08 Fri 17:39]
-** DONE horizontal-rule
-   CLOSED: [2021-01-12 Tue 17:04]
-*** DONE Basic Implementation
-    CLOSED: [2021-01-10 Sun 12:51]
-    Use =\textrule=
-*** DONE Add labelling
-    CLOSED: [2021-01-08 Fri 13:35]
-** DONE inline-src-block
-   CLOSED: [2021-01-07 Thu 08:45]
-** DONE italic
-   CLOSED: [2021-01-07 Thu 10:13]
-** DONE line-break
-   CLOSED: [2021-01-12 Tue 17:03]
-   =\crlf=
-** DONE paragraph
-   CLOSED: [2021-01-07 Thu 09:55]
-   Use LaTeX implementation
-** DONE plain-text
-   CLOSED: [2021-01-12 Tue 17:03]
-** DONE planning
-   CLOSED: [2021-01-12 Tue 17:03]
-** DONE property-drawer
-   CLOSED: [2021-01-12 Tue 17:03]
-** DONE quote-block
-   CLOSED: [2021-01-07 Thu 09:49]
-** DONE section
-   CLOSED: [2021-01-07 Thu 09:33]
-   Just defer to the LaTeX implementation
-** DONE special-block
-   CLOSED: [2021-01-09 Sat 15:23]
-** DONE strike-through
-   CLOSED: [2021-01-07 Thu 08:48]
-** DONE subscript
-   CLOSED: [2021-01-07 Thu 09:23]
-** DONE superscript
-   CLOSED: [2021-01-07 Thu 09:23]
-** DONE table
-   CLOSED: [2021-01-12 Tue 17:01]
-** DONE table-cell
-   CLOSED: [2021-01-12 Tue 17:01]
-** DONE table-row
-   CLOSED: [2021-01-12 Tue 17:01]
-** DONE timestamp
-   CLOSED: [2021-01-12 Tue 17:02]
-** DONE underline
-   CLOSED: [2021-01-08 Fri 17:34]
-** DONE verbatim
-   CLOSED: [2021-01-07 Thu 08:52]
-** DONE latex-math-block
-   CLOSED: [2021-01-08 Fri 13:39]
-* DONE Menu
-  CLOSED: [2021-01-15 Fri 09:17]
-** DONE Export to ConTeXt File
-   CLOSED: [2021-01-07 Thu 08:53]
-** DONE Export to ConTeXt Buffer
-   CLOSED: [2021-01-12 Tue 17:01]
-** DONE Export to PDF File
-   CLOSED: [2021-01-12 Tue 17:01]
-** DONE Export to PDF File and Open
-   CLOSED: [2021-01-12 Tue 17:01]
-* TODO Filters
-** TODO Sanitize Math [2/4]
-   - [X] Replace surrounding characters
-   - [ ] Recognize and translate environments
-   - [X] Replace "&" characters and "\\" in {align}
-   - [ ] Set the correct number of columns in {align}
-** TODO Matrices
-** DONE Image Links
-   CLOSED: [2021-01-12 Tue 17:07]
-* TODO Options
-  Any of these options that is just raw LaTeX that the user
-  interpolates could probably be replaced with additional
-  CONTEXT_HEADER_EXTRA lines.
-** DONE context-active-timestamp-format
-   CLOSED: [2021-01-15 Fri 09:18]
-   Can be configured using ConTeXt language settings
-** TODO context-caption-above
-   This can probably be a snippet
-** DONE context-default-figure-position
-   CLOSED: [2021-01-15 Fri 09:18]
-** DONE context-format-drawer-function
-   CLOSED: [2021-01-17 Sun 19:02]
-   Consider removing this
-** DONE context-format-inlinetask-function
-   CLOSED: [2021-01-17 Sun 19:02]
-   This should be a snippet
-** DONE context-image-default-scale
-   CLOSED: [2021-01-15 Fri 09:18]
-   This could maybe try the LaTeX version if possible
-** DONE context-image-default-height
-   CLOSED: [2021-01-15 Fri 09:18]
-   This could maybe try the LaTeX version if possible
-** DONE context-image-default-option
-   CLOSED: [2021-01-15 Fri 09:18]
-** DONE context-image-default-width
-   CLOSED: [2021-01-15 Fri 09:18]
-   This could maybe try the LaTeX version if possible
-** TODO context-images-centered
-   This could maybe try the LaTeX version if possible
-** TODO context-inline-image-rules
-** TODO context-link-with-unknown-path-format
-** DONE context-subtitle-format
-   CLOSED: [2021-01-15 Fri 09:19]
-   This can be handled using ConTeXt
-** TODO context-tables-centered
-** DONE context-title-command
-   CLOSED: [2021-01-17 Sun 19:03]
-** DONE context-toc-command
-   CLOSED: [2021-01-15 Fri 09:19]
-   This can be configured arbitrarily by the user using ConTeXt
-** DONE context-header
-   CLOSED: [2021-01-07 Thu 09:01]
-** DONE context-header-extra
-   CLOSED: [2021-01-07 Thu 09:01]
-** DONE description
-   CLOSED: [2021-01-12 Tue 16:54]
-** DONE keywords
-   CLOSED: [2021-01-12 Tue 16:54]
-** DONE subtitle
-   CLOSED: [2021-01-12 Tue 16:54]
-** DONE context-diary-timestamp-format
-   CLOSED: [2021-01-12 Tue 16:55]
-   This is configurable with snippets
-** DONE context-format-headline-function
-   CLOSED: [2021-01-12 Tue 16:56]
-   Implemented as a snippet
-** DONE context-hyperref-template
-   CLOSED: [2021-01-12 Tue 16:57]
-   User can handle this with snippets
-** DONE context-inactive-timestamp-format
-   CLOSED: [2021-01-12 Tue 16:59]
-   Implemented as snippet
-** DONE context-highlighted-langs
-   CLOSED: [2021-01-12 Tue 17:00]
-** DONE context-syntax-highlight-options
-   CLOSED: [2021-01-12 Tue 17:00]
-   Implemented with snippets
-** DONE context-subtitle-separate
-   CLOSED: [2021-01-12 Tue 17:00]
-   User can handle this with snippets
-** DONE context-text-markup-alist
-   CLOSED: [2021-01-12 Tue 16:53]
-** DONE context-compiler
-   CLOSED: [2021-01-12 Tue 16:53]
-** DONE date
-   CLOSED: [2021-01-08 Fri 17:36]
-* DONE Miscelaneous
-  CLOSED: [2021-01-12 Tue 17:08]
-  - Possibly add a =\defineparagraphs[OrgBody]= to preamble
-    and frame all body text in =\startOrgBody \stopOrgBody=
-  - Rename all custom environments to title case
+# Copyright (C) 2021 Jason Ross
+# Author: Jason Ross <jasonross1024 at gmail dot com>
+
+# This is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# This is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+ 
+
+#+TITLE: Org Mode ConTeXt Export Demo
+#+DESCRIPTION: Simple demo of the Org Mode ConTeXt exporter
+#+KEYWORDS: context org-mode
+#+SUBTITLE: Sampling of Features
+#+AUTHOR: Jason Ross
+#+EMAIL: jasonross1024@gmail.com
+#+CREATOR: Jason Ross
+#+LANGUAGE: en
+#+OPTIONS: foldmarks:nil toc:t backaddress:t pri:t p:t c:t prop:t d:t ':t
+#+CONTEXT_PRESET: article
+#+DATE: 2021-01-07
+
+List of Tables
+#+TOC: tables
+List of Figures
+#+TOC: figures
+* Overview and Goals
+** Document Structure
+   This exporter is intended to provide a lot of flexibility through plain
+   ConTeXt code with minimal elisp intervention. The output ConTeXt is
+   structured to have as much setup code as possible in the document preamble
+   and in general formatting instructions won't appear in the document body
+   beyond simple semantic markers. In other words, unless you provide
+   additional markup directives in the =org= file, there won't be any additional
+   inline styling in the output ConTeXt file.
+** Customization
+   Customization can occur at three different levels of granularity. The
+   coarsest control is the /preset/ which is set by the ~#+CONTEXT_PRESET~
+   directive and is most similar to the LaTeX class. The next level of control
+   is with /snippets/ which are predefined pieces of code that the user can
+   define. For instance, the user can select just the ~layout-article~ snippet
+   to select a page layout similar to the default LaTeX article. The lowest
+   level of control is provided by inserting literal ConTeXt code directly into
+   the document using ~#+CONTEXT_HEADER~, ~#+CONTEXT_HEADER_EXTRA~, and
+   ~#+CONTEXT~ directives.
+
+   Additional configuration can be inserted into the document preamble by using
+   preset, snippet, or literal directives to customize the display of any of the
+   different elements of the document.
+** Compatibility
+   This exporter is intended to provide as much compatibility as is reasonable
+   with options and configuration for the LaTeX exporter.
+
+* Features
+  #+INCLUDE: "./examples/demo.org" 
