@@ -767,7 +767,8 @@ This option can also be set with the SIGNATURE keyword."
     ("paper-letter" . "\\setuppapersize[letter]")
     ;; LaTeX-style tables
     ("table-article" . "\\setupxtable
-  [align=center,
+  [split=yes,
+   header=repeat,
    leftframe=off,
    rightframe=off,
    topframe=off,
@@ -776,7 +777,7 @@ This option can also be set with the SIGNATURE keyword."
    roffset=1em,
    stretch=on]
 \\setupxtable
-  [OrgTableHeader]
+  [OrgTableTopRow]
   [toffset=1ex,
    foregroundstyle=bold,
    bottomframe=on]")
