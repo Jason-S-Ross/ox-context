@@ -537,11 +537,11 @@ List of Figures
   
     #+BEGIN_SRC org
     #+CAPTION: Default Figure
-    [[./bessel11.pdf]]
+    [[./examples/bessel11.pdf]]
     #+END_SRC
 
     #+CAPTION: Default Figure
-    [[./bessel11.pdf]]
+    [[./examples/bessel11.pdf]]
 
     Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
     facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
@@ -555,12 +555,12 @@ List of Figures
 
     #+BEGIN_SRC org
     #+ATTR_CONTEXT: :float wrap :caption Default Wrapped Figure
-    [[./bessel11.pdf]]
+    [[./examples/bessel11.pdf]]
     #+END_SRC
 
     #+ATTR_CONTEXT: :float wrap :caption Default Wrapped Figure
     #+ATTR_LATEX: :float wrap :caption Default Wrapped Figure
-    [[./bessel11.pdf]]
+    [[./examples/bessel11.pdf]]
 
     Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
     facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc
@@ -603,13 +603,13 @@ List of Figures
     #+BEGIN_SRC org
     #+ATTR_CONTEXT: :width 1in :placement rightmargin 
     #+CAPTION: Margin Figure
-    [[./bessel11.pdf]]
+    [[./examples/bessel11.pdf]]
     #+END_SRC
 
     #+ATTR_CONTEXT: :width 1in :placement rightmargin
     #+ATTR_LATEX: :width 1in :placement right
     #+CAPTION: Margin Figure
-    [[./bessel11.pdf]]
+    [[./examples/bessel11.pdf]]
  
     Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
     commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
