@@ -9,7 +9,8 @@
    - [ ] Book
    - [X] Letter
 * Translators
-** TODO clock
+** DONE clock
+   CLOSED: [2021-01-15 Fri 16:20]
 ** TODO code
    Table of listings
 *** DONE Basic Implementation
@@ -22,7 +23,8 @@
 *** TODO Nested Implementation
     This seems to be a bug in ConTeXt since I can't get their example
     to work anyway. It's supposed to be trivial.
-** TODO inlinetask
+** DONE inlinetask
+   CLOSED: [2021-01-15 Fri 13:23]
 ** TODO item
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 08:46]
@@ -47,7 +49,8 @@
    CLOSED: [2021-01-15 Fri 09:16]
 *** DONE Provide translation for LaTeX to ConTeXt math delimiters
     CLOSED: [2021-01-09 Sat 15:21]
-** TODO link
+** DONE link
+   CLOSED: [2021-01-15 Fri 16:20]
    Could possibly use named urls but this is a simple solution
 *** DONE Provide support for images
     CLOSED: [2021-01-12 Tue 17:03]
@@ -64,16 +67,16 @@
     CLOSED: [2021-01-12 Tue 17:03]
 *** DONE Testing
     CLOSED: [2021-01-12 Tue 17:03]
-** TODO radio-target
+** DONE radio-target
+   CLOSED: [2021-01-15 Fri 10:31]
 ** TODO src-block
 *** DONE Basic Implementation
     CLOSED: [2021-01-07 Thu 08:47]
-*** DONE Line Numbering
-    CLOSED: [2021-01-12 Tue 17:02]
-*** DONE Metadata
-    CLOSED: [2021-01-12 Tue 17:02]
+*** Line Numbering
+*** Metadata
 ** TODO statistics-cookie
-** TODO target
+** DONE target
+   CLOSED: [2021-01-15 Fri 10:31]
 ** DONE template
    CLOSED: [2021-01-15 Fri 09:16]
 *** DONE Basic Implementation
@@ -103,6 +106,8 @@
     CLOSED: [2021-01-07 Thu 11:13]
 *** DONE Labels
     CLOSED: [2021-01-09 Sat 15:16]
+    - [X]  
+  
 ** DONE drawer
    CLOSED: [2021-01-08 Fri 17:31]
 ** DONE dynamic-block
@@ -204,9 +209,11 @@
    This can probably be a snippet
 ** DONE context-default-figure-position
    CLOSED: [2021-01-15 Fri 09:18]
-** TODO context-format-drawer-function
-   This might be a snippet
-** TODO context-format-inlinetask-function
+** DONE context-format-drawer-function
+   CLOSED: [2021-01-17 Sun 19:02]
+   Consider removing this
+** DONE context-format-inlinetask-function
+   CLOSED: [2021-01-17 Sun 19:02]
    This should be a snippet
 ** DONE context-image-default-scale
    CLOSED: [2021-01-15 Fri 09:18]
@@ -227,7 +234,8 @@
    CLOSED: [2021-01-15 Fri 09:19]
    This can be handled using ConTeXt
 ** TODO context-tables-centered
-** TODO context-title-command
+** DONE context-title-command
+   CLOSED: [2021-01-17 Sun 19:03]
 ** DONE context-toc-command
    CLOSED: [2021-01-15 Fri 09:19]
    This can be configured arbitrarily by the user using ConTeXt
