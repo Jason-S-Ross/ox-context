@@ -39,6 +39,26 @@
                   (:context-format-headline-function nil nil org-context-format-headline-function)
                   (:context-format-timestamp-function nil nil org-context-format-timestamp-function)
                   (:context-header "CONTEXT_HEADER" nil nil newline)
+                  (:context-description-command nil nil org-context-description-command)
+                  (:context-blockquote-environment nil nil org-context-blockquote-environment)
+                  (:context-example-environment nil nil org-context-example-environment)
+                  (:context-fixed-environment nil nil org-context-fixed-environment)
+                  (:context-inline-source-environment nil nil org-context-inline-source-environment)
+                  (:context-block-source-environment nil nil org-context-block-source-environment)
+                  (:context-titlepage-environment nil nil org-context-titlepage-environment)
+                  (:context-verse-environment nil nil org-context-verse-environment)
+                  (:context-property-drawer-environment nil nil org-context-property-drawer-environment)
+                  (:context-body-environment nil nil org-context-body-environment)
+                  (:context-title-command nil nil org-context-title-command)
+                  (:context-title-contents-command nil nil org-context-title-contents-command)
+                  (:context-bullet-on-command nil nil org-context-bullet-on-command)
+                  (:context-bullet-off-command nil nil org-context-bullet-off-command)
+                  (:context-bullet-trans-command nil nil org-context-bullet-trans-command)
+                  (:context-planning-command nil nil org-context-planning-command)
+                  (:context-inline-task-command nil nil org-context-inline-task-command)
+                  (:context-headline-command nil nil org-context-headline-command)
+                  (:context-clock-command nil nil org-context-clock-command)
+                  (:context-drawer-command nil nil org-context-drawer-command)
                   (:context-image-default-scale nil nil org-context-image-default-scale)
                   (:context-image-default-height nil nil org-context-image-default-height)
                   (:context-image-default-width nil nil org-context-image-default-width)
@@ -140,6 +160,234 @@
   "Options for exporting to ConTeXt."
   :tag "Org ConTeXt"
   :group 'org-export)
+
+(defcustom org-context-description-command (cons "OrgDesc" "")
+  "The command name to be used for Org description items.
+
+If nil, \"\\description\" is used"
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-blockquote-environment (cons "OrgBlockQuote" "")
+  "The environment name of the block quote environment.
+
+If nil, block quotes aren't delimited."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-example-environment (cons "OrgExample" "")
+  "The environment name of the example environment.
+
+If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-fixed-environment (cons "OrgFixed" "")
+  "The environment name of the fixed-width environment.
+
+If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-inline-source-environment (cons "OrgInlineSrc" "")
+  "The environment name of the inline source environment.
+
+If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-block-source-environment (cons "OrgBlkSrc" "")
+  "The environment name of the block source environment.
+
+If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-titlepage-environment (cons "OrgTitlePage" "")
+  "The environment name that wraps title pages.
+
+If nil, title pages aren't delimited."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-verse-environment (cons "OrgVerse" "")
+  "The environment name of the verse environment.
+
+If nil, verses aren't delimited."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-property-drawer-environment (cons "OrgBlkSrc" "")
+  "The environment name of the property drawer environment.
+
+If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-body-environment (cons  "OrgBody" "")
+  "The environment name that wraps the document body.
+
+If nil, the document body isn't delimited."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-title-command (cons "OrgMakeTitle" "")
+  "The name of the command that creates the document title.
+
+If nil, the document title command isn't created."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-title-contents-command (cons "OrgTitleContents" "\\define\\OrgTitleContents{%
+  {\\tfc Contents}
+}")
+  "The name of the command that titles the table of contents.
+
+If nil, the table of contents title command isn't created."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-bullet-on-command (cons "OrgItemOn"  "\\define\\OrgItemOn{\\boxplus}")
+  "The name of the command that creates bullets for completed items.
+
+If nil, the command isn't created."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-bullet-off-command (cons "OrgItemOff" "\\define\\OrgItemOff{\\square}")
+  "The name of the command that creates bullets for uncompleted items.
+
+If nil, the command isn't created."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-bullet-trans-command (cons "OrgItemTrans" "\\define\\OrgItemTrans{\\boxtimes}")
+  "The name of the command that creates bullets for partially completed items.
+
+If nil, the command isn't created."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-planning-command (cons "OrgPlanning" "\\def\\OrgPlanning#1[#2]{%
+  \\getparameters
+    [OrgPlanning]
+    [ClosedString=,
+     ClosedTime=,
+     DeadlineString=,
+     DeadlineTime=,
+     ScheduledString=,
+     ScheduledTime=,
+     #2]
+  \\doifnot{\\OrgPlanningClosedString}{}{\\OrgPlanningClosedString\\space}
+  \\doifnot{\\OrgPlanningClosedTime}{}{\\OrgPlanningClosedTime\\space}
+  \\doifnot{\\OrgPlanningDeadlineString}{}{\\OrgPlanningDeadlineString\\space}
+  \\doifnot{\\OrgPlanningDeadlineTime}{}{\\OrgPlanningDeadlineTime\\space}
+  \\doifnot{\\OrgPlanningScheduledString}{}{\\OrgPlanningScheduledString\\space}
+  \\doifnot{\\OrgPlanningScheduledTime}{}{\\OrgPlanningScheduledTime\\space}
+}")
+  "The name of the command that formats planning items.
+
+If nil, just returns a plain text time stamp and label.
+
+Receives the following keyword arguments:
+
+ClosedString
+ClosedTime
+DeadlineString
+DeadlineTime
+ScheduledString
+ScheduledTime "
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-inline-task-command (cons  "OrgInlineTask" "\\def\\OrgInlineTask#1[#2]{%
+  \\getparameters
+    [OrgInlineTask]
+    [Todo=,
+     TodoType=,
+     Priority=,
+     Title=,
+     Tags=,
+     Contents=,
+     #2]
+  \\blank[big]
+  \\startframedtext[align=normal, location=middle, width=0.6\\textwidth]
+  \\startalignment[middle]
+  \\doifnot{\\OrgInlineTaskTodo}{}{\\sansbold{\\smallcaps{\\OrgInlineTaskTodo}} }%
+  \\doifnot{\\OrgInlineTaskPriority}{}{\\inframed{\\OrgInlineTaskPriority} }%
+  \\OrgInlineTaskTitle %
+  \\doifnot{\\OrgInlineTaskTags}{}{{\\crlf\\tt\\OrgInlineTaskTags} }%
+  \\crlf%
+  \\textrule
+  \\stopalignment
+  \\OrgInlineTaskContents
+  \\stopframedtext
+  \\blank[big]
+}")
+  "The name of the command that formats inline tasks.
+
+Receives the following keyword arguments:
+
+Todo
+TodoType
+Priority
+Title
+Tags
+Contents
+
+If nil, returns a basic command with only the title and contents"
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-headline-command (cons "OrgHeadline" "\\def\\OrgHeadline#1[#2]{%
+  \\getparameters
+    [OrgHeadline]
+    [Todo=,
+     TodoType=,
+     Priority=,
+     Text=,
+     Tags=,
+     #2]
+  \\doifnot{\\OrgHeadlineTodo}{}{{\\sansbold{\\smallcaps{\\OrgHeadlineTodo}}\\space}}%
+  \\doifnot{\\OrgHeadlinePriority}{}{{\\inframed{\\OrgHeadlinePriority}\\space}}%
+  \\OrgHeadlineText%
+  \\doifnot{\\OrgHeadlineTags}{}{{\\space\\tt\\OrgHeadlineTags}}%
+}")
+  "The name of the command that formats headlines.
+
+If nil, the command isn't created."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-clock-command (cons "OrgClock" "\\def\\OrgClock#1[#2]{%
+  \\getparameters
+    [OrgClock]
+    [y=,
+     m=,
+     d=,
+     H=,
+     M=,
+     I=,
+     S=,
+     #2]
+\\doifnot{\\OrgClocky}{}{%
+  \\date[year=\\OrgClocky,month=\\OrgClockm,day=\\OrgClockd]
+        [year, --, mm, --, dd]}%
+\\doifnot{\\OrgClockH}{}{T\\OrgClockH:\\OrgClockM%
+\\doifnot{\\OrgClockS}{}{:\\OrgClockS}}
+}")
+  "The name of the command that formats clocks.
+
+If nil, the command isn't created."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-drawer-command (cons "OrgDrawer" "\\def\\OrgDrawer#1#2{#2}")
+  "The name of the command that formats drawers.
+
+If nil, the command isn't created."
+  :group 'org-export-context
+  :type '(cons string string))
 
 (defcustom org-context-closing ""
   "Letter's closing, as a string.
@@ -257,8 +505,10 @@ The function result will be used in the section format string."
   'org-context-format-clock-default-function
   "Function called to format a clock in ConTeXt code.
 
-The function should take one parameter, TIMESTAMP,
-which is an Org timestamp object.
+The function should take two parameters:
+
+TIMESTAMP   the org timestamp
+INFO        plist containing context information
 
 The function should return the string to be exported."
   :group 'org-export-context
@@ -271,6 +521,7 @@ The function should return the string to be exported."
 The function must accept two parameters:
   NAME      the drawer name, like \"LOGBOOK\"
   CONTENTS  the contents of the drawer.
+  INFO      plist containing contextual information.
 
 The function should return the string to be exported."
   :group 'org-export-context
@@ -672,19 +923,15 @@ See also `:context-presets'"
 (defcustom org-context-text-markup-alist
   '((bold ."\\bold{%s}")
     (code . "\\type{%s}")
-    (fixed-width . "\\startOrgFixed\n%s\n\\stopOrgFixed")
     (italic . "\\italic{%s}")
     (paragraph . "%s")
-    (property-drawer . "\n\\startOrgPropertyDrawer\n%s\\stopOrgPropertyDrawer")
     (protectedtexttt . "\\type{%s}")
-    (quotation . "\\startOrgBlockQuote\n%s\n\\stopOrgBlockQuote")
     (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
     (subscript . "\\low{%s}")
     (superscript . "\\high{%s}")
     (underline . "\\underbar{%s}")
     (verbatim . "\\type{%s}")
-    (verb . "\\type{%s}")
-    (verse . "\\startOrgVerse\n%s\n\\stopOrgVerse"))
+    (verb . "\\type{%s}"))
   "Alist of ConTeXt expressions to convert text markup."
   :group 'org-export-context
   :version "26.1"
@@ -693,19 +940,15 @@ See also `:context-presets'"
   :options
   '(bold
     code
-    fixed-width
     italic
     paragraph
-    property-drawer
     protectedtexttt
-    quotation
     strike-through
     subscript
     superscript
     underline
     verbatim
-    verb
-    verse))
+    verb))
 
 (defcustom org-context-url ""
   "Sender's URL, e. g., the URL of her homepage.
@@ -921,7 +1164,133 @@ holding the export options."
          (preset-stoptext-string (car preset-stoptext-data))
          (preset-stoptext-snippets
           (org-context--get-snippet-text info preset-stoptext-data))
-         (user-snippets (org-context--get-snippet-text info (plist-get info :context-snippet))))
+         (user-snippets (org-context--get-snippet-text info (plist-get info :context-snippet)))
+         (titlepagecommand (car (plist-get info :context-titlepage-environment)))
+         (bodyenvname (car (plist-get info :context-body-environment)))
+         (titlecommand (org-string-nw-p (car (plist-get info :context-title-command))))
+         (toccommand (car (plist-get info :context-title-contents-command)))
+         (environment-defs (let ((deflist
+           (list
+            (list
+             :context-description-command
+             "% LaTeX-style descriptive enumerations"
+             "\\definedescription[%s]")
+            (list
+             :context-blockquote-environment
+             "% blockquote environment"
+             "\\definestartstop[%s]")
+            (list
+             :context-example-environment
+             "% Create the example environment"
+             "\\definetyping[%s]")
+            (list
+             :context-fixed-environment
+             "% Create the fixed width environment"
+             "\\definetyping[%s]")
+            (list
+             :context-inline-source-environment
+             "% Create the inline source environment"
+             "\\definetyping[%s]")
+            (list
+             :context-block-source-environment
+             "% Create the block source environment"
+             "\\definetyping[%s]")
+            (list
+             :context-titlepage-environment
+             "% Create the title page style"
+             "\\definestartstop[%s]")
+            (list
+             :context-verse-environment
+             "% Create a verse style"
+             "\\definelines[%s]")
+            (list
+             :context-property-drawer-environment
+             "% Create a property drawer style"
+             "\\definetyping[%s]")
+            (list
+             :context-body-environment
+             "% Create a body style"
+             "\\definestartstop[%s]"))))
+     (mapconcat
+      (lambda
+        (args)
+        (let* ((kw (nth 0 args))
+               (comment (nth 1 args))
+               (templ (nth 2 args))
+               (nameimpl (plist-get info kw))
+               (name (car nameimpl))
+               (impl (cdr nameimpl)))
+          (concat
+           comment
+           "\n"
+           (when (org-string-nw-p name) (format templ name))
+           "\n"
+           (when (org-string-nw-p impl) impl))))
+      deflist
+      "\n")))
+         (command-defs (let ((deflist
+           (list
+       (list
+        :context-title-command
+        "% Create an empty title command to be overridden by user")
+       (list
+        :context-title-contents-command
+        "% Create a TOC header command")
+       (list
+        :context-bullet-on-command
+        "% Define on bullet command")
+       (list
+        :context-bullet-off-command
+        "% Define off bullet command")
+       (list
+        :context-bullet-trans-command
+        "% Define incomplete bullet command")
+       (list
+        :context-planning-command
+        "% Define a basic planning command")
+       (list
+        :context-inline-task-command
+        "% Define a basic inline task command")
+       (list
+        :context-headline-command
+        "% Define a basic headline command")
+       (list
+        :context-clock-command
+        "% Define a basic clock command")
+       (list
+        :context-drawer-command
+        "% Define a basic drawer command"))))
+     (mapconcat
+      (lambda (args)
+        (let* ((kw (nth 0 args))
+               (comment (nth 1 args))
+               (nameimpl (plist-get info kw))
+               (impl (cdr nameimpl)))
+          (concat
+           comment
+           "\n"
+           (when (org-string-nw-p impl) impl))))
+      deflist
+      "\n")))
+         (table-defs (mapconcat
+                      'identity
+                      (seq-filter
+                       'identity
+                       (delete-dups
+                        (mapcar
+                         (lambda
+                           (kw)
+                           (let ((style (plist-get info kw)))
+                             (when (org-string-nw-p style) (format "\\definextable[%s]" style))))
+                         (list :context-table-toprow-style
+                               :context-table-bottomrow-style
+                               :context-table-leftcol-style
+                               :context-table-rightcol-style
+                               :context-table-topleft-style
+                               :context-table-topright-style
+                               :context-table-bottomleft-style
+                               :context-table-bottomright-style))))
+                      "\n")))
     (concat
    (and time-stamp
         (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
@@ -973,148 +1342,11 @@ holding the export options."
 
 % Turn on interaction to make links work
 \\setupinteraction[state=start]
-% LaTeX-style descriptive enumerations
-\\definedescription[OrgDesc]
-% blockquote environment
-\\definestartstop[OrgBlockQuote]
-% Create the example environment
-\\definetyping[OrgExample]
-% Create the fixed width environment
-\\definetyping[OrgFixed]
-% Create the inline source environment
-\\definetyping[OrgInlineSrc]
-% Create the block source environment
-\\definetyping[OrgBlkSrc]
-% Create table styles
 "
-   (mapconcat
-    'identity
-    (seq-filter
-     'identity
-     (delete-dups
-      (mapcar
-       (lambda
-         (kw)
-         (let ((style (plist-get info kw)))
-           (when (org-string-nw-p style) (format "\\definextable[%s]" style))))
-       (list :context-table-toprow-style
-             :context-table-bottomrow-style
-             :context-table-leftcol-style
-             :context-table-rightcol-style
-             :context-table-topleft-style
-             :context-table-topright-style
-             :context-table-bottomleft-style
-             :context-table-bottomright-style))))
-    "\n")
+   environment-defs
+   command-defs
+   table-defs
    "
-% Create the title page style
-\\definestartstop[OrgTitlePage]
-% Create a verse style
-\\definelines[OrgVerse]
-% Create a property drawer style
-\\definetyping[OrgPropertyDrawer]
-% Create a paragraph style
-\\definestartstop[OrgParagraph]
-% Create a body style
-\\definestartstop[OrgBody]
-% Create an empty title command to be overridden by user
-\\define\\OrgMakeTitle{}
-% Create a TOC header command
-\\define\\OrgTitleContents{%
-  {\\tfc Contents}
-}
-% Define bullets
-\\define\\OrgItemOn{\\boxplus}
-\\define\\OrgItemOff{\\square}
-\\define\\OrgItemTrans{\\boxtimes}
-
-\\unprotect
-% Define a basic planning command
-% Override this with user code to customize timestamp appearance
-\\def\\OrgPlanning#1[#2]{%
-  \\getparameters
-    [OrgPlanning]
-    [ClosedString=,
-     ClosedTime=,
-     DeadlineString=,
-     DeadlineTime=,
-     ScheduledString=,
-     ScheduledTime=,
-     #2]
-  \\doifnot{\\OrgPlanningClosedString}{}{\\OrgPlanningClosedString\\space}
-  \\doifnot{\\OrgPlanningClosedTime}{}{\\OrgPlanningClosedTime\\space}
-  \\doifnot{\\OrgPlanningDeadlineString}{}{\\OrgPlanningDeadlineString\\space}
-  \\doifnot{\\OrgPlanningDeadlineTime}{}{\\OrgPlanningDeadlineTime\\space}
-  \\doifnot{\\OrgPlanningScheduledString}{}{\\OrgPlanningScheduledString\\space}
-  \\doifnot{\\OrgPlanningScheduledTime}{}{\\OrgPlanningScheduledTime\\space}
-}
-
-% Define a basic inline task command
-% Override this with user code to customize inline task appearance
-\\def\\OrgInlineTask#1[#2]{%
-  \\getparameters
-    [OrgInlineTask]
-    [Todo=,
-     TodoType=,
-     Priority=,
-     Title=,
-     Tags=,
-     Contents=,
-     #2]
-  \\blank[big]
-  \\startframedtext[align=normal, location=middle, width=0.6\\textwidth]
-  \\startalignment[middle]
-  \\doifnot{\\OrgInlineTaskTodo}{}{\\sansbold{\\smallcaps{\\OrgInlineTaskTodo}} }%
-  \\doifnot{\\OrgInlineTaskPriority}{}{\\inframed{\\OrgInlineTaskPriority} }%
-  \\OrgInlineTaskTitle %
-  \\doifnot{\\OrgInlineTaskTags}{}{{\\crlf\\tt\\OrgInlineTaskTags} }%
-  \\crlf%
-  \\textrule
-  \\stopalignment
-  \\OrgInlineTaskContents
-  \\stopframedtext
-  \\blank[big]
-}
-% Define a basic headline command
-% Override this with user code to customize headline appearance
-\\def\\OrgHeadline#1[#2]{%
-  \\getparameters
-    [OrgHeadline]
-    [Todo=,
-     TodoType=,
-     Priority=,
-     Text=,
-     Tags=,
-     #2]
-  \\doifnot{\\OrgHeadlineTodo}{}{{\\sansbold{\\smallcaps{\\OrgHeadlineTodo}}\\space}}%
-  \\doifnot{\\OrgHeadlinePriority}{}{{\\inframed{\\OrgHeadlinePriority}\\space}}%
-  \\OrgHeadlineText%
-  \\doifnot{\\OrgHeadlineTags}{}{{\\space\\tt\\OrgHeadlineTags}}%
-}
-% Define a basic clock command
-% Override this with user code to customize the clock appearance
-\\def\\OrgClock#1[#2]{%
-  \\getparameters
-    [OrgClock]
-    [y=,
-     m=,
-     d=,
-     H=,
-     M=,
-     I=,
-     S=,
-     #2]
-\\doifnot{\\OrgClocky}{}{%
-  \\date[year=\\OrgClocky,month=\\OrgClockm,day=\\OrgClockd]
-        [year, --, mm, --, dd]}%
-\\doifnot{\\OrgClockH}{}{T\\OrgClockH:\\OrgClockM%
-\\doifnot{\\OrgClockS}{}{:\\OrgClockS}}
-}
-% Define a basic drawer command
-% Override this with user code to customize the clock appearance
-\\def\\OrgDrawer#1#2{#2}
-\\protect
-
 %===============================================================================
 % Preset Commands
 %===============================================================================
@@ -1144,18 +1376,25 @@ holding the export options."
 \\starttext
 \\placebookmarks
 \\startfrontmatter
-\\startOrgTitlePage
-\\OrgMakeTitle"
+"
+   (when (org-string-nw-p titlepagecommand)
+     (format "\\start%s\n" titlepagecommand))
+   (when (org-string-nw-p titlecommand)
+     (format "\\%s\n" titlecommand))
    (when
        (plist-get info :with-toc)
-     "\\OrgTitleContents
-\\placecontent\n")
+     (concat
+      (when (org-string-nw-p toccommand)
+        (format "\\%s\n" toccommand))
+      "\n\\placecontent\n"))
+   (when (org-string-nw-p titlepagecommand)
+     (format "\\stop%s\n" titlepagecommand))
    "
-\\stopOrgTitlePage
 \\stopfrontmatter
 \\startbodymatter
-\\startOrgBody\n"
-
+"
+   (when (org-string-nw-p bodyenvname)
+     (format "\\start%s\n" bodyenvname))
    (concat preset-starttext-string "\n"
            (mapconcat 'identity preset-starttext-snippets "\n"))
 
@@ -1163,27 +1402,32 @@ holding the export options."
 
    (concat preset-stoptext-string "\n"
            (mapconcat 'identity preset-stoptext-snippets "\n"))
-
-   "\n\\stopOrgBody
-\\stopbodymatter
+"\n"
+   (when (org-string-nw-p bodyenvname)
+     (format "\\stop%s\n" bodyenvname))
+   "\\stopbodymatter
 \\stoptext\n")))
 
 ;;; Internal functions
 
 (defun org-context-format-headline-default-function
-    (todo todo-type priority text tags _info)
+    (todo todo-type priority text tags info)
   "Default format function for a headline.
 See `org-context-format-headline-function' for details."
-  (format
-   "\\OrgHeadline
+  (let ((formatter (org-string-nw-p (car (plist-get info :context-headline-command)))))
+    (if formatter
+        (format
+         "\\%s
    [%s]"
-   (org-context--format-arguments
-    (list
-     (cons "Todo" todo)
-     (cons "TodoType" todo-type)
-     (cons "Priority" priority)
-     (cons "Text" text)
-     (cons "Tags" (mapconcat #'org-latex--protect-text tags ":"))))))
+         formatter
+         (org-context--format-arguments
+          (list
+           (cons "Todo" todo)
+           (cons "TodoType" todo-type)
+           (cons "Priority" priority)
+           (cons "Text" text)
+           (cons "Tags" (mapconcat #'org-latex--protect-text tags ":")))))
+      text)))
 
 (defun org-context--format-arguments (arguments)
   "Formats ARGUMENTS into a ConTeXt argument string.
@@ -1396,8 +1640,8 @@ used as a communication channel."
           ;;(`multicolumn "orgmulticolumnfigure")
           ;; TODO What do we do with figure?
           (_ (when placement (add-to-list 'location-options placement))))
-        (if (not (eq float 'sideways))
-            (add-to-list 'location-options "here"))
+        ;;(if (not (eq float 'sideways))
+        ;;    (add-to-list 'location-options "here"))
         (add-to-list 'env-options
                      (cons "location" (mapconcat 'identity location-options ",")))
         (when (org-string-nw-p caption)
@@ -1453,8 +1697,7 @@ This function assumes TABLE has `org' as its `:type' property and
                        (cons "option" option)))))
     (format
      "\\startplacetable%s%s
-\\startxtable%s
-  %s
+\\startxtable%s%s
 %s
 \\stopxtable
 \\stopplacetable\n"
@@ -1463,6 +1706,18 @@ This function assumes TABLE has `org' as its `:type' property and
      (if (org-string-nw-p table-style) (format "\n[%s]" table-style) "")
      (if (org-string-nw-p table-args) (format "\n[%s]" table-args) "")
      contents)))
+
+(defun org-context--wrap-env (ent contents info env-key default)
+  "Wraps content in an environment with a label.
+Environment is looked up from the info plist."
+  (let* ((prog-env-name (car (plist-get info env-key)))
+         (env-name (or (org-string-nw-p prog-env-name) default)))
+    (org-context--wrap-label
+     ent
+     (if env-name
+         (format "\\start%s\n%s\\stop%s" env-name contents env-name)
+       contents)
+     info)))
 
 ;;; Transcode Functions
 
@@ -1481,7 +1736,7 @@ holding contextual information."
   (org-context--wrap-label
    center-block (format "\\startalignment[middle]\n%s\\stopalignment" contents) info))
 
-(defun org-context-format-clock-default-function (timestamp)
+(defun org-context-format-clock-default-function (timestamp info)
   "Formats a timestamp in ConTeXt format"
   (let* ((time (org-timestamp-to-time timestamp))
          (args
@@ -1492,8 +1747,13 @@ holding contextual information."
            (cons "H" (format-time-string "%H" time))
            (cons "M" (format-time-string "%M" time))
            (cons "I" (format-time-string "%I" time))
-           (cons "S" (format-time-string "%S" time)))))
-    (format "\\OrgClock[%s]" (org-context--format-arguments args))))
+           (cons "S" (format-time-string "%S" time))))
+         (formatter
+          (org-string-nw-p
+           (car (plist-get info :context-clock-command)))))
+    (if formatter
+        (format "\\%s[%s]" formatter (org-context--format-arguments args))
+      format-time-string "%FT%T%z" time)))
 
 (defun org-context-clock (clock _contents info)
   "Transcode a CLOCK element from Org to ConTeXt.
@@ -1501,14 +1761,19 @@ CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (let ((timestamp (org-element-property :value clock))
         (formatter (plist-get info :context-format-clock-function)))
-    (funcall formatter timestamp)))
+    (funcall formatter timestamp info)))
 
 (defun org-context-code (code contents info)
   "Transcode CODE from Org to ConTeXt"
   (org-context--text-markup (org-element-property :value code) 'code info))
 
-(defun org-context-format-drawer-default-function (name contents)
-  (format "\\OrgDrawer{%s}{%s}" name contents))
+(defun org-context-format-drawer-default-function (name contents info)
+  (let ((formatter
+         (org-string-nw-p
+          (car (plist-get info :context-drawer-command)))))
+    (if formatter
+        (format "\\%s{%s}{%s}" formatter name contents)
+      (format "%s\\hairline %s" name contents))))
 
 (defun org-context-drawer (drawer contents info)
   "Transcode a DRAWER element from Org to ConTeXt.
@@ -1516,7 +1781,7 @@ CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (let* ((name (org-element-property :drawer-name drawer))
          (output (funcall (plist-get info :context-format-drawer-function)
-                          name contents)))
+                          name contents info)))
     (org-context--wrap-label drawer output info)))
 
 (defun org-context-dynamic-block (dynamic-block contents info)
@@ -1535,11 +1800,12 @@ holding contextual information."
   "Transcode an EXAMPLE-BLOCK element from Org to ConTeXt.
 CONTENTS is nil. INFO is a plist holding contextual information."
   (when (org-string-nw-p (org-element-property :value example-block))
-    (org-context--wrap-label
+    (org-context--wrap-env
      example-block
-     (format "\\startOrgExample\n%s\\stopOrgExample"
-             (org-export-format-code-default example-block info))
-     info)))
+     (org-export-format-code-default example-block info)
+     info
+     :context-example-environment
+     "typing")))
 
 (defun org-context-export-block (export-block _contents _info)
   "Transcode a EXPORT-BLOCK element from Org to ConTeXt.
@@ -1550,14 +1816,12 @@ CONTENTS is nil. INFO is a plist holding contextual information."
 (defun org-context-fixed-width (fixed-width _contents info)
   "Transcode a FIXED-WDITH element from Org to LaTeX.
 CONTENTS is nil. INFO is a plist holding contextual information."
-  (org-context--wrap-label
+  (org-context--wrap-env
    fixed-width
-   (org-context--text-markup
-    (org-remove-indentation
-     (org-element-property :value fixed-width))
-    'fixed-width
-    info)
-   info))
+   (org-remove-indentation (org-element-property :value fixed-width))
+   info
+   :context-fixed-environment
+   "typing"))
 
 (defun org-context-footnote-reference (footnote-reference _contents info)
   "Transcode a FOOTNOTE-REFERENCE element from Org to ConTeXt.
@@ -1747,6 +2011,7 @@ INFO is a plist holding contextual information. See
 (defun org-context-horizontal-rule (horizontal-rule _contents info)
   "Transcode a HORIZONTAL-RULE object from Org to ConTeXt.
 CONTENTS is nil. INFO is a plist holding contextual information."
+  ;; TODO accept attr_context
   (let ((attr (org-export-read-attribute :attr_latex horizontal-rule))
         (prev (org-export-get-previous-element horizontal-rule info)))
     (concat
@@ -1756,6 +2021,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
                 (let ((prev-blank (org-element-property :post-blank prev)))
                   (or (not prev-blank) (zerop prev-blank))))
        "\n")
+     ;; TODO get width and thickness from attr_latex
      (org-context--wrap-label
       horizontal-rule
       "\\textrule"
@@ -1770,12 +2036,18 @@ contextual information."
            (lang (or (cadr
                       (assq (intern org-lang)
                             (plist-get info :context-highlighted-langs)))
-                     (downcase org-lang))))
-      (format "\\startOrgInlineSrc%s %s \\stopOrgInlineSrc "
+                     (downcase org-lang)))
+           (env-name (or
+                      (org-string-nw-p
+                       (car (plist-get info :context-block-source-environment)))
+                      "typing")))
+      (format "\\start%s%s %s \\stop%s"
+              env-name
               (if (org-string-nw-p lang)
                   (format "[option=%s]" lang)
                 "")
-              code))))
+              code
+              env-name))))
 
 (defun org-context-inlinetask (inlinetask contents info)
   "Transcode an INLNETASK element from Org to ConTeXt.
@@ -1798,20 +2070,25 @@ holding contextual information."
              todo todo-type priority title tags contents info)))
 
 (defun org-context-format-inlinetask-default-function
-    (todo todo-type priority title tags contents _info)
+    (todo todo-type priority title tags contents info)
   "Default format function for inlinetasks.
 See `org-context-format-inlinetask-function' for details."
-  (format
-   "\\OrgInlineTask
+  (let ((format-command
+         (org-string-nw-p (car (plist-get info :context-inline-task-command)))))
+    (if format-command
+        (format
+         "\\%s
   [%s]"
-   (org-context--format-arguments
-    (list
-     (cons "Todo" todo)
-     (cons "TodoType" todo-type)
-     (cons "Priority" priority)
-     (cons "Title" title)
-     (cons "Tags" (org-make-tag-string (mapcar #'org-latex--protect-text tags)))
-     (cons "Contents" contents)))))
+         format-command
+         (org-context--format-arguments
+          (list
+           (cons "Todo" todo)
+           (cons "TodoType" todo-type)
+           (cons "Priority" priority)
+           (cons "Title" title)
+           (cons "Tags" (org-make-tag-string (mapcar #'org-latex--protect-text tags)))
+           (cons "Contents" contents))))
+      (concat title "\\hairline" contents "\\hairline"))))
 
 (defun org-context-italic (_italic contents info)
   "Transcode ITALIC from Org to ConTeXt"
@@ -1822,17 +2099,19 @@ See `org-context-format-inlinetask-function' for details."
   (let ((tag (let ((tag (org-element-property :tag item)))
                (and tag (org-export-data tag info))))
         (checkbox (cl-case (org-element-property :checkbox item)
-                    (on "\\OrgItemOn")
-                    (off "\\OrgItemOff")
-                    (trans "\\OrgItemTrans"))))
-    (if (eq
-         (org-element-property :type (org-export-get-parent item))
-         'descriptive)
-        (format "\\startOrgDesc{%s} %s\n\\stopOrgDesc"
-                (if (org-string-nw-p checkbox)
-                    (format "%s\\space\\space %s" checkbox tag)
-                  tag)
-                (org-trim contents))
+                    (on (format "\\%s" (car (plist-get info :context-bullet-on-command))))
+                    (off (format "\\%s" (car (plist-get info :context-bullet-off-command))))
+                    (trans (format "\\%s" (car (plist-get info :context-bullet-trans-command)))))))
+    (if (eq (org-element-property :type (org-export-get-parent item))
+            'descriptive)
+        (let ((descrcommand (car (plist-get info :context-description-command))))
+          (format "\\start%s{%s} %s\n\\stop%s"
+                  descrcommand
+                  (if (org-string-nw-p checkbox)
+                      (format "%s\\space\\space %s" checkbox tag)
+                    tag)
+                  (org-trim contents)
+                  descrcommand))
       (if (org-string-nw-p checkbox)
           (format "\\sym{%s} %s" checkbox contents)
         (format "\\item %s" (org-trim contents))))))
@@ -1941,7 +2220,6 @@ CONTENTS is the contents of the list. INFO is a plist holding
 contextual information."
   (let* ((type (org-element-property :type plain-list))
          (attr (org-export-read-attribute :attr_latex plain-list))
-         (env (plist-get attr :environment))
          (open-command
           (cond ((eq type 'ordered) "\\startitemize[n]\n")
                 ((eq type 'descriptive) "")
@@ -2012,28 +2290,39 @@ information."
   (let ((closed (org-element-property :closed planning))
         (deadline (org-element-property :deadline planning))
         (scheduled (org-element-property :scheduled planning))
-        (formatter (plist-get info :context-format-timestamp-function)))
-    (concat "\\OrgPlanning["
-            (when closed
-              (concat
-               (format "\nClosedString={%s}," org-closed-string)
-               (format "\nClosedTime={%s}," (funcall formatter closed))))
-            (when deadline
-              (concat
-               (format "\nDeadlineString={%s}," org-deadline-string)
-               (format "\nDeadlineTime={%s}," (funcall formatter deadline))))
-            (when scheduled
-              (concat
-               (format "\nScheduledString={%s}," org-scheduled-string)
-               (format "\nScheduledTime={%s}," (funcall formatter scheduled))))
-            "]")))
+        (formatter (plist-get info :context-format-timestamp-function))
+        (command-name (org-string-nw-p
+                       (car (plist-get info :context-planning-command)))))
+    (if command-name
+        (concat (format "\\%s[" command-name)
+                (when closed
+                  (concat
+                   (format "\nClosedString={%s}," org-closed-string)
+                   (format "\nClosedTime={%s}," (funcall formatter closed))))
+                (when deadline
+                  (concat
+                   (format "\nDeadlineString={%s}," org-deadline-string)
+                   (format "\nDeadlineTime={%s}," (funcall formatter deadline))))
+                (when scheduled
+                  (concat
+                   (format "\nScheduledString={%s}," org-scheduled-string)
+                   (format "\nScheduledTime={%s}," (funcall formatter scheduled))))
+                "]")
+      (concat
+       (when closed (concat org-closed-string (funcall formatter closed)))
+       (when deadline (concat org-deadline-string (funcall formatter deadline)))
+       (when scheduled (concat org-scheduled-string (funcall formatter scheduled)))))))
 
-(defun org-context-property-drawer (_property-drawer contents info)
+(defun org-context-property-drawer (property-drawer contents info)
   "Transcode a PROPERTY-DRAWER element from Org to LaTeX.
 CONTENTS holds the contents of the drawer.  INFO is a plist
 holding contextual information."
-  (and (org-string-nw-p contents)
-       (org-context--text-markup contents 'property-drawer info)))
+  (org-context--wrap-env
+   property-drawer
+   contents
+   info
+   :context-property-drawer-environment
+   "typing"))
 
 (defun org-context-math-block (_math-block contents _info)
   "Transcode a MATH-BLOCK object from Org to ConTeXt.
@@ -2044,8 +2333,12 @@ channel."
 
 (defun org-context-quote-block (quote-block contents info)
   "Transcodes a QUOTE-BLOCK element from Org to ConTeXt."
-  (org-context--wrap-label
-   quote-block (org-context--text-markup contents 'quotation info) info))
+  (org-context--wrap-env
+   quote-block
+   contents
+   info
+   :context-blockquote-environment
+   nil))
 
 (defun org-context-radio-target (radio-target text info)
   "Transcode a RADIO-TARGET object from Org to ConTeXt.
@@ -2086,19 +2379,35 @@ holding contextual information."
   "Transcode a SRC-BLOCK element from Org to LaTeX.
 CONTENTS holds the contents of the item. INFO is a plist holding
 contextual information."
+  ;; TODO caption
+  ;; TODO caption-above-p
+  ;; TODO label
+  ;; TODO custom-environment
+  ;; TODO num-start
+  ;; TODO retain labels
+  ;; TODO attributes
+  ;; TODO float
   (when (org-string-nw-p (org-element-property :value src-block))
     (let* ((org-lang (org-element-property :language src-block))
            (lang (and
                   org-lang
                   (or (cadr (assq (intern org-lang)
                                   (plist-get info :context-highlighted-langs)))
-                      (downcase org-lang)))))
+                      (downcase org-lang))))
+           (env-name (or
+                      (org-string-nw-p
+                       (cdr (plist-get info :context-block-source-environment)))
+                      "typing")))
       (cond
-       ((not lang) (format "\\startOrgBlkSrc\n%s\\stopOrgBlkSrc"
-                           (org-export-format-code-default src-block info)))
-       (t (format "\\startOrgBlkSrc[option=%s]\n%s\\stopOrgBlkSrc"
+       ((not lang) (format "\\start%s\n%s\\stop%s"
+                           env-name
+                           (org-export-format-code-default src-block info)
+                           env-name))
+       (t (format "\\start%s[option=%s]\n%s\\stop%s"
+                  env-name
                   lang
-                  (org-export-format-code-default src-block info)))))))
+                  (org-export-format-code-default src-block info)
+                  env-name))))))
 
 (defun org-context-table (table contents info)
   "Transcode a TABLE element from Org to ConTeXt.
@@ -2225,10 +2534,12 @@ information."
   "Transcode a VERSE-BLOCK element from Org to ConTeXt.
 CONTENTS is verse block contents.  INFO is a plist holding
 contextual information."
-  (org-context--wrap-label
+  (org-context--wrap-env
    verse-block
-   (org-context--text-markup contents 'verse info)
-   info))
+   contents
+   info
+   :context-verse-environment
+   nil))
 
 ;;;###autoload
 (defun org-context-export-as-context
