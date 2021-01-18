@@ -231,7 +231,7 @@ If nil, the document body isn't delimited."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-title-command (cons "OrgMakeTitle" "")
+(defcustom org-context-title-command (cons "OrgMakeTitle" "\\define\\OrgMakeTitle{}")
   "The name of the command that creates the document title.
 
 If nil, the document title command isn't created."
