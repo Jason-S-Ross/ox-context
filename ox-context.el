@@ -2484,23 +2484,6 @@ channel.
 This function assumes TABLE has `org' as its `:type' property and
 `table' as its `:mode' attribute."
 
-  ;; TODO `org-export-table-has-special-column-p'
-  ;; TODO `org-export-table-has-header-p'
-  ;; TODO `org-export-table-row-is-special-p'
-  ;; TODO `org-export-table-row-group'
-  ;; TODO `org-export-table-cell-width'
-  ;; TODO `org-export-table-cell-alignment'
-  ;; TODO `org-export-table-cell-borders'
-  ;; TODO `org-export-table-cell-starts-colgroup-p'
-  ;; TODO `org-export-table-cell-ends-colgroup-p'
-  ;; TODO `org-export-table-row-starts-rowgroup-p'
-  ;; TODO `org-export-table-row-ends-rowgroup-p'
-  ;; TODO `org-export-table-row-in-header-p'
-  ;; TODO `org-export-table-row-starts-header-p'
-  ;; TODO `org-export-table-row-ends-header-p'
-  ;; TODO `org-export-table-row-number'
-  ;; TODO `org-export-table-dimensions'
-  ;; TODO `org-export-table-cell-address'
   (let* ((attr (org-export-read-attribute :attr_context table))
          (caption (org-context--caption/label-string table info))
          (location (or (plist-get attr :location) "force,here"))
