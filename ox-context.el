@@ -91,7 +91,11 @@
                   (:context-number-equations nil "numeq" org-context-number-equations)
                   (:context-presets nil nil org-context-presets-alist)
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
+                  (:context-syntax-engine nil "syntax" org-context-syntax-engine)
                   (:context-highlighted-langs nil nil org-context-highlighted-langs)
+                  (:context-vim-langs nil nil org-context-vim-langs)
+                  (:context-vim-default-colors nil nil org-context-vim-default-colors)
+                  (:context-vim-colors nil nil org-context-vim-colors)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
                   (:context-export-quotes-alist nil nil org-context-export-quotes-alist)
                   (:description "DESCRIPTION" nil nil parse)
@@ -581,6 +585,14 @@ This option can also be set with the FROM_LOGO keyword."
   :type 'string
   :safe #'stringp)
 
+(defcustom org-context-syntax-engine
+  'vim
+  "Option for the syntax engine."
+  :tag "Default Syntax Engine"
+  :group 'org-export-context
+  :type '(choice (const :tag "Vim" vim)
+                 (const :tag "Default" default)))
+
 (defcustom org-context-highlighted-langs
   '((metapost "mp"))
   "Alist mapping languages to their counterpart in
@@ -592,7 +604,106 @@ out-of-the-box so this is a short list."
            (symbol :tag "Major mode      ")
            (symbol :tag "ConTeXt language"))))
 
+(defcustom org-context-vim-langs
+  (list (list "c++" :vim-name "cpp" :context-name "Cpp")
+        (list "c#" :vim-name "cs" :context-name "CSharp")
+        (list "vba" :vim-name "basic" :context-name "VBA")
+        (list "bash" :vim-name "sh" :context-name "Bash"))
+  "Alist mapping Org language names to their counterparts in Vim and ConTeXt."
+  :group 'org-export-context
+  :type '(repeat
+          (list
+           (string :tag "Org Language Name")
+           (string :tag "Vim Language Name")
+           (string :tag "ConTeXt Language Name"))))
 
+(defcustom org-context-vim-default-colors
+  "PigMints"
+  "The name of the default color scheme to use from `org-context-vim-colors'."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-vim-colors
+  (list (cons "pscolor" "")
+   (cons "PigMints" "% Syntax highlighting based on the Pygments default style
+\\startcolorscheme[PigMints]
+  \\definesyntaxgroup
+    [Comment]
+    [style=italic,color={x=408080}]
+  \\definesyntaxgroup
+    [Constant]
+    [color={x=008000}]
+  \\definesyntaxgroup
+    [Error]
+    [style=bold,color={x=D2413A}]
+  \\definesyntaxgroup
+     [Ignore]
+  \\definesyntaxgroup
+    [Identifier]
+    []
+  \\definesyntaxgroup
+    [PreProc]
+    [color={x=BC7A00}]
+  \\definesyntaxgroup
+    [Statement]
+    [style=bold,color={x=AA22FF}]
+  % Don't Know
+  \\definesyntaxgroup
+    [Special]
+    [color={h=BA2121}]
+  \\definesyntaxgroup
+    [Todo]
+    [color={h=800000},
+      command=\\vimtodoframed]
+  \\definesyntaxgroup
+    [Type]
+    [color={h=B00040}]
+  \\definesyntaxgroup
+    [Underlined]
+    [color={h=6a5acd},
+      command=\\underbar]
+  \\setups{vim-minor-groups}
+  \\definesyntaxgroup
+    [StorageClass]
+    [color={h=666666}]
+  \\definesyntaxgroup
+    [Number]
+    [color={h=666666}]
+  \\definesyntaxgroup
+    [Operator]
+    [color={h=666666}, style=bold]
+  \\definesyntaxgroup
+    [Conditional]
+    [color={h=008000}, style=bold]
+  \\definesyntaxgroup
+    [Repeat]
+    [color={h=008000}, style=bold]
+  % Don't know
+  \\definesyntaxgroup
+    [Label]
+    [color={h=B00040}, style=bold]
+  \\definesyntaxgroup
+    [Keyword]
+    [color={h=008000}, style=bold]
+  \\definesyntaxgroup
+    [Function]
+    [color={h=0000ff}]
+  \\definesyntaxgroup
+    [Macro]
+    [color={h=0000ff}]
+  \\definesyntaxgroup
+    [String]
+    [color={x=BA2121}]
+\\stopcolorscheme"))
+  "Color Scheme as defined by the t-vim context library.
+Cons of NAME, DEFINITION where NAME is the name of the scheme
+to use and DEFINITION is the code to add to the preamble to define
+the scheme."
+  :group 'org-export-context
+  :type '(repeat
+          (cons
+           (string :tag "Scheme Name")
+           (string :tag "Scheme Definition"))))
 
 (defcustom org-context-image-default-height ""
   "Default height for images."
@@ -1262,144 +1373,171 @@ holding the export options."
          (bodyenvname (car (plist-get info :context-body-environment)))
          (titlecommand (org-string-nw-p (car (plist-get info :context-title-command))))
          (toccommand (car (plist-get info :context-title-contents-command)))
-         (environment-defs (let ((deflist
-           (list
-            (list
-             :context-description-command
-             "% LaTeX-style descriptive enumerations"
-             "\\definedescription[%s]")
-            (list
-             :context-blockquote-environment
-             "% blockquote environment"
-             "\\definestartstop[%s]")
-            (list
-             :context-example-environment
-             "% Create the example environment"
-             "\\definetyping[%s]")
-            (list
-             :context-fixed-environment
-             "% Create the fixed width environment"
-             "\\definetyping[%s]")
-            (list
-             :context-inline-source-environment
-             "% Create the inline source environment"
-             "\\definetyping[%s]")
-            (list
-             :context-block-source-environment
-             "% Create the block source environment"
-             "\\definetyping[%s]")
-            (list
-             :context-titlepage-environment
-             "% Create the title page style"
-             "\\definestartstop[%s]")
-            (list
-             :context-verse-environment
-             "% Create a verse style"
-             "\\definelines[%s]")
-            (list
-             :context-property-drawer-environment
-             "% Create a property drawer style"
-             "\\definetyping[%s]")
-            (list
-             :context-body-environment
-             "% Create a body style"
-             "\\definestartstop[%s]"))))
-     (mapconcat
-      (lambda
-        (args)
-        (let* ((kw (nth 0 args))
-               (comment (nth 1 args))
-               (templ (nth 2 args))
-               (nameimpl (plist-get info kw))
-               (name (car nameimpl))
-               (impl (cdr nameimpl)))
-          (concat
-           comment
-           "\n"
-           (when (org-string-nw-p name) (format templ name))
-           "\n"
-           (when (org-string-nw-p impl) impl))))
-      deflist
-      "\n")))
-         (command-defs (let ((deflist
-           (list
-       (list
-        :context-title-command
-        "% Create an empty title command to be overridden by user")
-       (list
-        :context-title-contents-command
-        "% Create a TOC header command")
-       (list
-        :context-bullet-on-command
-        "% Define on bullet command")
-       (list
-        :context-bullet-off-command
-        "% Define off bullet command")
-       (list
-        :context-bullet-trans-command
-        "% Define incomplete bullet command")
-       (list
-        :context-planning-command
-        "% Define a basic planning command")
-       (list
-        :context-inline-task-command
-        "% Define a basic inline task command")
-       (list
-        :context-headline-command
-        "% Define a basic headline command")
-       (list
-        :context-clock-command
-        "% Define a basic clock command")
-       (list
-        :context-drawer-command
-        "% Define a basic drawer command"))))
-     (mapconcat
-      (lambda (args)
-        (let* ((kw (nth 0 args))
-               (comment (nth 1 args))
-               (nameimpl (plist-get info kw))
-               (impl (cdr nameimpl)))
-          (concat
-           comment
-           "\n"
-           (when (org-string-nw-p impl) impl))))
-      deflist
-      "\n")))
-         (table-defs (mapconcat
-                      'identity
-                      (seq-filter
-                       'identity
-                       (delete-dups
-                        (mapcar
-                         (lambda
-                           (kw)
-                           (let ((style (plist-get info kw)))
-                             (when (org-string-nw-p style) (format "\\setupxtable[%s][]" style))))
-                         (list :context-table-toprow-style
-                               :context-table-bottomrow-style
-                               :context-table-leftcol-style
-                               :context-table-rightcol-style
-                               :context-table-topleft-style
-                               :context-table-topright-style
-                               :context-table-bottomleft-style
-                               :context-table-bottomright-style
-                               :context-table-header-style
-                               :context-table-footer-style
-                               :context-table-header-top-style
-                               :context-table-footer-top-style
-                               :context-table-header-bottom-style
-                               :context-table-footer-bottom-style
-                               :context-table-header-mid-style
-                               :context-table-footer-mid-style
-                               :context-table-body-style
-                               :context-table-rowgroup-start-style
-                               :context-table-rowgroup-end-style
-                               :context-table-colgroup-start-style
-                               :context-table-colgroup-end-style))))
-                      "\n")))
+         (environment-defs
+          (let ((deflist
+                  (list
+                   (list
+                    :context-description-command
+                    "% LaTeX-style descriptive enumerations"
+                    "\\definedescription[%s]")
+                   (list
+                    :context-blockquote-environment
+                    "% blockquote environment"
+                    "\\definestartstop[%s]")
+                   (list
+                    :context-example-environment
+                    "% Create the example environment"
+                    "\\definetyping[%s]")
+                   (list
+                    :context-fixed-environment
+                    "% Create the fixed width environment"
+                    "\\definetyping[%s]")
+                   (list
+                    :context-inline-source-environment
+                    "% Create the inline source environment"
+                    "\\definetyping[%s]")
+                   (list
+                    :context-block-source-environment
+                    "% Create the block source environment"
+                    "\\definetyping[%s]")
+                   (list
+                    :context-titlepage-environment
+                    "% Create the title page style"
+                    "\\definestartstop[%s]")
+                   (list
+                    :context-verse-environment
+                    "% Create a verse style"
+                    "\\definelines[%s]")
+                   (list
+                    :context-property-drawer-environment
+                    "% Create a property drawer style"
+                    "\\definetyping[%s]")
+                   (list
+                    :context-body-environment
+                    "% Create a body style"
+                    "\\definestartstop[%s]"))))
+            (mapconcat
+             (lambda
+               (args)
+               (let* ((kw (nth 0 args))
+                      (comment (nth 1 args))
+                      (templ (nth 2 args))
+                      (nameimpl (plist-get info kw))
+                      (name (car nameimpl))
+                      (impl (cdr nameimpl)))
+                 (concat
+                  comment
+                  "\n"
+                  (when (org-string-nw-p name) (format templ name))
+                  "\n"
+                  (when (org-string-nw-p impl) impl))))
+             deflist
+             "\n")))
+         (command-defs
+          (let ((deflist
+                  (list
+                   (list
+                    :context-title-command
+                    "% Create an empty title command to be overridden by user")
+                   (list
+                    :context-title-contents-command
+                    "% Create a TOC header command")
+                   (list
+                    :context-bullet-on-command
+                    "% Define on bullet command")
+                   (list
+                    :context-bullet-off-command
+                    "% Define off bullet command")
+                   (list
+                    :context-bullet-trans-command
+                    "% Define incomplete bullet command")
+                   (list
+                    :context-planning-command
+                    "% Define a basic planning command")
+                   (list
+                    :context-inline-task-command
+                    "% Define a basic inline task command")
+                   (list
+                    :context-headline-command
+                    "% Define a basic headline command")
+                   (list
+                    :context-clock-command
+                    "% Define a basic clock command")
+                   (list
+                    :context-drawer-command
+                    "% Define a basic drawer command"))))
+            (mapconcat
+             (lambda (args)
+               (let* ((kw (nth 0 args))
+                      (comment (nth 1 args))
+                      (nameimpl (plist-get info kw))
+                      (impl (cdr nameimpl)))
+                 (concat
+                  comment
+                  "\n"
+                  (when (org-string-nw-p impl) impl))))
+             deflist
+             "\n")))
+         (table-defs
+          (mapconcat
+           'identity
+           (seq-filter
+            'identity
+            (delete-dups
+             (mapcar
+              (lambda
+                (kw)
+                (let ((style (plist-get info kw)))
+                  (when (org-string-nw-p style) (format "\\setupxtable[%s][]" style))))
+              (list :context-table-toprow-style
+                    :context-table-bottomrow-style
+                    :context-table-leftcol-style
+                    :context-table-rightcol-style
+                    :context-table-topleft-style
+                    :context-table-topright-style
+                    :context-table-bottomleft-style
+                    :context-table-bottomright-style
+                    :context-table-header-style
+                    :context-table-footer-style
+                    :context-table-header-top-style
+                    :context-table-footer-top-style
+                    :context-table-header-bottom-style
+                    :context-table-footer-bottom-style
+                    :context-table-header-mid-style
+                    :context-table-footer-mid-style
+                    :context-table-body-style
+                    :context-table-rowgroup-start-style
+                    :context-table-rowgroup-end-style
+                    :context-table-colgroup-start-style
+                    :context-table-colgroup-end-style))))
+           "\n"))
+         (vimp (eq (plist-get info :context-syntax-engine) 'vim))
+         (vim-lang-hash (when vimp
+                          (plist-get info :context-languages-used-cache)))
+         ;; TODO Allow user to pick the color in OPTIONS
+         (vim-scheme-name (when vimp
+                            (plist-get info :context-vim-default-colors)))
+         (vim-lang-colors (when vimp
+                            (assoc vim-scheme-name
+                                   (plist-get info :context-vim-colors))))
+         (vim-langs
+          (when vimp
+            (mapconcat
+             (lambda (key)
+               (let* ((lang-info (gethash key vim-lang-hash))
+                      (vim-lang (plist-get lang-info 'vim-lang))
+                      (context-name (plist-get lang-info 'context-name)))
+                 (format "\\definevimtyping[%s]\n  [syntax=%s,\n   alternative=%s]"
+                         context-name vim-lang (car vim-lang-colors))))
+             (hash-table-keys vim-lang-hash)
+             "\n"))))
     (concat
-   (and time-stamp
-        (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
+     (and time-stamp
+          (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
+     (when vimp
+       (concat
+        "\n\\usemodule[vim]\n"
+        (cdr vim-lang-colors)))
    "
 %===============================================================================
 % From CONTEXT_HEADER
@@ -1449,6 +1587,8 @@ holding the export options."
 % Turn on interaction to make links work
 \\setupinteraction[state=start]
 "
+   vim-langs
+   "\n"
    environment-defs
    "\n"
    command-defs
@@ -2092,27 +2232,87 @@ CONTENTS is nil. INFO is a plist holding contextual information."
       "\\textrule"
       info))))
 
+(defun org-context--highlight-src-builtin (src-block info typ)
+  "Wraps a source block in the builtin environment for ConTeXt source
+code. Use this if you don't have Vim.
+
+SRC-BLOCK is the code object to transcode.
+INFO is a plist holding contextual information.
+TYP is one of \"'inline\" or \"'block\""
+  (let ((code (org-string-nw-p (org-element-property :value src-block))))
+    (when code
+      (let* ((org-lang (org-element-property :language src-block))
+             (lang (and
+                    org-lang
+                    (or (cadr (assq (intern org-lang)
+                                    (plist-get info :context-highlighted-langs)))
+                        (downcase org-lang))))
+             (env-name (or
+                        (org-string-nw-p
+                         (car (plist-get info :context-block-source-environment)))
+                        "typing")))
+        (format "\\start%s%s\n%s\\stop%s"
+                env-name
+                (if (org-string-nw-p lang)
+                    (format "[option=%s]" lang)
+                  "")
+                (pcase typ
+                  ('block (org-export-format-code-default src-block info))
+                  ('inline ((org-element-property :value src-block))))
+                env-name)))))
+
+(defun org-context--highlight-src-vim (src-block info typ)
+  "Wraps a source block in a vimtyping environment. This requires you
+have Vim installed and the t-vim module for ConTeXt."
+  (let ((org-lang (org-element-property :language src-block))
+        (code (pcase typ
+                ('block (org-export-format-code-default src-block info))
+                ('inline (org-element-property :value src-block)))))
+    (if (org-string-nw-p org-lang)
+      (let* (;; Add a hash table of language names and vimtyping names
+             (lang-cache
+              (or (plist-get info :context-languages-used-cache)
+                  (let ((hash (make-hash-table :test #'equal)))
+                    (plist-put info :context-languages-used-cache hash)
+                    hash)))
+             ;; Optional namespacing prefix to set org elements apart
+             (lang-info
+              (or (gethash org-lang lang-cache)
+                  (puthash org-lang
+                           (let ((lang-info
+                                  (or
+                                   (cdr
+                                    (assoc org-lang
+                                           (plist-get info :context-vim-langs)))
+                                   (list
+                                    :vim-name (downcase org-lang)
+                                    :context-name (capitalize org-lang)))))
+                             (list
+                              'vim-lang
+                              (plist-get lang-info :vim-name)
+                              'context-name
+                              (concat
+                               (or (org-string-nw-p
+                                    (car (plist-get info :context-block-source-environment)))
+                                   "")
+                               (plist-get lang-info :context-name))
+                              ))
+                           lang-cache)))
+             (context-name (plist-get lang-info 'context-name)))
+        (format "\\start%s\n%s\\stop%s"
+                context-name
+                code
+                context-name))
+      (format "\\starttyping\n%s\\stoptying" code))))
+
 (defun org-context-inline-src-block (inline-src-block _contents info)
   "Transcode an INLINE-SRC-BLOCK element from Org to ConTeXt.
 CONTENTS holds the contents of the item. INFO is a plist holding
 contextual information."
-  (let ((code (org-element-property :value inline-src-block)))
-    (let* ((org-lang (org-element-propery :language inline-src-block))
-           (lang (or (cadr
-                      (assq (intern org-lang)
-                            (plist-get info :context-highlighted-langs)))
-                     (downcase org-lang)))
-           (env-name (or
-                      (org-string-nw-p
-                       (car (plist-get info :context-block-source-environment)))
-                      "typing")))
-      (format "\\start%s%s %s \\stop%s"
-              env-name
-              (if (org-string-nw-p lang)
-                  (format "[option=%s]" lang)
-                "")
-              code
-              env-name))))
+  (let ((engine (plist-get info :context-syntax-engine)))
+    (pcase engine
+      ('vim (org-context--highlight-src-vim inline-src-block info 'inline))
+      (_ (org-context--highlight-src-builtin inline-src-block info 'inline)))))
 
 (defun org-context-inlinetask (inlinetask contents info)
   "Transcode an INLNETASK element from Org to ConTeXt.
@@ -2452,27 +2652,10 @@ contextual information."
   ;; TODO retain labels
   ;; TODO attributes
   ;; TODO float
-  (when (org-string-nw-p (org-element-property :value src-block))
-    (let* ((org-lang (org-element-property :language src-block))
-           (lang (and
-                  org-lang
-                  (or (cadr (assq (intern org-lang)
-                                  (plist-get info :context-highlighted-langs)))
-                      (downcase org-lang))))
-           (env-name (or
-                      (org-string-nw-p
-                       (cdr (plist-get info :context-block-source-environment)))
-                      "typing")))
-      (cond
-       ((not lang) (format "\\start%s\n%s\\stop%s"
-                           env-name
-                           (org-export-format-code-default src-block info)
-                           env-name))
-       (t (format "\\start%s[option=%s]\n%s\\stop%s"
-                  env-name
-                  lang
-                  (org-export-format-code-default src-block info)
-                  env-name))))))
+  (let ((engine (plist-get info :context-syntax-engine)))
+    (pcase engine
+      ('vim (org-context--highlight-src-vim src-block info 'block))
+      (_ (org-context--highlight-src-builtin src-block info 'block)))))
 
 (defun org-context-table (table contents info)
   "Return appropriate ConTeXt code for an Org table.
