@@ -1374,7 +1374,7 @@ holding the export options."
                          (lambda
                            (kw)
                            (let ((style (plist-get info kw)))
-                             (when (org-string-nw-p style) (format "\\definextable[%s]" style))))
+                             (when (org-string-nw-p style) (format "\\setupxtable[%s][]" style))))
                          (list :context-table-toprow-style
                                :context-table-bottomrow-style
                                :context-table-leftcol-style
