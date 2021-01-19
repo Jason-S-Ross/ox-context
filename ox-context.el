@@ -94,7 +94,7 @@
                   (:context-syntax-engine nil "syntax" org-context-syntax-engine)
                   (:context-highlighted-langs nil nil org-context-highlighted-langs)
                   (:context-vim-langs nil nil org-context-vim-langs)
-                  (:context-vim-default-colors nil nil org-context-vim-default-colors)
+                  (:context-vim-color-scheme nil "color-scheme" org-context-vim-color-scheme)
                   (:context-vim-colors nil nil org-context-vim-colors)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
                   (:context-export-quotes-alist nil nil org-context-export-quotes-alist)
@@ -617,16 +617,16 @@ out-of-the-box so this is a short list."
            (string :tag "Vim Language Name")
            (string :tag "ConTeXt Language Name"))))
 
-(defcustom org-context-vim-default-colors
-  "PigMints"
+(defcustom org-context-vim-color-scheme
+  'pigmints
   "The name of the default color scheme to use from `org-context-vim-colors'."
   :group 'org-export-context
   :type 'string)
 
 (defcustom org-context-vim-colors
-  (list (cons "pscolor" "")
-   (cons "PigMints" "% Syntax highlighting based on the Pygments default style
-\\startcolorscheme[PigMints]
+  (list (cons 'pscolor "")
+   (cons 'pigmints "% Syntax highlighting based on the Pygments default style
+\\startcolorscheme[pigmints]
   \\definesyntaxgroup
     [Comment]
     [style=italic,color={x=408080}]
@@ -702,7 +702,7 @@ the scheme."
   :group 'org-export-context
   :type '(repeat
           (cons
-           (string :tag "Scheme Name")
+           (symbol :tag "Scheme Name")
            (string :tag "Scheme Definition"))))
 
 (defcustom org-context-image-default-height ""
@@ -1516,7 +1516,7 @@ holding the export options."
                           (plist-get info :context-languages-used-cache)))
          ;; TODO Allow user to pick the color in OPTIONS
          (vim-scheme-name (when vimp
-                            (plist-get info :context-vim-default-colors)))
+                            (plist-get info :context-vim-color-scheme)))
          (vim-lang-colors (when vimp
                             (assoc vim-scheme-name
                                    (plist-get info :context-vim-colors))))
@@ -1528,7 +1528,7 @@ holding the export options."
                       (vim-lang (plist-get lang-info 'vim-lang))
                       (context-name (plist-get lang-info 'context-name)))
                  (format "\\definevimtyping[%s]\n  [syntax=%s,\n   alternative=%s]"
-                         context-name vim-lang (car vim-lang-colors))))
+                         context-name vim-lang (symbol-name (car vim-lang-colors)))))
              (hash-table-keys vim-lang-hash)
              "\n"))))
     (concat
