@@ -1521,7 +1521,7 @@ holding the export options."
                             (assoc vim-scheme-name
                                    (plist-get info :context-vim-colors))))
          (vim-langs
-          (when vimp
+          (when (and vimp vim-lang-hash)
             (mapconcat
              (lambda (key)
                (let* ((lang-info (gethash key vim-lang-hash))
