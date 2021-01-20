@@ -2032,7 +2032,7 @@ uniform."
   (mapconcat
    (lambda (ref)
      (let ((def (org-export-get-footnote-definition ref info)))
-       (format "\n\\footnotetext[%s]{%s}"
+       (format "\\footnotetext[%s]{%s}%%\n"
 	       (org-trim (org-context--label def info t))
 	       (org-trim (org-export-data def info)))))
    ;; Find every footnote reference in ELEMENT.
@@ -2072,9 +2072,10 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                                        '(footnote-reference
                                          footnote-definition))))
     (concat
-     (format "\\note[%s]\n" reference-label)
+     (format "\\note[%s]" reference-label)
      (when (not insidep)
-       (concat (format "\\footnotetext[%s]{%s}" reference-label contents)
+       (concat "\n"
+               (format "\\footnotetext[%s]{%s}%%\n" reference-label contents)
                (org-context--delayed-footnotes-definitions footnote-definition info))))))
 
 (defun org-context-keyword (keyword _contents info)
