@@ -2021,6 +2021,38 @@ CONTENTS is nil. INFO is a plist holding contextual information."
    :context-fixed-environment
    "typing"))
 
+(defun org-context--delayed-footnotes-definitions (element info)
+  "Return footnotes definitions in ELEMENT as a string.
+
+INFO is a plist used as a communication channel.
+
+Footnotes definitions are returned within \"\\footnotetext{}\"
+commands. This is done to make the handling of footnotes more
+uniform."
+  (mapconcat
+   (lambda (ref)
+     (let ((def (org-export-get-footnote-definition ref info)))
+       (format "\n\\footnotetext[%s]{%s}"
+	       (org-trim (org-context--label def info t))
+	       (org-trim (org-export-data def info)))))
+   ;; Find every footnote reference in ELEMENT.
+   (letrec ((all-refs nil)
+            (search-refs
+             (lambda (data)
+               ;; Return a list of all footnote references never seen
+               ;; before in DATA.
+               (org-element-map data 'footnote-reference
+                 (lambda (ref)
+                   (when (org-export-footnote-first-reference-p ref info)
+                     (push ref all-refs)
+                     (when (eq (org-element-property :type ref) 'standard)
+                       (funcall search-refs
+                                (org-export-get-footnote-definition ref info)))))
+                 info)
+               (reverse all-refs))))
+     (funcall search-refs element))
+   ""))
+
 (defun org-context-footnote-reference (footnote-reference _contents info)
   "Transcode a FOOTNOTE-REFERENCE element from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
@@ -2034,14 +2066,16 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (let* ((label (org-element-property :label footnote-reference))
          (footnote-definition
           (org-export-get-footnote-definition footnote-reference info))
-         (reference-label (org-latex--label footnote-definition info t))
-         (contents (org-trim (org-export-data footnote-definition info))))
-    (cond
-     ;; Footnote has already been defined
-     ((not (org-export-footnote-first-reference-p footnote-reference info))
-      (format "\\note[%s]" reference-label))
-     ;; Otherwise create it
-     (t (format "\\footnote[%s]{%s}" reference-label contents)))))
+         (reference-label (org-context--label footnote-definition info t))
+         (contents (org-trim (org-export-data footnote-definition info)))
+         (insidep (org-element-lineage footnote-reference
+                                       '(footnote-reference
+                                         footnote-definition))))
+    (concat
+     (format "\\note[%s]\n" reference-label)
+     (when (not insidep)
+       (concat (format "\\footnotetext[%s]{%s}" reference-label contents)
+               (org-context--delayed-footnotes-definitions footnote-definition info))))))
 
 (defun org-context-keyword (keyword _contents info)
   "Transcode a KEYWORD element from Org to ConTeXt.
