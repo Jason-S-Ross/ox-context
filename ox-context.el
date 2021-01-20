@@ -147,10 +147,12 @@
                     (paragraph . org-context-paragraph)
                     (plain-list . org-context-plain-list)
                     (plain-text . org-context-plain-text)
+
                     (planning . org-context-planning)
                     (property-drawer . org-context-property-drawer)
                     (quote-block . org-context-quote-block)
                     (radio-target . org-context-radio-target)
+                    (section . org-context-section)
                     (src-block . org-context-src-block)
                     (special-block . org-context-special-block)
                     (strike-through . org-context-strike-through)
@@ -2231,8 +2233,9 @@ INFO is a plist holding contextual information. See
                         (string priority-num)))
          (full-text (funcall (plist-get info :context-format-headline-function)
                              todo todo-type priority text tags info))
-         (headertemplate
-          (format "\\%s" (org-context--get-headline-command numberedp level)))
+         (headline-name (org-context--get-headline-command numberedp level))
+         (headertemplate (format "\n\n\\start%s" headline-name))
+         (footercommand (format "\n\n\\stop%s" headline-name))
          (headline-label (org-context--label headline info t ))
          (headline-args
           (org-context--format-arguments
@@ -2246,7 +2249,8 @@ INFO is a plist holding contextual information. See
      headertemplate
      (format "[%s]" headline-args)
      "\n"
-     contents)))
+     contents
+     footercommand)))
 
 (defun org-context-horizontal-rule (horizontal-rule _contents info)
   "Transcode a HORIZONTAL-RULE object from Org to ConTeXt.
@@ -2674,6 +2678,12 @@ holding contextual information."
             contents
             (and (not caption-above-p) caption)
             (format "\\stop%s" type))))
+
+(defun org-context-section (section contents info)
+  "Transcode a SECTION element from Org to ConTeXt.
+CONTENTS holds the contents of the section.  INFO is a plist
+holding contextual information."
+  contents)
 
 (defun org-context-src-block (src-block _contents info)
   "Transcode a SRC-BLOCK element from Org to LaTeX.
