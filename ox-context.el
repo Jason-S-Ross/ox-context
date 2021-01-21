@@ -1540,13 +1540,15 @@ holding the export options."
                  (format "\\definevimtyping[%s]\n  [syntax=%s]"
                          context-name vim-lang)))
              (hash-table-keys vim-lang-hash)
-             "\n"))))
+             "\n")))
+         (bib-place (plist-get info :context-bib-command)))
     (concat
      (and time-stamp
           (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
      (when vimp "\n\\usemodule[vim]\n")
      "\n"
      unnumbered-headline-commands
+     (when bib-place (format "\n%s\n" bib-place))
    "
 %===============================================================================
 % From CONTEXT_HEADER
@@ -1883,6 +1885,32 @@ Environment is looked up from the info plist."
        contents)
      info)))
 
+(defun org-context--citation-p (object)
+  "Non-nil when OBJECT is a citation."
+  (cl-case (org-element-type object)
+    (link (equal (org-element-property :type object) "cite"))
+    (latex-fragment
+     (string-match "\\`\\\\cite{" (org-element-property :value object)))))
+
+(defun org-context--get-citation-key (citation)
+  "Return key for a given citation, as a string.
+CITATION is a `latex-fragment' or `link' type object satisfying
+to `org-bibtex-citation-p' predicate."
+  (if (eq (org-element-type citation) 'link)
+      (org-element-property :path citation)
+    (let ((value (org-element-property :value citation)))
+      (and (string-match "\\`\\\\cite{" value)
+           (substring value (match-end 0) -1)))))
+
+(defun org-context--get-bib-file (keyword)
+  "Return bibliography file as a string.
+KEYWORD is a \"BIBLIOGRAPHY\" keyword. If no file is found,
+return nil instead."
+  (let ((value (org-element-property :value keyword)))
+    (and value
+         (string-match "\\(\\S-+\\)[ \t]+\\(\\S-+\\)\\(.*\\)" value)
+         (concat (match-string 1 value) ".bib"))))
+
 ;;; Transcode Functions
 
 ;;;; Bold
@@ -2072,7 +2100,12 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                                           (org-context--get-all-headline-commands level))
                                 "")))
             (if localp (format  "\\placecontent[criterium=local,%s]" levelstring)
-              (format  "\\placecontent[%s]" levelstring))))))))))
+              (format  "\\placecontent[%s]" levelstring)))))))
+     ((string= key "BIBLIOGRAPHY")
+      (let ((file (org-context--get-bib-file keyword)))
+        (plist-put info :context-bib-command
+                   (format "\\usebtxdataset[%s]" file))
+        nil)))))
 
 (defun org-context-link (link desc info)
   "Transcode a LINK object from Org to ConTeXt.
@@ -2473,8 +2506,10 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
             (when (plist-get info :context-number-equations)
               "\\placeformula\n")
             (format "\\startformula\n%s\n\\stopformula"
-                    (substring value 2 -2)))
-           )
+                    (substring value 2 -2))))
+          ((org-context--citation-p latex-fragment)
+           (format "\\cite[%s]"
+                   (org-context--get-citation-key latex-fragment)))
           (t value))))
 
 (defun org-context-line-break (_line-break _contents _info)
