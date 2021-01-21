@@ -1513,6 +1513,17 @@ holding the export options."
                     :context-table-colgroup-start-style
                     :context-table-colgroup-end-style))))
            "\n"))
+         (unnumbered-headline-commands
+          (let* ((notoc-headline-cache (plist-get info :context-notoc-headline-cache))
+                 (notoc-headline-keys
+                  (when notoc-headline-cache
+                    (hash-table-keys notoc-headline-cache))))
+            (mapconcat
+             (lambda (key)
+               (let ((val (gethash key notoc-headline-cache)))
+                 (format "\\definehead[%s][%s]" val key)))
+             notoc-headline-keys
+             "\n")))
          (vimp (eq (plist-get info :context-syntax-engine) 'vim))
          (vim-lang-hash (when vimp
                           (plist-get info :context-languages-used-cache)))
@@ -1540,6 +1551,8 @@ holding the export options."
        (concat
         "\n\\usemodule[vim]\n"
         (cdr vim-lang-colors)))
+     "\n"
+     unnumbered-headline-commands
    "
 %===============================================================================
 % From CONTEXT_HEADER
@@ -1569,10 +1582,10 @@ holding the export options."
           [incrementnumber=yes,
             number=no]
 ")
-   (when (and (wholenump with-section-numbers)
-            (/= with-section-numbers 0))
+   (when (and (wholenump headline-levels)
+            (/= headline-levels 0))
      (format "\\setupcombinedlist[content][list={%s}]\n"
-             (org-context--get-all-headline-commands with-section-numbers)))
+             (org-context--get-all-headline-commands headline-levels)))
    "
 %===============================================================================
 % Document Metadata
@@ -2213,13 +2226,14 @@ INFO is a plist holding contextual information. See
 
 (defun org-context-headline (headline contents info)
   "Transcodes a HEADLINE element from Org to ConTeXt."
-  ;; TODO Handle alternate title from `org-export-get-alt-title'
   ;; TODO Handle category from `org-export-get-category'
   ;; TODO Handle node property from `org-export-get-node-property'
-  ;; TODO Handle if headline should be numbered from `org-export-numbered-headline-p'
   (let* ((level (org-export-get-relative-level headline info))
          (numberedp (org-export-numbered-headline-p headline info))
          (text (org-export-data (org-element-property :title headline) info))
+         (alt-title (or (org-export-get-node-property :ALT_TITLE headline) text))
+         ;; TODO Handle description metadata
+         ;; (description (org-export-get-node-property :DESCRIPTION headline))
          (todo
           (and (plist-get info :with-todo-keywords)
                (let ((todo (org-element-property :todo-keyword headline)))
@@ -2233,7 +2247,21 @@ INFO is a plist holding contextual information. See
                         (string priority-num)))
          (full-text (funcall (plist-get info :context-format-headline-function)
                              todo todo-type priority text tags info))
-         (headline-name (org-context--get-headline-command numberedp level))
+         (notoc (org-export-excluded-from-toc-p headline info))
+         (headline-name
+          (let ((hname (org-context--get-headline-command numberedp level)))
+            (if notoc
+                (let* ((notoc-heading-cache
+                        (or (plist-get info :context-notoc-headline-cache)
+                            (let ((hash (make-hash-table :test #'equal)))
+                              (plist-put info :context-notoc-headline-cache hash) hash)))
+                       (notoc-name
+                        (or (gethash hname notoc-heading-cache)
+                            (puthash hname
+                                     (format "%sNoToc" hname)
+                                     notoc-heading-cache))))
+                  notoc-name)
+              hname)))
          (headertemplate (format "\n\n\\start%s" headline-name))
          (footercommand (format "\n\n\\stop%s" headline-name))
          (headline-label (org-context--label headline info t ))
@@ -2241,11 +2269,12 @@ INFO is a plist holding contextual information. See
           (org-context--format-arguments
            (list
             (cons "title" full-text)
-            (cons "list" text)
-            (cons "marking" text)
-            (cons "bookmark" text)))))
+            (cons "list" alt-title)
+            (cons "marking" alt-title)
+            (cons "bookmark" alt-title)))))
+    ;; Use a special heading command to exclude this from the TOC
     (concat
-     (format "\\reference[%s]{%s}\n" headline-label text)
+     (format "\\reference[%s]{%s}\n" headline-label alt-title)
      headertemplate
      (format "[%s]" headline-args)
      "\n"
