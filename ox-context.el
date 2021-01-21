@@ -2737,6 +2737,7 @@ This function assumes TABLE has `org' as its `:type' property and
 
   (let* ((attr (org-export-read-attribute :attr_context table))
          (caption (org-context--caption/label-string table info))
+         (label (org-context--label table info t))
          (location (or (plist-get attr :location) "force,here"))
          (header (or (plist-get attr :header)
                      ;; TODO add `:org-context-header' option
@@ -2758,7 +2759,8 @@ This function assumes TABLE has `org' as its `:type' property and
          (float-args (org-context--format-arguments
                       (list
                        (cons "location" location-string)
-                       (cons "title" caption))))
+                       (cons "title" caption)
+                       (cons "reference" label))))
          (table-args (org-context--format-arguments
                       (list
                        (cons "split" (when split "yes"))
