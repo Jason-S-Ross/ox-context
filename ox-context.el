@@ -400,7 +400,7 @@ If nil, the command isn't created."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-drawer-command (cons "OrgDrawer" "\\def\\OrgDrawer#1#2{#2}")
+(defcustom org-context-drawer-command (cons "OrgDrawer" "\\define[2]\\OrgDrawer{#2}")
   "The name of the command that formats drawers.
 
 If nil, the command isn't created."
