@@ -2262,7 +2262,7 @@ INFO is a plist holding contextual information. See
                                      notoc-heading-cache))))
                   notoc-name)
               hname)))
-         (headertemplate (format "\n\n\\start%s" headline-name))
+         (headertemplate (format "\\start%s" headline-name))
          (footercommand (format "\n\n\\stop%s" headline-name))
          (headline-label (org-context--label headline info t ))
          (headline-args
@@ -2271,13 +2271,14 @@ INFO is a plist holding contextual information. See
             (cons "title" full-text)
             (cons "list" alt-title)
             (cons "marking" alt-title)
-            (cons "bookmark" alt-title)))))
+            (cons "bookmark" alt-title)
+            (cons "reference" headline-label)))))
     ;; Use a special heading command to exclude this from the TOC
     (concat
-     (format "\\reference[%s]{%s}\n" headline-label alt-title)
+     "\n\n"
      headertemplate
      (format "[%s]" headline-args)
-     "\n"
+     "\n\n"
      contents
      footercommand)))
 
