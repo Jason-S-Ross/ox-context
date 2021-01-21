@@ -1873,55 +1873,56 @@ used as a communication channel."
                       (match-string 1 opt))))
          image-code
          options-list)
-    ;; TODO tikz and pdf
-    (when (not (member filetype '("tikz" "pgf")))
-      ;; Add scale, or width and height to options
-      (if (org-string-nw-p scale)
-          ;; TODO check scale format
-          (setq options-list (add-to-list 'options-list (cons "scale" scale)))
-        (when (org-string-nw-p width)
-          (setq options-list (add-to-list 'options-list (cons "maxwidth" width))))
-        (when (org-string-nw-p height)
-          (setq options-list (add-to-list 'options-list (cons "maxheight" height)))))
-      (let ((search-option (org-element-property :search-option link)))
-        ;; TODO
-        )
-      (setq image-code
-            (format "\\externalfigure[%s][%s]"
-                    path
-                    (concat
-                     (when (org-string-nw-p options) (format "%s,\n" options))
-                     (org-context--format-arguments options-list))))
-      (let (env-options
-            location-options)
-        (when (and center (not (plist-member attr :float)))
-          (add-to-list 'location-options "middle"))
-        (pcase float
-          (`wrap (add-to-list
-                  'location-options
-                  (or placement (plist-get info :context-float-default-placement))))
-          (`sideways (progn (add-to-list 'location-options "90")
-                            (add-to-list 'location-options "page")))
-          ;; TODO I don't know if this even works in LaTeX
-          ;;(`multicolumn "orgmulticolumnfigure")
-          ;; TODO What do we do with figure?
-          (_ (when placement (add-to-list 'location-options placement))))
-        ;;(if (not (eq float 'sideways))
-        ;;    (add-to-list 'location-options "here"))
-        (add-to-list 'env-options
-                     (cons "location" (mapconcat 'identity location-options ",")))
-        (add-to-list 'env-options
-                     (cons "reference" label))
-        (when (org-string-nw-p caption)
-          (add-to-list 'env-options (cons "title" caption)))
-        (format
-         "\\startplacefigure[%s]
+    ;; TODO tikz and pgf
+    ;; tikz graphics seem to be more trouble than they're worth.
+    ;; A lot of the markup has to be stripped to get a conversion.
+    ;; TODO Add scale, or width and height to options
+    (if (org-string-nw-p scale)
+        ;; TODO check scale format
+        (setq options-list (add-to-list 'options-list (cons "scale" scale)))
+      (when (org-string-nw-p width)
+        (setq options-list (add-to-list 'options-list (cons "maxwidth" width))))
+      (when (org-string-nw-p height)
+        (setq options-list (add-to-list 'options-list (cons "maxheight" height)))))
+    (let ((search-option (org-element-property :search-option link)))
+      ;; TODO
+      )
+    (setq image-code
+          (format "\\externalfigure[%s][%s]"
+                  path
+                  (concat
+                   (when (org-string-nw-p options) (format "%s,\n" options))
+                   (org-context--format-arguments options-list))))
+    (let (env-options
+          location-options)
+      (when (and center (not (plist-member attr :float)))
+        (add-to-list 'location-options "middle"))
+      (pcase float
+        (`wrap (add-to-list
+                'location-options
+                (or placement (plist-get info :context-float-default-placement))))
+        (`sideways (progn (add-to-list 'location-options "90")
+                          (add-to-list 'location-options "page")))
+        ;; TODO I don't know if this even works in LaTeX
+        ;;(`multicolumn "orgmulticolumnfigure")
+        ;; TODO What do we do with figure?
+        (_ (when placement (add-to-list 'location-options placement))))
+      ;;(if (not (eq float 'sideways))
+      ;;    (add-to-list 'location-options "here"))
+      (add-to-list 'env-options
+                   (cons "location" (mapconcat 'identity location-options ",")))
+      (add-to-list 'env-options
+                   (cons "reference" label))
+      (when (org-string-nw-p caption)
+        (add-to-list 'env-options (cons "title" caption)))
+      (format
+       "\\startplacefigure[%s]
 %s
 \\stopplacefigure"
-         (org-context--format-arguments env-options)
-         ;; TODO include comments
-         ;; TODO allow caption placement
-         image-code)))))
+       (org-context--format-arguments env-options)
+       ;; TODO include comments
+       ;; TODO allow caption placement
+       image-code))))
 
 
 
