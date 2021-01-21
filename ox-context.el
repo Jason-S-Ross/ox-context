@@ -1778,27 +1778,27 @@ Eventually, if FULL is non-nil, wrap label within \"\\label{}\"."
 	   datum))
 	 (label
 	  (and (or user-label force)
-	       (if (and user-label (plist-get info :latex-prefer-user-labels))
-		   user-label
-		 (concat (pcase type
-			   (`headline "sec:")
-			   (`table "tab:")
-			   (`latex-environment
-			    (and (string-match-p
-				  org-latex-math-environments-re
-				  (org-element-property :value datum))
-				 "eq:"))
-			   (`latex-matrices "eq:")
-			   (`paragraph
-			    (and (org-element-property :caption datum)
-				 "fig:"))
-			   (_ nil))
-			 (org-export-get-reference datum info))))))
+	       (concat (pcase type
+                   (`headline "sec:")
+                   (`table "tab:")
+                   (`latex-environment
+                    (and (string-match-p
+                          org-latex-math-environments-re
+                          (org-element-property :value datum))
+                         "eq:"))
+                   (`latex-matrices "eq:")
+                   (`paragraph
+                    (and (org-element-property :caption datum)
+                         "fig:"))
+                   (_ nil))
+                 (org-export-get-reference datum info)))))
     (cond ((not full) label)
-	  (label (format "\\pagereference[%s]%s"
-			 label
-			 (if (eq type 'target) "" "\n")))
-	  (t ""))))
+          (label
+           (format
+            "\\pagereference[%s]%s"
+            label
+            (if (eq type 'target) "" "\n")))
+          (t ""))))
 
 (defun org-context--inline-image (link info)
   "Return the ConTeXt code for an inline image.
@@ -1817,6 +1817,7 @@ used as a communication channel."
          ;; Context takes precedence over latex
          (attr (or attr-context attr-latex))
          (caption (org-context--caption/label-string parent info))
+         (label (org-context--label parent info ))
          (float (let ((float (plist-get attr :float)))
                   (cond ((string= float "wrap") 'wrap)
                         ((string= float "sideways") 'sideways)
@@ -1870,7 +1871,7 @@ used as a communication channel."
                       (match-string 1 opt))))
          image-code
          options-list)
-    ;; We can't handle tikz and pgf so don't even try
+    ;; TODO tikz and pdf
     (when (not (member filetype '("tikz" "pgf")))
       ;; Add scale, or width and height to options
       (if (org-string-nw-p scale)
@@ -1907,6 +1908,8 @@ used as a communication channel."
         ;;    (add-to-list 'location-options "here"))
         (add-to-list 'env-options
                      (cons "location" (mapconcat 'identity location-options ",")))
+        (add-to-list 'env-options
+                     (cons "reference" label))
         (when (org-string-nw-p caption)
           (add-to-list 'env-options (cons "title" caption)))
         (format
@@ -2177,22 +2180,11 @@ INFO is a plist holding contextual information. See
           ;; and the link has no description, display headline's
           ;; number.  Otherwise, display description or headline's
           ;; title.
-          (headline
-           (let ((label (org-context--label destination info t)))
-             (if (and (not desc)
-                      (org-export-numbered-headline-p destination info))
-                 (format "\\about[%s]" label)
-               (format "\\goto{%s}[%s]"
-                       (or desc
-                           (org-export-data
-                            (org-element-property :title destination) info)
-                           label)
-                       label))))
           (otherwise
-           (let ((ref (org-context--label destination info t)))
+           (let ((label (org-context--label destination info t)))
              (if (not desc)
-                 (format "\\about[%s]" ref)
-               (format "\\goto{%s}[%s]" desc ref)))))))
+                 (format "\\goto{\\ref[default][%s]}[%s]" label label)
+               (format "\\goto{%s}[%s]" desc label)))))))
      ;; Coderef: replace link with the reference name or the
      ;; equivalent line number.
      ((string= type "coderef")
