@@ -59,6 +59,7 @@
                   (:context-headline-command nil nil org-context-headline-command)
                   (:context-clock-command nil nil org-context-clock-command)
                   (:context-drawer-command nil nil org-context-drawer-command)
+                  (:context-inline-image-rules nil nil org-context-inline-image-rules)
                   (:context-image-default-scale nil nil org-context-image-default-scale)
                   (:context-image-default-height nil nil org-context-image-default-height)
                   (:context-image-default-width nil nil org-context-image-default-width)
@@ -706,6 +707,20 @@ the scheme."
           (cons
            (symbol :tag "Scheme Name")
            (string :tag "Scheme Definition"))))
+
+(defcustom org-context-inline-image-rules
+  `(("file" . ,(rx "."
+                   (or "pdf" "jpeg" "jpg" "png" "ps" "eps" "tikz" "pgf" "svg")
+                   eos)))
+  "Rules characterizing image files that can be inlined into ConTeXt.
+
+A rule consists in an association whose key is the type of link
+to consider, and value is a regexp that will be matched against
+link's path."
+  :group 'org-export-latex
+  :package-version '(Org . "9.4")
+  :type '(alist :key-type (string :tag "Type")
+                :value-type (regexp :tag "Path")))
 
 (defcustom org-context-image-default-height ""
   "Default height for images."
@@ -2140,7 +2155,7 @@ INFO is a plist holding contextual information. See
          (desc (and (not (string= desc "")) desc))
          (imagep (org-export-inline-image-p
                   link
-                  (plist-get info :latex-inline-image-rules)))
+                  (plist-get info :context-inline-image-rules)))
          (path (org-latex--protect-text
                 (pcase type
                   ((or "http" "https" "ftp" "mailto" "doi")
