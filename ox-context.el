@@ -1024,28 +1024,49 @@ This option can also be set with the SIGNATURE keyword."
     [Operator]
     [color={h=666666}, style=bold]
   \\definesyntaxgroup
-    [Conditional]
+    [Keyword]
     [color={h=008000}, style=bold]
   \\definesyntaxgroup
+    [Conditional]
+    [Keyword]
+  \\definesyntaxgroup
     [Repeat]
-    [color={h=008000}, style=bold]
-  % Don't know
+    [Keyword]
+  \\definesyntaxgroup
+    [Include]
+    [Keyword]
   \\definesyntaxgroup
     [Label]
     [color={h=B00040}, style=bold]
-  \\definesyntaxgroup
-    [Keyword]
-    [color={h=008000}, style=bold]
   \\definesyntaxgroup
     [Function]
     [color={h=0000ff}]
   \\definesyntaxgroup
     [Macro]
-    [color={h=0000ff}]
+    [Function]
   \\definesyntaxgroup
     [String]
     [color={x=BA2121}]
-\\stopcolorscheme"))
+\\stopcolorscheme")
+    ("setup-grid" . "\\setuplayout[grid=yes]")
+    ("setup-letter" . "\\setupletter[
+  fromname={\\documentvariable{metadata:author}},
+  fromaddress={\\documentvariable{letter:fromaddress}},
+  subject={\\documentvariable{metadata:subject}},
+  closing={\\documentvariable{letter:closing}},
+  signature={\\documentvariable{letter:signature}},
+  toname={\\documentvariable{letter:toname}},
+  toaddress={\\documentvariable{letter:toaddress}},
+  attention={\\documentvariable{letter:attention}},
+  opening={\\documentvariable{letter:opening}},
+  fromphone={\\documentvariable{metadata:phonenumber}},
+  fromurl={\\documentvariable{metadata:url}}]
+\\setupletterlayer
+  [topmark,botmark,cutmark]
+  [state=\\documentvariable{letter:foldmarks}]
+\\setupletterlayer
+  [backaddress]
+  [state=\\documentvariable{letter:withbackaddress}]"))
   "Alist of snippet names and associated text. These snippets will be
 inserted into the document preamble when calling `org-context-make-template'.
 These snippets are also available for use in presets.
