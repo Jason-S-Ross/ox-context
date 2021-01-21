@@ -595,7 +595,9 @@ This option can also be set with the FROM_LOGO keyword."
                  (const :tag "Default" default)))
 
 (defcustom org-context-highlighted-langs
-  '((metapost "mp"))
+  '(("metapost" "mp")
+    ("c++" "cpp")
+    ("c#" "cs"))
   "Alist mapping languages to their counterpart in
 ConTeXt. ConTeXt only supports a couple of languages
 out-of-the-box so this is a short list."
@@ -2296,8 +2298,8 @@ TYP is one of \"'inline\" or \"'block\""
       (let* ((org-lang (org-element-property :language src-block))
              (lang (and
                     org-lang
-                    (or (cadr (assq (intern org-lang)
-                                    (plist-get info :context-highlighted-langs)))
+                    (or (cadr (assoc org-lang
+                                     (plist-get info :context-highlighted-langs)))
                         (downcase org-lang))))
              (env-name (or
                         (org-string-nw-p
