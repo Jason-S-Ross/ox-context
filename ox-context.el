@@ -12,10 +12,61 @@
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
 
+;; TODO Set indentation level for content
+;; TODO `org-context--wrap-label' needs to be checked against all environments
+;; TODO explicit document structure commands like frontmatter, backmatter, body etc
+;; This could be implemented with keywords or header properties
+;; TODO abstract?
+;; TODO should this not depend on `ox-latex' or `cl-lib'?
+
 (require 'cl-lib)
-(require 'ox-latex)
-(org-export-define-derived-backend
-    'context 'latex
+(require 'ox)
+(org-export-define-backend 'context
+  '((bold . org-context-bold)
+    (center-block . org-context-center-block)
+    (code . org-context-code)
+    (clock . org-context-clock)
+    (drawer . org-context-drawer)
+    (entity . org-context-entity)
+    (example-block . org-context-example-block)
+    (export-block . org-context-export-block)
+    (fixed-width . org-context-fixed-width)
+    (footnote-reference . org-context-footnote-reference)
+    (headline . org-context-headline)
+    (horizontal-rule . org-context-horizontal-rule)
+    (inline-src-block . org-context-inline-src-block)
+    (inlinetask . org-context-inlinetask)
+    (italic . org-context-italic)
+    (item . org-context-item)
+    (keyword . org-context-keyword)
+    (latex-environment . org-context-latex-environment)
+    (latex-fragment . org-context-latex-fragment)
+    (line-break . org-context-line-break)
+    (link . org-context-link)
+    (paragraph . org-context-paragraph)
+    (plain-list . org-context-plain-list)
+    (plain-text . org-context-plain-text)
+    (planning . org-context-planning)
+    (property-drawer . org-context-property-drawer)
+    (quote-block . org-context-quote-block)
+    (radio-target . org-context-radio-target)
+    (section . org-context-section)
+    (src-block . org-context-src-block)
+    (special-block . org-context-special-block)
+    (strike-through . org-context-strike-through)
+    (subscript . org-context-subscript)
+    (superscript . org-context-superscript)
+    (table . org-context-table)
+    (table-cell . org-context-table-cell)
+    (table-row . org-context-table-row)
+    (target . org-context-target)
+    (template . org-context-template)
+    (timestamp . org-context-timestamp)
+    (underline . org-context-underline)
+    (verbatim . org-context-verbatim)
+    (verse-block . org-context-verse-block)
+    ;;;; Pseudo objects and elements.
+    (latex-math-block . org-context-math-block))
   :menu-entry
   '(?C "Export to ConTeXt"
        ((?c "As ConTeXt file" org-context-export-to-context)
@@ -119,56 +170,7 @@
                   (:with-phone nil "phone" org-context-use-phone)
                   (:with-url nil "url" org-context-use-url)
                   (:with-from-logo nil "from-logo" org-context-use-from-logo)
-                  (:with-place nil "place" org-context-use-place))
- :translate-alist '((bold . org-context-bold)
-                    (center-block . org-context-center-block)
-                    (code . org-context-code)
-                    (clock . org-context-clock)
-                    (drawer . org-context-drawer)
-                    (entity . org-context-entity)
-                    (example-block . org-context-example-block)
-                    (export-block . org-context-export-block)
-                    (fixed-width . org-context-fixed-width)
-                    ;;(footnote-definition . org-context-footnote-definition)
-                    (footnote-reference . org-context-footnote-reference)
-                    (headline . org-context-headline)
-                    (horizontal-rule . org-context-horizontal-rule)
-                    (inline-src-block . org-context-inline-src-block)
-                    (inlinetask . org-context-inlinetask)
-                    (italic . org-context-italic)
-                    (item . org-context-item)
-                    (keyword . org-context-keyword)
-                    (latex-environment . org-context-latex-environment)
-                    (latex-fragment . org-context-latex-fragment)
-                    (line-break . org-context-line-break)
-                    (link . org-context-link)
-                    (paragraph . org-context-paragraph)
-                    (plain-list . org-context-plain-list)
-                    (plain-text . org-context-plain-text)
-
-                    (planning . org-context-planning)
-                    (property-drawer . org-context-property-drawer)
-                    (quote-block . org-context-quote-block)
-                    (radio-target . org-context-radio-target)
-                    (section . org-context-section)
-                    (src-block . org-context-src-block)
-                    (special-block . org-context-special-block)
-                    (strike-through . org-context-strike-through)
-                    (subscript . org-context-subscript)
-                    (superscript . org-context-superscript)
-                    (table . org-context-table)
-                    (table-cell . org-context-table-cell)
-                    (table-row . org-context-table-row)
-                    (target . org-context-target)
-                    (template . org-context-template)
-                    (timestamp . org-context-timestamp)
-                    (underline . org-context-underline)
-                    (verbatim . org-context-verbatim)
-                    (verse-block . org-context-verse-block)
-                    ;;;; Pseudo objects and elements.
-                    (latex-math-block . org-context-math-block)
-                    ;;(latex-matrices . org-context-matrices)
-                    ))
+                  (:with-place nil "place" org-context-use-place)))
 
 
 
@@ -668,6 +670,20 @@ The logfiles will be removed if `org-context-remove-logfiles' is
 non-nil."
   :group 'org-export-context
   :type '(repeat (string :tag "Extension")))
+
+(defconst org-context-latex-math-environments-re
+  (format
+   "\\`[ \t]*\\\\begin{%s\\*?}"
+   (regexp-opt
+    '("equation" "eqnarray" "math" "displaymath"
+      "align"  "gather" "multline" "flalign"  "alignat"
+      "xalignat" "xxalignat"
+      "subequations"
+      ;; breqn
+      "dmath" "dseries" "dgroup" "darray"
+      ;; empheq
+      "empheq")))
+  "Regexp of LaTeX math environments.")
 
 (defcustom org-context-number-equations nil
   "Non-nil means insert a \\placeformula line before all formulas
@@ -1313,7 +1329,7 @@ INFO is a plist used as a communication channel."
     (cons "metadata:keywords" (org-export-data (org-context--wrap-latex-math-block
                                                 (plist-get info :keywords) info)
                                                info))
-    (cons "metadata:description" (org-export-data (org-latex--wrap-latex-math-block
+    (cons "metadata:description" (org-export-data (org-context--wrap-latex-math-block
                                                    (plist-get info :description) info)
                                                   info))
     (cons "metadata:creator" (plist-get info :creator))
@@ -1685,7 +1701,7 @@ See `org-context-format-headline-function' for details."
            (cons "TodoType" todo-type)
            (cons "Priority" priority)
            (cons "Text" text)
-           (cons "Tags" (mapconcat #'org-latex--protect-text tags ":")))))
+           (cons "Tags" (mapconcat #'org-context--protect-text tags ":")))))
       text)))
 
 (defun org-context--format-arguments (arguments)
@@ -1780,7 +1796,7 @@ Eventually, if FULL is non-nil, wrap label within \"\\label{}\"."
                    (`table "tab:")
                    (`latex-environment
                     (and (string-match-p
-                          org-latex-math-environments-re
+                          org-context-latex-math-environments-re
                           (org-element-property :value datum))
                          "eq:"))
                    (`latex-matrices "eq:")
@@ -1910,6 +1926,35 @@ return nil instead."
     (and value
          (string-match "\\(\\S-+\\)[ \t]+\\(\\S-+\\)\\(.*\\)" value)
          (concat (match-string 1 value) ".bib"))))
+
+(defun org-context--protect-text (text)
+  "Protect special characters in string TEXT and return it."
+  (replace-regexp-in-string "[\\{}$%&_#~^]" "\\\\\\&" text))
+
+(defun org-context--environment-type (latex-environment)
+  "Return the TYPE of LATEX-ENVIRONMENT.
+
+The TYPE is determined from the actual latex environment."
+  (let* ((latex-begin-re "\\\\begin{\\([A-Za-z0-9*]+\\)}")
+         (value (org-remove-indentation
+                 (org-element-property :value latex-environment)))
+         (env (or (and (string-match latex-begin-re value)
+                       (match-string 1 value))
+                  "")))
+    (cond
+     ((string-match-p org-context-latex-math-environments-re value) 'math)
+     ((string-match-p
+       (eval-when-compile
+         (regexp-opt '("table" "longtable" "tabular" "tabu" "longtabu")))
+       env)
+      'table)
+     ((string-match-p "figure" env) 'image)
+     ((string-match-p
+       (eval-when-compile
+         (regexp-opt '("lstlisting" "listing" "verbatim" "minted")))
+       env)
+      'src-block)
+     (t 'special-block))))
 
 ;;; Transcode Functions
 
@@ -2119,7 +2164,7 @@ INFO is a plist holding contextual information. See
          (imagep (org-export-inline-image-p
                   link
                   (plist-get info :context-inline-image-rules)))
-         (path (org-latex--protect-text
+         (path (org-context--protect-text
                 (pcase type
                   ((or "http" "https" "ftp" "mailto" "doi")
                    (concat type ":" raw-path))
@@ -2393,7 +2438,7 @@ See `org-context-format-inlinetask-function' for details."
            (cons "TodoType" todo-type)
            (cons "Priority" priority)
            (cons "Title" title)
-           (cons "Tags" (org-make-tag-string (mapcar #'org-latex--protect-text tags)))
+           (cons "Tags" (org-make-tag-string (mapcar #'org-context--protect-text tags)))
            (cons "Contents" contents))))
       (concat title "\\hairline" contents "\\hairline"))))
 
@@ -2466,10 +2511,10 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
              latex-environment))
            (numberedp
             (not (string-match "\\*$" environment-name)))
-           (type (org-latex--environment-type latex-environment))
+           (type (org-context--environment-type latex-environment))
            (caption (if (eq type 'math)
-                        (org-latex--label latex-environment info nil t)
-                      (org-latex--caption/label-string latex-environment info)))
+                        (org-context--label latex-environment info nil t)
+                      (org-context--caption/label-string latex-environment info)))
            (caption-above-p
             (memq type (append (plist-get info :latex-caption-above) '(math)))))
       ;; TODO 'table 'src-block
@@ -2676,12 +2721,11 @@ CONTENTS holds the contents of the block. INFO is a plist
 holding contextual information."
   (let ((type (org-element-property :type special-block))
         (opt (org-export-read-attribute :attr_latex special-block :options))
-        (caption (org-context--caption/label-string special-block info))
-        (caption-above-p (org-latex--caption-above-p special-block info)))
+        (caption (org-context--caption/label-string special-block info)))
     (concat (format "\\start%s[%s]\n" type (or opt ""))
-            (and caption-above-p caption)
             contents
-            (and (not caption-above-p) caption)
+            "\\crlf"
+            caption
             (format "\\stop%s" type))))
 
 (defun org-context-section (section contents info)
@@ -3022,6 +3066,23 @@ contextual information."
    :context-verse-environment
    nil))
 
+(defun org-context--collect-warnings (buffer)
+  "Collect some warnings from \"pdflatex\" command output.
+BUFFER is the buffer containing output.  Return collected
+warnings types as a string, `error' if a ConTeXt error was
+encountered or nil if there was none."
+  (with-current-buffer buffer
+    (save-excursion
+      (goto-char (point-max))
+      (when (re-search-backward "^[ \t]*This is .*?TeX.*?Version" nil t)
+        (if (re-search-forward "^!" nil t) 'error
+          (let ((case-fold-search t)
+                (warnings ""))
+            (dolist (warning org-latex-known-warnings)
+              (when (save-excursion (re-search-forward (car warning) nil t))
+                (setq warnings (concat warnings " " (cdr warning)))))
+            (org-string-nw-p (org-trim warnings))))))))
+
 ;;;###autoload
 (defun org-context-export-as-context
   (&optional async subtreep visible-only body-only ext-plist)
@@ -3156,11 +3217,10 @@ produced."
                        (regexp-quote (file-name-base outfile))
                        (concat "\\(?:\\.[0-9]+\\)?\\."
                                (regexp-opt org-context-logfiles-extensions))
-                       ;; Vim syntax highlighted files have a special pattern
                        "-temp-[[:alnum:]]+-[0-9]+\\.vimout")
                t)))
       ;; LaTeX warnings should be close enough to ConTeXt warnings
-      (let ((warnings (org-latex--collect-warnings log-buf)))
+      (let ((warnings (org-context--collect-warnings log-buf)))
         (message (concat "PDF file produced"
                          (cond
                           ((eq warnings 'error) " with errors.")
