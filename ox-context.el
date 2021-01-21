@@ -586,7 +586,7 @@ This option can also be set with the FROM_LOGO keyword."
   :safe #'stringp)
 
 (defcustom org-context-syntax-engine
-  'vim
+  'default
   "Option for the syntax engine."
   :tag "Default Syntax Engine"
   :group 'org-export-context
