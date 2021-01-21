@@ -3004,7 +3004,8 @@ a communication channel."
   "Transcode a TARGET object from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
-  (format "\\pagereference[%s]" (org-context--label target info)))
+  (format "\\reference[%s]{%s}" (org-context--label target info)
+          (org-export-get-node-property :value target)))
 
 (defun org-context-format-timestamp-default-function (timestamp)
   (let* ((time (org-timestamp-to-time timestamp))
