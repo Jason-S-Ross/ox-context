@@ -95,8 +95,6 @@
                   (:context-syntax-engine nil "syntax" org-context-syntax-engine)
                   (:context-highlighted-langs nil nil org-context-highlighted-langs)
                   (:context-vim-langs nil nil org-context-vim-langs)
-                  (:context-vim-color-scheme nil "color-scheme" org-context-vim-color-scheme)
-                  (:context-vim-colors nil nil org-context-vim-colors)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
                   (:context-export-quotes-alist nil nil org-context-export-quotes-alist)
                   (:description "DESCRIPTION" nil nil parse)
@@ -620,94 +618,6 @@ out-of-the-box so this is a short list."
            (string :tag "Vim Language Name")
            (string :tag "ConTeXt Language Name"))))
 
-(defcustom org-context-vim-color-scheme
-  'pigmints
-  "The name of the default color scheme to use from `org-context-vim-colors'."
-  :group 'org-export-context
-  :type 'string)
-
-(defcustom org-context-vim-colors
-  (list (cons 'pscolor "")
-   (cons 'pigmints "% Syntax highlighting based on the Pygments default style
-\\startcolorscheme[pigmints]
-  \\definesyntaxgroup
-    [Comment]
-    [style=italic,color={x=408080}]
-  \\definesyntaxgroup
-    [Constant]
-    [color={x=008000}]
-  \\definesyntaxgroup
-    [Error]
-    [style=bold,color={x=D2413A}]
-  \\definesyntaxgroup
-     [Ignore]
-  \\definesyntaxgroup
-    [Identifier]
-    []
-  \\definesyntaxgroup
-    [PreProc]
-    [color={x=BC7A00}]
-  \\definesyntaxgroup
-    [Statement]
-    [style=bold,color={x=AA22FF}]
-  % Don't Know
-  \\definesyntaxgroup
-    [Special]
-    [color={h=BA2121}]
-  \\definesyntaxgroup
-    [Todo]
-    [color={h=800000},
-      command=\\vimtodoframed]
-  \\definesyntaxgroup
-    [Type]
-    [color={h=B00040}]
-  \\definesyntaxgroup
-    [Underlined]
-    [color={h=6a5acd},
-      command=\\underbar]
-  \\setups{vim-minor-groups}
-  \\definesyntaxgroup
-    [StorageClass]
-    [color={h=666666}]
-  \\definesyntaxgroup
-    [Number]
-    [color={h=666666}]
-  \\definesyntaxgroup
-    [Operator]
-    [color={h=666666}, style=bold]
-  \\definesyntaxgroup
-    [Conditional]
-    [color={h=008000}, style=bold]
-  \\definesyntaxgroup
-    [Repeat]
-    [color={h=008000}, style=bold]
-  % Don't know
-  \\definesyntaxgroup
-    [Label]
-    [color={h=B00040}, style=bold]
-  \\definesyntaxgroup
-    [Keyword]
-    [color={h=008000}, style=bold]
-  \\definesyntaxgroup
-    [Function]
-    [color={h=0000ff}]
-  \\definesyntaxgroup
-    [Macro]
-    [color={h=0000ff}]
-  \\definesyntaxgroup
-    [String]
-    [color={x=BA2121}]
-\\stopcolorscheme"))
-  "Color Scheme as defined by the t-vim context library.
-Cons of NAME, DEFINITION where NAME is the name of the scheme
-to use and DEFINITION is the code to add to the preamble to define
-the scheme."
-  :group 'org-export-context
-  :type '(repeat
-          (cons
-           (symbol :tag "Scheme Name")
-           (string :tag "Scheme Definition"))))
-
 (defcustom org-context-inline-image-rules
   `(("file" . ,(rx "."
                    (or "pdf" "jpeg" "jpg" "png" "ps" "eps" "tikz" "pgf" "svg")
@@ -824,7 +734,8 @@ This option can also be set with the PLACE keyword."
       "table-article"
       "title-article"
       "sectioning-article"
-      "page-numbering-article"))
+      "page-numbering-article"
+      "colors-pigmints"))
     ("report"
      :preamble
      ("\\setupwhitespace[big]"
@@ -835,7 +746,8 @@ This option can also be set with the PLACE keyword."
       "table-article"
       "title-report"
       "headlines-report"
-      "page-numbering-article"))
+      "page-numbering-article"
+      "colors-pigmints"))
     ("letter"
      :preamble
      ("\\setupwhitespace[big]
@@ -1061,7 +973,77 @@ This option can also be set with the SIGNATURE keyword."
     ;; Title on same page as body
     ("sectioning-article" . "\\setupsectionblock[frontpart][page=no]
 \\setupsectionblock[bodypart][page=no]")
-    ("page-numbering-article" . "\\setuppagenumbering[location=footer,middle]"))
+    ("page-numbering-article" . "\\setuppagenumbering[location=footer,middle]")
+    ("colors-pigmints" . "% Syntax highlighting that may superficially resemble Pygments
+\\startcolorscheme[pscolor]
+  \\definesyntaxgroup
+    [Comment]
+    [style=italic,color={x=408080}]
+  \\definesyntaxgroup
+    [Constant]
+    [color={x=008000}]
+  \\definesyntaxgroup
+    [Error]
+    [style=bold,color={x=D2413A}]
+  \\definesyntaxgroup
+     [Ignore]
+  \\definesyntaxgroup
+    [Identifier]
+    []
+  \\definesyntaxgroup
+    [PreProc]
+    [color={x=BC7A00}]
+  \\definesyntaxgroup
+    [Statement]
+    [style=bold,color={x=AA22FF}]
+  % Don't Know
+  \\definesyntaxgroup
+    [Special]
+    [color={h=BA2121}]
+  \\definesyntaxgroup
+    [Todo]
+    [color={h=800000},
+      command=\\vimtodoframed]
+  \\definesyntaxgroup
+    [Type]
+    [color={h=B00040}]
+  \\definesyntaxgroup
+    [Underlined]
+    [color={h=6a5acd},
+      command=\\underbar]
+  \\setups{vim-minor-groups}
+  \\definesyntaxgroup
+    [StorageClass]
+    [color={h=666666}]
+  \\definesyntaxgroup
+    [Number]
+    [color={h=666666}]
+  \\definesyntaxgroup
+    [Operator]
+    [color={h=666666}, style=bold]
+  \\definesyntaxgroup
+    [Conditional]
+    [color={h=008000}, style=bold]
+  \\definesyntaxgroup
+    [Repeat]
+    [color={h=008000}, style=bold]
+  % Don't know
+  \\definesyntaxgroup
+    [Label]
+    [color={h=B00040}, style=bold]
+  \\definesyntaxgroup
+    [Keyword]
+    [color={h=008000}, style=bold]
+  \\definesyntaxgroup
+    [Function]
+    [color={h=0000ff}]
+  \\definesyntaxgroup
+    [Macro]
+    [color={h=0000ff}]
+  \\definesyntaxgroup
+    [String]
+    [color={x=BA2121}]
+\\stopcolorscheme"))
   "Alist of snippet names and associated text. These snippets will be
 inserted into the document preamble when calling `org-context-make-template'.
 These snippets are also available for use in presets.
@@ -1543,12 +1525,6 @@ holding the export options."
          (vimp (eq (plist-get info :context-syntax-engine) 'vim))
          (vim-lang-hash (when vimp
                           (plist-get info :context-languages-used-cache)))
-         ;; TODO Allow user to pick the color in OPTIONS
-         (vim-scheme-name (when vimp
-                            (plist-get info :context-vim-color-scheme)))
-         (vim-lang-colors (when vimp
-                            (assoc vim-scheme-name
-                                   (plist-get info :context-vim-colors))))
          (vim-langs
           (when (and vimp vim-lang-hash)
             (mapconcat
@@ -1556,17 +1532,14 @@ holding the export options."
                (let* ((lang-info (gethash key vim-lang-hash))
                       (vim-lang (plist-get lang-info 'vim-lang))
                       (context-name (plist-get lang-info 'context-name)))
-                 (format "\\definevimtyping[%s]\n  [syntax=%s,\n   alternative=%s]"
-                         context-name vim-lang (symbol-name (car vim-lang-colors)))))
+                 (format "\\definevimtyping[%s]\n  [syntax=%s]"
+                         context-name vim-lang)))
              (hash-table-keys vim-lang-hash)
              "\n"))))
     (concat
      (and time-stamp
           (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
-     (when vimp
-       (concat
-        "\n\\usemodule[vim]\n"
-        (cdr vim-lang-colors)))
+     (when vimp "\n\\usemodule[vim]\n")
      "\n"
      unnumbered-headline-commands
    "
