@@ -1711,11 +1711,12 @@ given '((\"key1\" . \"val1\") (\"key2\" . \"val2\")) returns
 INFO is the current export state, as a plist.  This function
 should not be used for floats.  See
 `org-context--caption/label-string'."
-  (if (not (and (org-string-nw-p output) (org-element-property :name element)))
-      output
-    (concat (format "\\pagereference[%s]"
-                    (org-context--label element info))
-            output)))
+  (let ((label (org-context--label element info))
+        (name (org-export-get-node-property :name element))
+        (value (org-export-get-node-property :value element)))
+    (if (or name value)
+        (format "\\reference[%s]{%s}\n%s" label (or name value) output)
+      (format "\\reference[%s]{}\n%s" label output))))
 
 (defun org-context--caption/label-string (element info)
   "Return caption and label ConTeXt string for ELEMENT.
