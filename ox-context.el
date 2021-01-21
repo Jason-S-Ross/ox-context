@@ -60,7 +60,6 @@
                   (:context-clock-command nil nil org-context-clock-command)
                   (:context-drawer-command nil nil org-context-drawer-command)
                   (:context-inline-image-rules nil nil org-context-inline-image-rules)
-                  (:context-image-default-scale nil nil org-context-image-default-scale)
                   (:context-image-default-height nil nil org-context-image-default-height)
                   (:context-image-default-width nil nil org-context-image-default-width)
                   (:context-image-default-option nil nil org-context-image-default-option)
@@ -646,15 +645,10 @@ link's path."
   :type 'string
   :safe #'stringp)
 
-(defcustom org-context-image-default-scale ""
-  "Default scale for images.
-Scale overrides width and height."
-  :group 'org-export-context
-  :type 'string
-  :safe #'stringp)
 
-(defcustom org-context-image-default-width ""
+(defcustom org-context-image-default-width "\\dimexpr \\columnwidth - 1em \\relax"
   "Default width for images."
+  ;; TODO This ought to be a ConTeXt command
   :group 'org-export-context
   :type 'string
   :safe #'stringp)
@@ -1817,14 +1811,11 @@ Eventually, if FULL is non-nil, wrap label within \"\\label{}\"."
   "Return the ConTeXt code for an inline image.
 LINK is the link pointing to the inline image. INFO is a plist
 used as a communication channel."
-  ;; TODO handle svg graphics with built-in converter
   (let* ((parent (org-export-get-parent-element link))
          (path (let ((raw-path (org-element-property :path link)))
                  (if (not (file-name-absolute-p raw-path)) raw-path
                    (expand-file-name raw-path))))
          (filetype (file-name-extension path))
-         ;; OK to use the latex function here
-         (caption-above-p (org-latex--caption-above-p link info))
          (attr-latex (org-export-read-attribute :attr_latex parent))
          (attr-context (org-export-read-attribute :attr_context parent))
          ;; Context takes precedence over latex
@@ -1834,92 +1825,47 @@ used as a communication channel."
          (float (let ((float (plist-get attr :float)))
                   (cond ((string= float "wrap") 'wrap)
                         ((string= float "sideways") 'sideways)
-                        ((string= float "multicolumn") 'multicolumn)
-                        ((and (plist-member attr :float) (not float)) 'nonfloat)
-                        ((or float
-                             (org-element-property :caption parent)
-                             (org-string-nw-p (plist-get attr :caption)))
-                         'figure)
-                        (t 'nonfloat))))
-         ;; TODO convert from LaTeX placement options to ConTeXt placement options
-         (placement (plist-get attr-context :placement))
-         (center
-          (cond
-           ;; If this is an image link, do not center
-           ((eq 'link (org-element-type (org-export-get-parent link))) nil)
-           ((plist-member attr :center) (plist-get attr :center))
-           ;; TODO: Do we need an option for this or can we just have it
-           ;; be in CONTEXT_HEADER_EXTRA?
-           (t (plist-get info :latex-images-centered))))
-         ;; TODO: Figure out what this is about
-         (comment-include (if (plist-get attr :comment-include) "%" ""))
-         ;; It is possible to specify the scale or width and height in
-         ;; the ATTR_LATEX line, and also via default variables.
-         (scale (cond ((eq float 'wrap) "")
-                      ((plist-get attr :scale))
-                      ;; TODO: Can we eliminate this option with
-                      ;; CONTEXT_HEADER_EXTRA?
-                      (t (plist-get info :context-image-default-scale))))
-         (width (cond ((org-string-nw-p scale) "")
-                      ((plist-get attr :width))
+                        ((string= float "multicolumn") 'multicolumn))))
+         ;; TODO provide placement options
+         (width (cond ((plist-get attr :width))
                       ((plist-get attr :height) "")
-                      ;; TODO Is this a reasonable size? Shouldn't this
-                      ;; be configurable?
-                      ((eq float 'wrap) "0.48\\textwidth")
-                      ;; TODO Can we eliminate this option with
-                      ;; CONTEXT_HEADER_EXTRA?
+                      ;; TODO Give this some config somehow
+                      ((eq float 'multicolumn) "\\dimexpr\\makeupwidth - 1em\\relax")
+                      ((eq float 'wrap) "0.48\\columnwidth")
                       (t (plist-get info :context-image-default-width))))
-         (height (cond ((org-string-nw-p scale) "")
-                       ((plist-get attr :height))
+         (height (cond ((plist-get attr :height))
                        ((or (plist-get attr :width)
                             (memq float '(figure wrap))) "")
                        ;; TODO Can we eliminate this option with
                        ;; CONTEXT_HEADER_EXTRA?
                        (t (plist-get info :context-image-default-height))))
-         ;; TODO format options compatible with ConTeXt
-         (options (let ((opt (or (plist-get attr :options)
-                                 (plist-get info :context-image-default-option))))
-                    ;; Strip braces
-                    (if (not (string-match "\\`\\[\\(.*\\)\\]\\'" opt)) opt
-                      (match-string 1 opt))))
+         (placement (plist-get attr :placement))
          image-code
          options-list)
     ;; TODO tikz and pgf
     ;; tikz graphics seem to be more trouble than they're worth.
     ;; A lot of the markup has to be stripped to get a conversion.
     ;; TODO Add scale, or width and height to options
-    (if (org-string-nw-p scale)
-        ;; TODO check scale format
-        (setq options-list (add-to-list 'options-list (cons "scale" scale)))
-      (when (org-string-nw-p width)
-        (setq options-list (add-to-list 'options-list (cons "maxwidth" width))))
-      (when (org-string-nw-p height)
-        (setq options-list (add-to-list 'options-list (cons "maxheight" height)))))
-    (let ((search-option (org-element-property :search-option link)))
-      ;; TODO
-      )
+    (when (org-string-nw-p width)
+      (setq options-list (add-to-list 'options-list (cons "width" width))))
+    (when (org-string-nw-p height)
+      (setq options-list (add-to-list 'options-list (cons "height" height))))
     (setq image-code
           (format "\\externalfigure[%s][%s]"
                   path
-                  (concat
-                   (when (org-string-nw-p options) (format "%s,\n" options))
-                   (org-context--format-arguments options-list))))
+                  (org-context--format-arguments options-list)))
     (let (env-options
           location-options)
-      (when (and center (not (plist-member attr :float)))
-        (add-to-list 'location-options "middle"))
       (pcase float
-        (`wrap (add-to-list
-                'location-options
-                (or placement (plist-get info :context-float-default-placement))))
+        (`wrap (progn
+                 (add-to-list
+                  'location-options
+                  (or placement (plist-get info :context-float-default-placement)))
+                 (or placement (add-to-list 'location-options "here"))))
         (`sideways (progn (add-to-list 'location-options "90")
                           (add-to-list 'location-options "page")))
-        ;; TODO I don't know if this even works in LaTeX
-        ;;(`multicolumn "orgmulticolumnfigure")
-        ;; TODO What do we do with figure?
-        (_ (when placement (add-to-list 'location-options placement))))
-      ;;(if (not (eq float 'sideways))
-      ;;    (add-to-list 'location-options "here"))
+        (_ (progn
+             (add-to-list 'location-options (or placement "Here")))))
       (add-to-list 'env-options
                    (cons "location" (mapconcat 'identity location-options ",")))
       (add-to-list 'env-options
