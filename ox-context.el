@@ -1351,6 +1351,7 @@ holding the export options."
   (let* ((time-stamp (plist-get info :time-stamp-file))
          (header-lines (list (plist-get info :context-header)))
          (with-toc (plist-get info :with-toc))
+         (headline-levels (plist-get info :headline-levels))
          (with-section-numbers (plist-get info :section-numbers))
          (metadata (org-context--list-metadata info))
          (header-extra-lines (list (plist-get info :context-header-extra)))
