@@ -956,6 +956,8 @@ This option can also be set with the SIGNATURE keyword."
     ("sectioning-article" . "\\setupsectionblock[frontpart][page=no]
 \\setupsectionblock[bodypart][page=no]")
     ("page-numbering-article" . "\\setuppagenumbering[location=footer,middle]")
+    ;; Syntax highlighting. Note that overriding pscolor overrides
+    ;; the default so no further action is needed
     ("colors-pigmints" . "% Syntax highlighting that may superficially resemble Pygments
 \\startcolorscheme[pscolor]
   \\definesyntaxgroup
