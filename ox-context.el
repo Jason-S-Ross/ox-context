@@ -731,7 +731,8 @@ This option can also be set with the PLACE keyword."
       "title-article"
       "sectioning-article"
       "page-numbering-article"
-      "colors-pigmints"))
+      "colors-pigmints"
+      "setup-grid"))
     ("report"
      :preamble
      ("\\setupwhitespace[big]"
@@ -743,29 +744,14 @@ This option can also be set with the PLACE keyword."
       "title-report"
       "headlines-report"
       "page-numbering-article"
-      "colors-pigmints"))
+      "colors-pigmints"
+      "setup-grid"))
     ("letter"
      :preamble
      ("\\setupwhitespace[big]
-\\usemodule[letter]
-\\setupletter[
-  fromname={\\documentvariable{metadata:author}},
-  fromaddress={\\documentvariable{letter:fromaddress}},
-  subject={\\documentvariable{metadata:subject}},
-  closing={\\documentvariable{letter:closing}},
-  signature={\\documentvariable{letter:signature}},
-  toname={\\documentvariable{letter:toname}},
-  toaddress={\\documentvariable{letter:toaddress}},
-  attention={\\documentvariable{letter:attention}},
-  opening={\\documentvariable{letter:opening}},
-  fromphone={\\documentvariable{metadata:phonenumber}},
-  fromurl={\\documentvariable{metadata:url}}]
-\\setupletterlayer
-  [topmark,botmark,cutmark]
-  [state=\\documentvariable{letter:foldmarks}]
-\\setupletterlayer
-  [backaddress]
-  [state=\\documentvariable{letter:withbackaddress}]")
+\\usemodule[letter]"
+      "setup-letter"
+      "setup-grid")
      :starttext ("\\startletter")
      :stoptext ("\\stopletter")))
   ;; TODO update doc
