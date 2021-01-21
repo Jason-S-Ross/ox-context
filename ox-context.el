@@ -3187,9 +3187,12 @@ produced."
               (directory-files
                (file-name-directory outfile)
                t
-               (concat (regexp-quote (file-name-base outfile))
-                       "\\(?:\\.[0-9]+\\)?\\."
-                       (regexp-opt org-context-logfiles-extensions))
+               (format "%s\\(?:\\(?:%s\\)\\|\\(?:%s\\)\\)"
+                       (regexp-quote (file-name-base outfile))
+                       (concat "\\(?:\\.[0-9]+\\)?\\."
+                               (regexp-opt org-context-logfiles-extensions))
+                       ;; Vim syntax highlighted files have a special pattern
+                       "-temp-[[:alnum:]]+-[0-9]+\\.vimout")
                t)))
       ;; LaTeX warnings should be close enough to ConTeXt warnings
       (let ((warnings (org-latex--collect-warnings log-buf)))
