@@ -105,6 +105,7 @@
                   (:context-bullet-on-command nil nil org-context-bullet-on-command)
                   (:context-bullet-off-command nil nil org-context-bullet-off-command)
                   (:context-bullet-trans-command nil nil org-context-bullet-trans-command)
+                  (:context-caption-listing-environment nil nil org-context-listing-environment)
                   (:context-planning-command nil nil org-context-planning-command)
                   (:context-inline-task-command nil nil org-context-inline-task-command)
                   (:context-headline-command nil nil org-context-headline-command)
@@ -404,6 +405,25 @@ If nil, the command isn't created."
   "The name of the command that formats drawers.
 
 If nil, the command isn't created."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-listing-environment
+  (cons "OrgListing" "\\definehead[OrgListing][subsection]
+\\defineresetset[OrgListingReset][][0]
+\\setuphead[OrgListing]
+          [referenceprefix={Listing},
+            placehead=no,
+            insidesection=\\hairline,
+            sectionsegments=OrgListing,
+            sectionresetset=OrgListingReset,
+            aftersection={\\hairline%
+              \\startalignment[middle]%
+                {\\bold{Listing \\currentsectioncountervalue}%
+                 \\doifnot{\\namedstructurevariable{OrgListing}{title}}{}%
+                 {\\bold{:}~ \\namedstructurevariable{OrgListing}{title}}}%
+              \\stopalignment}]")
+  "Caption command to use if the element to caption doesn't support captions already."
   :group 'org-export-context
   :type '(cons string string))
 
@@ -1486,7 +1506,10 @@ holding the export options."
                     "% Define a basic clock command")
                    (list
                     :context-drawer-command
-                    "% Define a basic drawer command"))))
+                    "% Define a basic drawer command")
+                   (list
+                    :context-caption-listing-environment
+                    "% Define a caption command for other elements"))))
             (mapconcat
              (lambda (args)
                (let* ((kw (nth 0 args))
@@ -2746,10 +2769,31 @@ contextual information."
   ;; TODO retain labels
   ;; TODO attributes
   ;; TODO float
-  (let ((engine (plist-get info :context-syntax-engine)))
-    (pcase engine
-      ('vim (org-context--highlight-src-vim src-block info 'block))
-      (_ (org-context--highlight-src-builtin src-block info 'block)))))
+  (let* ((caption (org-trim
+                 (org-export-data
+                  (or (org-export-get-caption src-block t)
+                      (org-export-get-caption src-block))
+                  info)))
+         (environment
+          (car
+           (plist-get info :context-caption-listing-environment)))
+         (label (org-context--label src-block info t)))
+    (let ((engine (plist-get info :context-syntax-engine))
+          (args (org-context--format-arguments
+                 (list
+                  (cons "location" "force,split")
+                  (cons "title" caption)
+                  (cons "reference" label)))))
+      (concat
+       (format "\\start%s
+  [%s]\n"
+               environment args)
+       "\n"
+       (pcase engine
+         ('vim (org-context--highlight-src-vim src-block info 'block))
+         (_ (org-context--highlight-src-builtin src-block info 'block)))
+       "\n"
+       (format "\\stop%s" environment)))))
 
 (defun org-context-table (table contents info)
   "Return appropriate ConTeXt code for an Org table.
