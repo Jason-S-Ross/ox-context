@@ -29,9 +29,11 @@
     (code . org-context-code)
     (clock . org-context-clock)
     (drawer . org-context-drawer)
+    (dynamic-block . org-context-dynamic-block)
     (entity . org-context-entity)
     (example-block . org-context-example-block)
     (export-block . org-context-export-block)
+    (export-snippet . org-context-export-snippet)
     (fixed-width . org-context-fixed-width)
     (footnote-reference . org-context-footnote-reference)
     (headline . org-context-headline)
@@ -45,6 +47,7 @@
     (latex-fragment . org-context-latex-fragment)
     (line-break . org-context-line-break)
     (link . org-context-link)
+    (node-property . org-context-node-property)
     (paragraph . org-context-paragraph)
     (plain-list . org-context-plain-list)
     (plain-text . org-context-plain-text)
@@ -53,8 +56,9 @@
     (quote-block . org-context-quote-block)
     (radio-target . org-context-radio-target)
     (section . org-context-section)
-    (src-block . org-context-src-block)
     (special-block . org-context-special-block)
+    (src-block . org-context-src-block)
+    (statistics-cookie . org-context-statistics-cookie)
     (strike-through . org-context-strike-through)
     (subscript . org-context-subscript)
     (superscript . org-context-superscript)
@@ -457,8 +461,22 @@ If nil, the command isn't created."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-listing-environment
-  (cons "OrgListing"  "\\definetextbackground
+(defcustom org-context-node-property-command
+  '("OrgNodeProp" . "\\def\\OrgNodeProp#1[#2]{%
+  \\getparameters
+    [OrgNodeProp]
+    [key=,
+     value=,
+     #2]%
+{\\tt \\OrgNodePropkey: \\OrgNodePropvalue}\\crlf}")
+  "The name of the command that formats drawers.
+
+If nil, the command isn't created."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-enumerate-listing-environment
+  '("OrgListing" . "\\definetextbackground
   [OrgListingBackground]
   [frame=on, framecolor=black, backgroundcolor=white, location=paragraph]
 \\defineenumeration
@@ -2174,6 +2192,11 @@ CONTENTS is nil. INFO is a plist holding contextual information."
   (when (member (org-element-property :type export-block) '("CONTEXT" "TEX"))
     (org-remove-indentation (org-element-property :value export-block))))
 
+(defun org-context-export-snippet (export-snippet _contents _info)
+  "Transcode an EXPORT-SNIPPET object from Org to ConTeXt.
+CONTENTS is nil. INFO is a plist holding contextual information."
+  (when (eq (org-export-snippet-backend export-snippet) 'context)
+    (org-element-property :value export-snippet)))
 
 (defun org-context-fixed-width (fixed-width _contents info)
   "Transcode a FIXED-WIDTH element from Org to LaTeX.
@@ -2724,6 +2747,21 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
 CONTENTS is nil.  INFO is a plist holding contextual information."
   "\\crlf\n")
 
+(defun org-context-node-property (node-property _contents info)
+  "Transcode a NODE-PROPERTY element from Org to ConTeXt.
+CONTENTS is nil. INFO is a plist holding contextual information."
+  (let ((command
+         (org-string-nw-p
+          (car
+           (plist-get info :context-node-property-command))))
+        (key (org-element-property :key node-property))
+        (value (org-element-property :value node-property)))
+    (if command
+        (let ((args (org-context--format-arguments
+                     (list (cons "key" key) (cons "value" value)))))
+          (format "\\%s[%s]" command args))
+      (format "%s:%s" key value))))
+
 (defun org-context-paragraph (_paragraph contents info)
   "Transcode a PARAGRAPH element from Org to LaTeX.
 CONTENTS is the contents of the paragraph, as a string.  INFO is
@@ -2939,6 +2977,12 @@ contextual information."
          (_ (org-context--highlight-src-builtin src-block info 'block)))
        "\n"
        (format "\\stop%s" environment)))))
+
+(defun org-context-statistics-cookie (statistics-cookie _contents _info)
+  "Transcode a STATISTICS-COOKIE object from Org to ConTeXt.
+CONTENTS is nil. INFO is a plist holding contextual information."
+  (replace-regexp-in-string
+   "%" "\\%" (org-element-property :value statistics-cookie) nil t))
 
 (defun org-context-table (table contents info)
   "Return appropriate ConTeXt code for an Org table.
