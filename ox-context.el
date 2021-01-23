@@ -344,7 +344,7 @@ ScheduledTime "
      Contents=,
      #2]
   \\blank[big]
-  \\startframedtext[align=normal, location=middle, width=0.6\\textwidth]
+  \\startframedtext[align=normal, location=middle, width=0.6\\hsize]
   \\startalignment[middle]
   \\doifnot{\\OrgInlineTaskTodo}{}{\\sansbold{\\smallcaps{\\OrgInlineTaskTodo}} }%
   \\doifnot{\\OrgInlineTaskPriority}{}{\\inframed{\\OrgInlineTaskPriority} }%
@@ -683,7 +683,7 @@ link's path."
   :safe #'stringp)
 
 
-(defcustom org-context-image-default-width "\\dimexpr \\columnwidth - 1em \\relax"
+(defcustom org-context-image-default-width "\\dimexpr \\hsize - 1em \\relax"
   "Default width for images."
   ;; TODO This ought to be a ConTeXt command
   :group 'org-export-context
@@ -1874,7 +1874,7 @@ used as a communication channel."
                       ((plist-get attr :height) "")
                       ;; TODO Give this some config somehow
                       ((eq float 'multicolumn) "\\dimexpr\\makeupwidth - 1em\\relax")
-                      ((eq float 'wrap) "0.48\\columnwidth")
+                      ((eq float 'wrap) "0.48\\hsize")
                       (t (plist-get info :context-image-default-width))))
          (height (cond ((plist-get attr :height))
                        ((or (plist-get attr :width)
