@@ -2191,7 +2191,29 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                                           (org-context--get-all-headline-commands level))
                                 "")))
             (if localp (format  "\\placecontent[criterium=local,%s]" levelstring)
-              (format  "\\placecontent[%s]" levelstring)))))))
+              (format  "\\placecontent[%s]" levelstring))))
+         ((string-match-p "\\<listings\\>" value)
+          (let ((env
+                 (org-string-nw-p
+                  (car
+                   (plist-get
+                    info
+                    :context-caption-listing-environment)))))
+            (if env
+                (format "\\placelist[%s]" env)
+              "")))
+         ((string-match-p "\\<examples\\>" value)
+          (let ((env
+                 (org-string-nw-p
+                  (car (plist-get info :context-example-environment)))))
+            (if env
+                (format "\\placelist[%s]" env)
+              "")))
+         ((string-match-p "\\<references\\>" value)
+          "\\placelistofpublications")
+         ((string-match-p "\\<index\\>" value)
+          "\\placeindex"))))
+
      ((string= key "BIBLIOGRAPHY")
       (let ((file (org-context--get-bib-file keyword)))
         (plist-put info :context-bib-command
