@@ -20,6 +20,9 @@
 
 (require 'cl-lib)
 (require 'ox)
+(require 'seq)
+(require 'subr-x)
+(require 'context)
 (org-export-define-backend 'context
   '((bold . org-context-bold)
     (center-block . org-context-center-block)
