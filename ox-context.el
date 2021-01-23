@@ -17,7 +17,6 @@
 ;; TODO explicit document structure commands like frontmatter, backmatter, body etc
 ;; This could be implemented with keywords or header properties
 ;; TODO abstract?
-;; TODO should this not depend on `ox-latex' or `cl-lib'?
 
 (require 'cl-lib)
 (require 'ox)
@@ -1921,8 +1920,6 @@ used as a communication channel."
 %s
 \\stopplacefigure"
        (org-context--format-arguments env-options)
-       ;; TODO include comments
-       ;; TODO allow caption placement
        image-code))))
 
 
@@ -2148,10 +2145,6 @@ uniform."
 (defun org-context-footnote-reference (footnote-reference _contents info)
   "Transcode a FOOTNOTE-REFERENCE element from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
-  ;; TODO Handle the case where the first appearance of a footnote
-  ;; is inside of another footnote. This could possibly be solved
-  ;; by using \footnotetext. This could also be a problem with
-  ;; my ConTeXt version
   ;;
   ;; Use `org-export-collect-elements' to collect all
   ;; footnotes in the document
@@ -2555,6 +2548,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
 (defun org-context-latex-environment (latex-environment _contents info)
   "Transcode a LATEX-ENVIRONMENT element from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
+  ;; TODO handle associated metadata
   (when (plist-get info :with-latex)
     (let* ((value (org-remove-indentation
                    (org-element-property :value latex-environment)))
@@ -2772,6 +2766,7 @@ contextual information."
   "Transcode a SPECIAL-BLOCK element from Org to ConTeXt.
 CONTENTS holds the contents of the block. INFO is a plist
 holding contextual information."
+  ;; TODO What is this
   (let ((type (org-element-property :type special-block))
         (opt (org-export-read-attribute :attr_latex special-block :options))
         (caption (org-context--caption/label-string special-block info)))
@@ -2791,14 +2786,10 @@ holding contextual information."
   "Transcode a SRC-BLOCK element from Org to LaTeX.
 CONTENTS holds the contents of the item. INFO is a plist holding
 contextual information."
-  ;; TODO caption
-  ;; TODO caption-above-p
-  ;; TODO label
   ;; TODO custom-environment
   ;; TODO num-start
   ;; TODO retain labels
   ;; TODO attributes
-  ;; TODO float
   (let* ((caption (org-trim
                  (org-export-data
                   (or (org-export-get-caption src-block t)
