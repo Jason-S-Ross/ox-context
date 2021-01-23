@@ -1,4 +1,4 @@
-;; Custom exporter for ConTeXt
+;;; ox-context --- Org exporter for ConTeXt
 ;; Copyright (C) 2021 Jason Ross
 ;; Author: Jason Ross <jasonross1024 at gmail dot com>
 
@@ -3479,3 +3479,4 @@ produced."
     outfile))
 
 (provide 'ox-context)
+;;; ox-context.el ends here
