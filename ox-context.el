@@ -91,25 +91,29 @@
                   (:context-header "CONTEXT_HEADER" nil nil newline)
                   (:context-description-command nil nil org-context-description-command)
                   (:context-blockquote-environment nil nil org-context-blockquote-environment)
+                  (:context-enumerate-blockquote-environment nil nil org-context-enumerate-blockquote-environment)
+                  (:context-enumerate-example-environment nil nil org-context-enumerate-example-environment)
                   (:context-example-environment nil nil org-context-example-environment)
                   (:context-fixed-environment nil nil org-context-fixed-environment)
                   (:context-inline-source-environment nil nil org-context-inline-source-environment)
                   (:context-block-source-environment nil nil org-context-block-source-environment)
                   (:context-titlepage-environment nil nil org-context-titlepage-environment)
                   (:context-verse-environment nil nil org-context-verse-environment)
+                  (:context-enumerate-verse-environment nil nil org-context-enumerate-verse-environment)
                   (:context-property-drawer-environment nil nil org-context-property-drawer-environment)
                   (:context-body-environment nil nil org-context-body-environment)
+                  (:context-enumerate-listing-environment nil nil org-context-enumerate-listing-environment)
                   (:context-title-command nil nil org-context-title-command)
                   (:context-title-contents-command nil nil org-context-title-contents-command)
                   (:context-bullet-on-command nil nil org-context-bullet-on-command)
                   (:context-bullet-off-command nil nil org-context-bullet-off-command)
                   (:context-bullet-trans-command nil nil org-context-bullet-trans-command)
-                  (:context-caption-listing-environment nil nil org-context-listing-environment)
                   (:context-planning-command nil nil org-context-planning-command)
                   (:context-inline-task-command nil nil org-context-inline-task-command)
                   (:context-headline-command nil nil org-context-headline-command)
                   (:context-clock-command nil nil org-context-clock-command)
                   (:context-drawer-command nil nil org-context-drawer-command)
+                  (:context-node-property-command nil nil org-context-node-property-command)
                   (:context-inline-image-rules nil nil org-context-inline-image-rules)
                   (:context-image-default-height nil nil org-context-image-default-height)
                   (:context-image-default-width nil nil org-context-image-default-width)
@@ -193,12 +197,32 @@ If nil, block quotes aren't delimited."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-example-environment
-  '("OrgExample" . "\\definetextbackground
+(defcustom org-context-enumerate-blockquote-environment
+  '("OrgBlockQuoteEnum" . "\\defineenumeration
+  [OrgBlockQuoteEnum]
+  [title=yes,
+   text=Quote]")
+  "The environment name of the example environment.
+
+If nil, examples are not wrapped in an enumeration"
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-example-environment '("OrgExample" . "")
+  "The environment name of the example environment.
+
+Cons list of NAME, DEF. If NAME is nil, examples are delimited
+in a typing environment. If DEF is nil, a default typing environment
+called NAME is created."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-enumerate-example-environment
+  '("OrgExampleEnumeration" . "\\definetextbackground
   [OrgExampleBackground]
   [frame=on, framecolor=black, backgroundcolor=white, location=paragraph]
 \\defineenumeration
-  [OrgExample]
+  [OrgExampleEnumeration]
   [title=yes,
    text=Example,
    headalign=middle,
@@ -250,7 +274,15 @@ If nil, verses aren't delimited."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-property-drawer-environment (cons "OrgPropDrawer" "")
+(defcustom org-context-enumerate-verse-environment '("OrgVerseEnumerate" . "")
+  "The environment name that wraps verses to list them.
+
+If nil, verses aren't enumerated."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-property-drawer-environment
+  '("OrgPropDrawer" . "\\definestartstop[OrgPropDrawer]")
   "The environment name of the property drawer environment.
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
@@ -1428,6 +1460,10 @@ holding the export options."
                     "% blockquote environment"
                     "\\definestartstop[%s]")
                    (list
+                    :context-enumerate-blockquote-environment
+                    "% blockquote environment"
+                    "\\defineenumeration[%s]")
+                   (list
                     :context-fixed-environment
                     "% Create the fixed width environment"
                     "\\definetyping[%s]")
@@ -1448,13 +1484,25 @@ holding the export options."
                     "% Create a verse style"
                     "\\definelines[%s]")
                    (list
-                    :context-property-drawer-environment
-                    "% Create a property drawer style"
-                    "\\definetyping[%s]")
+                    :context-enumerate-verse-environment
+                    "% Create a verse style"
+                    "\\defineenumeration[%s]")
                    (list
                     :context-body-environment
                     "% Create a body style"
-                    "\\definestartstop[%s]"))))
+                    "\\definestartstop[%s]")
+                   (list
+                    :context-enumerate-example-environment
+                    "% Create the example listing environment"
+                    "\\defineenumeration[%s]")
+                   (list
+                    :context-example-environment
+                    "% Create the example environment"
+                    "\\definetyping[%s]")
+                   (list
+                    :context-enumerate-listing-environment
+                    "% Define an environment to wrap listings in"
+                    "\\defineenumeration[%s]"))))
             (mapconcat
              (lambda
                (args)
@@ -1467,9 +1515,7 @@ holding the export options."
                  (concat
                   comment
                   "\n"
-                  (when (org-string-nw-p name) (format templ name))
-                  "\n"
-                  (when (org-string-nw-p impl) impl))))
+                  (or (org-string-nw-p impl) (format templ name)))))
              deflist
              "\n")))
          (command-defs
@@ -1478,9 +1524,6 @@ holding the export options."
                    (list
                     :context-title-command
                     "% Create an empty title command to be overridden by user")
-                   (list
-                    :context-example-environment
-                    "% Create the example environment")
                    (list
                     :context-title-contents-command
                     "% Create a TOC header command")
@@ -1509,8 +1552,11 @@ holding the export options."
                     :context-drawer-command
                     "% Define a basic drawer command")
                    (list
-                    :context-caption-listing-environment
-                    "% Define a caption command for other elements"))))
+                    :context-node-property-command
+                    "% Define a command for node properties in drawers")
+                   (list
+                    :context-property-drawer-environment
+                    "% Create a property drawer style"))))
             (mapconcat
              (lambda (args)
                (let* ((kw (nth 0 args))
@@ -1915,6 +1961,42 @@ used as a communication channel."
        (org-context--format-arguments env-options)
        image-code))))
 
+(defun org-context--enumerated-block (ent contents info env-kw wrap-kw)
+  "Helper function to wrap blocks in the correct environent.
+ENT is the entity to wrap. CONTENTS is the block contents.
+INFO is a plist holding contextual information. ENV-KW is
+the keyword identifying the environment to place the contents
+into (see `options-alist'). WRAP-KW is the keyword identifying
+the wrapper environment to enumerate the contents in (see
+`options-alist')"
+  (let* ((caption
+          (org-trim
+           (org-export-data
+            (or (org-export-get-caption ent t)
+                (org-export-get-caption ent))
+            info)))
+         (enumerate-environment
+          (org-string-nw-p
+           (car
+            (plist-get info wrap-kw))))
+         (environment
+          (org-string-nw-p
+           (car
+            (plist-get info env-kw))))
+         (label (org-context--label ent info t))
+         (args (org-context--format-arguments
+                (list
+                 (cons "title" caption)
+                 (cons "reference" label)))))
+    (concat
+     (if enumerate-environment
+         (format "\\start%s\n  [%s]" enumerate-environment args)
+       (org-context--get-reference ent info))
+     (format "\n\\start%s\n" environment)
+     contents
+     (format "\\stop%s\n" environment)
+     (when enumerate-environment
+       (format "\\stop%s" enumerate-environment)))))
 
 
 (defun org-context--wrap-env (ent contents info env-key default)
@@ -2073,31 +2155,15 @@ CONTENTS are the definition itself. INFO is a plist
 holding contextual information."
   (org-element-property :context entity))
 
-(defun org-context-example-block (example-block _contennts info)
+(defun org-context-example-block (example-block _contents info)
   "Transcode an EXAMPLE-BLOCK element from Org to ConTeXt.
 CONTENTS is nil. INFO is a plist holding contextual information."
-  (when (org-string-nw-p (org-element-property :value example-block))
-    (let* ((caption (org-trim
-                   (org-export-data
-                    (or (org-export-get-caption example-block t)
-                        (org-export-get-caption example-block))
-                    info)))
-         (environment (org-string-nw-p
-          (car
-           (plist-get info :context-example-environment))))
-         (label (org-context--label example-block info t))
-         (args (org-context--format-arguments
-                (list
-                 (cons "title" caption)
-                 (cons "reference" label)))))
-      (concat
-       (when environment
-         (format "\\start%s\n  [%s]" environment args))
-       "\n\\starttyping\n"
-       (org-export-format-code-default example-block info)
-       "\n\\stoptyping\n"
-       (when environment
-         (format "\\stop%s" environment))))))
+  (let ((contents (org-export-format-code-default example-block info)))
+    (when contents
+      (org-context--enumerated-block
+       example-block contents info
+       :context-example-environment
+       :context-enumerate-example-environment))))
 
 (defun org-context-export-block (export-block _contents _info)
   "Transcode a EXPORT-BLOCK element from Org to ConTeXt.
@@ -2782,13 +2848,14 @@ channel."
     (format "\\m{%s}" (org-trim contents))))
 
 (defun org-context-quote-block (quote-block contents info)
-  "Transcodes a QUOTE-BLOCK element from Org to ConTeXt."
-  (org-context--wrap-env
-   quote-block
-   contents
-   info
-   :context-blockquote-environment
-   nil))
+  "Transcodes a QUOTE-BLOCK element from Org to ConTeXt.
+CONTENTS is the contents of the block. INFO is a plist containing
+contextual information."
+  (when (org-string-nw-p contents)
+    (org-context--enumerated-block
+     quote-block contents info
+     :context-blockquote-environment
+     :context-enumerate-blockquote-environment)))
 
 (defun org-context-radio-target (radio-target text info)
   "Transcode a RADIO-TARGET object from Org to ConTeXt.
@@ -2851,7 +2918,7 @@ contextual information."
                   info)))
          (environment
           (car
-           (plist-get info :context-caption-listing-environment)))
+           (plist-get info :context-enumerate-listing-environment)))
          (label (org-context--label src-block info t)))
     (let ((engine (plist-get info :context-syntax-engine))
           (args (org-context--format-arguments
@@ -3183,12 +3250,11 @@ contextual information."
   "Transcode a VERSE-BLOCK element from Org to ConTeXt.
 CONTENTS is verse block contents.  INFO is a plist holding
 contextual information."
-  (org-context--wrap-env
-   verse-block
-   contents
-   info
-   :context-verse-environment
-   nil))
+  (when (org-string-nw-p contents)
+    (org-context--enumerated-block
+     verse-block contents info
+     :context-verse-environment
+     :context-enumerate-verse-environment)))
 
 (defun org-context--collect-warnings (buffer)
   "Collect some warnings from \"pdflatex\" command output.
