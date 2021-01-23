@@ -451,11 +451,11 @@ If nil, the command isn't created."
      I=,
      S=,
      #2]
-\\doifnot{\\OrgClocky}{}{%
-  \\date[year=\\OrgClocky,month=\\OrgClockm,day=\\OrgClockd]
-        [year, --, mm, --, dd]}%
-\\doifnot{\\OrgClockH}{}{T\\OrgClockH:\\OrgClockM%
-\\doifnot{\\OrgClockS}{}{:\\OrgClockS}}
+  \\doifnot{\\OrgClocky}{}{%
+    \\date[year=\\OrgClocky,month=\\OrgClockm,day=\\OrgClockd]
+          [year, --, mm, --, dd]}%
+  \\doifnot{\\OrgClockH}{}{T\\OrgClockH:\\OrgClockM%
+  \\doifnot{\\OrgClockS}{}{:\\OrgClockS}}
 }")
   "The name of the command that formats clocks.
 
