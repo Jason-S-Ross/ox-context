@@ -2891,12 +2891,12 @@ information."
   "Transcode a PROPERTY-DRAWER element from Org to LaTeX.
 CONTENTS holds the contents of the drawer.  INFO is a plist
 holding contextual information."
-  (org-context--wrap-env
-   property-drawer
-   contents
-   info
-   :context-property-drawer-environment
-   "typing"))
+  (when (org-string-nw-p contents)
+    (org-context--wrap-env
+     property-drawer
+     contents
+     info
+     :context-property-drawer-environment)))
 
 (defun org-context-math-block (_math-block contents _info)
   "Transcode a MATH-BLOCK object from Org to ConTeXt.
