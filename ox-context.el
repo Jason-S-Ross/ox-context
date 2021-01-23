@@ -2037,8 +2037,7 @@ the wrapper environment to enumerate the contents in (see
      (when enumerate-environment
        (format "\\stop%s" enumerate-environment)))))
 
-
-(defun org-context--wrap-env (ent contents info env-key default)
+(defun org-context--wrap-env (ent contents info env-key &optional default)
   "Wraps content in an environment with a label.
 ENT is the entity to wrap in an environment.
 CONTENTS is the contents of the entity to wrap.
