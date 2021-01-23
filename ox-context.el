@@ -186,6 +186,7 @@
                   (:with-place nil "place" org-context-use-place)))
 
 
+;; TODO Documentations for these environment defs
 
 (defgroup org-export-context nil
   "Options for exporting to ConTeXt."
@@ -1947,7 +1948,6 @@ used as a communication channel."
                   (cond ((string= float "wrap") 'wrap)
                         ((string= float "sideways") 'sideways)
                         ((string= float "multicolumn") 'multicolumn))))
-         ;; TODO provide placement options
          (width (cond ((plist-get attr :width))
                       ((plist-get attr :height) "")
                       ;; TODO Give this some config somehow
@@ -1957,8 +1957,6 @@ used as a communication channel."
          (height (cond ((plist-get attr :height))
                        ((or (plist-get attr :width)
                             (memq float '(figure wrap))) "")
-                       ;; TODO Can we eliminate this option with
-                       ;; CONTEXT_HEADER_EXTRA?
                        (t (plist-get info :context-image-default-height))))
          (placement (plist-get attr :placement))
          image-code
