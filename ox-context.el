@@ -2574,11 +2574,11 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
          ;; dmath dseries dgroup darray
          ;; empheq
          (concat
-          (when numberedp "\\placeformula\n")
+          (when numberedp (format "\\placeformula[%s]\n" label))
           "\\startformula\n"
           (pcase environment-name
-            ("align" (org-context--transcode-align environment-contents))
-            ("align*" (org-context--transcode-align environment-contents))
+            ((or "align" "align*")
+             (org-context--transcode-align environment-contents))
             (_ environment-contents))
           "\\stopformula"))
         (_ value)))))
