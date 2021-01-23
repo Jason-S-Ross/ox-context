@@ -745,7 +745,6 @@ link's path."
   :type 'string
   :safe #'stringp)
 
-
 (defcustom org-context-image-default-width "\\dimexpr \\hsize - 1em \\relax"
   "Default width for images."
   ;; TODO This ought to be a ConTeXt command
@@ -826,8 +825,6 @@ This option can also be set with the PLACE keyword."
   :group 'org-export-context
   :type 'string)
 
-
-
 (defcustom org-context-presets-alist
   '(("empty"
      :preamble ("")
@@ -885,7 +882,6 @@ This option can also be set with the PLACE keyword."
              (const :tag "Preamble Location" :preamble )
              (const :tag "After \\starttext" :starttext )
              (const :tag "Before \\stoptext" :stoptext ))))))
-
 
 (defcustom org-context-remove-logfiles t
   "Non-nil means remove the logfiles produced by PDF production.
