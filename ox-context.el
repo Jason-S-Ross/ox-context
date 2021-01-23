@@ -86,10 +86,7 @@
                 (org-open-file (org-context-export-to-pdf s v b)))))))
  :filters-alist '((:filter-options . org-context-math-block-options-filter)
                   (:filter-paragraph . org-context-clean-invalid-line-breaks)
-                  (:filter-parse-tree org-context-math-block-tree-filter
-                                      ;;org-context-matrices-tree-filter
-                                      ;; org-context-image-link-filter
-                                      )
+                  (:filter-parse-tree org-context-math-block-tree-filter)
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
  :options-alist '((:context-float-default-placement nil nil org-context-float-default-placement)
                   (:context-format-clock-function nil nil org-context-format-clock-function)
