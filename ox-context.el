@@ -2581,8 +2581,9 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
            (numberedp
             (not (string-match "\\*$" environment-name)))
            (type (org-context--environment-type latex-environment))
+           (label (org-context--label latex-environment info t))
            (caption (if (eq type 'math)
-                        (org-context--label latex-environment info nil t)
+                        label
                       (org-context--caption/label-string latex-environment info)))
            (caption-above-p
             (memq type (append (plist-get info :latex-caption-above) '(math)))))
