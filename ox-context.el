@@ -211,7 +211,7 @@ If nil, block quotes aren't delimited."
    after={\\stoptextbackground}]")
   "The environment name of the example environment.
 
-If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
+If nil, examples are not wrapped in an enumeration"
   :group 'org-export-context
   :type '(cons string string))
 
@@ -329,7 +329,7 @@ ClosedTime
 DeadlineString
 DeadlineTime
 ScheduledString
-ScheduledTime "
+ScheduledTime"
   :group 'org-export-context
   :type '(cons string string))
 
@@ -634,9 +634,9 @@ This option can also be set with the FROM_LOGO keyword."
   '(("metapost" "mp")
     ("c++" "cpp")
     ("c#" "cs"))
-  "Alist mapping languages to their counterpart in
-ConTeXt. ConTeXt only supports a couple of languages
-out-of-the-box so this is a short list."
+  "Alist mapping languages to their counterpart in ConTeXt.
+ConTeXt only supports a couple of languages out-of-the-box
+so this is a short list."
   :group 'org-export-context
   :type '(repeat
           (list
@@ -693,7 +693,7 @@ link's path."
 (defcustom org-context-location ""
   "Sender's extension field, as a string.
 
-This option can also be set with the LOCATION keyword. "
+This option can also be set with the LOCATION keyword."
   :group 'org-export-context
   :type 'string)
 
@@ -721,8 +721,7 @@ non-nil."
   "Regexp of LaTeX math environments.")
 
 (defcustom org-context-number-equations nil
-  "Non-nil means insert a \\placeformula line before all formulas
-to allow numbering."
+  "Non-nil means insert a \\placeformula line before all formulas to allow numbering."
   :group 'org-export-context
   :type 'boolean)
 
@@ -806,7 +805,7 @@ This option can also be set with the PLACE keyword."
      :starttext ("\\startletter")
      :stoptext ("\\stopletter")))
   ;; TODO update doc
-  "Alist of ConTeXt preamble presets. "
+  "Alist of ConTeXt preamble presets."
   :group 'org-export-context
   :type '(repeat
           (cons
@@ -1100,16 +1099,15 @@ This option can also be set with the SIGNATURE keyword."
 \\setupletterlayer
   [backaddress]
   [state=\\documentvariable{letter:withbackaddress}]"))
-  "Alist of snippet names and associated text. These snippets will be
-inserted into the document preamble when calling `org-context-make-template'.
-These snippets are also available for use in presets.
-See also `:context-presets'"
+  "Alist of snippet names and associated text.
+These snippets will be inserted into the document preamble when
+calling `org-context-make-template'. These snippets are also
+available for use in presets. See also `:context-presets'"
   :group 'org-export-context
   :type `(repeat
           (cons
            (string :tag "Snippet Name")
            (string :tag "Snippet Value"))))
-
 
 (defconst org-context-table-leftcol-style "OrgTableLeftCol"
   "The default style name for the left column in tables.")
@@ -1175,7 +1173,7 @@ See also `:context-presets'"
   "The default style name for columns ending column groups in tables.")
 
 (defcustom org-context-table-use-footer ""
-  "If \"repeat\", footer rows will be repeated on all pages. "
+  "If \"repeat\", footer rows will be repeated on all pages."
   :group 'org-export-context
   :type 'string)
 
@@ -1234,7 +1232,7 @@ This option can also be set with the OPTIONS keyword, e.g.:
   "Configure appearance of folding marks.
 
 When t, activate default folding marks.  When nil, do not insert
-folding marks at all. "
+folding marks at all."
   :group 'org-export-context
   :type 'boolean)
 
@@ -1269,37 +1267,26 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :safe #'booleanp)
 
 ;;; Filters
+
 (defun org-context-math-block-options-filter (info _backend)
-  ;; Annotating because I'm a big dummy.
-  ;; Assign to INFO the result of iterating over '(:author :date :title)
+  "Filter math blocks prior to parsing.
+INFO is a plist containing contextual information."
   (dolist (prop '(:author :date :title) info)
-    ;; Dumb comment
-    ;; Info is a plist. Prop is one of :author :date :title
-    ;; For each of those values, set its key in INFO to the results of
-    ;; org-context--wrap-latex-math-block on its old value
     (plist-put info prop
                (org-context--wrap-latex-math-block (plist-get info prop) info))))
 
 (defun org-context-clean-invalid-line-breaks (data _backend _info)
+  "Remove invalid line breaks from raw text.
+DATA is the data to strip."
   (replace-regexp-in-string
    "\\(\\\\stop[A-Za-z0-9*]+\\|^\\)[ \t]*\\\\\\\\[ \t]*$"
    "\\1"
    data))
 
 (defun org-context-math-block-tree-filter (tree _backend info)
+  "Wrap math blocks in TREE prior to parsing.
+INFO is a plist containing contextual information."
   (org-context--wrap-latex-math-block tree info))
-
-;; (defun org-context-matrices-tree-filter (tree _backend info)
-;;   (org-context--wrap-latex-matrices tree info))
-
-;; (defun org-context-image-link-filter (data _backend info)
-;;   (org-export-insert-image-links data info org-context-inline-image-rules))
-
-
-;;;; Pseudo Object: LaTeX Math Block
-
-;; `latex-math-block' objects have the following property:
-;; `:post-blank'.
 
 (defun org-context--wrap-latex-math-block (data info)
   "Merge continuous math objects in a pseudo-object container.
@@ -1387,8 +1374,8 @@ INFO is a plist used as a communication channel."
     (cons "letter:withbackaddress" (if (plist-get info :with-backaddress) "start" "stop"))))
 
 (defun org-context--get-snippet-text (info snippet-names)
-  "Returns snippets given a list of snippet names.
-SNIPPET_NAMES is a list of snippet names to look up.
+  "Return snippets given a list of SNIPPET NAMES.
+SNIPPET-NAMES is a list of snippet names to look up.
 INFO is a plist used as a communication channel."
   (mapcar
    (lambda (snippet-name)
@@ -1725,6 +1712,12 @@ holding the export options."
 (defun org-context-format-headline-default-function
     (todo todo-type priority text tags info)
   "Default format function for a headline.
+TODO is the actual text of the TODO keyword.
+TODO-TYPE is the type of the todo.
+PRIORITY is the priority of the item.
+TEXT is the text of the headline.
+TAGS is a list of tags associated with the headline.
+INFO is a plist containing contextual information.
 See `org-context-format-headline-function' for details."
   (let ((formatter (org-string-nw-p (car (plist-get info :context-headline-command)))))
     (if formatter
@@ -1772,7 +1765,7 @@ should not be used for floats.  See
 INFO is a plist holding contextual information.  If there's no
 caption nor label, return the empty string.
 
-For non-floats, see `org-context--wrap-label'."
+For non-floats, see `org-context--add-reference'."
   ;; TODO This whole function needs a lot of work.
   (let* ((label (org-context--label element info nil t))
 	 (main (org-export-get-caption element))
@@ -1926,6 +1919,12 @@ used as a communication channel."
 
 (defun org-context--wrap-env (ent contents info env-key default)
   "Wraps content in an environment with a label.
+ENT is the entity to wrap in an environment.
+CONTENTS is the contents of the entity to wrap.
+INFO is a plist containing contextual information.
+ENV-KEY is a keyword from `:options-alist'.
+DEFAULT is the default environment if the environment
+in ENV-KEY is not implemented.
 Environment is looked up from the info plist."
   (let* ((prog-env-name (car (plist-get info env-key)))
          (env-name (or (org-string-nw-p prog-env-name) default)))
@@ -2009,7 +2008,9 @@ holding contextual information."
    center-block (format "\\startalignment[middle]\n%s\\stopalignment" contents) info))
 
 (defun org-context-format-clock-default-function (timestamp info)
-  "Formats a timestamp in ConTeXt format"
+  "Format a timestamp in ConTeXt format.
+TIMESTAMP is an Org timestamp. INFO is a plist containing
+contextual information."
   (let* ((time (org-timestamp-to-time timestamp))
          (args
           (list
@@ -2035,11 +2036,15 @@ information."
         (formatter (plist-get info :context-format-clock-function)))
     (funcall formatter timestamp info)))
 
-(defun org-context-code (code contents info)
-  "Transcode CODE from Org to ConTeXt"
+(defun org-context-code (code _contents info)
+  "Transcode CODE from Org to ConTeXt.
+INFO is a plist containing contextual information."
   (org-context--text-markup (org-element-property :value code) 'code info))
 
 (defun org-context-format-drawer-default-function (name contents info)
+  "Format a drawer using the default.
+NAME is the name of the drawer. CONTENTS is the contents of the drawer.
+INFO is a plist containing contextual information."
   (let ((formatter
          (org-string-nw-p
           (car (plist-get info :context-drawer-command)))))
@@ -2100,8 +2105,9 @@ CONTENTS is nil. INFO is a plist holding contextual information."
   (when (member (org-element-property :type export-block) '("CONTEXT" "TEX"))
     (org-remove-indentation (org-element-property :value export-block))))
 
+
 (defun org-context-fixed-width (fixed-width _contents info)
-  "Transcode a FIXED-WDITH element from Org to LaTeX.
+  "Transcode a FIXED-WIDTH element from Org to LaTeX.
 CONTENTS is nil. INFO is a plist holding contextual information."
   (org-context--wrap-env
    fixed-width
@@ -2294,6 +2300,7 @@ INFO is a plist holding contextual information. See
      (t (format "\\hyphenatedurl{%s}" desc)))))
 
 (defun org-context--get-all-headline-commands (max-depth)
+  "Get a concatenated listing of every headline command up to MAX-DEPTH."
   (concat
    (mapconcat
     (lambda (depth)
@@ -2305,13 +2312,17 @@ INFO is a plist holding contextual information. See
     ",")))
 
 (defun org-context--get-headline-command (numberedp level)
-  "Creates a headline name with the correct depth."
+  "Create a headline name with the correct depth.
+If NUMBEREDP, gets a numbered command. LEVEL is the level of headline
+command to get."
   (concat
    (apply 'concat (make-list (+ level (- 1)) "sub"))
    (if numberedp "section" "subject")))
 
 (defun org-context-headline (headline contents info)
-  "Transcodes a HEADLINE element from Org to ConTeXt."
+  "Transcode a HEADLINE element from Org to ConTeXt.
+CONTENTS is the content of the section. INFO is a plist
+containing contextual information."
   ;; TODO Handle category from `org-export-get-category'
   ;; TODO Handle node property from `org-export-get-node-property'
   (let* ((level (org-export-get-relative-level headline info))
@@ -2388,12 +2399,12 @@ CONTENTS is nil. INFO is a plist holding contextual information."
       info))))
 
 (defun org-context--highlight-src-builtin (src-block info typ)
-  "Wraps a source block in the builtin environment for ConTeXt source
-code. Use this if you don't have Vim.
+  "Wraps a source block in the builtin environment for ConTeXt source code.
+Use this if you don't have Vim.
 
 SRC-BLOCK is the code object to transcode.
 INFO is a plist holding contextual information.
-TYP is one of \"'inline\" or \"'block\""
+TYP is one of \"'inline\" or \"'block\"."
   (let ((code (org-string-nw-p (org-element-property :value src-block))))
     (when code
       (let* ((org-lang (org-element-property :language src-block))
@@ -2417,8 +2428,10 @@ TYP is one of \"'inline\" or \"'block\""
                 env-name)))))
 
 (defun org-context--highlight-src-vim (src-block info typ)
-  "Wraps a source block in a vimtyping environment. This requires you
-have Vim installed and the t-vim module for ConTeXt."
+  "Wraps a source block in a vimtyping environment.
+This requires you have Vim installed and the t-vim module for ConTeXt.
+SRC-BLOCK is the entity to wrap. INFO is a plist containing contextual
+information. TYP is a symbol (either 'block or 'inline)"
   (let ((org-lang (org-element-property :language src-block))
         (code (pcase typ
                 ('block (org-export-format-code-default src-block info))
@@ -2470,7 +2483,7 @@ contextual information."
       (_ (org-context--highlight-src-builtin inline-src-block info 'inline)))))
 
 (defun org-context-inlinetask (inlinetask contents info)
-  "Transcode an INLNETASK element from Org to ConTeXt.
+  "Transcode an INLINETASK element from Org to ConTeXt.
 CONTENTS holds the contents of the block. INFO is a plist
 holding contextual information."
   (let* ((title (org-export-data (org-element-property :title inlinetask) info))
@@ -2492,6 +2505,13 @@ holding contextual information."
 (defun org-context-format-inlinetask-default-function
     (todo todo-type priority title tags contents info)
   "Default format function for inlinetasks.
+TODO is the actual text of the TODO keyword.
+TODO-TYPE is the type of the todo.
+PRIORITY is the priority of the item.
+TITLE is the text of the headline.
+TAGS is a list of tags associated with the headline.
+CONTENTS is the contents of the task.
+INFO is a plist containing contextual information.
 See `org-context-format-inlinetask-function' for details."
   (let ((format-command
          (org-string-nw-p (car (plist-get info :context-inline-task-command)))))
@@ -2511,11 +2531,14 @@ See `org-context-format-inlinetask-function' for details."
       (concat title "\\hairline" contents "\\hairline"))))
 
 (defun org-context-italic (_italic contents info)
-  "Transcode ITALIC from Org to ConTeXt"
+  "Transcode CONTENTS from Org to ConTeXt.
+INFO is a plist containing contextual information."
   (org-context--text-markup contents 'italic info))
 
 (defun org-context-item (item contents info)
-  "Transcode and ITEM element from Org to ConTeXt"
+  "Transcode an ITEM element from Org to ConTeXt.
+CONTENTS is the contents of the item. INFO is a plist containing
+contextual information."
   (let ((tag (let ((tag (org-element-property :tag item)))
                (and tag (org-export-data tag info))))
         (checkbox (cl-case (org-element-property :checkbox item)
@@ -2549,7 +2572,7 @@ The TYPE is determined from the actual latex environment."
     env))
 
 (defun org-context--latex-environment-contents (latex-environment)
-  "Returns the CONTENTS of LATEX-ENVIRONMENT."
+  "Return the contents of LATEX-ENVIRONMENT."
   (let* ((latex-env-re "\\\\begin{\\([A-Za-z0-9*]+\\)}\\(\\(?:.*\n\\)*\\)\\\\end{\\1}")
          (value (org-remove-indentation
                  (org-element-property :value latex-environment)))
@@ -2661,8 +2684,11 @@ contextual information."
      info)))
 
 (defun org-context--format-quote (text info original)
-  "Wraps quoted text in `\\quote{}' constructs. ConTeXt provides
-facilities for multilingual quoting so no need to reimplement"
+  "Wraps quoted text in `\\quote{}' constructs.
+ConTeXt provides facilities for multilingual quoting so
+no need to reimplement. TEXT is the text to quote.
+INFO is a plist containing contextual information.
+ORIGINAL is the original unfiltered text."
   (let ((quote-status
          (copy-sequence (org-export--smart-quote-status (or original text) info))))
     (replace-regexp-in-string
@@ -2774,15 +2800,20 @@ contextual information."
           text))
 
 (defun org-context-strike-through (_strike-through contents info)
-  "Transcode STRIKE_THROUGH from Org to ConTeXt"
+  "Transcode STRIKE_THROUGH from Org to ConTeXt.
+CONTENTS is the contents to strike out. INFO is a plist contextual information."
   (org-context--text-markup contents 'strike-through info))
 
 (defun org-context-subscript (_subscript contents info)
-  "Transcode a SUBSCRIPT from Org to ConTeXt"
+  "Transcode a SUBSCRIPT from Org to ConTeXt.
+CONTENTS is the content to subscript. INFO is a plist containing
+contextual information."
   (org-context--text-markup contents 'subscript info))
 
 (defun org-context-superscript (_superscript contents info)
-  "Transcode a SUPERSCRIPT from Org to ConTeXt"
+  "Transcode a SUPERSCRIPT from Org to ConTeXt.
+CONTENTS is the content to subscript. INFO is a plist containing
+contextual information."
   (org-context--text-markup contents 'superscript info))
 
 (defun org-context-special-block (special-block contents info)
@@ -3122,6 +3153,7 @@ information."
           (org-export-get-node-property :value target)))
 
 (defun org-context-format-timestamp-default-function (timestamp)
+  "Transcode a TIMESTAMP from Org to ConTeXt."
   (let* ((time (org-timestamp-to-time timestamp))
          (year (format-time-string "%Y" time))
          (month (format-time-string "%m" time))
@@ -3135,11 +3167,15 @@ information."
   (funcall (plist-get info :context-format-timestamp-function) timestamp))
 
 (defun org-context-underline (_underline contents info)
-  "Transcode UNDERLINE from Org to ConTeXt"
+  "Transcode UNDERLINE from Org to ConTeXt.
+CONTENTS is the content to underline. INFO is a plist containing
+contextual information."
   (org-context--text-markup contents 'underline info))
 
 (defun org-context-verbatim (verbatim _contents info)
-  "Transcode a VERBATIM object from Org to ConTeXt"
+  "Transcode a VERBATIM object from Org to ConTeXt.
+CONTENTS is the content to mark up. INFO is a plist containing
+contextual information."
   (org-context--text-markup
    (org-element-property :value verbatim) 'verbatim info))
 
