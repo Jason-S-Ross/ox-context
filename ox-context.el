@@ -250,7 +250,7 @@ If nil, verses aren't delimited."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-property-drawer-environment (cons "OrgBlkSrc" "")
+(defcustom org-context-property-drawer-environment (cons "OrgPropDrawer" "")
   "The environment name of the property drawer environment.
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
