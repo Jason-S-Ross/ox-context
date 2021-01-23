@@ -2137,7 +2137,7 @@ contextual information."
            (car (plist-get info :context-clock-command)))))
     (if formatter
         (format "\\%s[%s]" formatter (org-context--format-arguments args))
-      format-time-string "%FT%T%z" time)))
+      (format-time-string "%FT%T%z" time))))
 
 (defun org-context-clock (clock _contents info)
   "Transcode a CLOCK element from Org to ConTeXt.
