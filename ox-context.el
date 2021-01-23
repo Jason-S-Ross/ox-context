@@ -13,11 +13,13 @@
 ;; GNU General Public License for more details.
 
 ;; TODO Set indentation level for content
-;; TODO `org-context--wrap-label' needs to be checked against all environments
+;; TODO `org-context--add-reference' needs to be checked against all environments
 ;; TODO explicit document structure commands like frontmatter, backmatter, body etc
 ;; This could be implemented with keywords or header properties
 ;; TODO abstract?
+;;; Commentary:
 
+;;; Code:
 (require 'cl-lib)
 (require 'ox)
 (require 'seq)
@@ -1824,17 +1826,23 @@ given '((\"key1\" . \"val1\") (\"key2\" . \"val2\")) returns
    (seq-filter (lambda (s) (org-string-nw-p (cdr s))) arguments)
    ",\n"))
 
-(defun org-context--wrap-label (element output info)
-  "Wrap label associated to ELEMENT around OUTPUT, if appropriate.
-INFO is the current export state, as a plist.  This function
-should not be used for floats.  See
-`org-context--caption/label-string'."
-  (let ((label (org-context--label element info))
+(defun org-context--add-reference (element contents info)
+  "Add a reference label to CONTENTS.
+INFO is a plist containing contextual information.
+ELEMENT is the entity to add a reference label to."
+  (concat (org-context--get-reference element info)
+          contents))
+
+(defun org-context--get-reference (element info)
+  "Gets a label for ELEMENT.
+INFO is the current export state, as
+a plist."
+  (let ((label (org-context--label element info t))
         (name (org-export-get-node-property :name element))
         (value (org-export-get-node-property :value element)))
     (if (or name value)
-        (format "\\reference[%s]{%s}\n%s" label (or name value) output)
-      (format "\\reference[%s]{}\n%s" label output))))
+        (format "\\reference[%s]{%s}\n" label (or name value))
+      (format "\\reference[%s]{}\n" label))))
 
 (defun org-context--caption/label-string (element info)
   "Return caption and label ConTeXt string for ELEMENT.
@@ -2041,7 +2049,7 @@ in ENV-KEY is not implemented.
 Environment is looked up from the info plist."
   (let* ((prog-env-name (car (plist-get info env-key)))
          (env-name (or (org-string-nw-p prog-env-name) default)))
-    (org-context--wrap-label
+    (org-context--add-reference
      ent
      (if env-name
          (format "\\start%s\n%s\\stop%s" env-name contents env-name)
@@ -2117,7 +2125,7 @@ contextual information."
   "Transcode a CENTER-BLOCK element from Org to ConTeXt.
 CONTENTS holds the contents of the center block.  INFO is a plist
 holding contextual information."
-  (org-context--wrap-label
+  (org-context--add-reference
    center-block (format "\\startalignment[middle]\n%s\\stopalignment" contents) info))
 
 (defun org-context-format-clock-default-function (timestamp info)
@@ -2172,13 +2180,13 @@ holding contextual information."
   (let* ((name (org-element-property :drawer-name drawer))
          (output (funcall (plist-get info :context-format-drawer-function)
                           name contents info)))
-    (org-context--wrap-label drawer output info)))
+    (org-context--add-reference drawer output info)))
 
 (defun org-context-dynamic-block (dynamic-block contents info)
   "Transcode a DYNAMIC-BLOCK element from Org to LaTeX.
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information.  See `org-export-data'."
-  (org-context--wrap-label dynamic-block contents info))
+  (org-context--add-reference dynamic-block contents info))
 
 (defun org-context-entity (entity _contennts info)
   "Transcode an ENTITY object from Org to ConTeXt.
@@ -2495,7 +2503,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
                   (or (not prev-blank) (zerop prev-blank))))
        "\n")
      ;; TODO get width and thickness from attr_latex
-     (org-context--wrap-label
+     (org-context--add-reference
       horizontal-rule
       "\\textrule"
       info))))
@@ -2792,7 +2800,7 @@ contextual information."
           (if (eq type 'descriptive)
               ""
             "\\stopitemize")))
-    (org-context--wrap-label
+    (org-context--add-reference
      plain-list
      (concat
       open-command
