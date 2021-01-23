@@ -194,7 +194,22 @@ If nil, block quotes aren't delimited."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-example-environment (cons "OrgExample" "")
+(defcustom org-context-example-environment
+  '("OrgExample" . "\\definetextbackground
+  [OrgExampleBackground]
+  [frame=on, framecolor=black, backgroundcolor=white, location=paragraph]
+\\defineenumeration
+  [OrgExample]
+  [title=yes,
+   text=Example,
+   headalign=middle,
+   style=\\tfx,
+   titlestyle=\\tf,
+   titleleft={\\bold{:}\\space},
+   titleright=,
+   titledistance=0em,
+   before={\\starttextbackground[OrgExampleBackground]},
+   after={\\stoptextbackground}]")
   "The environment name of the example environment.
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
@@ -409,20 +424,21 @@ If nil, the command isn't created."
   :type '(cons string string))
 
 (defcustom org-context-listing-environment
-  (cons "OrgListing" "\\definehead[OrgListing][subsection]
-\\defineresetset[OrgListingReset][][0]
-\\setuphead[OrgListing]
-          [referenceprefix={Listing},
-            placehead=no,
-            insidesection=\\hairline,
-            sectionsegments=OrgListing,
-            sectionresetset=OrgListingReset,
-            aftersection={\\hairline%
-              \\startalignment[middle]%
-                {\\bold{Listing \\currentsectioncountervalue}%
-                 \\doifnot{\\namedstructurevariable{OrgListing}{title}}{}%
-                 {\\bold{:}~ \\namedstructurevariable{OrgListing}{title}}}%
-              \\stopalignment}]")
+  (cons "OrgListing"  "\\definetextbackground
+  [OrgListingBackground]
+  [frame=on, framecolor=black, backgroundcolor=white, location=paragraph]
+\\defineenumeration
+  [OrgListing]
+  [title=yes,
+   text=Listing,
+   headalign=middle,
+   titlestyle=\\tf,
+   style=\\tfx,
+   titleleft={\\bold{:}\\space},
+   titleright=,
+   titledistance=0em,
+   before={\\starttextbackground[OrgListingBackground]},
+   after={\\stoptextbackground}]")
   "Caption command to use if the element to caption doesn't support captions already."
   :group 'org-export-context
   :type '(cons string string))
@@ -1426,10 +1442,6 @@ holding the export options."
                     "% blockquote environment"
                     "\\definestartstop[%s]")
                    (list
-                    :context-example-environment
-                    "% Create the example environment"
-                    "\\definetyping[%s]")
-                   (list
                     :context-fixed-environment
                     "% Create the fixed width environment"
                     "\\definetyping[%s]")
@@ -1480,6 +1492,9 @@ holding the export options."
                    (list
                     :context-title-command
                     "% Create an empty title command to be overridden by user")
+                   (list
+                    :context-example-environment
+                    "% Create the example environment")
                    (list
                     :context-title-contents-command
                     "% Create a TOC header command")
@@ -2060,12 +2075,27 @@ holding contextual information."
   "Transcode an EXAMPLE-BLOCK element from Org to ConTeXt.
 CONTENTS is nil. INFO is a plist holding contextual information."
   (when (org-string-nw-p (org-element-property :value example-block))
-    (org-context--wrap-env
-     example-block
-     (org-export-format-code-default example-block info)
-     info
-     :context-example-environment
-     "typing")))
+    (let* ((caption (org-trim
+                   (org-export-data
+                    (or (org-export-get-caption example-block t)
+                        (org-export-get-caption example-block))
+                    info)))
+         (environment (org-string-nw-p
+          (car
+           (plist-get info :context-example-environment))))
+         (label (org-context--label example-block info t))
+         (args (org-context--format-arguments
+                (list
+                 (cons "title" caption)
+                 (cons "reference" label)))))
+      (concat
+       (when environment
+         (format "\\start%s\n  [%s]" environment args))
+       "\n\\starttyping\n"
+       (org-export-format-code-default example-block info)
+       "\n\\stoptyping\n"
+       (when environment
+         (format "\\stop%s" environment))))))
 
 (defun org-context-export-block (export-block _contents _info)
   "Transcode a EXPORT-BLOCK element from Org to ConTeXt.
