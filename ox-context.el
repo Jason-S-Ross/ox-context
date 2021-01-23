@@ -2533,7 +2533,7 @@ TYP is one of \"'inline\" or \"'block\"."
                   "")
                 (pcase typ
                   ('block (org-export-format-code-default src-block info))
-                  ('inline ((org-element-property :value src-block))))
+                  ('inline (org-element-property :value src-block)))
                 env-name)))))
 
 (defun org-context--highlight-src-vim (src-block info typ)
