@@ -2288,46 +2288,41 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
      ((string= key "INDEX") (format "\\index{%s}" value))
      ((string= key "TOC")
       (let ((case-fold-search t))
-        (cond
-         ((string-match-p "\\<tables\\>" value) "\\placelistoftables")
-         ((string-match-p "\\<figures\\>" value) "\\placelistoffigures")
-         ((string-match-p "\\<headlines\\>" value)
-          (let* ((localp (string-match-p "\\<local\\>" value))
-                 (parent (org-element-lineage keyword '(headline)))
-                 (depth
-                  (if (string-match "\\<[0-9]+\\>" value)
-                      (string-to-number (match-string 0 value))
-                    0))
-                 (level (+ depth
-                           (if (not (and localp parent)) 0
-                             (org-export-get-relative-level parent info))))
-                 (levelstring (if (> level 0)
-                                  (format "list={%s}"
-                                          (org-context--get-all-headline-commands level))
-                                "")))
-            (if localp (format  "\\placecontent[criterium=local,%s]" levelstring)
-              (format  "\\placecontent[%s]" levelstring))))
-         ((string-match-p "\\<listings\\>" value)
-          (let ((env
-                 (org-string-nw-p
-                  (car
-                   (plist-get
-                    info
-                    :context-caption-listing-environment)))))
-            (if env
-                (format "\\placelist[%s]" env)
-              "")))
-         ((string-match-p "\\<examples\\>" value)
-          (let ((env
-                 (org-string-nw-p
-                  (car (plist-get info :context-example-environment)))))
-            (if env
-                (format "\\placelist[%s]" env)
-              "")))
-         ((string-match-p "\\<references\\>" value)
-          "\\placelistofpublications")
-         ((string-match-p "\\<index\\>" value)
-          "\\placeindex"))))
+        (pcase value
+          ((pred (string-match-p "\\<tables\\>")) "\\placelistoftables")
+          ((pred (string-match-p "\\<figures\\>")) "\\placelistoffigures")
+          ((pred (string-match-p "\\<headlines\\>"))
+           (let* ((localp (string-match-p "\\<local\\>" value))
+                  (parent (org-element-lineage keyword '(headline)))
+                  (depth
+                   (if (string-match "\\<[0-9]+\\>" value)
+                       (string-to-number (match-string 0 value))
+                     0))
+                  (level (+ depth
+                            (if (not (and localp parent)) 0
+                              (org-export-get-relative-level parent info))))
+                  (levelstring (if (> level 0)
+                                   (format "list={%s}"
+                                           (org-context--get-all-headline-commands level))
+                                 "")))
+             (if localp (format  "\\placecontent[criterium=local,%s]" levelstring)
+               (format  "\\placecontent[%s]" levelstring))))
+          ((or
+            (and (pred (string-match-p "\\<listings\\>"))
+                 (let kw :context-enumerate-listing-environment))
+            (and (pred (string-match-p "\\<verses\\>"))
+                 (let kw :context-enumerate-verse-environment))
+            (and (pred (string-match-p "\\<quotes\\>"))
+                 (let kw :context-enumerate-blockquote-environment))
+            (and (pred (string-match-p "\\<examples\\>"))
+                 (let kw :context-enumerate-example-environment))
+            (let kw nil))
+           (let ((env
+                  (org-string-nw-p
+                   (car
+                    (plist-get info kw)))))
+             (if env (format "\\placelist[%s]" env)
+               ""))))))
 
      ((string= key "BIBLIOGRAPHY")
       (let ((file (org-context--get-bib-file keyword)))
