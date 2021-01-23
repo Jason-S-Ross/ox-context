@@ -190,14 +190,14 @@
   :tag "Org ConTeXt"
   :group 'org-export)
 
-(defcustom org-context-description-command (cons "OrgDesc" "")
+(defcustom org-context-description-command '("OrgDesc" . "")
   "The command name to be used for Org description items.
 
 If nil, \"\\description\" is used"
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-blockquote-environment (cons "OrgBlockQuote" "")
+(defcustom org-context-blockquote-environment '("OrgBlockQuote" . "")
   "The environment name of the block quote environment.
 
 If nil, block quotes aren't delimited."
@@ -246,35 +246,35 @@ If nil, examples are not wrapped in an enumeration"
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-fixed-environment (cons "OrgFixed" "")
+(defcustom org-context-fixed-environment '("OrgFixed" . "")
   "The environment name of the fixed-width environment.
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-inline-source-environment (cons "OrgInlineSrc" "")
+(defcustom org-context-inline-source-environment '("OrgInlineSrc" . "")
   "The environment name of the inline source environment.
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-block-source-environment (cons "OrgBlkSrc" "")
+(defcustom org-context-block-source-environment '("OrgBlkSrc" . "")
   "The environment name of the block source environment.
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-titlepage-environment (cons "OrgTitlePage" "")
+(defcustom org-context-titlepage-environment '("OrgTitlePage" . "")
   "The environment name that wraps title pages.
 
 If nil, title pages aren't delimited."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-verse-environment (cons "OrgVerse" "")
+(defcustom org-context-verse-environment '("OrgVerse" . "")
   "The environment name of the verse environment.
 
 If nil, verses aren't delimited."
@@ -292,25 +292,27 @@ If nil, verses aren't enumerated."
   '("OrgPropDrawer" . "\\definestartstop[OrgPropDrawer]")
   "The environment name of the property drawer environment.
 
-If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
+If nil, examples are enclosed in \"\\startframedtext\" / \"\\stopframedtext\""
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-body-environment (cons  "OrgBody" "")
+(defcustom org-context-body-environment '("OrgBody" . "")
   "The environment name that wraps the document body.
 
 If nil, the document body isn't delimited."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-title-command (cons "OrgMakeTitle" "\\define\\OrgMakeTitle{}")
+(defcustom org-context-title-command
+  '("OrgMakeTitle" . "\\define\\OrgMakeTitle{}")
   "The name of the command that creates the document title.
 
 If nil, the document title command isn't created."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-title-contents-command (cons "OrgTitleContents" "\\define\\OrgTitleContents{%
+(defcustom org-context-title-contents-command
+  '("OrgTitleContents" . "\\define\\OrgTitleContents{%
   {\\tfc Contents}
 }")
   "The name of the command that titles the table of contents.
@@ -319,28 +321,32 @@ If nil, the table of contents title command isn't created."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-bullet-on-command (cons "OrgItemOn"  "\\define\\OrgItemOn{\\boxplus}")
+(defcustom org-context-bullet-on-command
+  '("OrgItemOn" . "\\define\\OrgItemOn{\\boxplus}")
   "The name of the command that creates bullets for completed items.
 
 If nil, the command isn't created."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-bullet-off-command (cons "OrgItemOff" "\\define\\OrgItemOff{\\square}")
+(defcustom org-context-bullet-off-command
+  '("OrgItemOff" . "\\define\\OrgItemOff{\\square}")
   "The name of the command that creates bullets for uncompleted items.
 
 If nil, the command isn't created."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-bullet-trans-command (cons "OrgItemTrans" "\\define\\OrgItemTrans{\\boxtimes}")
+(defcustom org-context-bullet-trans-command
+  '("OrgItemTrans" . "\\define\\OrgItemTrans{\\boxtimes}")
   "The name of the command that creates bullets for partially completed items.
 
 If nil, the command isn't created."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-planning-command (cons "OrgPlanning" "\\def\\OrgPlanning#1[#2]{%
+(defcustom org-context-planning-command
+  '("OrgPlanning" . "\\def\\OrgPlanning#1[#2]{%
   \\getparameters
     [OrgPlanning]
     [ClosedString=,
@@ -372,7 +378,8 @@ ScheduledTime"
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-inline-task-command (cons  "OrgInlineTask" "\\def\\OrgInlineTask#1[#2]{%
+(defcustom org-context-inline-task-command
+  '("OrgInlineTask" . "\\def\\OrgInlineTask#1[#2]{%
   \\getparameters
     [OrgInlineTask]
     [Todo=,
@@ -411,7 +418,8 @@ If nil, returns a basic command with only the title and contents"
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-headline-command (cons "OrgHeadline" "\\def\\OrgHeadline#1[#2]{%
+(defcustom org-context-headline-command
+  '("OrgHeadline" . "\\def\\OrgHeadline#1[#2]{%
   \\getparameters
     [OrgHeadline]
     [Todo=,
@@ -431,7 +439,8 @@ If nil, the command isn't created."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-clock-command (cons "OrgClock" "\\def\\OrgClock#1[#2]{%
+(defcustom org-context-clock-command
+  '("OrgClock" . "\\def\\OrgClock#1[#2]{%
   \\getparameters
     [OrgClock]
     [y=,
@@ -454,7 +463,8 @@ If nil, the command isn't created."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-drawer-command (cons "OrgDrawer" "\\define[2]\\OrgDrawer{#2}")
+(defcustom org-context-drawer-command
+  '("OrgDrawer" . "\\define[2]\\OrgDrawer{#2}")
   "The name of the command that formats drawers.
 
 If nil, the command isn't created."
