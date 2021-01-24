@@ -3445,6 +3445,7 @@ file-local settings."
     (org-export-to-file 'context file
       async subtreep visible-only body-only ext-plist)))
 
+;;;###autoload
 (defun org-context-export-to-pdf
   (&optional async subtreep visible-only body-only ext-plist)
   "Export current buffer to ConTeXt then process through to PDF.
