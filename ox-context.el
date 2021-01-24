@@ -2657,6 +2657,7 @@ INFO is a plist containing contextual information."
   "Transcode an ITEM element from Org to ConTeXt.
 CONTENTS is the contents of the item. INFO is a plist containing
 contextual information."
+  ;; TODO Handle alphabetical items where `org-list-allow-alphabetical' is set
   (let ((tag (let ((tag (org-element-property :tag item)))
                (and tag (org-export-data tag info))))
         (checkbox (cl-case (org-element-property :checkbox item)
