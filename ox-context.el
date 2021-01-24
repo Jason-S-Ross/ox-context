@@ -2724,11 +2724,12 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
             (not (string-match "\\*$" environment-name)))
            (type (org-context--environment-type latex-environment))
            (label (org-context--label latex-environment info t))
-           (caption (if (eq type 'math)
-                        label
-                      (org-context--caption/label-string latex-environment info)))
-           (caption-above-p
-            (memq type (append (plist-get info :latex-caption-above) '(math)))))
+           (caption (org-context--caption/label-string latex-environment info))
+           (args (org-context--format-arguments
+                  (list
+                   (cons "title" caption)
+                   (cons "reference" label))))
+           )
       ;; TODO 'table 'src-block
       (pcase type
         ('math
@@ -2739,13 +2740,16 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
          ;; dmath dseries dgroup darray
          ;; empheq
          (concat
-          (when numberedp (format "\\placeformula[%s]\n" label))
+          (when numberedp
+            (format "\\startplaceformula\n  [%s]\n" args))
           "\\startformula\n"
           (pcase environment-name
             ((or "align" "align*")
              (org-context--transcode-align environment-contents))
             (_ environment-contents))
-          "\\stopformula"))
+          "\\stopformula"
+          (when numberedp "\\stopplaceformula"))
+         )
         (_ value)))))
 
 (defun org-context-latex-fragment (latex-fragment _contents info)
