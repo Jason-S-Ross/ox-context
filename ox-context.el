@@ -841,7 +841,6 @@ This option can also be set with the PLACE keyword."
       "title-article"
       "sectioning-article"
       "page-numbering-article"
-      "colors-pigmints"
       "setup-grid"))
     ("report"
      :preamble
@@ -854,7 +853,6 @@ This option can also be set with the PLACE keyword."
       "title-report"
       "headlines-report"
       "page-numbering-article"
-      "colors-pigmints"
       "setup-grid"))
     ("letter"
      :preamble
