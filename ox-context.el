@@ -2302,6 +2302,19 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                ""))))))
 
      ((string= key "BIBLIOGRAPHY")
+      ;; TODO
+      ;;
+      ;; ox-bibtex supports the following syntax
+      ;;
+      ;; bibfilename stylename optional-options
+      ;;
+      ;; Full filepaths are also possible
+      ;;
+      ;; Stylename can be nil in which case no style is used
+      ;;
+      ;; Options are defined in bibtex2html manual
+      ;;
+      ;; limit:t limits to only entries cited in the document
       (let ((file (org-context--get-bib-file keyword)))
         (plist-put info :context-bib-command
                    (format "\\usebtxdataset[%s]" file))
