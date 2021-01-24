@@ -2265,6 +2265,9 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
         (pcase value
           ((pred (string-match-p "\\<tables\\>")) "\\placelistoftables")
           ((pred (string-match-p "\\<figures\\>")) "\\placelistoffigures")
+          ((pred (string-match-p "\\<equations\\>")) "\\placelist[formula]")
+          ((pred (string-match-p "\\<references\\>")) "\\placelistofpublications")
+          ((pred (string-match-p "\\<definitions\\>")) "\\placeindex")
           ((pred (string-match-p "\\<headlines\\>"))
            (let* ((localp (string-match-p "\\<local\\>" value))
                   (parent (org-element-lineage keyword '(headline)))
