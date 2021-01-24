@@ -1646,10 +1646,14 @@ holding the export options."
             (mapconcat
              (lambda (key)
                (let* ((lang-info (gethash key vim-lang-hash))
-                      (vim-lang (plist-get lang-info 'vim-lang))
-                      (context-name (plist-get lang-info 'context-name)))
-                 (format "\\definevimtyping[%s]\n  [syntax=%s]"
-                         context-name vim-lang)))
+                      (vim-lang (plist-get lang-info :vim-lang))
+                      (context-inline-name (plist-get lang-info :context-inline-name))
+                      (context-block-name (plist-get lang-info :context-block-name)))
+                 (concat
+                  (format "\\definevimtyping[%s]\n  [syntax=%s]\n"
+                          context-inline-name vim-lang)
+                  (format "\\definevimtyping[%s]\n  [syntax=%s]"
+                         context-block-name vim-lang))))
              (hash-table-keys vim-lang-hash)
              "\n")))
          (bib-place (plist-get info :context-bib-command)))
@@ -2506,10 +2510,14 @@ TYP is one of \"'inline\" or \"'block\"."
                     (or (cadr (assoc org-lang
                                      (plist-get info :context-highlighted-langs)))
                         (downcase org-lang))))
-             (env-name (or
-                        (org-string-nw-p
-                         (car (plist-get info :context-block-source-environment)))
-                        "typing")))
+             (env-name
+              (or
+               (org-string-nw-p
+                (car
+                 (pcase typ
+                   ('block (plist-get info :context-block-source-environment))
+                   ('inline (plist-get info :context-inline-source-environment)))))
+               "typing")))
         (format "\\start%s%s\n%s\\stop%s"
                 env-name
                 (if (org-string-nw-p lang)
@@ -2549,22 +2557,42 @@ information. TYP is a symbol (either 'block or 'inline)"
                                     :vim-name (downcase org-lang)
                                     :context-name (capitalize org-lang)))))
                              (list
-                              'vim-lang
+                              :vim-lang
                               (plist-get lang-info :vim-name)
-                              'context-name
+                              :context-inline-name
                               (concat
-                               (or (org-string-nw-p
-                                    (car (plist-get info :context-block-source-environment)))
-                                   "")
+                               (or
+                                (org-string-nw-p
+                                 (car
+                                  (plist-get info :context-inline-source-environment)))
+                                "")
                                (plist-get lang-info :context-name))
-                              ))
+                              :context-block-name
+                              (concat
+                               (or
+                                (org-string-nw-p
+                                 (car
+                                  (plist-get info :context-block-source-environment)))
+                                "")
+                               (plist-get lang-info :context-name))))
                            lang-cache)))
-             (context-name (plist-get lang-info 'context-name)))
-        (format "\\start%s\n%s\\stop%s"
-                context-name
-                code
-                context-name))
-      (format "\\starttyping\n%s\\stoptying" code))))
+             (context-name
+              (plist-get
+               lang-info
+               (pcase typ
+                 ('inline :context-inline-name)
+                 ('block :context-block-name)))))
+        (pcase typ
+          ('block (format "\\start%s\n%s\\stop%s"
+                          context-name
+                          code
+                          context-name))
+          ('inline (format "\\inline%s{%s}" context-name code))
+          (_ "")))
+      (pcase typ
+        ('block (format "\\starttyping\n%s\\stoptying" code))
+        ('inline (format "\\type{%s}" code))
+        (_ "")))))
 
 (defun org-context-inline-src-block (inline-src-block _contents info)
   "Transcode an INLINE-SRC-BLOCK element from Org to ConTeXt.
