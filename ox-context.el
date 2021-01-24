@@ -2974,9 +2974,41 @@ holding contextual information."
   "Transcode a SRC-BLOCK element from Org to LaTeX.
 CONTENTS holds the contents of the item. INFO is a plist holding
 contextual information."
-  ;; TODO custom-environment
-  ;; TODO num-start
-  ;; TODO retain labels
+  ;; TODO Implement `-n/+n' switch:
+  ;;
+  ;; From the manual:
+  ;;
+  ;; you can add a ‘-n’ switch to
+  ;; the end of the ‘#+BEGIN’ line, to get the lines of the example numbered.
+  ;; The ‘-n’ takes an optional numeric argument specifying the starting line
+  ;; number of the block. If you use a ‘+n’ switch, the numbering from the
+  ;; previous numbered snippet is continued in the current one.
+  ;;
+  ;; TODO Implement `-r' switch: From the manual:
+  ;;
+  ;; Org interprets strings like ‘(ref:name)’ as labels, and use them as targets
+  ;; for special hyperlinks like ‘[[(name)]]’—i.e., the reference name enclosed
+  ;; in single parenthesis. You can also add a ‘-r’ switch which removes the
+  ;; labels from the source code116. With the ‘-n’ switch, links to these
+  ;; references are labeled by the line numbers from the code listing.
+  ;;
+  ;; TODO Implement `-i' switch: From the manual:
+  ;;
+  ;; Source code and examples may be indented in order to align nicely with the
+  ;; surrounding text, and in particular with plain list structure (see Plain
+  ;; Lists). By default, Org only retains the relative indentation between
+  ;; lines, e.g., when exporting the contents of the block. However, you can use
+  ;; the ‘-i’ switch to also preserve the global indentation, if it does matter.
+  ;;
+  ;; TODO Implement `-l' switch: From the manual:
+  ;;
+  ;; If the syntax for the label format conflicts with the language syntax, use
+  ;; a ‘-l’ switch to change the format, for example
+  ;;
+  ;; #+BEGIN_SRC pascal -n -r -l "((%s))"
+  ;;
+  ;; See also the variable org-coderef-label-format.
+  ;;
   ;; TODO attributes
   (let* ((caption (org-trim
                  (org-export-data
