@@ -2319,7 +2319,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
   (concat
    "\\startalign\n\\NC "
    (replace-regexp-in-string
-    "\\\\\\\\" "\\\\NR[x]\n\\\\NC "
+    "\\\\\\\\" "\\\\NR[+]\n\\\\NC "
     (replace-regexp-in-string "[^\\]&" " \\\\NC " align-environment))
    "\\stopalign\n"))
 
