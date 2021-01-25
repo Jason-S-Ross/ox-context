@@ -302,7 +302,8 @@ If nil, the document body isn't delimited."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-example-environment '("OrgExample" . "")
+(defcustom org-context-example-environment
+  '("OrgExample" . "\\definetyping[OrgExample][escape=yes]")
   "The environment name of the example environment.
 
 Cons list of NAME, DEF. If NAME is nil, examples are delimited
@@ -333,7 +334,8 @@ If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-block-source-environment '("OrgBlkSrc" . "")
+(defcustom org-context-block-source-environment
+  '("OrgBlkSrc" . "\\definetyping[OrgBlkSrc][escape=yes]")
   "The environment name of the block source environment.
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
@@ -1396,14 +1398,16 @@ For non-floats, see `org-context--add-reference'."
   (let* ((main (org-export-get-caption element)))
     (org-export-data main info)))
 
-(defun org-context--enumerated-block (ent contents info env-kw wrap-kw)
+(defun org-context--enumerated-block
+    (ent contents info env-kw wrap-kw &optional inner-args)
   "Helper function to wrap blocks in the correct environent.
 ENT is the entity to wrap. CONTENTS is the block contents.
 INFO is a plist holding contextual information. ENV-KW is
 the keyword identifying the environment to place the contents
 into (see `options-alist'). WRAP-KW is the keyword identifying
 the wrapper environment to enumerate the contents in (see
-`options-alist')"
+`options-alist'). INNER-ARGS is an alist of arguments to add
+to the inner environment."
   (let* ((caption
           (org-trim
            (org-export-data
@@ -1427,24 +1431,27 @@ the wrapper environment to enumerate the contents in (see
      (if enumerate-environment
          (format "\\start%s\n  [%s]" enumerate-environment args)
        (org-context--get-reference ent info))
-     (format "\n\\start%s\n" environment)
+     (format "\n\\start%s%s\n" environment
+             (if inner-args (format "[%s]" inner-args) ""))
      contents
      (format "\\stop%s\n" environment)
      (when enumerate-environment
        (format "\\stop%s" enumerate-environment)))))
 
-(defun org-context--format-arguments (arguments)
-  "Formats ARGUMENTS into a ConTeXt argument string.
+(defun org-context--format-arguments (arguments &optional oneline)
+  "Format ARGUMENTS into a ConTeXt argument string.
 ARGUMENTS is an alist of string, string pairs. For instance,
 given '((\"key1\" . \"val1\") (\"key2\" . \"val2\")) returns
-\"[key1=val1, key2=val2] or similar."
+\"[key1=val1, key2=val2] or similar. If ONELINE is not nil,
+formats all the arguments on one line (can be helpful in
+verbatim environments)."
   (mapconcat
    (lambda (kv)
      (let ((key (car kv))
            (val (cdr kv)))
        (format "%s={%s}" key val)))
    (seq-filter (lambda (s) (org-string-nw-p (cdr s))) arguments)
-   ",\n"))
+   (if oneline "," ",\n   ")))
 
 (defun org-context--get-reference (element info)
   "Gets a label for ELEMENT.
@@ -1457,56 +1464,53 @@ a plist."
         (format "\\reference[%s]{%s}\n" label (or name value))
       (format "\\reference[%s]{}\n" label))))
 
-(defun org-context--highlight-src-builtin (src-block info typ)
+(defun org-context--highlight-src-builtin (src-block code info typ)
   "Wraps a source block in the builtin environment for ConTeXt source code.
 Use this if you don't have Vim.
 
 SRC-BLOCK is the code object to transcode.
+CODE is the preprocessed contents of the code block.
 INFO is a plist holding contextual information.
 TYP is one of \"'inline\" or \"'block\"."
-  (let ((code (org-string-nw-p (org-element-property :value src-block))))
-    (when code
-      (let* ((org-lang (org-element-property :language src-block))
-             (lang (and
-                    org-lang
-                    (or (cadr (assoc org-lang
-                                     (plist-get info :context-highlighted-langs)))
-                        (downcase org-lang))))
-             (env-name
-              (or
-               (org-string-nw-p
-                (car
-                 (pcase typ
-                   ('block (plist-get info :context-block-source-environment))
-                   ('inline (plist-get info :context-inline-source-environment)))))
-               "typing")))
-        (format "\\start%s%s\n%s\\stop%s"
-                env-name
-                (if (org-string-nw-p lang)
-                    (format "[option=%s]" lang)
-                  "")
-                (pcase typ
-                  ('block (org-export-format-code-default src-block info))
-                  ('inline (org-element-property :value src-block)))
-                env-name)))))
+  (when code
+    (let* ((org-lang (org-element-property :language src-block))
+           (lang (and
+                  org-lang
+                  (or (cadr (assoc org-lang
+                                   (plist-get info :context-highlighted-langs)))
+                      (downcase org-lang))))
+           (env-name
+            (or
+             (org-string-nw-p
+              (car
+               (pcase typ
+                 ('block (plist-get info :context-block-source-environment))
+                 ('inline (plist-get info :context-inline-source-environment)))))
+             "typing")))
+      (format "\\start%s%s\n%s\\stop%s"
+              env-name
+              (if (org-string-nw-p lang)
+                  (format "[option=%s]" lang)
+                "")
+              code
+              env-name))))
 
-(defun org-context--highlight-src-vim (src-block info typ)
+(defun org-context--highlight-src-vim (src-block code info typ)
   "Wraps a source block in a vimtyping environment.
-This requires you have Vim installed and the t-vim module for ConTeXt.
-SRC-BLOCK is the entity to wrap. INFO is a plist containing contextual
-information. TYP is a symbol (either 'block or 'inline)"
-  (let ((org-lang (org-element-property :language src-block))
-        (code (pcase typ
-                ('block (org-export-format-code-default src-block info))
-                ('inline (org-element-property :value src-block)))))
+This requires you have Vim installed and the t-vim module for
+ConTeXt. SRC-BLOCK is the entity to wrap. CODE is the contents of
+the entity. INFO is a plist containing contextual information.
+TYP is a symbol (either 'block or 'inline)"
+  (let ((org-lang (org-element-property :language src-block)))
     (if (org-string-nw-p org-lang)
-      (let* (;; Add a hash table of language names and vimtyping names
+      (let* (
+             ;; Add a hash table of language names and vimtyping names
              (lang-cache
               (or (plist-get info :context-languages-used-cache)
                   (let ((hash (make-hash-table :test #'equal)))
                     (plist-put info :context-languages-used-cache hash)
                     hash)))
-             ;; Optional namespacing prefix to set org elements apart
+             ;; Get language info or create it if it doesn't exist
              (lang-info
               (or (gethash org-lang lang-cache)
                   (puthash org-lang
@@ -1556,6 +1560,62 @@ information. TYP is a symbol (either 'block or 'inline)"
         ('inline (format "\\type{%s}" code))
         (_ "")))))
 
+(defun org-context--get-vim-lang-info (src-block info)
+  "Get a plist containing langauge information for vim higlighting.
+INFO is a plist that acts as a communication channel. SRC-BLOCK
+is the code block to get information for.
+
+Language translation info is cached in the INFO plist so that
+typing environments can be defined in the template."
+  (let ((org-lang (org-element-property :language src-block)))
+    (if (org-string-nw-p org-lang)
+      (let* ((lang-cache
+              (or (plist-get info :context-languages-used-cache)
+                  (let ((hash (make-hash-table :test #'equal)))
+                    (plist-put info :context-languages-used-cache hash)
+                    hash))))
+        (or (gethash org-lang lang-cache)
+            (puthash org-lang
+                     (let ((lang-info
+                            (or
+                             (cdr
+                              (assoc org-lang
+                                     (plist-get info :context-vim-langs)))
+                             (list
+                              :vim-name (downcase org-lang)
+                              :context-name (capitalize org-lang)))))
+                       (list
+                        :vim-lang
+                        (plist-get lang-info :vim-name)
+                        :context-inline-name
+                        (concat
+                         (or
+                          (org-string-nw-p
+                           (car
+                            (plist-get info :context-inline-source-environment)))
+                          "")
+                         (plist-get lang-info :context-name))
+                        :context-block-name
+                        (concat
+                         (or
+                          (org-string-nw-p
+                           (car
+                            (plist-get info :context-block-source-environment)))
+                          "")
+                         (plist-get lang-info :context-name))))
+                     lang-cache))))))
+
+(defun org-context--get-builtin-lang-name (src-block info)
+  "Gets the ConTeXt name of a language from its Org name.
+SRC-BLOCK is the code block to get the name of. INFO is a plist
+containing contextual information."
+  (let* ((org-lang (org-element-property :language src-block)))
+    (and
+     org-lang
+     (or (cadr (assoc org-lang
+                      (plist-get info :context-highlighted-langs)))
+         (downcase org-lang)))))
+
 (defun org-context--label (datum info &optional force full)
   "Return an appropriate label for DATUM.
 DATUM is an element or a `target' type object.  INFO is the
@@ -1597,6 +1657,37 @@ Eventually, if FULL is non-nil, wrap label within \"\\label{}\"."
             label
             (if (eq type 'target) "" "\n")))
           (t ""))))
+
+(defun org-context--get-coderef-label (ref parent info)
+  "Create a reference label for REF.
+PARENT is the parent code block or example block referred to by REF.
+See `org-context--find-coderef-parent' for finding that element.
+INFO is a plist containing contextual information."
+  (format "%s:%s" (org-context--label parent info t) ref))
+
+
+(defun org-context--find-coderef-parent (ref info)
+  "Resolve a code reference REF and return the element in which it appears.
+
+INFO is a plist used as a communication channel.
+
+This function is used in place of `org-export-resolve-coderef'
+because ConTeXt provides semantics for line number references
+already. Therefore, we just need a globally unique identifier for
+the coderef."
+
+  (or
+   (org-element-map (plist-get info :parse-tree) '(example-block src-block)
+     (lambda (el)
+       (with-temp-buffer
+         (insert (org-trim (org-element-property :value el)))
+         (let* ((label-fmt (or (org-element-property :label-fmt el)
+                               org-coderef-label-format))
+                (ref-re (org-src-coderef-regexp label-fmt ref)))
+           ;; Element containing ref is found. Always return ref.
+           (when (re-search-backward ref-re nil t) el))))
+     info 'first-match)
+   (signal 'org-link-broken (list ref))))
 
 (defun org-context--protect-text (text)
   "Protect special characters in string TEXT and return it."
@@ -1785,12 +1876,25 @@ holding contextual information."
 (defun org-context-example-block (example-block _contents info)
   "Transcode an EXAMPLE-BLOCK element from Org to ConTeXt.
 CONTENTS is nil. INFO is a plist holding contextual information."
-  (let ((contents (org-export-format-code-default example-block info)))
+  (let* ((contents (org-context--preprocess-source-block example-block info))
+         (num-start (org-export-get-loc example-block info))
+         (num-start-str
+          (when (and num-start (> num-start 0))
+            (number-to-string num-start)))
+         (args
+          (org-string-nw-p
+           (org-context--format-arguments
+            (list
+             (cons "start" num-start-str)
+             (cons "numbering" (when num-start "line")))))))
     (when contents
       (org-context--enumerated-block
-       example-block contents info
+       example-block
+       (org-context--preprocess-source-block example-block info)
+       info
        :context-example-environment
-       :context-enumerate-example-environment))))
+       :context-enumerate-example-environment
+       args))))
 
 ;;;; Export Block
 
@@ -2009,10 +2113,11 @@ CONTENTS is nil. INFO is a plist holding contextual information."
   "Transcode an INLINE-SRC-BLOCK element from Org to ConTeXt.
 CONTENTS holds the contents of the item. INFO is a plist holding
 contextual information."
-  (let ((engine (plist-get info :context-syntax-engine)))
+  (let ((engine (plist-get info :context-syntax-engine))
+        (code (org-export-format-code-default inline-src-block info)))
     (pcase engine
-      ('vim (org-context--highlight-src-vim inline-src-block info 'inline))
-      (_ (org-context--highlight-src-builtin inline-src-block info 'inline)))))
+      ('vim (org-context--highlight-src-vim inline-src-block code info 'inline))
+      (_ (org-context--highlight-src-builtin inline-src-block code info 'inline)))))
 
 ;;;; Inlinetask
 
@@ -2389,10 +2494,17 @@ INFO is a plist holding contextual information. See
      ;; Coderef: replace link with the reference name or the
      ;; equivalent line number.
      ((string= type "coderef")
-      (format (org-export-get-coderef-format path desc)
-              ;; Resolve with RAW-PATH since PATH could be tainted
-              ;; with `org-context--protect-text' call above.
-              (org-export-resolve-coderef raw-path info)))
+      (let* ((code-block (org-context--find-coderef-parent raw-path info))
+             (ref-label (org-context--get-coderef-label
+                         raw-path code-block info))
+             (linenum (org-export-get-loc code-block info))
+             (retain-labels (org-element-property :retain-labels code-block)))
+        ;; TODO if line numbers are on use a lineref instead
+        (cond ((and linenum (not retain-labels))
+               (format "\\inline{ }[%s]" ref-label))
+              ((not retain-labels)
+               (format "\\goto{\\ref[default][%s]}[%s]" ref-label ref-label))
+              (t (format "\\goto{%s}[%s]" path ref-label)))))
      ;; External link with a description part.
      ((and path desc) (format "\\goto{%s}[url(%s)]" desc path))
      ;; External link without a description part.
@@ -2722,7 +2834,8 @@ contextual information."
          (environment
           (car
            (plist-get info :context-enumerate-listing-environment)))
-         (label (org-context--label src-block info t)))
+         (label (org-context--label src-block info t))
+         (code (org-context--preprocess-source-block src-block info)))
     (let ((engine (plist-get info :context-syntax-engine))
           (args (org-context--format-arguments
                  (list
@@ -2733,12 +2846,103 @@ contextual information."
        (format "\\start%s
   [%s]\n"
                environment args)
-       "\n"
        (pcase engine
-         ('vim (org-context--highlight-src-vim src-block info 'block))
-         (_ (org-context--highlight-src-builtin src-block info 'block)))
+         ('vim (org-context--highlight-src-block-vim
+                src-block code info))
+         (_ (org-context--highlight-src-block-builtin
+             src-block code info)))
        "\n"
        (format "\\stop%s" environment)))))
+
+(defun org-context--preprocess-source-block (src-block info)
+  "Format SRC-BLOCK with inline refs.
+INFO is a plist containing contextual information."
+  (let* ((code-info (org-export-unravel-code src-block))
+         (code (car code-info))
+         (refs (cdr code-info))
+         (num-start (org-export-get-loc src-block info))
+         (retain-labels (org-element-property :retain-labels src-block))
+         (line-num 0)
+         (reffed-code
+          (mapconcat
+           (lambda (line)
+             (cl-incf line-num)
+             (let* ((line-ref (assoc line-num refs))
+                    (ref (cdr line-ref))
+                    (ref-label (org-context--get-coderef-label
+                                ref src-block info)))
+               (concat
+                line
+                (when ref
+                  (format "    /BTEX%s/ETEX"
+                   (concat
+                    (cond ((and num-start (not retain-labels))
+                           (format "\\someline[%s]" ref-label))
+                          ((not retain-labels)
+                           (format "\\reference[%s]{%d}" ref-label line-num))
+                          (t (format "\\reference[%s]{%s}" ref-label ref)))
+                      ;; TODO Provide configuration for visible code labels
+                      (when retain-labels
+                        (format "\\inright{%s}" ref))))))))
+           (split-string code "\n")
+           "\n")))
+    reffed-code))
+
+(defun org-context--highlight-src-block-builtin (src-block code info)
+  "Wraps a source block in the builtin environment for ConTeXt source code.
+Use this if you don't have Vim.
+
+SRC-BLOCK is the code object to transcode. CODE is the
+preprocessed contents of the code block. INFO is a plist holding
+contextual information."
+  (when code
+    (let* ((lang (org-context--get-builtin-lang-name src-block info))
+           (env-name
+            (or
+             (org-string-nw-p
+              (car (plist-get info :context-block-source-environment)))
+             "typing"))
+           (num-start (org-export-get-loc src-block info))
+           (num-start-str
+            (when (and num-start (> num-start 0))
+              (number-to-string num-start)))
+           (args
+            (org-string-nw-p
+             (org-context--format-arguments
+              (list (cons "start" num-start-str)
+                    (cons "numbering" (when num-start "line"))
+                    (cons "option" lang))
+              t))))
+      (format "\\start%s%s\n%s\n\\stop%s"
+              env-name
+              (if args (format "[%s]" args) "")
+              code
+              env-name))))
+
+(defun org-context--highlight-src-block-vim (src-block code info)
+  "Wraps a source block in a vimtyping environment.
+This requires you have Vim installed and the t-vim module for
+ConTeXt. SRC-BLOCK is the entity to wrap. CODE is the contents of
+the entity. INFO is a plist containing contextual information."
+  (let* ((lang-info (org-context--get-vim-lang-info src-block info))
+         (context-name (plist-get lang-info :context-block-name))
+         (num-start (org-export-get-loc src-block info))
+         (num-start-str
+          (when (and num-start (> num-start 0))
+            (number-to-string num-start)))
+         (args
+          (org-string-nw-p
+           (org-context--format-arguments
+            (list (cons "numberstart" num-start-str)
+                  (cons "numbering" (when num-start "yes")))
+            t))))
+    (if context-name
+        (format "\\start%s%s\n%s\n\\stop%s"
+                context-name
+                (if args (format "[%s]" args) "")
+                code
+                context-name)
+      (format "\\starttyping\n%s\\stoptying" code))))
 
 ;;;; Statistics Cookie
 
@@ -3099,16 +3303,32 @@ holding the export options."
           (let ((deflist
                   (list
                    (list
-                    :context-description-command
-                    "% LaTeX-style descriptive enumerations"
-                    "\\definedescription[%s]")
-                   (list
                     :context-blockquote-environment
                     "% blockquote environment"
                     "\\definestartstop[%s]")
                    (list
+                    :context-body-environment
+                    "% Create a body style"
+                    "\\definestartstop[%s]")
+                   (list
+                    :context-description-command
+                    "% LaTeX-style descriptive enumerations"
+                    "\\definedescription[%s]")
+                   (list
                     :context-enumerate-blockquote-environment
                     "% blockquote environment"
+                    "\\defineenumeration[%s]")
+                   (list
+                    :context-enumerate-example-environment
+                    "% Create the example listing environment"
+                    "\\defineenumeration[%s]")
+                   (list
+                    :context-enumerate-listing-environment
+                    "% Define an environment to wrap listings in"
+                    "\\defineenumeration[%s]")
+                   (list
+                    :context-enumerate-verse-environment
+                    "% Create a verse style"
                     "\\defineenumeration[%s]")
                    (list
                     :context-fixed-environment
@@ -3119,37 +3339,13 @@ holding the export options."
                     "% Create the inline source environment"
                     "\\definetyping[%s]")
                    (list
-                    :context-block-source-environment
-                    "% Create the block source environment"
-                    "\\definetyping[%s]")
-                   (list
                     :context-titlepage-environment
                     "% Create the title page style"
                     "\\definestartstop[%s]")
                    (list
                     :context-verse-environment
                     "% Create a verse style"
-                    "\\definelines[%s]")
-                   (list
-                    :context-enumerate-verse-environment
-                    "% Create a verse style"
-                    "\\defineenumeration[%s]")
-                   (list
-                    :context-body-environment
-                    "% Create a body style"
-                    "\\definestartstop[%s]")
-                   (list
-                    :context-enumerate-example-environment
-                    "% Create the example listing environment"
-                    "\\defineenumeration[%s]")
-                   (list
-                    :context-example-environment
-                    "% Create the example environment"
-                    "\\definetyping[%s]")
-                   (list
-                    :context-enumerate-listing-environment
-                    "% Define an environment to wrap listings in"
-                    "\\defineenumeration[%s]"))))
+                    "\\definelines[%s]"))))
             (mapconcat
              (lambda
                (args)
@@ -3169,11 +3365,8 @@ holding the export options."
           (let ((deflist
                   (list
                    (list
-                    :context-title-command
-                    "% Create an empty title command to be overridden by user")
-                   (list
-                    :context-title-contents-command
-                    "% Create a TOC header command")
+                    :context-block-source-environment
+                    "% Create the block source environment")
                    (list
                     :context-bullet-on-command
                     "% Define on bullet command")
@@ -3183,6 +3376,9 @@ holding the export options."
                    (list
                     :context-bullet-trans-command
                     "% Define incomplete bullet command")
+                   (list
+                    :context-example-environment
+                    "% Create the example environment")
                    (list
                     :context-planning-command
                     "% Define a basic planning command")
@@ -3203,7 +3399,13 @@ holding the export options."
                     "% Define a command for node properties in drawers")
                    (list
                     :context-property-drawer-environment
-                    "% Create a property drawer style"))))
+                    "% Create a property drawer style")
+                   (list
+                    :context-title-command
+                    "% Create an empty title command to be overridden by user")
+                   (list
+                    :context-title-contents-command
+                    "% Create a TOC header command"))))
             (mapconcat
              (lambda (args)
                (let* ((kw (nth 0 args))
@@ -3270,11 +3472,12 @@ holding the export options."
                (let* ((lang-info (gethash key vim-lang-hash))
                       (vim-lang (plist-get lang-info :vim-lang))
                       (context-inline-name (plist-get lang-info :context-inline-name))
-                      (context-block-name (plist-get lang-info :context-block-name)))
+                      (context-block-name (plist-get lang-info :context-block-name))
+                      (def-template "\\definevimtyping[%s]\n  [syntax=%s,escape=command]\n"))
                  (concat
-                  (format "\\definevimtyping[%s]\n  [syntax=%s]\n"
+                  (format def-template
                           context-inline-name vim-lang)
-                  (format "\\definevimtyping[%s]\n  [syntax=%s]"
+                  (format def-template
                          context-block-name vim-lang))))
              (hash-table-keys vim-lang-hash)
              "\n")))
