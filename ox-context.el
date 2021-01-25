@@ -2230,7 +2230,8 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (when (plist-get info :with-latex)
     (let* ((value (org-remove-indentation
                    (org-element-property :value latex-environment)))
-           (environment-name (org-context--latex-environment-name latex-environment))
+           (environment-name
+            (org-context--latex-environment-name latex-environment))
            (environment-contents
             (org-context--latex-environment-contents
              latex-environment))
@@ -2241,7 +2242,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
            (caption (org-context--caption/label-string latex-environment info))
            (args (org-context--format-arguments
                   (list
-                   (cons "title" caption)
+                   ;; (cons "title" caption)
                    (cons "reference" label))))
            )
       ;; TODO 'table 'src-block
@@ -2318,7 +2319,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
   (concat
    "\\startalign\n\\NC "
    (replace-regexp-in-string
-    "\\\\\\\\" "\\\\NR\n\\\\NC "
+    "\\\\\\\\" "\\\\NR[x]\n\\\\NC "
     (replace-regexp-in-string "[^\\]&" " \\\\NC " align-environment))
    "\\stopalign\n"))
 
