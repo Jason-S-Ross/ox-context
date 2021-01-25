@@ -1,0 +1,381 @@
+# #+BEGIN_SRC python
+#   import matplotlib.pyplot as plt
+#   # Comment
+#   import tikzplotlib
+#   n = 100
+#   X = [i / n for i in range(n)]
+#   Y = [x**2 for x in X]
+#   plt.figure(figsize=(8,3.5))
+#   plt.plot(X, Y)
+#   for fmt in ["pdf", "svg", "ps", "png", "jpeg", "eps"]:
+#     plt.title(fmt)
+#     plt.savefig(f"fig.{fmt}")
+#   plt.title("tikz")
+#   tikzplotlib.save("fig.tikz")
+#   plt.title("pgf")
+#   tikzplotlib.save("fig.pgf")
+# #+END_SRC
+#
+# #+RESULTS:
+# : None
+* Single Column Layouts
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+
+: ,#+ATTR_CONTEXT: :width 1in :placement rightmargin 
+: ,#+CAPTION: Margin Figure
+: [[./bessel11.pdf]]
+
+#+ATTR_CONTEXT: :width 1in :placement rightmargin
+#+CAPTION: Margin Figure
+[[./bessel11.pdf]]
+
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+
+
+
+#+ATTR_CONTEXT: :placement top
+#+CAPTION: EPS Fig 1 with top placement
+[[./fig.eps]]
+
+Pellentesque dapibus suscipit ligula. Donec posuere augue in quam. Etiam vel
+tortor sodales tellus ultricies commodo. Suspendisse potenti. Aenean in sem ac
+leo mollis blandit. Donec neque quam, dignissim in, mollis nec, sagittis eu,
+wisi. Phasellus lacus. Etiam laoreet quam sed arcu. Phasellus at dui in ligula
+mollis ultricies. Integer placerat tristique nisl. Praesent augue. Fusce
+commodo. Vestibulum convallis, lorem a tempus semper, dui dui euismod elit,
+vitae placerat urna tortor vitae lacus. Nullam libero mauris, consequat quis,
+varius et, dictum id, arcu. Mauris mollis tincidunt felis. Aliquam feugiat
+tellus ut neque. Nulla facilisis, risus a rhoncus fermentum, tellus tellus
+lacinia purus, et dictum nunc justo sit amet elit.
+
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet tortor.
+Nam euismod tellus id erat.
+
+
+
+#+ATTR_CONTEXT: :float wrap
+#+CAPTION: PDF Fig 1 with wrapped float
+[[./fig.pdf]]
+
+Pellentesque dapibus suscipit ligula. Donec posuere augue in quam. Etiam vel
+tortor sodales tellus ultricies commodo. Suspendisse potenti. Aenean in sem ac
+leo mollis blandit. Donec neque quam, dignissim in, mollis nec, sagittis eu,
+wisi. Phasellus lacus. Etiam laoreet quam sed arcu. Phasellus at dui in ligula
+mollis ultricies. Integer placerat tristique nisl. Praesent augue. Fusce
+commodo. Vestibulum convallis, lorem a tempus semper, dui dui euismod elit,
+vitae placerat urna tortor vitae lacus. Nullam libero mauris, consequat quis,
+varius et, dictum id, arcu. Mauris mollis tincidunt felis. Aliquam feugiat
+tellus ut neque. Nulla facilisis, risus a rhoncus fermentum, tellus tellus
+lacinia purus, et dictum nunc justo sit amet elit.
+
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+
+
+
+#+ATTR_CONTEXT: :placement middle
+#+CAPTION: PNG Fig 1 with middle placement
+[[./fig.png]]
+
+Pellentesque dapibus suscipit ligula. Donec posuere augue in quam. Etiam vel
+tortor sodales tellus ultricies commodo. Suspendisse potenti. Aenean in sem ac
+leo mollis blandit. Donec neque quam, dignissim in, mollis nec, sagittis eu,
+wisi. Phasellus lacus. Etiam laoreet quam sed arcu. Phasellus at dui in ligula
+mollis ultricies. Integer placerat tristique nisl. Praesent augue. Fusce
+commodo. Vestibulum convallis, lorem a tempus semper, dui dui euismod elit,
+vitae placerat urna tortor vitae lacus. Nullam libero mauris, consequat quis,
+varius et, dictum id, arcu. Mauris mollis tincidunt felis. Aliquam feugiat
+tellus ut neque. Nulla facilisis, risus a rhoncus fermentum, tellus tellus
+lacinia purus, et dictum nunc justo sit amet elit.
+
+#+CAPTION: Postscript Fig (doesn't respect placement)
+[[./fig.ps]]
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit tempor
+tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et, mattis
+eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
+parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
+Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
+Nam vestibulum accumsan nisl.
+
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet tortor.
+Nam euismod tellus id erat.
+
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+
+
+#+ATTR_CONTEXT: :float wrap :placement right
+#+CAPTION: SVG Fig 1 with right wrapped placement
+[[./fig.svg]]
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit tempor
+tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et, mattis
+eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
+parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
+Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
+Nam vestibulum accumsan nisl.
+
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+
+
+#+ATTR_CONTEXT: :placement bottom
+#+CAPTION: JPEG Fig with Bottom Placement
+[[./fig.jpeg]]
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec
+hendrerit tempor tellus. Donec pretium posuere tellus. Proin quam nisl,
+tincidunt et, mattis eget, convallis nec, purus. Cum sociis natoque penatibus et
+magnis dis parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae
+dolor. Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam
+rutrum. Nam vestibulum accumsan nisl.
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit tempor
+tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et, mattis
+eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
+parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
+Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
+Nam vestibulum accumsan nisl.
+
+
+Tikz and pgf are not supported.
+# #+CAPTION: Tikz fig 1
+# [[./fig.tikz]]
+# 
+# #+CAPTION: Pgf Fig 1
+# [[./fig.pgf]]
+#+CONTEXT: \definemixedcolumns[twocol][n=2,grid=verystrict]
+#+CONTEXT: \startmixedcolumns[twocol]
+* Two columns
+
+Mixing columns into your document in ConTeXt is not easy to do as of this
+  writing. The most powerful column feature, column sets, doesn't mix well
+  with single-column text on the same page. The mixed column feature doesn't
+  mix well with column-spanning floats.
+
+  
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In
+id erat non orci commodo lobortis. Proin neque massa, cursus ut, gravida ut,
+lobortis eget, lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus.
+Mauris ac felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque
+nec dui dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a,
+aliquet quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
+tortor. Nam euismod tellus id erat.
+ 
+
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet tortor.
+Nam euismod tellus id erat.
+
+#+CAPTION: PDF Fig 2 single col with all defaults
+#+ATTR_CONTEXT: :placement left
+[[./fig.pdf]]
+Pellentesque dapibus suscipit ligula. Donec posuere augue in quam. Etiam vel
+tortor sodales tellus ultricies commodo. Suspendisse potenti. Aenean in sem ac
+leo mollis blandit. Donec neque quam, dignissim in, mollis nec, sagittis eu,
+wisi. Phasellus lacus. Etiam laoreet quam sed arcu. Phasellus at dui in ligula
+mollis ultricies. Integer placerat tristique nisl. Praesent augue. Fusce
+commodo. Vestibulum convallis, lorem a tempus semper, dui dui euismod elit,
+vitae placerat urna tortor vitae lacus. Nullam libero mauris, consequat quis,
+varius et, dictum id, arcu. Mauris mollis tincidunt felis. Aliquam feugiat
+tellus ut neque. Nulla facilisis, risus a rhoncus fermentum, tellus tellus
+lacinia purus, et dictum nunc justo sit amet elit.
+
+#+CAPTION: PDF Fig 3 Multicol
+#+ATTR_CONTEXT: :float multicolumn :placement force,high
+[[./fig.pdf]]
+Pellentesque dapibus suscipit ligula. Donec posuere augue in quam. Etiam vel
+tortor sodales tellus ultricies commodo. Suspendisse potenti. Aenean in sem ac
+leo mollis blandit. Donec neque quam, dignissim in, mollis nec, sagittis eu,
+wisi. Phasellus lacus. Etiam laoreet quam sed arcu. Phasellus at dui in ligula
+mollis ultricies. Integer placerat tristique nisl. Praesent augue. Fusce
+commodo. Vestibulum convallis, lorem a tempus semper, dui dui euismod elit,
+vitae placerat urna tortor vitae lacus. Nullam libero mauris, consequat quis,
+varius et, dictum id, arcu. Mauris mollis tincidunt felis. Aliquam feugiat
+tellus ut neque. Nulla facilisis, risus a rhoncus fermentum, tellus tellus
+lacinia purus, et dictum nunc justo sit amet elit.
+
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet tortor.
+Nam euismod tellus id erat.
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit tempor
+tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et, mattis
+eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
+parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
+Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
+Nam vestibulum accumsan nisl.
+
+Pellentesque dapibus suscipit ligula. Donec posuere augue in quam. Etiam vel
+tortor sodales tellus ultricies commodo. Suspendisse potenti. Aenean in sem ac
+leo mollis blandit. Donec neque quam, dignissim in, mollis nec, sagittis eu,
+wisi. Phasellus lacus. Etiam laoreet quam sed arcu. Phasellus at dui in ligula
+mollis ultricies. Integer placerat tristique nisl. Praesent augue. Fusce
+commodo. Vestibulum convallis, lorem a tempus semper, dui dui euismod elit,
+vitae placerat urna tortor vitae lacus. Nullam libero mauris, consequat quis,
+varius et, dictum id, arcu. Mauris mollis tincidunt felis. Aliquam feugiat
+tellus ut neque. Nulla facilisis, risus a rhoncus fermentum, tellus tellus
+lacinia purus, et dictum nunc justo sit amet elit.
+
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet tortor.
+Nam euismod tellus id erat.
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit tempor
+tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et, mattis
+eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
+parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
+Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
+Nam vestibulum accumsan nisl.
+
+
+
+
+
+
+: ,#+CAPTION: Default Figure
+: [[./bessel11.pdf]]
+
+#+CAPTION: Default Figure
+#+ATTR_CONTEXT: :width \dimexpr \textwidth - 1em \relax
+[[./bessel11.pdf]]
+
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc porta
+vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam posuere.
+Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada massa, quis
+varius mi purus non odio. Pellentesque condimentum, magna ut suscipit hendrerit,
+ipsum augue ornare nulla, non luctus diam neque sit amet urna. Curabitur
+vulputate vestibulum lorem. Fusce sagittis, libero non molestie mollis, magna
+orci ultrices dolor, at vulputate neque nulla lacinia eros. Sed id ligula quis
+est convallis tempor. Curabitur lacinia pulvinar nibh. Nam a sapien.
+
+: ,#+ATTR_CONTEXT: :float wrap :caption Default Wrapped Figure
+: [[./bessel11.pdf]]
+
+#+ATTR_CONTEXT: :float wrap :caption Default Wrapped Figure
+[[./bessel11.pdf]]
+
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc
+porta vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam
+posuere. Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada
+massa, quis varius mi purus non odio. Pellentesque condimentum, magna ut
+suscipit hendrerit, ipsum augue ornare nulla, non luctus diam neque sit amet
+urna. Curabitur vulputate vestibulum lorem. Fusce sagittis, libero non
+molestie mollis, magna orci ultrices dolor, at vulputate neque nulla lacinia
+eros. Sed id ligula quis est convallis tempor. Curabitur lacinia pulvinar
+nibh. Nam a sapien.
+
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
+tortor. Nam euismod tellus id erat.
+
+Nullam eu ante vel est convallis dignissim. Fusce suscipit, wisi nec facilisis
+facilisis, est dui fermentum leo, quis tempor ligula erat quis odio. Nunc
+porta vulputate tellus. Nunc rutrum turpis sed pede. Sed bibendum. Aliquam
+posuere. Nunc aliquet, augue nec adipiscing interdum, lacus tellus malesuada
+massa, quis varius mi purus non odio. Pellentesque condimentum, magna ut
+suscipit hendrerit, ipsum augue ornare nulla, non luctus diam neque sit amet
+urna. Curabitur vulputate vestibulum lorem. Fusce sagittis, libero non
+molestie mollis, magna orci ultrices dolor, at vulputate neque nulla lacinia
+eros. Sed id ligula quis est convallis tempor. Curabitur lacinia pulvinar
+nibh. Nam a sapien.
+
+
+Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec hendrerit
+tempor tellus. Donec pretium posuere tellus. Proin quam nisl, tincidunt et,
+mattis eget, convallis nec, purus. Cum sociis natoque penatibus et magnis dis
+parturient montes, nascetur ridiculus mus. Nulla posuere. Donec vitae dolor.
+Nullam tristique diam non turpis. Cras placerat accumsan nulla. Nullam rutrum.
+Nam vestibulum accumsan nisl.
+
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+
+felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet
+tortor. Nam euismod tellus id erat.
+
+Aliquam erat volutpat. Nunc eleifend leo vitae magna. In id erat non orci
+commodo lobortis. Proin neque massa, cursus ut, gravida ut, lobortis eget,
+lacus. Sed diam. Praesent fermentum tempor tellus. Nullam tempus. Mauris ac
+felis vel velit tristique imperdiet. Donec at pede. Etiam vel neque nec dui
+dignissim bibendum. Vivamus id enim. Phasellus neque orci, porta a, aliquet
+quis, semper a, massa. Phasellus purus. Pellentesque tristique imperdiet tortor.
+Nam euismod tellus id erat.
+
+#+CONTEXT: \stopmixedcolumns
+
+* Figures in Tables
+
+  |----------------+----------------|
+  | <12>           | <12>           |
+  | C1             | [[./bessel11.pdf]] |
+  | [[./bessel11.pdf]] |                |

@@ -1,0 +1,260 @@
+Tables are supported by the ~xtables~ environment.
+
+#+CAPTION: Default Layout Table
+| A | B |
+|---+---|
+| 1 | 2 |
+| 3 | 4 |
+
+Here's the same table with ~:option width~
+
+#+CAPTION: Wide Layout Table
+#+ATTR_CONTEXT: :option width
+| A | B |
+|---+---|
+| 1 | 2 |
+| 3 | 4 |
+
+Here's the same table with ~:option tight~
+
+#+CAPTION: Tight Layout Table
+#+ATTR_CONTEXT: :option tight
+| A | B |
+|---+---|
+| 1 | 2 |
+| 3 | 4 |
+
+
+Here's the same table with ~:option stretch~
+
+#+CAPTION: Stretch Layout Table
+#+ATTR_CONTEXT: :option stretch
+| A | B |
+|---+---|
+| 1 | 2 |
+| 3 | 4 |
+
+
+Here's a very long table. We can split it by setting
+~:split t~ and ~:header repeat~ in ~#+ATTR_CONTEXT~.
+
+#+CAPTION: Giant Table
+#+ATTR_CONTEXT: :split t :f
+| A |  B |  C |   D |   E |   F |   G |   H |   I |   J |
+|---+----+----+-----+-----+-----+-----+-----+-----+-----|
+| 0 |  0 |  0 |   0 |   0 |   0 |   0 |   0 |   0 |   0 |
+| 0 |  1 |  2 |   3 |   4 |   5 |   6 |   7 |   8 |   9 |
+| 0 |  2 |  4 |   6 |   8 |  10 |  12 |  14 |  16 |  18 |
+| 0 |  3 |  6 |   9 |  12 |  15 |  18 |  21 |  24 |  27 |
+| 0 |  4 |  8 |  12 |  16 |  20 |  24 |  28 |  32 |  36 |
+| 0 |  5 | 10 |  15 |  20 |  25 |  30 |  35 |  40 |  45 |
+| 0 |  6 | 12 |  18 |  24 |  30 |  36 |  42 |  48 |  54 |
+| 0 |  7 | 14 |  21 |  28 |  35 |  42 |  49 |  56 |  63 |
+| 0 |  8 | 16 |  24 |  32 |  40 |  48 |  56 |  64 |  72 |
+| 0 |  9 | 18 |  27 |  36 |  45 |  54 |  63 |  72 |  81 |
+| 0 | 10 | 20 |  30 |  40 |  50 |  60 |  70 |  80 |  90 |
+| 0 | 11 | 22 |  33 |  44 |  55 |  66 |  77 |  88 |  99 |
+| 0 | 12 | 24 |  36 |  48 |  60 |  72 |  84 |  96 | 108 |
+| 0 | 13 | 26 |  39 |  52 |  65 |  78 |  91 | 104 | 117 |
+| 0 | 14 | 28 |  42 |  56 |  70 |  84 |  98 | 112 | 126 |
+| 0 | 15 | 30 |  45 |  60 |  75 |  90 | 105 | 120 | 135 |
+| 0 | 16 | 32 |  48 |  64 |  80 |  96 | 112 | 128 | 144 |
+| 0 | 17 | 34 |  51 |  68 |  85 | 102 | 119 | 136 | 153 |
+| 0 | 18 | 36 |  54 |  72 |  90 | 108 | 126 | 144 | 162 |
+| 0 | 19 | 38 |  57 |  76 |  95 | 114 | 133 | 152 | 171 |
+| 0 | 20 | 40 |  60 |  80 | 100 | 120 | 140 | 160 | 180 |
+| 0 | 21 | 42 |  63 |  84 | 105 | 126 | 147 | 168 | 189 |
+| 0 | 22 | 44 |  66 |  88 | 110 | 132 | 154 | 176 | 198 |
+| 0 | 23 | 46 |  69 |  92 | 115 | 138 | 161 | 184 | 207 |
+| 0 | 24 | 48 |  72 |  96 | 120 | 144 | 168 | 192 | 216 |
+| 0 | 25 | 50 |  75 | 100 | 125 | 150 | 175 | 200 | 225 |
+| 0 | 26 | 52 |  78 | 104 | 130 | 156 | 182 | 208 | 234 |
+| 0 | 27 | 54 |  81 | 108 | 135 | 162 | 189 | 216 | 243 |
+| 0 | 28 | 56 |  84 | 112 | 140 | 168 | 196 | 224 | 252 |
+| 0 | 29 | 58 |  87 | 116 | 145 | 174 | 203 | 232 | 261 |
+| 0 | 30 | 60 |  90 | 120 | 150 | 180 | 210 | 240 | 270 |
+| 0 | 31 | 62 |  93 | 124 | 155 | 186 | 217 | 248 | 279 |
+| 0 | 32 | 64 |  96 | 128 | 160 | 192 | 224 | 256 | 288 |
+| 0 | 33 | 66 |  99 | 132 | 165 | 198 | 231 | 264 | 297 |
+| 0 | 34 | 68 | 102 | 136 | 170 | 204 | 238 | 272 | 306 |
+| 0 | 35 | 70 | 105 | 140 | 175 | 210 | 245 | 280 | 315 |
+| 0 | 36 | 72 | 108 | 144 | 180 | 216 | 252 | 288 | 324 |
+| 0 | 37 | 74 | 111 | 148 | 185 | 222 | 259 | 296 | 333 |
+| 0 | 38 | 76 | 114 | 152 | 190 | 228 | 266 | 304 | 342 |
+| 0 | 39 | 78 | 117 | 156 | 195 | 234 | 273 | 312 | 351 |
+| 0 | 40 | 80 | 120 | 160 | 200 | 240 | 280 | 320 | 360 |
+| 0 | 41 | 82 | 123 | 164 | 205 | 246 | 287 | 328 | 369 |
+| 0 | 42 | 84 | 126 | 168 | 210 | 252 | 294 | 336 | 378 |
+| 0 | 43 | 86 | 129 | 172 | 215 | 258 | 301 | 344 | 387 |
+| 0 | 44 | 88 | 132 | 176 | 220 | 264 | 308 | 352 | 396 |
+| 0 | 45 | 90 | 135 | 180 | 225 | 270 | 315 | 360 | 405 |
+| 0 | 46 | 92 | 138 | 184 | 230 | 276 | 322 | 368 | 414 |
+| 0 | 47 | 94 | 141 | 188 | 235 | 282 | 329 | 376 | 423 |
+| 0 | 48 | 96 | 144 | 192 | 240 | 288 | 336 | 384 | 432 |
+| 0 | 49 | 98 | 147 | 196 | 245 | 294 | 343 | 392 | 441 |
+|---+----+----+-----+-----+-----+-----+-----+-----+-----|
+| A |  B |  C |   D |   E |   F |   G |   H |   I |   J |
+
+Here's a table with paragraphs in it. ConTeXt handles this gracefully by
+default.
+
+#+CAPTION: Wrapped Table
+| Description  | Contents                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+|--------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| First Thing  | Aliquam erat volutpat.  Nunc eleifend leo vitae magna.  In id erat non orci commodo lobortis.  Proin neque massa, cursus ut, gravida ut, lobortis eget, lacus.  Sed diam.  Praesent fermentum tempor tellus.  Nullam tempus.  Mauris ac felis vel velit tristique imperdiet.  Donec at pede.  Etiam vel neque nec dui dignissim bibendum.  Vivamus id enim.  Phasellus neque orci, porta a, aliquet quis, semper a, massa.  Phasellus purus.  Pellentesque tristique imperdiet tortor.  Nam euismod tellus id erat.                                                                                                                                                                                                                                                                 |
+| Second Thing | Pellentesque dapibus suscipit ligula.  Donec posuere augue in quam.  Etiam vel tortor sodales tellus ultricies commodo.  Suspendisse potenti.  Aenean in sem ac leo mollis blandit.  Donec neque quam, dignissim in, mollis nec, sagittis eu, wisi.  Phasellus lacus.  Etiam laoreet quam sed arcu.  Phasellus at dui in ligula mollis ultricies.  Integer placerat tristique nisl.  Praesent augue.  Fusce commodo.  Vestibulum convallis, lorem a tempus semper, dui dui euismod elit, vitae placerat urna tortor vitae lacus.  Nullam libero mauris, consequat quis, varius et, dictum id, arcu.  Mauris mollis tincidunt felis.  Aliquam feugiat tellus ut neque.  Nulla facilisis, risus a rhoncus fermentum, tellus tellus lacinia purus, et dictum nunc justo sit amet elit. |
+
+Here's a shorter table.
+
+#+CAPTION: Short Table
+|  A   |  B   |  C   |  D   |  E   |  F   |  G   |  H   |  I   |  J   |
+|------|------|------|------|------|------|------|------|------|------|
+|   0  |   0  |   0  |   0  |   0  |   0  |   0  |   0  |   0  |   0  |
+|   0  |   1  |   2  |   3  |   4  |   5  |   6  |   7  |   8  |   9  |
+|   0  |   2  |   4  |   6  |   8  |  10  |  12  |  14  |  16  |  18  |
+|   0  |   3  |   6  |   9  |  12  |  15  |  18  |  21  |  24  |  27  |
+|   0  |   4  |   8  |  12  |  16  |  20  |  24  |  28  |  32  |  36  |
+|   0  |   5  |  10  |  15  |  20  |  25  |  30  |  35  |  40  |  45  |
+|   0  |   6  |  12  |  18  |  24  |  30  |  36  |  42  |  48  |  54  |
+|   0  |   7  |  14  |  21  |  28  |  35  |  42  |  49  |  56  |  63  |
+
+TODO: Allow table-style to take keyword arguments
+
+Tables can be customized in several ways. By default, the top and bottom rows,
+the left and right columns, and the four corners of the table have special
+styles which default to ~OrgTableTopRow~, ~OrgTableBottomRow~,
+~OrgTableLeftCol~, ~OrgTableRightCol~, ~OrgTableTopLeftCell~,
+~OrgTableTopRightCell~, ~OrgTableBottomRightCell~, and
+~OrgTableBottomLeftCell~. These styles can be configured by adding\\
+~#+CONTEXT_HEADER_EXTRA: \setupxtable[OrgTable...][...]~ to the document.
+Styling options for individual tables can be configured using the
+~:top~, ~:bottom~, ~:left~, ~:right~, ~:topleft~, ~:topright~, ~:bottomright~
+and ~:bottomleft~ keywords in ~#+ATTR_CONTEXT~.
+#+CONTEXT: \setupxtable[Top][background=color,backgroundcolor=red]
+#+CONTEXT: \setupxtable[Bottom][background=color,backgroundcolor=blue]
+#+CONTEXT: \setupxtable[Left][background=color,backgroundcolor=green]
+#+CONTEXT: \setupxtable[Right][background=color,backgroundcolor=yellow]
+#+CONTEXT: \setupxtable[Body][foregroundstyle=italic]
+#+ATTR_CONTEXT: :h Top
+#+ATTR_CONTEXT: :s Bottom
+#+ATTR_CONTEXT: :w Left
+#+ATTR_CONTEXT: :e Right
+#+ATTR_CONTEXT: :nw foregroundstyle=sansbold
+#+ATTR_CONTEXT: :ne foregroundstyle=smallitalicbold
+#+ATTR_CONTEXT: :se foregroundstyle=smallbold
+#+ATTR_CONTEXT: :sw foregroundstyle=bold
+#+ATTR_CONTEXT: :b Body
+#+CAPTION: Fancy Table
+|  A   |  B   |  C   |  D   |
+|------|------|------|------|
+|   0  |   0  |   0  |   0  |
+|   0  |   1  |   2  |   3  |
+|   0  |   2  |   4  |   6  |
+
+#+CAPTION: Table with header
+| Head A | 1 | 2 |
+|--------+---+---|
+| Cell A | 1 | 2 |
+| Cell B | 2 | 3 |
+|--------+---+---|
+
+#+CAPTION: Simple Table
+|--------+---+---|
+| Cell A | 1 | 2 |
+| Cell B | 2 | 3 |
+|--------+---+---|
+
+#+CAPTION: Table with column groups
+| N | N^2 | N^3 | N^4 | sqrt(n) | sqrt[4](N) |
+|---+-----+-----+-----+---------+------------|
+| / |   < |     |   > |       < |          > |
+| 1 |   1 |   1 |   1 |       1 |          1 |
+| 2 |   4 |   8 |  16 |  1.4142 |     1.1892 |
+| 3 |   9 |  27 |  81 |  1.7321 |     1.3161 |
+|---+-----+-----+-----+---------+------------|
+
+#+CAPTION: Table with row groups
+#+ATTR_CONTEXT: :f
+| H1 | H2 | H3 |
+|----+----+----|
+|  1 |  2 |  3 |
+|  4 |  5 |  6 |
+|----+----+----|
+|  7 |  8 |  9 |
+|  4 |  5 |  6 |
+|----+----+----|
+|  7 |  8 |  9 |
+|  4 |  5 |  6 |
+|----+----+----|
+|  7 |  8 |  9 |
+
+Subdivided row and column groups don't seem to be supported
+#+CAPTION: Table with row and column groups
+#+ATTR_CONTEXT: :f
+| H1 | H2 |   | H3 |
+|----+----+---+----|
+|  / |  < |   |  > |
+|  1 |  2 | 5 |  3 |
+|  4 |  5 | 6 |  6 |
+|----+----+---+----|
+| 10 | 11 | 5 | 12 |
+|  7 |  8 | 6 |  9 |
+
+The first column is special.
+#+CAPTION: Table with special column
+|---+----+----|
+| / |  1 |  2 |
+| # |  2 |  3 |
+| ! |  4 |  5 |
+| $ |  6 |  7 |
+| * |  8 |  9 |
+| ^ | 10 | 11 |
+
+#+CAPTION: Calculation
+|---+-------------+---+-----+-----------------------------------------------------------------------------|
+|   | Func        | n | x   | Result                                                                      |
+|---+-------------+---+-----+-----------------------------------------------------------------------------|
+| # | exp(x)      | 1 | x   | 1 + x                                                                       |
+| # | exp(x)      | 2 | x   | 1 + x + x^2 / 2                                                             |
+| # | exp(x)      | 3 | x   | 1 + x + x^2 / 2 + x^3 / 6                                                   |
+| # | x^2+sqrt(x) | 2 | x=0 | x*(0.5 / 0) + x^2 (2 - 0.25 / 0) / 2                                        |
+| # | x^2+sqrt(x) | 2 | x=1 | 2 + 2.5 x - 2.5 + 0.875 (x - 1)^2                                           |
+| # | tan(x)      | 8 | x   | x pi / 180 + 5.7156e-8 x^3 pi^3 + 7.0563e-13 x^5 pi^5 + 8.8152e-18 x^7 pi^7 |
+|---+-------------+---+-----+-----------------------------------------------------------------------------|
+#+TBLFM: $5=taylor($2,$4,$3);n5
+
+#+CAPTION: Calculation
+| Student  | Maths | Physics | Mean |
+|----------+-------+---------+------|
+| Bertrand |    13 |      09 |   11 |
+| Henri    |    15 |      14 | 14.5 |
+| Arnold   |    17 |      13 |   15 |
+#+TBLFM: $4=vmean($2..$3)
+
+The first row is special
+#+CAPTION: Table with special row
+|---+---+---|
+| / | 1 | 2 |
+|   | 2 | 3 |
+|   | 2 | 3 |
+
+#+CAPTION: Table with a width spec
+|-----------------------------------------------------------------------------------+--------|
+| <12>                                                                              |        |
+| Praesent fermentum tempor tellus.  Etiam laoreet quam sed arcu.  Praesent augue.  | Cell 2 |
+| Etiam vel neque nec dui dignissim bibendum.  Aenean in sem ac leo mollis blandit. | Cell 3 |
+|-----------------------------------------------------------------------------------+--------|
+
+#+CAPTION: Table with an alignment spec
+|--------------------------------+-----------------------------------------------------------+----------------|
+| <l>                            |                            <c>                            |            <r> |
+| Donec hendrerit tempor tellus. | Lorem ipsum dolor sit amet, consectetuer adipiscing elit. | Nullam tempus. |
+| 1                              |                             2                             |              3 |
+| 4                              |                             5                             |              6 |
+
+#+CAPTION: Table with two header rows
+| H1 | H2 | H3 |
+| H1 | H2 | H3 |
+|----+----+----|
+|  1 |  2 |  3 |
+|  4 |  5 |  6 |

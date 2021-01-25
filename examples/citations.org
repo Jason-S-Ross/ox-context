@@ -1,0 +1,11 @@
+#+BIBLIOGRAPHY: bib plain option:-d
+
+
+\cite{book}
+
+\cite{patashnik-bibtexing}
+
+Here's \cite{article,book}
+
+Here's some text \cite{article}
+

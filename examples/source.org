@@ -1,0 +1,565 @@
+#+OPTIONS: syntax:vim
+Syntax highlighting is supported in ConTeXt, but you may have to install a
+module to support it. By default, there is a custom ConTeXt ~typing~ called
+~OrgBlkSrc~ defined in the header that can be customized by adding\\
+~#+CONTEXT_HEADER_EXTRA: \setuptyping[OrgBlkSrc][...]~.
+
+The default configuration for syntax highlighting is quite limited and relies
+on pure ConTeXt. Setting
+: #+OPTIONS: syntax:vim
+will provide syntax highlighting using the ~t-vim~ ConTeXt module and relies
+on having Vim installed.
+
+Different vim snytax highlighting schemes can be selected with snippets. By
+default, a style called ~pigmints~ is included which you can use by adding
+~#+CONTEXT_SNIPPET: colors-pigmints~ to your document.
+
+* Javascript
+  #+CAPTION: 99 Bottles of Beer in Javascript
+  #+BEGIN_SRC javascript -n  :eval no
+var beer = 99;
+while (beer > 0) {     (ref:JavaRef)
+    var verse = [
+        beer + " bottles of beer on the wall,",
+        beer + " bottles of beer!",
+        "Take one down, pass it around",
+        (beer - 1) + " bottles of beer on the wall!"
+    ].join("\n");
+
+    console.log(verse);
+
+    beer--;
+}
+  #+END_SRC
+
+Here's a link to [[(JavaRef)]]
+
+
+* HTML
+  #+CAPTION: A Basic HTML Page
+  #+BEGIN_SRC html :eval no
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Example</title>
+    </head>
+    <body>
+        <p>Hello, World!</p>
+    </body>
+</html>
+  #+END_SRC
+
+* CSS
+  #+CAPTION: A Basic CSS Example
+  #+BEGIN_SRC css :eval no
+body {
+  background-color: #2D2D2D;
+}
+
+h1 {
+  color: #C26356;
+  font-size: 30px;
+  font-family: Menlo, Monaco, fixed-width;
+}
+
+p {
+  color: white;
+  font-family: "Source Code Pro", Menlo, Monaco, fixed-width;
+}
+  #+END_SRC
+
+* SQL
+  #+CAPTION: 99 Bottles of Beer in SQL
+  #+BEGIN_SRC sql :eval no
+SELECT
+        ( 100 - level ) || ' bottle' ||
+          CASE WHEN level != 99 THEN 's' END
+        || ' of beer on the wall'
+        || chr(10)
+        || ( 100 - level ) || ' bottle'
+        || CASE WHEN level != 99 THEN 's' END
+        || ' of beer' || chr(10)
+        || 'Take one down, pass it around'
+        || chr(10)
+        || ( 99 - level ) || ' bottle'
+        || CASE WHEN level != 98 THEN 's' END
+        || ' of beer on the wall'
+        FROM dual CONNECT BY level <= 99;
+  #+END_SRC
+
+* Python
+  #+CAPTION: 99 Bottles of Beer in Python
+  #+BEGIN_SRC python :eval no
+catchphrase = "%d bottles of beer on the wall"
+
+strofas = ("\n".join((
+    catchphrase % n,
+    catchphrase[:18] % n,
+    "Take one down and pass it around",
+    catchphrase % (n-1)
+)) for n in range(99, 0, -1))
+
+print("\n\n".join(strofas))
+  #+END_SRC
+
+* Java
+  #+CAPTION: 99 Bottles of Beer in Java
+  #+BEGIN_SRC java :eval no
+import java.text.MessageFormat;
+
+public class Beer {
+    static String bottles(int n) {
+        return MessageFormat.format(
+"{0,choice,0#No more bottles|1#One bottle|2#{0} bottles} of beer", n);
+    }
+
+    public static void main(String[] args) {
+        String bottles = bottles(99);
+        for (int n = 99; n > 0; ) {
+            System.out.println(bottles + " on the wall");
+            System.out.println(bottles);
+            System.out.println("Take one down, pass it around");
+            bottles = bottles(--n);
+            System.out.println(bottles + " on the wall");
+            System.out.println();
+        }
+    }
+}
+  #+END_SRC
+
+* Bash
+  #+CAPTION: 99 Bottles of Beer in Bash
+  #+BEGIN_SRC bash :eval no
+#!/bin/sh
+
+i=99 s=s
+
+while [ $i -gt 0 ]; do
+        echo "$i bottle$s of beer on the wall"
+        echo "$i bottle$s of beer
+Take one down, pass it around"
+        # POSIX allows for $(( i - 1 )) but some older Unices
+        # didn't have that
+        i=`expr $i - 1`
+  [ $i -eq 1 ] && s=
+        echo "$i bottle$s of beer on the wall
+"
+done
+  #+END_SRC
+
+* C#
+  #+CAPTION: 99 Bottles of Beer in C#
+  #+BEGIN_SRC c# :eval no
+using System;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        for (int i = 99; i > -1; i--)
+        {
+            if (i == 0)
+            {
+                Console.WriteLine(
+"No more bottles of beer on the wall, no more bottles of beer.");
+                Console.WriteLine(
+"Go to the store and buy some more, 99 bottles of beer on the wall.");
+                break;
+            }
+            if (i == 1)
+            {
+                Console.WriteLine(
+"1 bottle of beer on the wall, 1 bottle of beer.");
+                Console.WriteLine(
+"Take one down and pass it around, no more bottles of beer on the wall.");
+                Console.WriteLine();
+            }
+            else
+            {
+                Console.WriteLine(
+"{0} bottles of beer on the wall, {0} bottles of beer.", i);
+                Console.WriteLine(
+"Take one down and pass it around, {0} bottles of beer on the wall.", i - 1);
+                Console.WriteLine();
+            }
+        }
+    }
+}
+  #+END_SRC
+
+* PHP
+  #+CAPTION: 99 Bottles of Beer in PHP
+  #+BEGIN_SRC php :eval no
+<?php
+$plural = 's';
+foreach (range(99, 1) as $i) {
+    echo "$i bottle$plural of beer on the wall,\n";
+    echo "$i bottle$plural of beer!\n";
+    echo "Take one down, pass it around!\n";
+    if ($i - 1 == 1)
+        $plural = '';
+
+    if ($i > 1)
+        echo ($i - 1) . " bottle$plural of beer on the wall!\n\n";
+    else
+        echo "No more bottles of beer on the wall!\n";
+}
+?>
+  #+END_SRC
+
+* TypeScript
+  #+CAPTION: 99 Bottles of Beer in Typescript
+  #+BEGIN_SRC typescript :eval no
+  function beerSong(){
+      function nbottles(howMany:number){
+          return `${howMany?howMany:'no'} bottle${howMany!=1?'s':''}`;
+      }
+      let song=[];
+      let beer = 99;
+      while (beer > 0) {
+          song.push(`
+              ${nbottles(beer)} of beer on the wall,
+              ${nbottles(beer)} of beer!
+              Take one down, pass it around
+              ${nbottles(--beer)} of beer on the wall
+          `);
+      }
+      return song.join('');
+  }
+
+  console.log(beerSong());
+  #+END_SRC
+
+* C++
+  #+CAPTION: 99 Bottles of Beer in C++
+  #+BEGIN_SRC c++ :eval no
+  #include <iostream>
+
+  template<int max, int min> struct bottle_countdown
+  {
+    static const int middle = (min + max)/2;
+    static void print()
+    {
+      bottle_countdown<max, middle+1>::print();
+      bottle_countdown<middle, min>::print();
+    }
+  };
+
+  template<int value> struct bottle_countdown<value, value>
+  {
+    static void print()
+    {
+      std::cout << value << " bottles of beer on the wall\n"
+                << value << " bottles of beer\n"
+                << "Take one down, pass it around\n"
+                << value-1 << " bottles of beer\n\n";
+    }
+  };
+
+  int main()
+  {
+    bottle_countdown<100, 1>::print();
+    return 0;
+  }
+  #+END_SRC
+
+* Go
+  #+CAPTION: 99 Bottles of Beer in Go
+  #+BEGIN_SRC go :eval no
+  package main
+
+  import "fmt"
+
+  func main() {
+    bottles := func(i int) string {
+      switch i {
+      case 0:
+        return "No more bottles"
+      case 1:
+        return "1 bottle"
+      default:
+        return fmt.Sprintf("%d bottles", i)
+      }
+    }
+
+    for i := 99; i > 0; i-- {
+      fmt.Printf("%s of beer on the wall\n", bottles(i))
+      fmt.Printf("%s of beer\n", bottles(i))
+      fmt.Printf("Take one down, pass it around\n")
+      fmt.Printf("%s of beer on the wall\n", bottles(i-1))
+    }
+  }
+  #+END_SRC
+
+* Kotlin
+  #+CAPTION: 99 Bottles of Beer in Kotlin
+  #+BEGIN_SRC kotlin :eval no
+  fun main(args: Array<String>) {
+      for (i in 99.downTo(1)) {
+          println("$i bottles of beer on the wall")
+          println("$i bottles of beer")
+          println("Take one down, pass it around")
+      }
+      println("No more bottles of beer on the wall!")
+  }
+  #+END_SRC
+
+* Ruby
+  #+CAPTION: 99 Bottles of Beer in Ruby
+  #+BEGIN_SRC ruby :eval no
+  plural = 's'
+  99.downto(1) do |i|
+    puts "#{i} bottle#{plural} of beer on the wall,"
+    puts "#{i} bottle#{plural} of beer"
+    puts "Take one down, pass it around!"
+    plural = '' if i - 1 == 1
+    if i > 1
+      puts "#{i-1} bottle#{plural} of beer on the wall!"
+      puts
+    else
+      puts "No more bottles of beer on the wall!"
+    end
+  end
+  #+END_SRC
+
+* Assembly
+  #+CAPTION: 99 Bottles of Beer in x86
+  #+BEGIN_SRC asm :eval no
+  .386
+  .model flat, stdcall
+  option casemap :none
+
+  include \masm32\include\kernel32.inc
+  include \masm32\include\masm32.inc
+  include \masm32\include\user32.inc
+  includelib \masm32\lib\kernel32.lib
+  includelib \masm32\lib\masm32.lib
+  includelib \masm32\lib\user32.lib
+
+  .DATA
+   buffer db 1024 dup(?)
+   str1 db "%d bottles of beer on the wall.",10,13,0
+   str2 db "%d bottles of beer",10,13,0
+   str3 db "Take one down, pass it around",10,13,0
+   str4 db "No more bottles of beer on the wall!",10,13,0
+   nline db 13,10,0
+
+   bottles dd 99
+
+  .CODE
+   start:
+    INVOKE wsprintfA, offset buffer, offset str1, [bottles]
+    INVOKE StdOut, offset buffer
+
+    INVOKE wsprintfA, offset buffer, offset str2, [bottles]
+    INVOKE StdOut, offset buffer
+
+    INVOKE StdOut, offset str3
+
+    DEC [bottles]
+
+    INVOKE wsprintfA, offset buffer, offset str1, [bottles]
+    INVOKE StdOut, offset buffer
+    INVOKE StdOut, offset nline
+
+    CMP [bottles], 1
+    JNE start
+
+    INVOKE StdOut, offset str4
+    INVOKE ExitProcess, 0
+   end start
+  #+END_SRC
+
+* VBA
+  #+CAPTION: 99 Bottles of Beer in VBA
+  #+BEGIN_SRC vba :eval no
+  Public Function countbottles(n As Integer, liquid As String) As String
+    countbottles = IIf(n > 1, Format$(n), IIf(n = 0, "no more", "one")) & " bottle" & IIf(n = 1, "", "s") & " of " & liquid
+  End Function
+
+  Public Sub drink(fullbottles As Integer, Optional liquid As String = "beer")
+  Static emptybottles As Integer
+
+    Debug.Print countbottles(fullbottles, liquid) & " on the wall"
+    Debug.Print countbottles(fullbottles, liquid)
+
+    If fullbottles > 0 Then
+      Debug.Print "take " & IIf(fullbottles > 1, "one", "it") & " down, pass it around"
+      Debug.Print countbottles(fullbottles - 1, liquid) & " on the wall"
+      Debug.Print
+      emptybottles = emptybottles + 1
+      drink fullbottles - 1, liquid
+    Else
+      Debug.Print "go to the store and buy some more"
+      Debug.Print countbottles(emptybottles, liquid) & " on the wall"
+    End If
+
+  End Sub
+  #+END_SRC
+
+* Swift
+  #+CAPTION: 99 Bottles of Beer in Swift
+  #+BEGIN_SRC swift :eval no
+  for i in (1...99).reversed() {
+    print("\(i) bottles of beer on the wall, \(i) bottles of beer.")
+    let next = i == 1 ? "no" : (i-1).description
+    print("Take one down and pass it around, \(next) bottles of beer on the wall.")
+  }
+  #+END_SRC
+
+* R
+  #+CAPTION: 99 Bottles of Beer in R
+  #+BEGIN_SRC r :eval no
+  #a naive function to sing for N bottles of beer...
+
+  song = function(bottles){
+
+    for(i in bottles:1){ #for every integer bottles, bottles-1 ... 1
+      #join and print the text (\n means new line)
+      cat(bottles," bottles of beer on the wall \n",bottles,
+          " bottles of beer \nTake one down, pass it around \n",
+          bottles-1, " bottles of beer on the wall \n"," \n" ,sep="")
+
+          bottles = bottles - 1 #take one down...
+
+    }
+
+  }
+
+  song(99)#play the song by calling the function
+  #+END_SRC
+
+* Rust
+  #+CAPTION: 99 Bottles of Beer in Rust
+  #+BEGIN_SRC rust :eval no
+  trait Bottles {
+    fn bottles_of_beer(&self) -> Self;
+    fn on_the_wall(&self);
+  }
+
+  impl Bottles for u32 {
+    fn bottles_of_beer(&self) -> u32 {
+      match *self {
+        0 => print!("No bottles of beer"),
+        1 => print!("{} bottle of beer", self),
+        _ => print!("{} bottles of beer", self)
+      }
+      ,*self   // return a number for chaining
+    }
+
+    fn on_the_wall(&self) {
+      println!(" on the wall!");
+    }
+  }
+
+  fn main() {
+    for i in (1..100).rev() {
+      i.bottles_of_beer().on_the_wall();
+      i.bottles_of_beer();
+      println!("\nTake one down, pass it around...");
+      (i - 1).bottles_of_beer().on_the_wall();
+      println!("-----------------------------------");
+    }
+  }
+  #+END_SRC
+
+* Objective-C
+  #+CAPTION: 99 Bottles of Beer in Objective-C
+  #+BEGIN_SRC objc :eval no
+  #import <Foundation/Foundation.h>
+
+  int main()
+  {
+      @autoreleasepool {
+          int bottles = 99;
+          do
+          {
+              NSLog(@"%i bottles of beer on the wall\n", bottles);
+              NSLog(@"%i bottles of beer\n", bottles);
+              NSLog(@"Take one down, pass it around\n");
+              NSLog(@"%i bottles of beer on the wall\n\n", --bottles);
+          } while (bottles > 0);
+
+      }
+      return 0;
+  }
+  #+END_SRC
+
+* Dart
+  #+CAPTION: 99 Bottles of Beer in Dart
+  #+BEGIN_SRC dart :eval no
+  main() {
+    for(int x=99;x>0;x--) {
+      print("$x bottles of beer on the wall");
+      print("$x bottles of beer");
+      print("Take one down, pass it around");
+      print("${x-1} bottles of beer on the wall");
+      print("");
+    }
+  }
+  #+END_SRC
+
+* Scala
+  #+CAPTION: 99 Bottles of Beer in Scala
+  #+BEGIN_SRC scala :eval no
+  99 to 1 by -1 foreach { n =>
+    println(
+      f"$n%d bottles of beer on the wall\n" +
+        f"$n%d bottles of beer\n" +
+        f"Take one down, pass it around\n" +
+        f"${n - 1}%d bottles of beer on the wall\n")
+  }
+  #+END_SRC
+
+* Perl
+  #+CAPTION: 99 Bottles of Beer in Perl
+  #+BEGIN_SRC perl :eval no
+  #!/usr/bin/perl -w
+
+  my $verse = <<"VERSE";
+  100 bottles of beer on the wall,
+  100 bottles of beer!
+  Take one down, pass it around!
+  99 bottles of beer on the wall!
+
+  VERSE
+
+  {
+      $verse =~ s/(\d+)/$1-1/ge;
+      $verse =~ s/\b1 bottles/1 bottle/g;
+      my $done = $verse =~ s/\b0 bottle/No bottles/g; # if we make this replacement, we're also done.
+
+      print $verse;
+      redo unless $done;
+  }
+  #+END_SRC
+
+* Haskell
+  #+CAPTION: 99 Bottles of Beer in Haskell
+  #+BEGIN_SRC haskell :eval no
+  main = mapM_ (putStrLn . beer) [99, 98 .. 0]
+  beer 1 = "1 bottle of beer on the wall\n1 bottle of beer\nTake one down, pass it around"
+  beer 0 = "better go to the store and buy some more."
+  beer v = show v ++ " bottles of beer on the wall\n" 
+                  ++ show v 
+                  ++" bottles of beer\nTake one down, pass it around\n" 
+                  ++ head (lines $ beer $ v-1) ++ "\n"
+  #+END_SRC
+
+* Julia
+  #+CAPTION: 99 Bottles of Beer in Julia
+  #+BEGIN_SRC julia :eval no
+  bottles(n) = n==0 ? "No more bottles" :
+               n==1 ? "1 bottle" :
+               "$n bottles"
+
+  for n = 99:-1:1
+      println("""
+          $(bottles(n)) of beer on the wall
+          $(bottles(n)) of beer
+          Take one down, pass it around
+          $(bottles(n-1)) of beer on the wall
+      """)
+  end
+  #+END_SRC
+
