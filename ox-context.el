@@ -327,7 +327,8 @@ If nil, examples are enclosed in \"\\startframedtext\" / \"\\stopframedtext\""
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-inline-source-environment '("OrgInlineSrc" . "")
+(defcustom org-context-inline-source-environment
+  '("OrgInlineSrc" . "\\definetype[OrgInlineSrc]")
   "The environment name of the inline source environment.
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
@@ -1464,102 +1465,6 @@ a plist."
         (format "\\reference[%s]{%s}\n" label (or name value))
       (format "\\reference[%s]{}\n" label))))
 
-(defun org-context--highlight-src-builtin (src-block code info typ)
-  "Wraps a source block in the builtin environment for ConTeXt source code.
-Use this if you don't have Vim.
-
-SRC-BLOCK is the code object to transcode.
-CODE is the preprocessed contents of the code block.
-INFO is a plist holding contextual information.
-TYP is one of \"'inline\" or \"'block\"."
-  (when code
-    (let* ((org-lang (org-element-property :language src-block))
-           (lang (and
-                  org-lang
-                  (or (cadr (assoc org-lang
-                                   (plist-get info :context-highlighted-langs)))
-                      (downcase org-lang))))
-           (env-name
-            (or
-             (org-string-nw-p
-              (car
-               (pcase typ
-                 ('block (plist-get info :context-block-source-environment))
-                 ('inline (plist-get info :context-inline-source-environment)))))
-             "typing")))
-      (format "\\start%s%s\n%s\\stop%s"
-              env-name
-              (if (org-string-nw-p lang)
-                  (format "[option=%s]" lang)
-                "")
-              code
-              env-name))))
-
-(defun org-context--highlight-src-vim (src-block code info typ)
-  "Wraps a source block in a vimtyping environment.
-This requires you have Vim installed and the t-vim module for
-ConTeXt. SRC-BLOCK is the entity to wrap. CODE is the contents of
-the entity. INFO is a plist containing contextual information.
-TYP is a symbol (either 'block or 'inline)"
-  (let ((org-lang (org-element-property :language src-block)))
-    (if (org-string-nw-p org-lang)
-      (let* (
-             ;; Add a hash table of language names and vimtyping names
-             (lang-cache
-              (or (plist-get info :context-languages-used-cache)
-                  (let ((hash (make-hash-table :test #'equal)))
-                    (plist-put info :context-languages-used-cache hash)
-                    hash)))
-             ;; Get language info or create it if it doesn't exist
-             (lang-info
-              (or (gethash org-lang lang-cache)
-                  (puthash org-lang
-                           (let ((lang-info
-                                  (or
-                                   (cdr
-                                    (assoc org-lang
-                                           (plist-get info :context-vim-langs)))
-                                   (list
-                                    :vim-name (downcase org-lang)
-                                    :context-name (capitalize org-lang)))))
-                             (list
-                              :vim-lang
-                              (plist-get lang-info :vim-name)
-                              :context-inline-name
-                              (concat
-                               (or
-                                (org-string-nw-p
-                                 (car
-                                  (plist-get info :context-inline-source-environment)))
-                                "")
-                               (plist-get lang-info :context-name))
-                              :context-block-name
-                              (concat
-                               (or
-                                (org-string-nw-p
-                                 (car
-                                  (plist-get info :context-block-source-environment)))
-                                "")
-                               (plist-get lang-info :context-name))))
-                           lang-cache)))
-             (context-name
-              (plist-get
-               lang-info
-               (pcase typ
-                 ('inline :context-inline-name)
-                 ('block :context-block-name)))))
-        (pcase typ
-          ('block (format "\\start%s\n%s\\stop%s"
-                          context-name
-                          code
-                          context-name))
-          ('inline (format "\\inline%s{%s}" context-name code))
-          (_ "")))
-      (pcase typ
-        ('block (format "\\starttyping\n%s\\stoptying" code))
-        ('inline (format "\\type{%s}" code))
-        (_ "")))))
-
 (defun org-context--get-vim-lang-info (src-block info)
   "Get a plist containing langauge information for vim higlighting.
 INFO is a plist that acts as a communication channel. SRC-BLOCK
@@ -2116,8 +2021,42 @@ contextual information."
   (let ((engine (plist-get info :context-syntax-engine))
         (code (org-export-format-code-default inline-src-block info)))
     (pcase engine
-      ('vim (org-context--highlight-src-vim inline-src-block code info 'inline))
-      (_ (org-context--highlight-src-builtin inline-src-block code info 'inline)))))
+      ('vim (org-context--highlight-inline-src-vim
+             inline-src-block code info))
+      (_ (org-context--highlight-inline-src-builtin
+          inline-src-block code info)))))
+
+(defun org-context--highlight-inline-src-builtin (src-block code info)
+  "Wraps a source block in the builtin environment for ConTeXt source code.
+Use this if you don't have Vim.
+
+SRC-BLOCK is the code object to transcode.
+CODE is the preprocessed contents of the code block.
+INFO is a plist holding contextual information."
+  (when code
+    (let* ((lang (org-context--get-builtin-lang-name src-block info))
+           (env-name
+            (or
+             (org-string-nw-p
+              (car (plist-get info :context-inline-source-environment)))
+             "type")))
+      (format "\\%s%s{%s}"
+              env-name
+              (if (org-string-nw-p lang)
+                  (format "[option=%s]" lang)
+                "")
+              code))))
+
+(defun org-context--highlight-inline-src-vim (src-block code info)
+  "Wraps a source block in a vimtyping environment.
+This requires you have Vim installed and the t-vim module for
+ConTeXt. SRC-BLOCK is the entity to wrap. CODE is the contents of
+the entity. INFO is a plist containing contextual information."
+  (let ((org-lang (org-element-property :language src-block)))
+    (if (org-string-nw-p org-lang)
+      (let* ((lang-info (org-context--get-vim-lang-info src-block info))
+             (context-name (plist-get lang-info :context-inline-name)))
+        (format "\\inline%s{%s}" context-name code)))))
 
 ;;;; Inlinetask
 
@@ -2895,29 +2834,28 @@ Use this if you don't have Vim.
 SRC-BLOCK is the code object to transcode. CODE is the
 preprocessed contents of the code block. INFO is a plist holding
 contextual information."
-  (when code
-    (let* ((lang (org-context--get-builtin-lang-name src-block info))
-           (env-name
-            (or
-             (org-string-nw-p
-              (car (plist-get info :context-block-source-environment)))
-             "typing"))
-           (num-start (org-export-get-loc src-block info))
-           (num-start-str
-            (when (and num-start (> num-start 0))
-              (number-to-string num-start)))
-           (args
-            (org-string-nw-p
-             (org-context--format-arguments
-              (list (cons "start" num-start-str)
-                    (cons "numbering" (when num-start "line"))
-                    (cons "option" lang))
-              t))))
-      (format "\\start%s%s\n%s\n\\stop%s"
-              env-name
-              (if args (format "[%s]" args) "")
-              code
-              env-name))))
+  (let* ((lang (org-context--get-builtin-lang-name src-block info))
+         (env-name
+          (or
+           (org-string-nw-p
+            (car (plist-get info :context-block-source-environment)))
+           "typing"))
+         (num-start (org-export-get-loc src-block info))
+         (num-start-str
+          (when (and num-start (> num-start 0))
+            (number-to-string num-start)))
+         (args
+          (org-string-nw-p
+           (org-context--format-arguments
+            (list (cons "start" num-start-str)
+                  (cons "numbering" (when num-start "line"))
+                  (cons "option" lang))
+            t))))
+    (format "\\start%s%s\n%s\n\\stop%s"
+            env-name
+            (if args (format "[%s]" args) "")
+            code
+            env-name)))
 
 (defun org-context--highlight-src-block-vim (src-block code info)
   "Wraps a source block in a vimtyping environment.
@@ -3335,10 +3273,6 @@ holding the export options."
                     "% Create the fixed width environment"
                     "\\definetyping[%s]")
                    (list
-                    :context-inline-source-environment
-                    "% Create the inline source environment"
-                    "\\definetyping[%s]")
-                   (list
                     :context-titlepage-environment
                     "% Create the title page style"
                     "\\definestartstop[%s]")
@@ -3382,6 +3316,9 @@ holding the export options."
                    (list
                     :context-planning-command
                     "% Define a basic planning command")
+                   (list
+                    :context-inline-source-environment
+                    "% Create the inline source environment")
                    (list
                     :context-inline-task-command
                     "% Define a basic inline task command")
