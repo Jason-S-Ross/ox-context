@@ -2462,14 +2462,25 @@ The TYPE is determined from the actual latex environment."
     env))
 
 (defun org-context--transcode-align (align-environment)
-  "Transcode an ALIGN-ENVIRONMENT from org to ConTeXt.
-CONTENTS is nil. INFO is a plist holding contextual information."
+  "Transcode an ALIGN-ENVIRONMENT from org to ConTeXt."
   (concat
-   "\\startalign\n\\NC "
-   (replace-regexp-in-string
-    "\\\\\\\\" "\\\\NR[+]\n\\\\NC "
-    (replace-regexp-in-string "[^\\]&" " \\\\NC " align-environment))
-   "\\stopalign\n"))
+   "\\startalign\n"
+   (mapconcat
+   (lambda (math-row)
+     (concat
+      "\\NC "
+      ;; Strip surrounding whitespace
+      (replace-regexp-in-string
+       "\\`[ \t\n]*"
+       ""
+       (replace-regexp-in-string
+        "[ \t\n]*\\'"
+        ""
+        (replace-regexp-in-string "[^\\]&" " \\\\NC " math-row)))))
+   (seq-filter 'org-string-nw-p
+               (split-string align-environment "\\\\\\\\"))
+   " \\NR[+]\n")
+   " \\NR[+]\n\\stopalign\n"))
 
 ;;;; Latex Fragment
 
