@@ -13,9 +13,9 @@
 ;; GNU General Public License for more details.
 
 ;; TODO Set indentation level for content
+;;
 ;; TODO `org-context--add-reference' needs to be checked against all environments
-;; TODO explicit document structure commands like frontmatter, backmatter, body etc
-;; This could be implemented with keywords or header properties
+;;
 ;; TODO abstract?
 ;;; Commentary:
 
@@ -46,6 +46,7 @@
     (horizontal-rule . org-context-horizontal-rule)
     (inline-src-block . org-context-inline-src-block)
     (inlinetask . org-context-inlinetask)
+    (inner-template . org-context-inner-template)
     (italic . org-context-italic)
     (item . org-context-item)
     (keyword . org-context-keyword)
@@ -96,7 +97,6 @@
                   (:closing "CLOSING" nil org-context-closing parse)
                   (:context-block-source-environment nil nil org-context-block-source-environment)
                   (:context-blockquote-environment nil nil org-context-blockquote-environment)
-                  (:context-body-environment nil nil org-context-body-environment)
                   (:context-bullet-off-command nil nil org-context-bullet-off-command)
                   (:context-bullet-on-command nil nil org-context-bullet-on-command)
                   (:context-bullet-trans-command nil nil org-context-bullet-trans-command)
@@ -126,6 +126,8 @@
                   (:context-inline-image-rules nil nil org-context-inline-image-rules)
                   (:context-inline-source-environment nil nil org-context-inline-source-environment)
                   (:context-inline-task-command nil nil org-context-inline-task-command)
+                  (:context-inner-template "CONTEXT_TEMPLATE" nil org-context-default-inner-template t)
+                  (:context-inner-templates nil nil org-context-inner-templates-alist)
                   (:context-node-property-command nil nil org-context-node-property-command)
                   (:context-number-equations nil "numeq" org-context-number-equations)
                   (:context-planning-command nil nil org-context-planning-command)
@@ -628,6 +630,13 @@ This option can also be set with the CLOSING keyword."
   :group 'org-export-context
   :type 'string)
 
+(defcustom org-context-default-inner-template
+  "empty"
+  "The default inner template to use in documents.
+See `org-context-inner-templates-alist'"
+  :group 'org-export-context
+  :type 'string)
+
 (defcustom org-context-default-preset "empty"
   "A preamble with no style settings for the document elements."
   :group 'org-export-context
@@ -841,6 +850,75 @@ link's path."
   :type '(alist :key-type (string :tag "Type")
                 :value-type (regexp :tag "Path")))
 
+(defcustom org-context-inner-templates-alist
+  '(("empty" . "%t
+%f
+%c
+%a
+%b")
+    ("article" . "\\startfrontmatter
+%t
+%f
+\\stopfrontmatter
+
+\\startbodymatter
+%c
+\\stopbodymatter
+
+\\startappendices
+%a
+\\stopappendices
+
+\\startbackmatter
+%b
+\\stopbackmatter")
+    ("letter" . "\\startfrontmatter
+%t
+%f
+\\stopfrontmatter
+\\startbodymatter
+%c
+\\stopbodymatter
+
+\\startappendices
+%a
+\\stopappendices
+
+\\startbackmatter
+%b
+\\stopbackmatter")
+    ("report" . "\\startfrontmatter
+\\startstandardmakeup
+%t
+\\stopstandardmakeup
+%f
+\\stopfrontmatter
+
+\\startbodymatter
+%c
+\\stopbodymatter
+
+\\startappendices
+%a
+\\stopappendices
+\\startbackmatter
+%b
+\\stopbackmatter"))
+  "Alist of ConTeXt document body templates.
+First element is the name of the template. Second element is
+a format specification string.
+String keys are as follows:
+
+?t: The document title command
+?f: Sections tagged :frontmatter: or with the property :FRONTMATTER:
+?c: Normal sections
+?a: Sections tagged :appendix: or with the property :APPENDIX:
+?b: Sections tagged :backmatter: or with the property :BACKMATTER:"
+  :group 'org-export-context
+  :type '(repeat
+          (cons (string :tag "Template Name")
+                (string :tag "Template Contents"))))
+
 (defcustom org-context-location ""
   "Sender's extension field, as a string.
 
@@ -901,42 +979,31 @@ This option can also be set with the PLACE keyword."
   :type 'string)
 
 (defcustom org-context-presets-alist
-  '(("empty"
-     :preamble ("")
-     :starttext ("")
-     :stoptext (""))
-    ("article"
-     :preamble
-     ("\\setupwhitespace[big]"
-      "layout-article"
-      "description-article"
-      "quote-article"
-      "verse-article"
-      "table-article"
-      "title-article"
-      "sectioning-article"
-      "page-numbering-article"
-      "setup-grid"))
-    ("report"
-     :preamble
-     ("\\setupwhitespace[big]"
-      "layout-article"
-      "description-article"
-      "quote-article"
-      "verse-article"
-      "table-article"
-      "title-report"
-      "headlines-report"
-      "page-numbering-article"
-      "setup-grid"))
-    ("letter"
-     :preamble
-     ("\\setupwhitespace[big]
+  '(("empty" . (""))
+    ("article" . ("\\setupwhitespace[big]"
+                  "layout-article"
+                  "description-article"
+                  "quote-article"
+                  "verse-article"
+                  "table-article"
+                  "title-article"
+                  "sectioning-article"
+                  "page-numbering-article"
+                  "setup-grid"))
+    "layout-article"
+    ("report" . ("\\setupwhitespace[big]"
+                 "description-article"
+                 "quote-article"
+                 "verse-article"
+                 "table-article"
+                 "title-report"
+                 "headlines-report"
+                 "page-numbering-article"
+                 "setup-grid"))
+    ("letter" . ("\\setupwhitespace[big]
 \\usemodule[letter]"
-      "setup-letter"
-      "setup-grid")
-     :starttext ("\\startletter")
-     :stoptext ("\\stopletter")))
+                 "setup-letter"
+                 "setup-grid")))
   ;; TODO update doc
   "Alist of ConTeXt preamble presets."
   :group 'org-export-context
@@ -1926,9 +1993,18 @@ containing contextual information."
                                      notoc-heading-cache))))
                   notoc-name)
               hname)))
-         (headertemplate (format "\\start%s" headline-name))
-         (footercommand (format "\n\n\\stop%s" headline-name))
+         (headertemplate (format "\n\\start%s" headline-name))
+         (footercommand (format "\n\\stop%s" headline-name))
          (headline-label (org-context--label headline info t ))
+         (frontmatterp
+          (or (member "frontmatter" tags)
+              (org-export-get-node-property :FRONTMATTER headline)))
+         (backmatterp
+          (or (member "backmatter" tags)
+              (org-export-get-node-property :BACKMATTER headline)))
+         (appendixp
+          (or (member "appendix" tags)
+              (org-export-get-node-property :APPENDIX headline)))
          (headline-args
           (org-context--format-arguments
            (list
@@ -1936,15 +2012,35 @@ containing contextual information."
             (cons "list" alt-title)
             (cons "marking" alt-title)
             (cons "bookmark" alt-title)
-            (cons "reference" headline-label)))))
-    ;; Use a special heading command to exclude this from the TOC
-    (concat
-     "\n\n"
-     headertemplate
-     (format "[%s]" headline-args)
-     "\n\n"
-     contents
-     footercommand)))
+            (cons "reference" headline-label))))
+         (result (concat
+                  headertemplate
+                  (format "[%s]" headline-args)
+                  "\n\n"
+                  contents
+                  footercommand)))
+    ;; Special sections are stuck in the plist somewhere else
+    ;; for later rendering
+    (cond
+     (backmatterp
+      (let ((backmatter-sections
+             (plist-get info :context-backmatter-sections)))
+        (plist-put info :context-backmatter-sections
+                   (cons result backmatter-sections))
+        nil))
+     (frontmatterp
+      (let ((frontmatter-sections
+             (plist-get info :context-frontmatter-sections)))
+        (plist-put info :context-frontmatter-sections
+                   (cons result frontmatter-sections))
+        nil))
+     (appendixp
+      (let ((appendix-sections
+             (plist-get info :context-appendix-sections)))
+        (plist-put info :context-appendix-sections
+                   (cons result appendix-sections))
+        nil))
+     (t result))))
 
 (defun org-context-format-headline-default-function
     (todo todo-type priority text tags info)
@@ -2107,6 +2203,55 @@ See `org-context-format-inlinetask-function' for details."
            (cons "Tags" (org-make-tag-string (mapcar #'org-context--protect-text tags)))
            (cons "Contents" contents))))
       (concat title "\\hairline" contents "\\hairline"))))
+
+;;;; Inner Template
+
+(defun org-context-inner-template (contents info)
+  "Return body of document string after ConTeXt conversion.
+CONTENTS is the transcoded contents string. INFO is a plist
+containing contextual information."
+  (let* ((templates (plist-get info :context-inner-templates))
+         (template-name (plist-get info :context-inner-template))
+         (titlepagecommand (car (plist-get info :context-titlepage-environment)))
+         (titlecommand (org-string-nw-p (car (plist-get info :context-title-command))))
+         (toccommand (car (plist-get info :context-title-contents-command)))
+         (template (cdr (assoc template-name templates)))
+         (num-sections (length (org-export-collect-headlines info)))
+         (frontmatter-sections
+          (mapconcat
+           'identity
+           (reverse (plist-get info :context-frontmatter-sections))
+           "\n\n"))
+         (backmatter-sections
+          (mapconcat
+           'identity
+           (reverse (plist-get info :context-backmatter-sections))
+           "\n\n"))
+         (appendix-sections
+          (mapconcat
+           'identity
+           (reverse (plist-get info :context-appendix-sections))
+           "\n\n"))
+         (title
+          (concat
+           (when (org-string-nw-p titlepagecommand)
+             (format "\\start%s\n" titlepagecommand))
+           (when (org-string-nw-p titlecommand)
+             (format "\\%s\n" titlecommand))
+           (when (and (plist-get info :with-toc)
+                      (> num-sections 0))
+             (concat (when (org-string-nw-p toccommand)
+                       (format "\\%s\n" toccommand))
+                     "\n\\placecontent\n"))
+           (when (org-string-nw-p titlepagecommand)
+             (format "\\stop%s\n" titlepagecommand)))))
+    (format-spec
+     template
+     (list (cons ?t title)
+           (cons ?f frontmatter-sections)
+           (cons ?c contents)
+           (cons ?a appendix-sections)
+           (cons ?b backmatter-sections)))))
 
 ;;;; Italic
 
@@ -3219,86 +3364,16 @@ holding the export options."
          (header-extra-lines (list (plist-get info :context-header-extra)))
          (preset-name (plist-get info :context-preset))
          (preset-data (cdr (assoc preset-name (plist-get info :context-presets))))
-         (preset-header-data (plist-get preset-data :preamble))
-         (preset-header-string (car preset-header-data))
+         (preset-header-string (car preset-data))
          (preset-header-snippets
-          (org-context--get-snippet-text info (cdr preset-header-data)))
-         (starttext-extra-lines (list (plist-get info :context-starttext)))
-         (preset-starttext-data (plist-get preset-data :starttext))
-         (preset-starttext-string (car preset-starttext-data))
-         (preset-starttext-snippets
-          (org-context--get-snippet-text info preset-starttext-data))
-         (stoptext-extra-lines (list (plist-get info :context-stoptext)))
-         (preset-stoptext-data (plist-get preset-data :stoptext))
-         (preset-stoptext-string (car preset-stoptext-data))
-         (preset-stoptext-snippets
-          (org-context--get-snippet-text info preset-stoptext-data))
+          (org-context--get-snippet-text info (cdr preset-data)))
          (user-snippets (org-context--get-snippet-text info (plist-get info :context-snippet)))
-         (titlepagecommand (car (plist-get info :context-titlepage-environment)))
-         (bodyenvname (car (plist-get info :context-body-environment)))
-         (titlecommand (org-string-nw-p (car (plist-get info :context-title-command))))
-         (toccommand (car (plist-get info :context-title-contents-command)))
-         (environment-defs
+         (command-defs
           (let ((deflist
                   (list
                    (list
                     :context-blockquote-environment
-                    "% blockquote environment"
-                    "\\definestartstop[%s]")
-                   (list
-                    :context-body-environment
-                    "% Create a body style"
-                    "\\definestartstop[%s]")
-                   (list
-                    :context-description-command
-                    "% LaTeX-style descriptive enumerations"
-                    "\\definedescription[%s]")
-                   (list
-                    :context-enumerate-blockquote-environment
-                    "% blockquote environment"
-                    "\\defineenumeration[%s]")
-                   (list
-                    :context-enumerate-example-environment
-                    "% Create the example listing environment"
-                    "\\defineenumeration[%s]")
-                   (list
-                    :context-enumerate-listing-environment
-                    "% Define an environment to wrap listings in"
-                    "\\defineenumeration[%s]")
-                   (list
-                    :context-enumerate-verse-environment
-                    "% Create a verse style"
-                    "\\defineenumeration[%s]")
-                   (list
-                    :context-fixed-environment
-                    "% Create the fixed width environment"
-                    "\\definetyping[%s]")
-                   (list
-                    :context-titlepage-environment
-                    "% Create the title page style"
-                    "\\definestartstop[%s]")
-                   (list
-                    :context-verse-environment
-                    "% Create a verse style"
-                    "\\definelines[%s]"))))
-            (mapconcat
-             (lambda
-               (args)
-               (let* ((kw (nth 0 args))
-                      (comment (nth 1 args))
-                      (templ (nth 2 args))
-                      (nameimpl (plist-get info kw))
-                      (name (car nameimpl))
-                      (impl (cdr nameimpl)))
-                 (concat
-                  comment
-                  "\n"
-                  (or (org-string-nw-p impl) (format templ name)))))
-             deflist
-             "\n")))
-         (command-defs
-          (let ((deflist
-                  (list
+                    "% blockquote environment")
                    (list
                     :context-block-source-environment
                     "% Create the block source environment")
@@ -3312,8 +3387,26 @@ holding the export options."
                     :context-bullet-trans-command
                     "% Define incomplete bullet command")
                    (list
+                    :context-description-command
+                    "% LaTeX-style descriptive enumerations")
+                   (list
+                    :context-enumerate-blockquote-environment
+                    "% blockquote environment")
+                   (list
+                    :context-enumerate-example-environment
+                    "% Create the example listing environment")
+                   (list
+                    :context-enumerate-listing-environment
+                    "% Define an environment to wrap listings in")
+                   (list
+                    :context-enumerate-verse-environment
+                    "% Create a verse style")
+                   (list
                     :context-example-environment
                     "% Create the example environment")
+                   (list
+                    :context-fixed-environment
+                    "% Create the fixed width environment")
                    (list
                     :context-planning-command
                     "% Define a basic planning command")
@@ -3343,7 +3436,13 @@ holding the export options."
                     "% Create an empty title command to be overridden by user")
                    (list
                     :context-title-contents-command
-                    "% Create a TOC header command"))))
+                    "% Create a TOC header command")
+                   (list
+                    :context-titlepage-environment
+                    "% Create the title page style")
+                   (list
+                    :context-verse-environment
+                    "% Create a verse style"))))
             (mapconcat
              (lambda (args)
                (let* ((kw (nth 0 args))
@@ -3478,8 +3577,6 @@ holding the export options."
 "
    vim-langs
    "\n"
-   environment-defs
-   "\n"
    command-defs
    "\n"
    table-defs
@@ -3512,38 +3609,9 @@ holding the export options."
 %===============================================================================
 \\starttext
 \\placebookmarks
-\\startfrontmatter
 "
-   (when (org-string-nw-p titlepagecommand)
-     (format "\\start%s\n" titlepagecommand))
-   (when (org-string-nw-p titlecommand)
-     (format "\\%s\n" titlecommand))
-   (when
-       (plist-get info :with-toc)
-     (concat
-      (when (org-string-nw-p toccommand)
-        (format "\\%s\n" toccommand))
-      "\n\\placecontent\n"))
-   (when (org-string-nw-p titlepagecommand)
-     (format "\\stop%s\n" titlepagecommand))
-   "
-\\stopfrontmatter
-\\startbodymatter
-"
-   (when (org-string-nw-p bodyenvname)
-     (format "\\start%s\n" bodyenvname))
-   (concat preset-starttext-string "\n"
-           (mapconcat 'identity preset-starttext-snippets "\n"))
-
    contents
-
-   (concat preset-stoptext-string "\n"
-           (mapconcat 'identity preset-stoptext-snippets "\n"))
-"\n"
-   (when (org-string-nw-p bodyenvname)
-     (format "\\stop%s\n" bodyenvname))
-   "\\stopbodymatter
-\\stoptext\n")))
+   "\\stoptext\n")))
 
 (defun org-context--list-metadata (info)
   "Create a format-spec for document meta-data.
