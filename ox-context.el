@@ -2303,10 +2303,10 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
      ((string= key "TOC")
       (let ((case-fold-search t))
         (pcase value
-          ((pred (string-match-p "\\<tables\\>")) "\\placelistoftables")
-          ((pred (string-match-p "\\<figures\\>")) "\\placelistoffigures")
-          ((pred (string-match-p "\\<equations\\>")) "\\placelist[formula]")
-          ((pred (string-match-p "\\<references\\>")) "\\placelistofpublications")
+          ((pred (string-match-p "\\<tables\\>")) "\\placelistoftables[criterium=all]")
+          ((pred (string-match-p "\\<figures\\>")) "\\placelistoffigures[criterium=all]")
+          ((pred (string-match-p "\\<equations\\>")) "\\placelist[formula][criterium=all]")
+          ((pred (string-match-p "\\<references\\>")) "\\placelistofpublications[criterium=all]")
           ((pred (string-match-p "\\<definitions\\>")) "\\placeindex")
           ((pred (string-match-p "\\<headlines\\>"))
            (let* ((localp (string-match-p "\\<local\\>" value))
@@ -2338,7 +2338,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                   (org-string-nw-p
                    (car
                     (plist-get info kw)))))
-             (if env (format "\\placelist[%s]" env)
+             (if env (format "\\placelist[%s][criterium=all]" env)
                ""))))))
 
      ((string= key "BIBLIOGRAPHY")
