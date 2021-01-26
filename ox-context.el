@@ -125,7 +125,7 @@
                   (:context-image-default-width nil nil org-context-image-default-width)
                   (:context-inline-image-rules nil nil org-context-inline-image-rules)
                   (:context-inline-source-environment nil nil org-context-inline-source-environment)
-                  (:context-inline-task-command nil nil org-context-inline-task-command)
+                  (:context-inlinetask-command nil nil org-context-inlinetask-command)
                   (:context-inner-template "CONTEXT_TEMPLATE" nil org-context-default-inner-template t)
                   (:context-inner-templates nil nil org-context-inner-templates-alist)
                   (:context-node-property-command nil nil org-context-node-property-command)
@@ -514,7 +514,7 @@ If nil, the command isn't created."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-inline-task-command
+(defcustom org-context-inlinetask-command
   '("OrgInlineTask" . "\\def\\OrgInlineTask#1[#2]{%
   \\getparameters
     [OrgInlineTask]
@@ -2187,8 +2187,11 @@ TAGS is a list of tags associated with the headline.
 CONTENTS is the contents of the task.
 INFO is a plist containing contextual information.
 See `org-context-format-inlinetask-function' for details."
+
+  ;; TODO Strip surrounding colons from tags...
+  ;; Or decide not to. LaTeX leaves the colons; html strips them
   (let ((format-command
-         (org-string-nw-p (car (plist-get info :context-inline-task-command)))))
+         (org-string-nw-p (car (plist-get info :context-inlinetask-command)))))
     (if format-command
         (format
          "\\%s
@@ -3414,7 +3417,7 @@ holding the export options."
                     :context-inline-source-environment
                     "% Create the inline source environment")
                    (list
-                    :context-inline-task-command
+                    :context-inlinetask-command
                     "% Define a basic inline task command")
                    (list
                     :context-headline-command
