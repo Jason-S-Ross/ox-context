@@ -288,19 +288,14 @@
 
 ;;;;; Element Environments
 
+;; TODO Documentations for these environment defs
 ;; These environments wrap block elements to provide the core implementation.
 
-(defcustom org-context-blockquote-environment '("OrgBlockQuote" . "")
+(defcustom org-context-blockquote-environment
+  '("OrgBlockQuote" . "\\definenarrower[OrgBlockQuote][left=2em,right=2em]")
   "The environment name of the block quote environment.
 
 If nil, block quotes aren't delimited."
-  :group 'org-export-context
-  :type '(cons string string))
-
-(defcustom org-context-body-environment '("OrgBody" . "")
-  "The environment name that wraps the document body.
-
-If nil, the document body isn't delimited."
   :group 'org-export-context
   :type '(cons string string))
 
@@ -314,7 +309,16 @@ called NAME is created."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-fixed-environment '("OrgFixed" . "")
+(defcustom org-context-fixed-environment
+  '("OrgFixed" . "\\definetextbackground
+  [OrgFixedBackground]
+  [backgroundcolor=white,
+   framecolor=black,
+   location=always]
+\\definetyping
+  [OrgFixed]
+  [before={\\starttextbackground[OrgFixedBackground]},
+   after={\\stoptextbackground}]")
   "The environment name of the fixed-width environment.
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
@@ -322,7 +326,9 @@ If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
   :type '(cons string string))
 
 (defcustom org-context-property-drawer-environment
-  '("OrgPropDrawer" . "\\definestartstop[OrgPropDrawer]")
+  '("OrgPropDrawer" . "\\definestartstop[OrgPropDrawer]
+  [before={\\startframedtext[frame=on,width=broad]},
+   after={\\stopframedtext}]")
   "The environment name of the property drawer environment.
 
 If nil, examples are enclosed in \"\\startframedtext\" / \"\\stopframedtext\""
@@ -345,14 +351,16 @@ If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-titlepage-environment '("OrgTitlePage" . "")
+(defcustom org-context-titlepage-environment
+  '("OrgTitlePage" . "\\definestartstop[OrgTitlePage]")
   "The environment name that wraps title pages.
 
 If nil, title pages aren't delimited."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-verse-environment '("OrgVerse" . "")
+(defcustom org-context-verse-environment
+  '("OrgVerse" . "\\definelines[OrgVerse]")
   "The environment name of the verse environment.
 
 If nil, verses aren't delimited."
@@ -418,7 +426,11 @@ If nil, examples are not wrapped in an enumeration"
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-enumerate-verse-environment '("OrgVerseEnumerate" . "")
+(defcustom org-context-enumerate-verse-environment '("OrgVerseEnumerate" . "
+\\defineenumeration
+  [OrgVerseEnumerate]
+  [title=yes,
+   text=Verse]")
   "The environment name that wraps verses to list them.
 
 If nil, verses aren't enumerated."
@@ -478,7 +490,8 @@ If nil, the command isn't created."
   :group 'org-export-context
   :type '(cons string string))
 
-(defcustom org-context-description-command '("OrgDesc" . "")
+(defcustom org-context-description-command
+  '("OrgDesc" . "\\definedescription[OrgDesc]")
   "The command name to be used for Org description items.
 
 If nil, \"\\description\" is used"
