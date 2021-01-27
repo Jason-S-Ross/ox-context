@@ -13,6 +13,12 @@ a^4 &= -1 \\
 \frac{d^4}{dx^4} e^{a x} + e^{a x} &= 0 \\
 a^4 e^{a x} + e^{a x} &= 0 \\
 a^4 + 1 &= 0 \\
-a^4 &= -1 \\
+a^4 &= -1
 \end{align}
 
+\[e^{i \pi} + 1 = 0\]
+
+$$e^{i \pi} + 1 = 0$$
+
+Here's inline in dollar signs: $e^{i \pi} + 1 = 0$ and here's
+inline in parentheses \(e^{i \pi} + 1 = 0\)
