@@ -33,6 +33,18 @@
   
   Here's a reference to the [[MyTab][above table]] by a local name
 
+  #+NAME: MyTab2
+  | H1 | H2 |
+  | R1 | R2 |
+
+  Here's a reference to table [[MyTab2]] by number
+
+  #+NAME: MyTab3
+  | H1 | H2 |
+  | R1 | R2 |
+
+  Here's a reference to table [[MyTab3]] by number
+
 * Radio Targets
   
   This is a <<<sample radio target>>>
@@ -45,6 +57,7 @@
     This is a link to [[Simple Target][simple target by another name]]
 
 * Verse Blocks
+
   #+NAME: MyVerse
   #+BEGIN_VERSE
 Phasellus at dui in ligula mollis ultricies.  
@@ -103,6 +116,26 @@ while (beer > 0) {
   This is a named reference to [[MyCode][this code block]]
 
   This is a numbered reference to listing [[MyCode]]
+
+  #+CAPTION: Second Linked Code with a name
+  #+NAME: MyCode2
+  #+BEGIN_SRC javascript
+var beer = 99;
+while (beer > 0) {
+    var verse = [
+        beer + " bottles of beer on the wall,",
+        beer + " bottles of beer!",
+        "Take one down, pass it around",
+        (beer - 1) + " bottles of beer on the wall!"
+    ].join("\n");
+
+    console.log(verse);
+
+    beer--;
+}
+  #+END_SRC
+
+  This is a numbered reference to listing [[MyCode2]]
 
   #+NAME: MyNumberedCode
   #+BEGIN_SRC javascript -n
@@ -196,7 +229,7 @@ while (beer > 0) {
         print(i**2)
   #+END_EXAMPLE
 
-  This should be a link to line 1
+  This should be a link to TestRef5
 
   Here's a link to line [[(TestRef5)]]
 
@@ -207,7 +240,7 @@ while (beer > 0) {
         print(i**2)
   #+END_EXAMPLE
 
-  This should be a link to line 1
+  This should be a link to TestRef6
 
   Here's a link to [[(TestRef6)]]
 
@@ -218,9 +251,9 @@ while (beer > 0) {
         print(i**2)
   #+END_EXAMPLE
 
-  This should be a link to TestRef7
+  This should be a link to line 1
 
-  Here's a link to [[(TestRef7)]]
+  Here's a link to line [[(TestRef7)]]
 
 
   #+BEGIN_EXAMPLE python -r -n
@@ -230,9 +263,10 @@ while (beer > 0) {
         print(i**2)
   #+END_EXAMPLE
 
-  This should be a link to TestRef8
+  This should be a link to line 1
 
-  Here's a link to [[(TestRef8)]]
+  Here's a link to line [[(TestRef8)]]
+
 * Equations
 
 #+CAPTION: A labelled linked euqation
