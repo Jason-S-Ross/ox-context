@@ -109,9 +109,13 @@
                   (:context-clock-command nil nil org-context-clock-command)
                   (:context-description-command nil nil org-context-description-command)
                   (:context-drawer-command nil nil org-context-drawer-command)
+                  (:context-enumerate-blockquote-empty-environment nil nil org-context-enumerate-blockquote-empty-environment)
                   (:context-enumerate-blockquote-environment nil nil org-context-enumerate-blockquote-environment)
+                  (:context-enumerate-example-empty-environment nil nil org-context-enumerate-example-empty-environment)
                   (:context-enumerate-example-environment nil nil org-context-enumerate-example-environment)
+                  (:context-enumerate-listing-empty-environment nil nil org-context-enumerate-listing-empty-environment)
                   (:context-enumerate-listing-environment nil nil org-context-enumerate-listing-environment)
+                  (:context-enumerate-verse-empty-environment nil nil org-context-enumerate-verse-empty-environment)
                   (:context-enumerate-verse-environment nil nil org-context-enumerate-verse-environment)
                   (:context-example-environment nil nil org-context-example-environment)
                   (:context-export-quotes-alist nil nil org-context-export-quotes-alist)
@@ -382,12 +386,40 @@ If nil, verses aren't delimited."
 ;; These environments wrap around element environments to allow them
 ;; to be enumerated in listings.
 
+(defcustom org-context-enumerate-blockquote-empty-environment
+  '("OrgBlockQuoteEnumEmpty" . "\\defineenumeration
+  [OrgBlockQuoteEnumEmpty]
+  [alternative=empty]")
+  "The enumeration of the unlabelled blockquote environment.
+
+Shares a counter with `org-context-enumerate-blockquote-environment'.
+
+If nil, block quotes are not wrapped in an enumeration"
+  :group 'org-export-context
+  :type '(cons string string))
+
 (defcustom org-context-enumerate-blockquote-environment
   '("OrgBlockQuoteEnum" . "\\defineenumeration
   [OrgBlockQuoteEnum]
+  [OrgBlockQuoteEnumEmpty]
   [title=yes,
-   text=Quote]")
-  "The environment name of the example environment.
+   text=Quote,
+   alternative=top]")
+  "The enumeration of the blockquote environment.
+
+Shares a counter with `org-context-enumerate-blockquote-empty-environment'.
+
+If nil, block quotes are not wrapped in an enumeration"
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-enumerate-example-empty-environment
+  '("OrgExampleEnumerationEmtpy" . "\\defineenumeration
+  [OrgExampleEnumerationEmpty]
+  [alternative=empty]")
+  "The enumeration of the unlabelled example environment.
+
+Shares a counter with `org-context-enumerate-example-environment'.
 
 If nil, examples are not wrapped in an enumeration"
   :group 'org-export-context
@@ -399,6 +431,7 @@ If nil, examples are not wrapped in an enumeration"
   [frame=on, framecolor=black, backgroundcolor=white, location=paragraph]
 \\defineenumeration
   [OrgExampleEnumeration]
+  [OrgExampleEnumerationEmpty]
   [title=yes,
    text=Example,
    headalign=middle,
@@ -408,10 +441,25 @@ If nil, examples are not wrapped in an enumeration"
    titleright=,
    titledistance=0em,
    before={\\starttextbackground[OrgExampleBackground]},
-   after={\\stoptextbackground}]")
-  "The environment name of the example environment.
+   after={\\stoptextbackground},
+   alternative=top]")
+  "The enumeration to wrap examples in.
+
+Shares a counter with `org-context-enumerate-example-empty-environment'
 
 If nil, examples are not wrapped in an enumeration"
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-enumerate-listing-empty-environment
+  '("OrgListingEmpty" . "\\defineenumeration
+  [OrgListingEmpty]
+  [alternative=empty]")
+  "The enumeration for unlabelled listings.
+
+Shares a counter with `org-context-enumerate-listing-environment'.
+
+If null, listings are not enumerated."
   :group 'org-export-context
   :type '(cons string string))
 
@@ -421,6 +469,7 @@ If nil, examples are not wrapped in an enumeration"
   [frame=on, framecolor=black, backgroundcolor=white, location=paragraph]
 \\defineenumeration
   [OrgListing]
+  [OrgListingEmpty]
   [title=yes,
    text=Listing,
    headalign=middle,
@@ -430,16 +479,33 @@ If nil, examples are not wrapped in an enumeration"
    titleright=,
    titledistance=0em,
    before={\\starttextbackground[OrgListingBackground]},
-   after={\\stoptextbackground}]")
-  "Caption command to use if the element to caption doesn't support captions already."
+   after={\\stoptextbackground},
+   alternative=top]")
+  "The enumeration for listings.
+
+Shares a counter with `org-context-enumerate-listing-empty-environment'.
+
+If null, listings are not enumerated."
+  :group 'org-export-context
+  :type '(cons string string))
+
+(defcustom org-context-enumerate-verse-empty-environment
+  '("OrgVerseEnumerateEmpty" . "\\defineenumeration
+  [OrgVerseEnumerateEmpty]
+  [alternative=empty]")
+  "The environment name that wraps verses to list them.
+
+If nil, verses aren't enumerated."
   :group 'org-export-context
   :type '(cons string string))
 
 (defcustom org-context-enumerate-verse-environment '("OrgVerseEnumerate" . "
 \\defineenumeration
   [OrgVerseEnumerate]
+  [OrgVerseEnumerateEmpty]
   [title=yes,
-   text=Verse]")
+   text=Verse,
+   alternative=top]")
   "The environment name that wraps verses to list them.
 
 If nil, verses aren't enumerated."
@@ -1491,15 +1557,17 @@ For non-floats, see `org-context--add-reference'."
     (org-export-data main info)))
 
 (defun org-context--enumerated-block
-    (ent contents info env-kw wrap-kw &optional inner-args)
+    (ent contents info env-kw wrap-kw wrap-empty-kw &optional inner-args)
   "Helper function to wrap blocks in the correct environent.
-ENT is the entity to wrap. CONTENTS is the block contents.
-INFO is a plist holding contextual information. ENV-KW is
-the keyword identifying the environment to place the contents
-into (see `options-alist'). WRAP-KW is the keyword identifying
-the wrapper environment to enumerate the contents in (see
-`options-alist'). INNER-ARGS is an alist of arguments to add
-to the inner environment."
+ENT is the entity to wrap. CONTENTS is the block contents. INFO
+is a plist holding contextual information. ENV-KW is the keyword
+identifying the environment to place the contents into (see
+`options-alist'). WRAP-KW is the keyword identifying the wrapper
+environment to enumerate the contents in (see `options-alist').
+WRAP-EMPTY-KW is the keyword identifying the wrapper environment
+to use if no caption is specified (used to keep numbering
+synchronized; see `options-alist'). INNER-ARGS is an alist of
+arguments to add to the inner environment."
   ;; TODO Don't wrap in an enumerate if caption is nil (?)
   ;; This is related to https://orgmode.org/list/55ec0cbb-eebf-0d49-b182-372407c8c84c@gmail.com/T/#u
   (let* ((caption
@@ -1511,7 +1579,7 @@ to the inner environment."
          (enumerate-environment
           (org-string-nw-p
            (car
-            (plist-get info wrap-kw))))
+            (plist-get info (if (org-string-nw-p caption) wrap-kw wrap-empty-kw)))))
          (environment
           (org-string-nw-p
            (car
@@ -1891,6 +1959,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
        info
        :context-example-environment
        :context-enumerate-example-environment
+       :context-enumerate-example-empty-environment
        args))))
 
 ;;;; Export Block
@@ -2853,7 +2922,8 @@ contextual information."
     (org-context--enumerated-block
      quote-block contents info
      :context-blockquote-environment
-     :context-enumerate-blockquote-environment)))
+     :context-enumerate-blockquote-environment
+     :context-enumerate-blockquote-empty-environment)))
 
 (defun org-context--format-quote (text info original)
   "Wraps quoted text in `\\quote{}' constructs.
@@ -2918,7 +2988,10 @@ contextual information."
                   info)))
          (environment
           (car
-           (plist-get info :context-enumerate-listing-environment)))
+           (plist-get info
+                      (if caption
+                          :context-enumerate-listing-environment
+                        :context-enumerate-listing-empty-environment))))
          (label (org-context--label src-block info t))
          (code (org-context--preprocess-source-block src-block info)))
     (let ((engine (plist-get info :context-syntax-engine))
@@ -3392,17 +3465,29 @@ holding the export options."
                     :context-description-command
                     "% LaTeX-style descriptive enumerations")
                    (list
+                    :context-enumerate-blockquote-empty-environment
+                    "% Unlabelled blockquote enumeration environment")
+                   (list
                     :context-enumerate-blockquote-environment
-                    "% blockquote environment")
+                    "% blockquote enumeration environment")
+                   (list
+                    :context-enumerate-example-empty-environment
+                    "% Create the unlabelled example enumeration environment")
                    (list
                     :context-enumerate-example-environment
-                    "% Create the example listing environment")
+                    "% Create the example enumeration environment")
+                   (list
+                    :context-enumerate-listing-empty-environment
+                    "% Create the unlabelled listings enumeration environment")
                    (list
                     :context-enumerate-listing-environment
-                    "% Define an environment to wrap listings in")
+                    "% Create the listings enumeration environment")
+                   (list
+                    :context-enumerate-verse-empty-environment
+                    "% Create the unlabelled verse enumeration environment")
                    (list
                     :context-enumerate-verse-environment
-                    "% Create a verse style")
+                    "% Create a verse enumeration environment")
                    (list
                     :context-example-environment
                     "% Create the example environment")
@@ -3702,7 +3787,8 @@ contextual information."
     (org-context--enumerated-block
      verse-block contents info
      :context-verse-environment
-     :context-enumerate-verse-environment)))
+     :context-enumerate-verse-environment
+     :context-enumerate-verse-empty-environment)))
 
 ;;; End-user functions
 
