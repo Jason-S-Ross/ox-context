@@ -165,7 +165,7 @@
                   (:context-titlepage-environment nil nil org-context-titlepage-environment)
                   (:context-verse-environment nil nil org-context-verse-environment)
                   (:context-vim-langs nil nil org-context-vim-langs)
-                  (:date "DATE" nil "\currentdate" parse)
+                  (:date "DATE" nil "\\currentdate" parse)
                   (:description "DESCRIPTION" nil nil parse)
                   (:from-address "FROM_ADDRESS" nil org-context-from-address newline)
                   (:from-logo "FROM_LOGO" nil org-context-from-logo)
