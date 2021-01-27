@@ -2378,11 +2378,11 @@ contextual information."
                   (if (org-string-nw-p checkbox)
                       (format "%s\\space\\space %s" checkbox tag)
                     tag)
-                  (org-trim contents)
+                  (org-trim (or contents ""))
                   descrcommand))
       (if (org-string-nw-p checkbox)
           (format "\\sym{%s} %s" checkbox contents)
-        (format "\\item %s" (org-trim contents))))))
+        (format "\\item %s" (org-trim (or contents "")))))))
 
 ;;;; Keyword
 
