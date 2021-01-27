@@ -17,6 +17,12 @@
 ;; TODO `org-context--add-reference' needs to be checked against all environments
 ;;
 ;; TODO abstract?
+;;
+;; TODO How should "hidden" enumerations be handled?
+;; In the html exporter, explicitley enumerated items like verses
+;; have a number that can clash with the number of the item.
+;; https://orgmode.org/list/55ec0cbb-eebf-0d49-b182-372407c8c84c@gmail.com/T/#u
+;;
 ;;; Commentary:
 
 ;;; Code:
@@ -190,6 +196,11 @@
 
 ;;; Constants
 
+;; TODO Many of these constants appear as options. Is this ideomatic? It makes
+;; sense for creating derived templates but it incurs a performance penalty.
+;; The advantage of having constants linked to the `options-alist' is that
+;; they are exposed when creating a derived template but not exposed as part
+;; of normal configuration.
 
 (defconst org-context-export-quotes-alist
   '((primary-opening . "\\quotation{")
@@ -274,8 +285,6 @@
 
 (defconst org-context-table-toprow-style "OrgTableTopRow"
   "The default style name for the top row in tables.")
-
-;; TODO Documentations for these environment defs
 
 ;;; User configuration variables
 
@@ -1490,6 +1499,8 @@ into (see `options-alist'). WRAP-KW is the keyword identifying
 the wrapper environment to enumerate the contents in (see
 `options-alist'). INNER-ARGS is an alist of arguments to add
 to the inner environment."
+  ;; TODO Don't wrap in an enumerate if caption is nil (?)
+  ;; This is related to https://orgmode.org/list/55ec0cbb-eebf-0d49-b182-372407c8c84c@gmail.com/T/#u
   (let* ((caption
           (org-trim
            (org-export-data
@@ -1650,7 +1661,6 @@ PARENT is the parent code block or example block referred to by REF.
 See `org-context--find-coderef-parent' for finding that element.
 INFO is a plist containing contextual information."
   (format "%s:%s" (org-context--label parent info t) ref))
-
 
 (defun org-context--find-coderef-parent (ref info)
   "Resolve a code reference REF and return the element in which it appears.
@@ -2116,7 +2126,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
                 (let ((prev-blank (org-element-property :post-blank prev)))
                   (or (not prev-blank) (zerop prev-blank))))
        "\n")
-     ;; TODO get width and thickness from attr_latex
+     ;; TODO get width and thickness from attr_context
      (org-context--add-reference
       horizontal-rule
       "\\textrule"
@@ -2612,7 +2622,6 @@ INFO is a plist holding contextual information. See
                          raw-path code-block info))
              (linenum (org-export-get-loc code-block info))
              (retain-labels (org-element-property :retain-labels code-block)))
-        ;; TODO if line numbers are on use a lineref instead
         (cond ((and linenum (not retain-labels))
                (format "\\inline{ }[%s]" ref-label))
               ((not retain-labels)
@@ -2878,7 +2887,6 @@ contextual information."
   "Transcode a SECTION element from Org to ConTeXt.
 CONTENTS holds the contents of the section.  INFO is a plist
 holding contextual information."
-  ;; TODO What does this do?
   contents)
 
 ;;;; Special Block
@@ -3337,6 +3345,8 @@ This function assumes TABLE has `org' as its `:type' property and
   "Transcode a TARGET object from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
+  ;; TODO This should refer to the section header name,
+  ;; not the plain text of the section.
   (format "\\reference[%s]{%s}" (org-context--label target info)
           (org-export-get-node-property :value target)))
 
