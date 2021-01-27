@@ -21,46 +21,50 @@
 #+CREATOR: Jason Ross
 #+LANGUAGE: en
 #+OPTIONS: foldmarks:nil toc:t H:5 backaddress:t pri:t p:t c:t prop:t d:t ':t syntax:default
+#+CONTEXT_TEMPLATE: article
 #+CONTEXT_PRESET: article
 #+CONTEXT_SNIPPET: headfoot-homework
 #+CONTEXT_HEADER_EXTRA: \setupheadertexts[\HeaderSection{\getmarking[subsection]}][\documentvariable{metadata:author}]
 #+DATE: 2021-01-07
 
+#+BEGIN_framed
+Here's some framed text
+#+END_framed
 
 * List of Tables
 :PROPERTIES:
-:UNNUMBERED: notoc
+:FRONTMATTER:
 :END:
 
 #+TOC: tables
 * List of Figures
 :PROPERTIES:
-:UNNUMBERED: notoc
+:FRONTMATTER:
 :END:
 #+TOC: figures
 * List of Listings
 :PROPERTIES:
-:UNNUMBERED: notoc
+:FRONTMATTER:
 :END:
 #+TOC: listings
 * List of Examples
 :PROPERTIES:
-:UNNUMBERED: notoc
+:FRONTMATTER:
 :END:
 #+TOC: examples
 * List of Verses
 :PROPERTIES:
-:UNNUMBERED: notoc
+:FRONTMATTER:
 :END:
 #+TOC: verses
 * List of Quotes
 :PROPERTIES:
-:UNNUMBERED: notoc
+:FRONTMATTER:
 :END:
 #+TOC: quotes
 * List of Equations
 :PROPERTIES:
-:UNNUMBERED: notoc
+:FRONTMATTER:
 :END:
 #+TOC: equations
 * Overview and Goals
@@ -91,6 +95,7 @@ options and configuration for the LaTeX exporter.
 
 * Features
 ** DONE [#A] Block Elements
+CLOSED: [2021-01-25 Mon 14:57]
 This section demonstrates different elements delimited by different
 ~#+BEGIN/END~ tags.
 *** Source Blocks
@@ -371,11 +376,14 @@ as list elements, but true headlines are only supported down to 5 levels deep.
 ******** Level 7
 ********* Level 8
 ********** Level 9
-* Index
+* Index :appendix:
  We can place an index in the document using ~#+TOC:definitions~
  #+TOC: definitions
 
 [fn:1] This is a sample footnote
 * Bibliography
+:PROPERTIES:
+:BACKMATTER:
+:END:
 We can place a bibliography using ~#+TOC:references~
 #+TOC: references
