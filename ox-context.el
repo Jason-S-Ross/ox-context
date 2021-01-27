@@ -1865,7 +1865,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
          (num-start (org-export-get-loc example-block info))
          (num-start-str
           (when (and num-start (> num-start 0))
-            (number-to-string num-start)))
+            (number-to-string (+ 1 num-start))))
          (args
           (org-string-nw-p
            (org-context--format-arguments
@@ -2980,7 +2980,7 @@ contextual information."
          (num-start (org-export-get-loc src-block info))
          (num-start-str
           (when (and num-start (> num-start 0))
-            (number-to-string num-start)))
+            (number-to-string (+ 1 num-start))))
          (args
           (org-string-nw-p
            (org-context--format-arguments
@@ -3004,7 +3004,7 @@ the entity. INFO is a plist containing contextual information."
          (num-start (org-export-get-loc src-block info))
          (num-start-str
           (when (and num-start (> num-start 0))
-            (number-to-string num-start)))
+            (number-to-string (+ 1 num-start))))
          (args
           (org-string-nw-p
            (org-context--format-arguments
