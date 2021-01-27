@@ -1302,7 +1302,8 @@ This option can also be set with the SIGNATURE keyword."
     [String]
     [color={x=BA2121}]
 \\stopcolorscheme")
-    ("setup-grid" . "\\setuplayout[grid=yes]")
+    ("setup-grid" . "\\setuplayout[grid=both]
+\\setupformulae[grid=both]")
     ("setup-letter" . "\\setupletter[
   fromname={\\documentvariable{metadata:author}},
   fromaddress={\\documentvariable{letter:fromaddress}},
