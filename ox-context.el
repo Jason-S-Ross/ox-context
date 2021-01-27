@@ -2887,9 +2887,8 @@ holding contextual information."
   "Transcode a SPECIAL-BLOCK element from Org to ConTeXt.
 CONTENTS holds the contents of the block. INFO is a plist
 holding contextual information."
-  ;; TODO What is this
   (let ((type (org-element-property :type special-block))
-        (opt (org-export-read-attribute :attr_latex special-block :options))
+        (opt (org-export-read-attribute :attr_context special-block :options))
         (caption (org-context--caption/label-string special-block info)))
     (concat (format "\\start%s[%s]\n" type (or opt ""))
             contents
