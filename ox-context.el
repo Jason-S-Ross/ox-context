@@ -519,7 +519,7 @@ If nil, the command isn't created."
   \\doifnot{\\OrgHeadlineTodo}{}{{\\sansbold{\\smallcaps{\\OrgHeadlineTodo}}\\space}}%
   \\doifnot{\\OrgHeadlinePriority}{}{{\\inframed{\\OrgHeadlinePriority}\\space}}%
   \\OrgHeadlineText%
-  \\doifnot{\\OrgHeadlineTags}{}{{\\space\\tt\\OrgHeadlineTags}}%
+  \\doifnot{\\OrgHeadlineTags}{}{{\\hfill\\tt\\OrgHeadlineTags}}%
 }")
   "The name of the command that formats headlines.
 
