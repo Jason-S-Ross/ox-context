@@ -2815,8 +2815,18 @@ CONTENTS is the contents of the list. INFO is a plist holding
 contextual information."
   (let* ((type (org-element-property :type plain-list))
          (attr (org-export-read-attribute :attr_latex plain-list))
+         (bullet
+          (org-element-property
+           :bullet
+           (car (org-element-map plain-list 'item #'identity t))))
+         (alphap (string-match-p "\\`[a-zA-Z][.)]" bullet))
+         (upperp (and alphap
+                      (let ((case-fold-search nil))
+                        (string-match-p "\\`[[:upper:]]" bullet))))
          (open-command
-          (cond ((eq type 'ordered) "\\startitemize[n]\n")
+          (cond ((eq type 'ordered)
+                 (format  "\\startitemize[%s]\n"
+                          (if alphap (if upperp "A" "a") "n")))
                 ((eq type 'descriptive) "")
                 (t "\\startitemize\n")))
          (close-command
