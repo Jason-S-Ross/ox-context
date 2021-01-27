@@ -598,6 +598,7 @@ If nil, the command isn't created."
   \\doifnot{\\OrgPlanningDeadlineTime}{}{\\OrgPlanningDeadlineTime\\space}
   \\doifnot{\\OrgPlanningScheduledString}{}{\\OrgPlanningScheduledString\\space}
   \\doifnot{\\OrgPlanningScheduledTime}{}{\\OrgPlanningScheduledTime\\space}
+  \\crlf
 }")
   "The name of the command that formats planning items.
 
