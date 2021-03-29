@@ -14,6 +14,8 @@ Different vim snytax highlighting schemes can be selected with snippets. By
 default, a style called ~pigmints~ is included which you can use by adding
 ~#+CONTEXT_SNIPPET: colors-pigmints~ to your document.
 
+Here's some python source: src_python[:exports code]{print("Hello, world!")} and here's the rest of the line
+
 * Javascript
   #+CAPTION: 99 Bottles of Beer in Javascript
   #+BEGIN_SRC javascript -n  :eval no
@@ -34,6 +36,77 @@ while (beer > 0) {     (ref:JavaRef)
 
 Here's a link to [[(JavaRef)]]
 
+  #+CAPTION: Indented Javascript without -i flag
+  #+BEGIN_SRC javascript -n  :eval no
+        var beer = 99;
+        while (beer > 0) {     (ref:JavaRef2)
+            var verse = [
+                beer + " bottles of beer on the wall,",
+                beer + " bottles of beer!",
+                "Take one down, pass it around",
+                (beer - 1) + " bottles of beer on the wall!"
+            ].join("\n");
+
+            console.log(verse);
+
+            beer--;
+        }
+  #+END_SRC
+
+  #+CAPTION: Indented Javascript with -i flag
+  #+BEGIN_SRC javascript -n -i :eval no
+        var beer = 99;
+        while (beer > 0) {     (ref:JavaRef3)
+            var verse = [
+                beer + " bottles of beer on the wall,",
+                beer + " bottles of beer!",
+                "Take one down, pass it around",
+                (beer - 1) + " bottles of beer on the wall!"
+            ].join("\n");
+
+            console.log(verse);
+
+            beer--;
+        }
+  #+END_SRC
+
+  #+CAPTION: Indented Javascript starting at line 10
+  #+BEGIN_SRC javascript -n10 :eval no
+        var beer = 99;
+        while (beer > 0) {     (ref:JavaRef4)
+            var verse = [
+                beer + " bottles of beer on the wall,",
+                beer + " bottles of beer!",
+                "Take one down, pass it around",
+                (beer - 1) + " bottles of beer on the wall!"
+            ].join("\n");
+
+            console.log(verse);
+
+            beer--;
+        }
+  #+END_SRC
+
+  Here's a link to [[(JavaRef4)]]
+
+  #+CAPTION: Indented Javascript with continued dumbering
+  #+BEGIN_SRC javascript +n :eval no
+        var beer = 99;
+        while (beer > 0) {     (ref:JavaRef5)
+            var verse = [
+                beer + " bottles of beer on the wall,",
+                beer + " bottles of beer!",
+                "Take one down, pass it around",
+                (beer - 1) + " bottles of beer on the wall!"
+            ].join("\n");
+
+            console.log(verse);
+
+            beer--;
+        }
+  #+END_SRC
+
+  Here's a link to [[(JavaRef5)]]
 
 * HTML
   #+CAPTION: A Basic HTML Page
