@@ -174,7 +174,7 @@
                   (:context-title-contents-command nil nil org-context-title-contents-command)
                   (:context-titlepage-environment nil nil org-context-titlepage-environment)
                   (:context-verse-environment nil nil org-context-verse-environment)
-                  (:context-vim-langs nil nil org-context-vim-langs)
+                  (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
                   (:date "DATE" nil "\\currentdate" parse)
                   (:description "DESCRIPTION" nil nil parse)
                   (:from-address "FROM_ADDRESS" nil org-context-from-address newline)
@@ -1500,7 +1500,7 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :type 'boolean
   :safe #'booleanp)
 
-(defcustom org-context-vim-langs
+(defcustom org-context-vim-langs-alist
   (list (list "c++" :vim-name "cpp" :context-name "Cpp")
         (list "c#" :vim-name "cs" :context-name "CSharp")
         (list "vba" :vim-name "basic" :context-name "VBA")
@@ -1646,7 +1646,7 @@ typing environments can be defined in the template."
                             (or
                              (cdr
                               (assoc org-lang
-                                     (plist-get info :context-vim-langs)))
+                                     (plist-get info :context-vim-langs-alist)))
                              (list
                               :vim-name (downcase org-lang)
                               :context-name (capitalize org-lang)))))
