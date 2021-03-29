@@ -2459,13 +2459,13 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                (format  "\\placecontent[%s]" levelstring))))
           ((or
             (and (pred (string-match-p "\\<listings\\>"))
-                 (let kw :context-enumerate-listing-environment))
+                 (let kw :context-enumerate-listing-empty-environment))
             (and (pred (string-match-p "\\<verses\\>"))
-                 (let kw :context-enumerate-verse-environment))
+                 (let kw :context-enumerate-verse-empty-environment))
             (and (pred (string-match-p "\\<quotes\\>"))
-                 (let kw :context-enumerate-blockquote-environment))
+                 (let kw :context-enumerate-blockquote-empty-environment))
             (and (pred (string-match-p "\\<examples\\>"))
-                 (let kw :context-enumerate-example-environment))
+                 (let kw :context-enumerate-example-empty-environment))
             (let kw nil))
            (let ((env
                   (org-string-nw-p
