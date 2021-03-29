@@ -1,4 +1,3 @@
-#+OPTIONS: syntax:vim
 Syntax highlighting is supported in ConTeXt, but you may have to install a
 module to support it. By default, there is a custom ConTeXt ~typing~ called
 ~OrgBlkSrc~ defined in the header that can be customized by adding\\
