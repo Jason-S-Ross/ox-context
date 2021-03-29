@@ -426,9 +426,26 @@ If nil, examples are not wrapped in an enumeration"
   :type '(cons string string))
 
 (defcustom org-context-enumerate-example-environment
-  '("OrgExampleEnumeration" . "\\definetextbackground
+  '("OrgExampleEnumeration" . "\\startuseMPgraphic{mpos:exampleback}
+  begingroup; save lftbdry; save rtbdry; save lftx; save parframe;
+  for i=1 upto nofmultipars :
+      path lftbdry, rtbdry, parframe;
+      numeric lftx;
+      lftx := xpart(point 0 of leftboundary Page) - 32pt;
+      rtbdry := rightboundary multipars[i];
+      lftbdry := (lftx, ypart (point 0 of rtbdry))
+          -- (lftx, ypart (point 1 of rtbdry));
+      parframe := point 0 of lftbdry
+          --point 1 of lftbdry
+          --point 1 of rtbdry
+          --point 0 of rtbdry
+          --cycle;
+      draw parframe;
+  endfor;
+\\stopuseMPgraphic
+\\definetextbackground
   [OrgExampleBackground]
-  [frame=on, framecolor=black, backgroundcolor=white, location=paragraph]
+  [frame=off, mp={mpos:exampleback}, location=always]
 \\defineenumeration
   [OrgExampleEnumeration]
   [OrgExampleEnumerationEmpty]
@@ -464,9 +481,26 @@ If null, listings are not enumerated."
   :type '(cons string string))
 
 (defcustom org-context-enumerate-listing-environment
-  '("OrgListing" . "\\definetextbackground
+  '("OrgListing" . "\\startuseMPgraphic{mpos:listingback}
+  begingroup; save lftbdry; save rtbdry; save lftx; save parframe;
+  for i=1 upto nofmultipars :
+      path lftbdry, rtbdry, parframe;
+      numeric lftx;
+      lftx := xpart(point 0 of leftboundary Page) - 32pt;
+      rtbdry := rightboundary multipars[i];
+      lftbdry := (lftx, ypart (point 0 of rtbdry))
+          -- (lftx, ypart (point 1 of rtbdry));
+      parframe := point 0 of lftbdry
+          --point 1 of lftbdry
+          --point 1 of rtbdry
+          --point 0 of rtbdry
+          --cycle;
+      draw parframe;
+  endfor;
+\\stopuseMPgraphic
+\\definetextbackground
   [OrgListingBackground]
-  [frame=on, framecolor=black, backgroundcolor=white, location=paragraph]
+  [frame=off, mp={mpos:listingback}, location=always]
 \\defineenumeration
   [OrgListing]
   [OrgListingEmpty]
