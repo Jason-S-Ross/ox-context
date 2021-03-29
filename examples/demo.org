@@ -23,8 +23,6 @@
 #+OPTIONS: foldmarks:nil toc:t H:5 backaddress:t pri:t p:t c:t prop:t d:t ':t syntax:default
 #+CONTEXT_TEMPLATE: article
 #+CONTEXT_PRESET: article
-#+CONTEXT_SNIPPET: headfoot-homework
-#+CONTEXT_HEADER_EXTRA: \setupheadertexts[\HeaderSection{\getmarking[subsection]}][\documentvariable{metadata:author}]
 #+DATE: 2021-01-07
 
 #+BEGIN_framed
