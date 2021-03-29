@@ -100,7 +100,7 @@ This section demonstrates different elements delimited by different
 ~#+BEGIN/END~ tags.
 *** Source Blocks
 #+INDEX: Source Block
-#+INCLUDE: ./examples/source.org
+#+INCLUDE: ./source.org
 *** Verse Blocks
 By default, verse blocks are enclosed in a custom ~\lines~ environment called
 ~OrgVerse~ that can be customized by adding\\
@@ -207,7 +207,7 @@ Namespaces are one honking great idea -- let's do more of those!
 Here's some code: ~with open("file.txt") as f:~
   
 *** Links
-#+INCLUDE: ./examples/links.org
+#+INCLUDE: ./links.org
 *** Bold
 This is *Some bold text*
 *** LaTeX Fragments
@@ -230,7 +230,7 @@ _Here's some underlined text_
 *** Verbatim
 ~This is verbatim text~
 *** Footnote Reference
-#+INCLUDE: ./examples/footnotes.org
+#+INCLUDE: ./footnotes.org
 *** Smart Quotes
 Smart quotes are formatted using the ~\quote~ and ~\quotation~ macros, which
 respect language settings.
@@ -260,20 +260,20 @@ Here's a French timestamp: <2021-01-15 Fri>
 #+CONTEXT: \language[en]
 
 *** Citations
-#+INCLUDE: ./examples/citations.org
+#+INCLUDE: ./citations.org
     
 ** Paragraph Elements
 These elements form their own paragraph or section in the export.
 *** Tables
-#+INCLUDE: ./examples/tables.org
+#+INCLUDE: ./tables.org
 
 *** Images
-#+INCLUDE: ./examples/images.org
+#+INCLUDE: ./images.org
 
 *** Headlines
-#+INCLUDE: ./examples/headlines.org
+#+INCLUDE: ./headlines.org
 *** Equations
-#+INCLUDE: ./examples/equations.org
+#+INCLUDE: ./equations.org
 
 *** Inline Task
 Inline tasks are supported by a custom ~\OrgInlineTask~ macro. Arguments to the
