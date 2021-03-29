@@ -2001,8 +2001,13 @@ CONTENTS is nil. INFO is a plist holding contextual information."
 (defun org-context-export-block (export-block _contents _info)
   "Transcode a EXPORT-BLOCK element from Org to ConTeXt.
 CONTENTS is nil. INFO is a plist holding contextual information."
-  (when (member (org-element-property :type export-block) '("CONTEXT" "TEX"))
-    (org-remove-indentation (org-element-property :value export-block))))
+  (let ((type (org-element-property :type export-block))
+        (value (org-element-property :value export-block)))
+    (cond ((member type '("CONTEXT" "TEX"))
+           (org-remove-indentation value))
+          ((member type '("METAPOST"))
+           (format "\\startMPcode\n%s\\stopMPcode"
+                   (org-remove-indentation value))))))
 
 ;;;; Export Snippet
 
