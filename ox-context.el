@@ -414,7 +414,7 @@ If nil, block quotes are not wrapped in an enumeration"
   :type '(cons string string))
 
 (defcustom org-context-enumerate-example-empty-environment
-  '("OrgExampleEnumerationEmtpy" . "\\defineenumeration
+  '("OrgExampleEnumerationEmpty" . "\\defineenumeration
   [OrgExampleEnumerationEmpty]
   [alternative=empty]")
   "The enumeration of the unlabelled example environment.
