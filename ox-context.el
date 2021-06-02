@@ -310,7 +310,8 @@
 
 If nil, block quotes aren't delimited."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-example-environment
   '("OrgExample" . "\\definetyping[OrgExample][escape=yes]")
@@ -320,7 +321,8 @@ Cons list of NAME, DEF. If NAME is nil, examples are delimited
 in a typing environment. If DEF is nil, a default typing environment
 called NAME is created."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-fixed-environment
   '("OrgFixed" . "\\definetextbackground
@@ -336,7 +338,8 @@ called NAME is created."
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-property-drawer-environment
   '("OrgPropDrawer" . "\\definestartstop[OrgPropDrawer]
@@ -346,7 +349,8 @@ If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
 
 If nil, examples are enclosed in \"\\startframedtext\" / \"\\stopframedtext\""
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-inline-source-environment
   '("OrgInlineSrc" . "\\definetype[OrgInlineSrc]")
@@ -354,7 +358,8 @@ If nil, examples are enclosed in \"\\startframedtext\" / \"\\stopframedtext\""
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-block-source-environment
   '("OrgBlkSrc" . "\\definetyping[OrgBlkSrc][escape=yes]")
@@ -362,7 +367,8 @@ If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-titlepage-environment
   '("OrgTitlePage" . "\\definestartstop[OrgTitlePage]")
@@ -370,7 +376,8 @@ If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
 
 If nil, title pages aren't delimited."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-verse-environment
   '("OrgVerse" . "\\definelines[OrgVerse]")
@@ -378,7 +385,8 @@ If nil, title pages aren't delimited."
 
 If nil, verses aren't delimited."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 
 ;;;;; Enumeration environments
@@ -396,7 +404,8 @@ Shares a counter with `org-context-enumerate-blockquote-environment'.
 
 If nil, block quotes are not wrapped in an enumeration"
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-blockquote-environment
   '("OrgBlockQuoteEnum" . "\\defineenumeration
@@ -411,7 +420,8 @@ Shares a counter with `org-context-enumerate-blockquote-empty-environment'.
 
 If nil, block quotes are not wrapped in an enumeration"
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-example-empty-environment
   '("OrgExampleEnumerationEmpty" . "\\defineenumeration
@@ -423,7 +433,8 @@ Shares a counter with `org-context-enumerate-example-environment'.
 
 If nil, examples are not wrapped in an enumeration"
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-example-environment
   '("OrgExampleEnumeration" . "\\startuseMPgraphic{mpos:exampleback}
@@ -466,7 +477,8 @@ Shares a counter with `org-context-enumerate-example-empty-environment'
 
 If nil, examples are not wrapped in an enumeration"
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-listing-empty-environment
   '("OrgListingEmpty" . "\\defineenumeration
@@ -478,7 +490,8 @@ Shares a counter with `org-context-enumerate-listing-environment'.
 
 If null, listings are not enumerated."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-listing-environment
   '("OrgListing" . "\\startuseMPgraphic{mpos:listingback}
@@ -521,7 +534,8 @@ Shares a counter with `org-context-enumerate-listing-empty-environment'.
 
 If null, listings are not enumerated."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-verse-empty-environment
   '("OrgVerseEnumerateEmpty" . "\\defineenumeration
@@ -531,7 +545,8 @@ If null, listings are not enumerated."
 
 If nil, verses aren't enumerated."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-verse-environment '("OrgVerseEnumerate" . "
 \\defineenumeration
@@ -544,7 +559,8 @@ If nil, verses aren't enumerated."
 
 If nil, verses aren't enumerated."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Environment Name")
+               (string :tag "Environment Definition")))
 
 ;;;; ConTeXt commands
 
@@ -557,7 +573,8 @@ If nil, verses aren't enumerated."
 
 If nil, the command isn't created."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definition")))
 
 (defcustom org-context-bullet-on-command
   '("OrgItemOn" . "\\define\\OrgItemOn{\\boxplus}")
@@ -565,7 +582,8 @@ If nil, the command isn't created."
 
 If nil, the command isn't created."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definition")))
 
 (defcustom org-context-bullet-trans-command
   '("OrgItemTrans" . "\\define\\OrgItemTrans{\\boxtimes}")
@@ -573,7 +591,8 @@ If nil, the command isn't created."
 
 If nil, the command isn't created."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definition")))
 
 (defcustom org-context-clock-command
   '("OrgClock" . "\\def\\OrgClock#1[#2]{%
@@ -597,7 +616,8 @@ If nil, the command isn't created."
 
 If nil, the command isn't created."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definition")))
 
 (defcustom org-context-description-command
   '("OrgDesc" . "\\definedescription[OrgDesc]")
@@ -605,7 +625,8 @@ If nil, the command isn't created."
 
 If nil, \"\\description\" is used"
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definition")))
 
 (defcustom org-context-drawer-command
   '("OrgDrawer" . "\\define[2]\\OrgDrawer{#2}")
@@ -634,7 +655,8 @@ If nil, the command isn't created."
 
 If nil, the command isn't created."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definition")))
 
 (defcustom org-context-inlinetask-command
   '("OrgInlineTask" . "\\def\\OrgInlineTask#1[#2]{%
@@ -674,7 +696,8 @@ Contents
 
 If nil, returns a basic command with only the title and contents"
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definition")))
 
 (defcustom org-context-node-property-command
   '("OrgNodeProp" . "\\def\\OrgNodeProp#1[#2]{%
@@ -688,7 +711,8 @@ If nil, returns a basic command with only the title and contents"
 
 If nil, the command isn't created."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definition")))
 
 (defcustom org-context-planning-command
   '("OrgPlanning" . "\\def\\OrgPlanning#1[#2]{%
@@ -722,7 +746,8 @@ DeadlineTime
 ScheduledString
 ScheduledTime"
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definition")))
 
 (defcustom org-context-title-command
   '("OrgMakeTitle" . "\\define\\OrgMakeTitle{}")
@@ -730,7 +755,8 @@ ScheduledTime"
 
 If nil, the document title command isn't created."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definition")))
 
 (defcustom org-context-title-contents-command
   '("OrgTitleContents" . "\\define\\OrgTitleContents{%
@@ -740,7 +766,8 @@ If nil, the document title command isn't created."
 
 If nil, the table of contents title command isn't created."
   :group 'org-export-context
-  :type '(cons string string))
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definition")))
 
 ;;;; Element Configuration
 
@@ -937,8 +964,8 @@ so this is a short list."
   :group 'org-export-context
   :type '(repeat
           (list
-           (symbol :tag "Major mode      ")
-           (symbol :tag "ConTeXt language"))))
+           (string :tag "Major mode      ")
+           (string :tag "ConTeXt language"))))
 
 (defcustom org-context-image-default-height ""
   "Default height for images."
@@ -1113,9 +1140,9 @@ This option can also be set with the PLACE keyword."
                   "sectioning-article"
                   "page-numbering-article"
                   "setup-grid"))
-    "layout-article"
     ("report" . ("\\setupwhitespace[big]"
                  "description-article"
+                 "layout-article"
                  "quote-article"
                  "verse-article"
                  "table-article"
@@ -1131,20 +1158,11 @@ This option can also be set with the PLACE keyword."
   "Alist of ConTeXt preamble presets."
   :group 'org-export-context
   :type '(repeat
-          (cons
+          (cons :tag "Preset Definition"
            (string :tag "Preset Name")
-           (plist
-            :tag "Presets"
-            :value-type
-            (cons
-             :tag "Location Settings"
-             (string :tag "Literal Text")
-             (repeat (string :tag "Snippets")))
-            :key-type
-            (choice
-             (const :tag "Preamble Location" :preamble )
-             (const :tag "After \\starttext" :starttext )
-             (const :tag "Before \\stoptext" :stoptext ))))))
+           (list (string :tag "Raw Command")
+                 (repeat :tag "Snippets" :inline t
+                         (string :tag "Snippet"))))))
 
 (defcustom org-context-remove-logfiles t
   "Non-nil means remove the logfiles produced by PDF production.
@@ -1539,13 +1557,18 @@ This option can also be set with the OPTIONS keyword, e.g.:
         (list "c#" :vim-name "cs" :context-name "CSharp")
         (list "vba" :vim-name "basic" :context-name "VBA")
         (list "bash" :vim-name "sh" :context-name "Bash"))
-  "Alist mapping Org language names to their counterparts in Vim and ConTeXt."
+  "Alist mapping Org language names to their counterparts in Vim and ConTeXt.
+Values not specified here will be automatically computed from the language name
+in Org. Specify a value here if the name of the language in Org doesn't match
+the name in Vim, or if the language name contains special characters that can't
+be inserted into TeX."
   :group 'org-export-context
   :type '(repeat
-          (list
-           (string :tag "Org Language Name")
-           (string :tag "Vim Language Name")
-           (string :tag "ConTeXt Language Name"))))
+          (list (string :tag "Org Language Name")
+                (const :tag "" :doc "The name name of the language in Vim." :vim-name)
+                (string :tag "Vim Name")
+                (const :tag "" :doc "The name of the language to use in the document." :context-name)
+                (string :tag "ConTeXt Name"))))
 
 
 ;;; Filters
