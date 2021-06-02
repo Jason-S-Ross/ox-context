@@ -1000,7 +1000,7 @@ so this is a short list."
 A rule consists in an association whose key is the type of link
 to consider, and value is a regexp that will be matched against
 link's path."
-  :group 'org-export-latex
+  :group 'org-export-context
   :package-version '(Org . "9.4")
   :type '(alist :key-type (string :tag "Type")
                 :value-type (regexp :tag "Path")))
