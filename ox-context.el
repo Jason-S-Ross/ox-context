@@ -297,6 +297,11 @@
   :tag "Org ConTeXt"
   :group 'org-export)
 
+(defgroup org-export-context-letter nil
+  "Options for configuring letters with Org ConTeXt."
+  :tag "Org ConTeXt Letter"
+  :group 'org-export-context)
+
 ;;;; ConTeXt environments
 
 ;;;;; Element Environments
@@ -777,7 +782,7 @@ If nil, the table of contents title command isn't created."
 (defcustom org-context-closing ""
   "Letter's closing, as a string.
 This option can also be set with the CLOSING keyword."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'string)
 
 (defcustom org-context-default-inner-template
@@ -944,13 +949,13 @@ The function should return the string to be exported."
   "Sender's address, as a string.
 This option can also be set with one or more FROM_ADDRESS
 keywords."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'string)
 
 (defcustom org-context-from-logo ""
   "Commands for inserting the sender's logo, e. g., \\externalfigure[logo.pdf].
 This option can also be set with the FROM_LOGO keyword."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'string
   :safe #'stringp)
 
@@ -1073,7 +1078,7 @@ String keys are as follows:
   "Sender's extension field, as a string.
 
 This option can also be set with the LOCATION keyword."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'string)
 
 (defcustom org-context-logfiles-extensions
@@ -1086,7 +1091,7 @@ non-nil."
   :type '(repeat (string :tag "Extension")))
 
 (defcustom org-context-number-equations nil
-  "Non-nil means insert a \\placeformula line before all formulas to allow numbering."
+  "Non-nil means insert a \\placeformula line before all formulas for numbering."
   :group 'org-export-context
   :type 'boolean)
 
@@ -1094,7 +1099,7 @@ non-nil."
   "Letter's opening, as a string.
 
 This option can also be set with the OPENING keyword."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'string)
 
 (defcustom org-context-pdf-process
@@ -1119,13 +1124,13 @@ file name as its single argument."
 (defcustom org-context-phone-number ""
   "Sender's phone number, as a string.
 This option can also be set with the PHONE_NUMBER keyword."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'string)
 
 (defcustom org-context-place ""
   "Place from which the letter is sent, as a string.
 This option can also be set with the PLACE keyword."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'string)
 
 (defcustom org-context-presets-alist
@@ -1175,7 +1180,7 @@ logfiles to remove, set `org-context-logfiles-extensions'."
 (defcustom org-context-signature ""
   "Signature, as a string.
 This option can also be set with the SIGNATURE keyword."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'string)
 
 (defcustom org-context-snippets-alist
@@ -1496,7 +1501,7 @@ available for use in presets. See also `:context-presets'"
 (defcustom org-context-url ""
   "Sender's URL, e. g., the URL of her homepage.
 This option can also be set with the URL keyword."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'string
   :safe #'stringp)
 
@@ -1504,14 +1509,14 @@ This option can also be set with the URL keyword."
   "Non-nil prints return address in line above to address.
 This option can also be set with the OPTIONS keyword, e.g.:
 \"backaddress:t\"."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'boolean)
 
 (defcustom org-context-use-email nil
   "Non-nil prints sender's email address.
 This option can also be set with the OPTIONS keyword, e.g.:
 \"email:t\"."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'boolean)
 
 (defcustom org-context-use-foldmarks t
@@ -1519,14 +1524,14 @@ This option can also be set with the OPTIONS keyword, e.g.:
 
 When t, activate default folding marks.  When nil, do not insert
 folding marks at all."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'boolean)
 
 (defcustom org-context-use-from-logo nil
   "Non-nil prints sender's FROM_LOGO.
 This option can also be set with the OPTIONS keyword, e.g.:
 \"from-logo:t\"."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'boolean
   :safe #'booleanp)
 
@@ -1534,21 +1539,21 @@ This option can also be set with the OPTIONS keyword, e.g.:
   "Non-nil prints sender's phone number.
 This option can also be set with the OPTIONS keyword, e.g.:
 \"phone:t\"."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'boolean)
 
 (defcustom org-context-use-place t
   "Non-nil prints the letter's place next to the date.
 This option can also be set with the OPTIONS keyword, e.g.:
 \"place:nil\"."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'boolean)
 
 (defcustom org-context-use-url nil
   "Non-nil prints sender's URL.
 This option can also be set with the OPTIONS keyword, e.g.:
 \"url:t\"."
-  :group 'org-export-context
+  :group 'org-export-context-letter
   :type 'boolean
   :safe #'booleanp)
 
@@ -3773,7 +3778,7 @@ holding the export options."
    "\\stoptext\n")))
 
 (defun org-context--list-metadata (info)
-  "Create a format-spec for document meta-data.
+  "Create a `format-spec' for document meta-data.
 INFO is a plist used as a communication channel."
   (list
     (cons "metadata:author" (org-export-data (plist-get info :author) info))
