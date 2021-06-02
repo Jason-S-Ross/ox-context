@@ -1818,7 +1818,7 @@ the coderef."
 
 (defun org-context--protect-text (text)
   "Protect special characters in string TEXT and return it."
-  (replace-regexp-in-string "[\\{}$%&_#~^]" "\\\\\\&" text))
+  (replace-regexp-in-string "[\\{}$%&_#~^|]" "\\\\\\&" text))
 
 (defun org-context--text-markup (text markup info)
   "Format TEXT depending on MARKUP text markup.
@@ -2924,7 +2924,7 @@ contextual information."
 	     ;; However, if special strings are used, be careful not
 	     ;; to protect "\" in "\-" constructs.
 	     (replace-regexp-in-string
-	      (concat "[%$#&{}_~^]\\|\\\\" (and specialp "\\([^-]\\|$\\)"))
+	      (concat "[|%$#&{}_~^]\\|\\\\" (and specialp "\\([^-]\\|$\\)"))
 	      (lambda (m)
 		(cl-case (string-to-char m)
 		  (?\\ "$\\\\backslash$\\1")
