@@ -3145,15 +3145,40 @@ ConTeXt provides facilities for multilingual quoting so
 no need to reimplement. TEXT is the text to quote.
 INFO is a plist containing contextual information.
 ORIGINAL is the original unfiltered text."
+  ;; TODO look ahead to see if there is a matching closing delimiter.
+  ;; If there is not, fall back to a literal.
   (let ((quote-status
-         (copy-sequence (org-export--smart-quote-status (or original text) info))))
-    (replace-regexp-in-string
-     "['\"]"
-     (lambda (match)
-       (cdr (assq (pop quote-status)
-                  (plist-get info :context-export-quotes-alist)))
-)
-     text nil t)))
+         (copy-sequence (org-export--smart-quote-status (or original text) info)))
+        (quote-defs (plist-get info :context-export-quotes-alist))
+        closing-stack)
+    (concat
+     (replace-regexp-in-string
+      "['\"]"
+      (lambda (match)
+        (let ((last-quote (pop quote-status)))
+          ;; Because we're using ConTeXt quotation macros, we are sensitive to
+          ;; mismatched opening/closing delimiters.
+          (pcase last-quote
+            ('primary-opening
+             (setq closing-stack (cons 'primary-closing closing-stack)))
+            ('secondary-opening
+             (setq closing-stack (cons 'secondary-closing closing-stack)))
+            ('primary-closing
+             (if
+                 (eq (car closing-stack) 'primary-closing)
+                 (setq closing-stack (cdr closing-stack))
+               (error "Mismatched opening and closing quotations")))
+            ('secondary-closing
+             (if
+                 (eq (car closing-stack) 'secondary-closing)
+                 (setq closing-stack (cdr closing-stack))
+               (error "Mismatched opening and closing quotations"))))
+          (cdr (assq last-quote quote-defs))))
+      text nil t)
+     (mapconcat
+      (lambda (close) (cdr (assq close quote-defs)))
+      closing-stack
+      ""))))
 
 ;;;; Radio Target
 
