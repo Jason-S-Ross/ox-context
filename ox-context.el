@@ -1948,8 +1948,7 @@ Environment is looked up from the info plist."
   "Merge continuous math objects in a pseudo-object container.
 DATA is a parse tree or a secondary string. INFO is a plist
 containing export options. Modify DATA by side-effect and return it."
-  (let
-      ((valid-object-p
+  (let ((valid-object-p
         ;; Non-nill when OBJECT can be added to a latex math block
         (lambda (object)
           (pcase (org-element-type object)
@@ -1960,41 +1959,42 @@ containing export options. Modify DATA by side-effect and return it."
                (or (string-prefix-p "\\(" value)
                    (string-match-p "\\`\\$[^$]" value))))))))
     (org-element-map
-     data
-     '(entity latex-fragment)
-     (lambda (object)
-       (when
-           (and
-            (not
-             (eq
-              (org-element-type
-               (org-element-property :parent object))
-              'latex-math-block))
-            (funcall valid-object-p object))
-         (let
-             ((math-block (list 'latex-math-block nil))
-              (next-elements (org-export-get-next-element object info t))
-              (last object))
-           ;; Wrap MATH-BLOCK around OBJECT in DATA.
-           (org-element-insert-before math-block object)
-           (org-element-extract-element object)
-           (org-element-adopt-elements math-block object)
-           (when (zerop (or (org-element-property :post-blank object) 0))
-             ;; MATH-BLOCK swallows consecutive math objects.
-             (catch 'exit
-               (dolist (next next-elements)
-                 (unless (funcall valid-object-p next) (throw 'exit nil))
-                 (org-element-extract-element next)
-                 (org-element-adopt-elements math-block next)
-                 ;; Eschew the case: \beta$x$ -> \(\betax\)
-                 (org-element-put-property last :post-blank 1)
-                 (setq last next)
-                 (when (> (or (org-element-property :post-blank next) 0) 0)
-                   (throw 'exit nil)))))
-           (org-element-put-property
-            math-block :post-blank (org-element-property :post-blank last)))))
-     info nil '(latex-latex-math-block) t)
+        data
+        '(entity latex-fragment)
+      (lambda (object)
+        (when
+            (and
+             (not
+              (eq
+               (org-element-type
+                (org-element-property :parent object))
+               'latex-math-block))
+             (funcall valid-object-p object))
+          (let
+              ((math-block (list 'latex-math-block nil))
+               (next-elements (org-export-get-next-element object info t))
+               (last object))
+            ;; Wrap MATH-BLOCK around OBJECT in DATA.
+            (org-element-insert-before math-block object)
+            (org-element-extract-element object)
+            (org-element-adopt-elements math-block object)
+            (when (zerop (or (org-element-property :post-blank object) 0))
+              ;; MATH-BLOCK swallows consecutive math objects.
+              (catch 'exit
+                (dolist (next next-elements)
+                  (unless (funcall valid-object-p next) (throw 'exit nil))
+                  (org-element-extract-element next)
+                  (org-element-adopt-elements math-block next)
+                  ;; Eschew the case: \beta$x$ -> \(\betax\)
+                  (org-element-put-property last :post-blank 1)
+                  (setq last next)
+                  (when (> (or (org-element-property :post-blank next) 0) 0)
+                    (throw 'exit nil)))))
+            (org-element-put-property
+             math-block :post-blank (org-element-property :post-blank last)))))
+      info nil '(latex-latex-math-block) t)
     data))
+
 
 ;;; Transcode Functions
 
