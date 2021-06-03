@@ -1684,9 +1684,9 @@ arguments to add to the inner environment."
      (format "\n\\start%s%s\n" environment
              (if inner-args (format "[%s]" inner-args) ""))
      contents
-     (format "\\stop%s\n" environment)
+     (format "\n\\stop%s\n" environment)
      (when enumerate-environment
-       (format "\\stop%s" enumerate-environment)))))
+       (format "\n\\stop%s" enumerate-environment)))))
 
 (defun org-context--escape-texinfo (tree info)
   "Convert Texinfo @-commands in indices in TREE prior to parsing.
@@ -1940,7 +1940,7 @@ Environment is looked up from the info plist."
     (org-context--add-reference
      ent
      (if env-name
-         (format "\\start%s\n%s\\stop%s" env-name contents env-name)
+         (format "\\start%s\n%s\n\\stop%s" env-name contents env-name)
        contents)
      info)))
 
@@ -2564,7 +2564,7 @@ contextual information."
     (if (eq (org-element-property :type (org-export-get-parent item))
             'descriptive)
         (let ((descrcommand (car (plist-get info :context-description-command))))
-          (format "\\start%s{%s} %s\n\\stop%s"
+          (format "\\start%s{%s}\n%s\n\\stop%s"
                   descrcommand
                   (if (org-string-nw-p checkbox)
                       (format "%s\\space\\space %s" checkbox tag)
@@ -3188,7 +3188,7 @@ holding contextual information."
             contents
             "\\crlf"
             caption
-            (format "\\stop%s" type))))
+            (format "\n\\stop%s" type))))
 
 ;;;; Src Block
 
