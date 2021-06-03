@@ -1470,15 +1470,14 @@ available for use in presets. See also `:context-presets'"
 
 (defcustom org-context-text-markup-alist
   '((bold ."\\bold{%s}")
-    (code . "\\type{%s}")
+    (code . protectedtexttt)
     (italic . "\\italic{%s}")
     (paragraph . "%s")
-    (protectedtexttt . "\\type{%s}")
     (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
     (subscript . "\\low{%s}")
     (superscript . "\\high{%s}")
     (underline . "\\underbar{%s}")
-    (verbatim . "\\type{%s}")
+    (verbatim . protectedtexttt)
     (verb . "\\type{%s}"))
   "Alist of ConTeXt expressions to convert text markup."
   :group 'org-export-context
@@ -1490,7 +1489,6 @@ available for use in presets. See also `:context-presets'"
     code
     italic
     paragraph
-    protectedtexttt
     strike-through
     subscript
     superscript
@@ -1820,6 +1818,44 @@ the coderef."
   "Protect special characters in string TEXT and return it."
   (replace-regexp-in-string "[\\{}$%&_#~^|]" "\\\\\\&" text))
 
+(defun org-context--protect-texttt (text)
+  "Protect special chars, then wrap TEXT in \"{\\tt }\""
+  ;; Can't get away with just relying on the \type macro to handle verbatim
+  ;; text because it fails in certain contexts such as titles.
+  (format "{\\tt %s}"
+          (replace-regexp-in-string
+           "--\\|[][&@\\|{:$\"}!#^%?'/~_<>()]"
+           (lambda (m)
+             (cond ((equal m "--") "-{}-")
+                   ((equal m "&") "\\letterampersand{}")
+                   ((equal m "@") "\\letterat{}")
+                   ((equal m "\\") "\\letterbackslash{}")
+                   ((equal m "|") "\\letterbar{}")
+                   ((equal m "{") "\\letterbgroup{}")
+                   ((equal m "{") "\\letterbgroup{}")
+                   ((equal m ":") "\\lettercolon{}")
+                   ((equal m "$") "\\letterdollar{}")
+                   ((equal m "\"") "\\letterdoublequote{}")
+                   ((equal m "}") "\\letteregroup{}")
+                   ((equal m "!") "\\letterexclamationmark{}")
+                   ((equal m "#") "\\letterhash{}")
+                   ((equal m "^") "\\letterhat{}")
+                   ((equal m "^") "\\letterhat{}")
+                   ((equal m "[") "\\letterleftbrace{}")
+                   ((equal m "(") "\\letterleftparenthesis{}")
+                   ((equal m "<") "\\letterless{}")
+                   ((equal m ">") "\\lettermore{}")
+                   ((equal m "]") "\\letterrightbrace{}")
+                   ((equal m ")") "\\letterrightparenthesis{}")
+                   ((equal m "%") "\\letterpercent{}")
+                   ((equal m "?") "\\letterquestionmark{}")
+                   ((equal m "'") "\\lettersinglequote{}")
+                   ((equal m "/") "\\letterslash{}")
+                   ((equal m "~") "\\lettertilde{}")
+                   ((equal m "_") "\\letterunderscore{}")
+                   (t (org-context--protect-text m))))
+           text nil t)))
+
 (defun org-context--text-markup (text markup info)
   "Format TEXT depending on MARKUP text markup.
 INFO is a plist used as a communication channel. See
@@ -1831,6 +1867,7 @@ INFO is a plist used as a communication channel. See
       ((nil) text)
       (verb
        (format "\\type{%s}" text))
+      (protectedtexttt (org-context--protect-texttt text))
       (t (format fmt text)))))
 
 (defun org-context--wrap-env (ent contents info env-key &optional default)
