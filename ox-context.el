@@ -33,6 +33,7 @@
 (require 'seq)
 (require 'subr-x)
 (require 'context)
+(require 'texinfmt) ;; Needed for texinfo-part-of-para-regexp
 
 ;;; Define Back-end
 (org-export-define-backend 'context
@@ -97,7 +98,8 @@
                 (org-open-file (org-context-export-to-pdf s v b)))))))
  :filters-alist '((:filter-options . org-context-math-block-options-filter)
                   (:filter-paragraph . org-context-clean-invalid-line-breaks)
-                  (:filter-parse-tree org-context-math-block-tree-filter)
+                  (:filter-parse-tree  org-context-math-block-tree-filter
+                                       org-context-texinfo-tree-filter)
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
  :options-alist '((:attention "ATTENTION" nil nil newline)
                   (:closing "CLOSING" nil org-context-closing parse)
@@ -212,6 +214,17 @@
     (secondary-opening . "\\quote{")
     (secondary-closing . "}")
     (apostrophe . "'")))
+
+(defconst org-context-texinfo-indices-alist
+  '(("cp" . (:keyword "CINDEX" :command "OrgConcept"))
+    ("fn" . (:keyword "FINDEX" :command "OrgFunction"))
+    ("ky" . (:keyword "KINDEX" :command "OrgKeystroke"))
+    ("pg" . (:keyword "PINDEX" :command "OrgProgram"))
+    ("tp" . (:keyword "TINDEX" :command "OrgDataType"))
+    ("vr" . (:keyword "VINDEX" :command "OrgVariable")))
+  "Alist mapping Texinfo index abbreviations to a plist of :keyword, :command pairs.
+ :keyword represents the corresponding TexInfo @index name. :command represents
+the corresponding command name in ConTeXt.")
 
 (defconst org-context-latex-math-environments-re
   (format
@@ -1591,6 +1604,11 @@ INFO is a plist containing contextual information."
     (plist-put info prop
                (org-context--wrap-latex-math-block (plist-get info prop) info))))
 
+(defun org-context-texinfo-tree-filter (tree _backend info)
+  "Convert Texinfo @-commands in indices in TREE prior to parsing.
+INFO is a plist containing contextual information."
+  (org-context--escape-texinfo tree info))
+
 (defun org-context-math-block-tree-filter (tree _backend info)
   "Wrap math blocks in TREE prior to parsing.
 INFO is a plist containing contextual information."
@@ -1659,6 +1677,34 @@ arguments to add to the inner environment."
      (format "\\stop%s\n" environment)
      (when enumerate-environment
        (format "\\stop%s" enumerate-environment)))))
+
+(defun org-context--escape-texinfo (tree info)
+  "Convert Texinfo @-commands in indices in TREE prior to parsing.
+INFO is a plist contianing contextual information."
+  (org-element-map tree 'keyword
+    (lambda (object)
+      (let* ((value (org-element-property :value object))
+             (norm-value
+              (with-temp-buffer
+                (insert value)
+                (goto-char (point-min))
+                (while
+                    (re-search-forward
+                     (concat
+                      "\\("
+                      texinfo-part-of-para-regexp
+                      "\\)"
+                      "\\([^}]*\\)"
+                      "\\(}\\)") nil t)
+                  (replace-match "" nil nil nil 1)
+                  (replace-match "" nil nil nil 4))
+                (buffer-string))))
+        (org-element-put-property
+         object
+         :value
+         norm-value)))
+    info nil '(keyword) t)
+  tree)
 
 (defun org-context--format-arguments (arguments &optional oneline)
   "Format ARGUMENTS into a ConTeXt argument string.
@@ -2495,17 +2541,31 @@ contextual information."
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((key (org-element-property :key keyword))
         (value (org-element-property :value keyword)))
-    (cond
-     ((string= key "CONTEXT") value)
-     ((string= key "INDEX") (format "\\index{%s}" value))
-     ((string= key "TOC")
+    (pcase key
+     ("CONTEXT" value)
+     ("INDEX" (format "\\index{%s}" (org-context--protect-text value)))
+     ((rx (in "CFKPTV") "INDEX")
+      (format "\\%s{%s}"
+              (plist-get
+               (cdr
+                (car
+                 (seq-filter
+                  (lambda (elem)
+                    (string= key (plist-get (cdr elem) :keyword)))
+                  org-context-texinfo-indices-alist)))
+               :command)
+              (org-context--protect-text value)))
+     ("TOC"
       (let ((case-fold-search t))
         (pcase value
-          ((pred (string-match-p "\\<tables\\>")) "\\placelistoftables[criterium=all]")
-          ((pred (string-match-p "\\<figures\\>")) "\\placelistoffigures[criterium=all]")
-          ((pred (string-match-p "\\<equations\\>")) "\\placelist[formula][criterium=all]")
-          ((pred (string-match-p "\\<references\\>")) "\\placelistofpublications[criterium=all]")
-          ((pred (string-match-p "\\<definitions\\>")) "\\placeindex")
+          ;; TODO consts for these commands
+          ("tables" "\\placelistoftables[criterium=all]")
+          ("figures" "\\placelistoffigures[criterium=all]")
+          ("equations" "\\placelist[formula][criterium=all]")
+          ("references" "\\placelistofpublications[criterium=all]")
+          ("definitions" "\\placeindex")
+          ((pred (lambda (x) (assoc x org-context-texinfo-indices-alist)))
+           (format "\\placeregister[%s]" (plist-get (cdr (assoc value org-context-texinfo-indices-alist)) :command)))
           ((pred (string-match-p "\\<headlines\\>"))
            (let* ((localp (string-match-p "\\<local\\>" value))
                   (parent (org-element-lineage keyword '(headline)))
@@ -2539,7 +2599,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
              (if env (format "\\placelist[%s][criterium=all]" env)
                ""))))))
 
-     ((string= key "BIBLIOGRAPHY")
+     ("BIBLIOGRAPHY"
       ;; TODO
       ;;
       ;; ox-bibtex supports the following syntax
@@ -3689,6 +3749,13 @@ holding the export options."
                     :context-table-colgroup-start-style
                     :context-table-colgroup-end-style))))
            "\n"))
+         (index-defs
+          (mapconcat
+           (lambda (elem)
+             (let ((command (plist-get (cdr elem) :command)))
+               (format "\\defineregister[%s][%ss]" command command)))
+           org-context-texinfo-indices-alist
+           "\n"))
          (unnumbered-headline-commands
           (let* ((notoc-headline-cache (plist-get info :context-notoc-headline-cache))
                  (notoc-headline-keys
@@ -3781,6 +3848,8 @@ holding the export options."
    command-defs
    "\n"
    table-defs
+   "\n"
+   index-defs
    "
 %===============================================================================
 % Preset Commands
