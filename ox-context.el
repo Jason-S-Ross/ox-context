@@ -1872,14 +1872,7 @@ the coderef."
 
 (defun org-context--protect-text (text)
   "Protect special characters in string TEXT and return it."
-  (replace-regexp-in-string "[\\{}$%&_#~^|]" "\\\\\\&" text))
-
-(defun org-context--protect-texttt (text)
-  "Protect special chars, then wrap TEXT in \"{\\tt }\""
-  ;; Can't get away with just relying on the \type macro to handle verbatim
-  ;; text because it fails in certain contexts such as titles.
-  (format "{\\tt %s}"
-          (replace-regexp-in-string
+  (replace-regexp-in-string
            "--\\|[][&@\\|{:$\"}!#^%?'/~_<>()]"
            (lambda (m)
              (cond ((equal m "--") "-{}-")
@@ -1910,7 +1903,13 @@ the coderef."
                    ((equal m "~") "\\lettertilde{}")
                    ((equal m "_") "\\letterunderscore{}")
                    (t (org-context--protect-text m))))
-           text nil t)))
+           text nil t))
+
+(defun org-context--protect-texttt (text)
+  "Protect special chars, then wrap TEXT in \"{\\tt }\""
+  ;; Can't get away with just relying on the \type macro to handle verbatim
+  ;; text because it fails in certain contexts such as titles.
+  (format "{\\tt %s}" (org-context--protect-text text)))
 
 (defun org-context--text-markup (text markup info)
   "Format TEXT depending on MARKUP text markup.
