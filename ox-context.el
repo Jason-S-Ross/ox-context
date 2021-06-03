@@ -3176,14 +3176,27 @@ holding contextual information."
 
 ;;;; Special Block
 
+(defun org-context--preprocess-special-block (block _contents info)
+  "Add a special BLOCK type to a cache variable in INFO."
+  (let* ((type (org-element-property :type block))
+         (env-cache
+          (or (plist-get info :context-special-env-cache)
+              (let ((ec (list type)))
+                (plist-put info :context-special-env-cache ec)
+                ec))))
+    (or (member type env-cache)
+        (plist-put info :context-special-env-cache (cons type env-cache)))))
+
 (defun org-context-special-block (special-block contents info)
   "Transcode a SPECIAL-BLOCK element from Org to ConTeXt.
 CONTENTS holds the contents of the block. INFO is a plist
 holding contextual information."
+  ;; TODO Use options for something
   (let ((type (org-element-property :type special-block))
         (opt (org-export-read-attribute :attr_context special-block :options))
         (caption (org-context--caption/label-string special-block info)))
-    (concat (format "\\start%s[%s]\n" type (or opt ""))
+    (org-context--preprocess-special-block special-block contents info)
+    (concat (format "\\start%s\n" type)
             contents
             "\\crlf"
             caption
@@ -3826,6 +3839,12 @@ holding the export options."
                          context-block-name vim-lang))))
              (hash-table-keys vim-lang-hash)
              "\n")))
+         (special-envs
+          (mapconcat
+           (lambda (env)
+             (format "\\definestartstop[%s]" env))
+           (plist-get info :context-special-env-cache)
+           "\n"))
          (bib-place (plist-get info :context-bib-command)))
     (concat
      (and time-stamp
@@ -3890,6 +3909,8 @@ holding the export options."
    table-defs
    "\n"
    index-defs
+   "\n"
+   special-envs
    "
 %===============================================================================
 % Preset Commands
