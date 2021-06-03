@@ -1023,7 +1023,9 @@ link's path."
 %f
 %c
 %a
-%b")
+%b
+%i
+%o")
     ("article" . "\\startfrontmatter
 %t
 %f
@@ -1039,6 +1041,8 @@ link's path."
 
 \\startbackmatter
 %b
+%i
+%o
 \\stopbackmatter")
     ("letter" . "\\startfrontmatter
 %t
@@ -1054,6 +1058,8 @@ link's path."
 
 \\startbackmatter
 %b
+%i
+%o
 \\stopbackmatter")
     ("report" . "\\startfrontmatter
 \\startstandardmakeup
@@ -1071,6 +1077,8 @@ link's path."
 \\stopappendices
 \\startbackmatter
 %b
+%i
+%o
 \\stopbackmatter"))
   "Alist of ConTeXt document body templates.
 First element is the name of the template. Second element is
@@ -1081,7 +1089,9 @@ String keys are as follows:
 ?f: Sections tagged :frontmatter: or with the property :FRONTMATTER:
 ?c: Normal sections
 ?a: Sections tagged :appendix: or with the property :APPENDIX:
-?b: Sections tagged :backmatter: or with the property :BACKMATTER:"
+?b: Sections tagged :backmatter: or with the property :BACKMATTER:
+?o: Sections with the property :COPYING:
+?i: Sections with the property :INDEX:"
   :group 'org-export-context
   :type '(repeat
           (cons (string :tag "Template Name")
@@ -2203,88 +2213,107 @@ CONTENTS is the content of the section. INFO is a plist
 containing contextual information."
   ;; TODO Handle category from `org-export-get-category'
   ;; TODO Handle node property from `org-export-get-node-property'
-  (let* ((level (org-export-get-relative-level headline info))
-         (numberedp (org-export-numbered-headline-p headline info))
-         (text (org-export-data (org-element-property :title headline) info))
-         (alt-title (or (org-export-get-node-property :ALT_TITLE headline) text))
-         ;; TODO Handle description metadata
-         ;; (description (org-export-get-node-property :DESCRIPTION headline))
-         (todo
-          (and (plist-get info :with-todo-keywords)
-               (let ((todo (org-element-property :todo-keyword headline)))
-                 (and todo (org-export-data todo info)))))
-         (todo-type (and todo (org-element-property :todo-type headline)))
-         (tags (and (plist-get info :with-tags)
-                    (org-export-get-tags headline info)))
-         (priority-num (org-element-property :priority headline))
-         (priority (and (plist-get info :with-priority)
-                        priority-num
-                        (string priority-num)))
-         (full-text (funcall (plist-get info :context-format-headline-function)
-                             todo todo-type priority text tags info))
-         (notoc (org-export-excluded-from-toc-p headline info))
-         (headline-name
-          (let ((hname (org-context--get-headline-command numberedp level)))
-            (if notoc
-                (let* ((notoc-heading-cache
-                        (or (plist-get info :context-notoc-headline-cache)
-                            (let ((hash (make-hash-table :test #'equal)))
-                              (plist-put info :context-notoc-headline-cache hash) hash)))
-                       (notoc-name
-                        (or (gethash hname notoc-heading-cache)
-                            (puthash hname
-                                     (format "%sNoToc" hname)
-                                     notoc-heading-cache))))
-                  notoc-name)
-              hname)))
-         (headertemplate (format "\n\\start%s" headline-name))
-         (footercommand (format "\n\\stop%s" headline-name))
-         (headline-label (org-context--label headline info t ))
-         (frontmatterp
-          (or (member "frontmatter" tags)
-              (org-export-get-node-property :FRONTMATTER headline)))
-         (backmatterp
-          (or (member "backmatter" tags)
-              (org-export-get-node-property :BACKMATTER headline)))
-         (appendixp
-          (or (member "appendix" tags)
-              (org-export-get-node-property :APPENDIX headline)))
-         (headline-args
-          (org-context--format-arguments
-           (list
-            (cons "title" full-text)
-            (cons "list" alt-title)
-            (cons "marking" alt-title)
-            (cons "bookmark" alt-title)
-            (cons "reference" headline-label))))
-         (result (concat
-                  headertemplate
-                  (format "[%s]" headline-args)
-                  "\n\n"
-                  contents
-                  footercommand)))
-    ;; Special sections are stuck in the plist somewhere else
-    ;; for later rendering
-    (cond
-     (backmatterp
-      (let ((backmatter-sections
-             (plist-get info :context-backmatter-sections)))
-        (plist-put info :context-backmatter-sections
-                   (cons result backmatter-sections))
-        nil))
-     (frontmatterp
-      (let ((frontmatter-sections
-             (plist-get info :context-frontmatter-sections)))
-        (plist-put info :context-frontmatter-sections
-                   (cons result frontmatter-sections))
-        nil))
-     (appendixp
-      (let ((appendix-sections
-             (plist-get info :context-appendix-sections)))
-        (plist-put info :context-appendix-sections
-                   (cons result appendix-sections))
-        nil))
-     (t result))))
+  (unless (org-element-property :footnote-section-p headline)
+    (let* ((level (org-export-get-relative-level headline info))
+           (numberedp (org-export-numbered-headline-p headline info))
+           (text (org-export-data (org-element-property :title headline) info))
+           (alt-title (or (org-export-get-node-property :ALT_TITLE headline) text))
+           ;; TODO Handle description metadata
+           ;; (description (org-export-get-node-property :DESCRIPTION headline))
+           (todo
+            (and (plist-get info :with-todo-keywords)
+                 (let ((todo (org-element-property :todo-keyword headline)))
+                   (and todo (org-export-data todo info)))))
+           (todo-type (and todo (org-element-property :todo-type headline)))
+           (tags (and (plist-get info :with-tags)
+                      (org-export-get-tags headline info)))
+           (priority-num (org-element-property :priority headline))
+           (priority (and (plist-get info :with-priority)
+                          priority-num
+                          (string priority-num)))
+           (full-text (funcall (plist-get info :context-format-headline-function)
+                               todo todo-type priority text tags info))
+           (notoc (org-export-excluded-from-toc-p headline info))
+           (headline-name
+            (let ((hname (org-context--get-headline-command numberedp level)))
+              (if notoc
+                  (let* ((notoc-heading-cache
+                          (or (plist-get info :context-notoc-headline-cache)
+                              (let ((hash (make-hash-table :test #'equal)))
+                                (plist-put info :context-notoc-headline-cache hash) hash)))
+                         (notoc-name
+                          (or (gethash hname notoc-heading-cache)
+                              (puthash hname
+                                       (format "%sNoToc" hname)
+                                       notoc-heading-cache))))
+                    notoc-name)
+                hname)))
+           (headertemplate (format "\n\\start%s" headline-name))
+           (footercommand (format "\n\\stop%s" headline-name))
+           (headline-label (org-context--label headline info t ))
+           (index (let ((i (org-export-get-node-property :INDEX headline t)))
+                    (assoc i org-context-texinfo-indices-alist)))
+           (copyingp (org-not-nil (org-export-get-node-property :COPYING headline t)))
+           (frontmatterp
+            (or (member "frontmatter" tags)
+                (org-export-get-node-property :FRONTMATTER headline)))
+           (backmatterp
+            (or (member "backmatter" tags)
+                (org-export-get-node-property :BACKMATTER headline)))
+           (appendixp
+            (or (member "appendix" tags)
+                (org-export-get-node-property :APPENDIX headline)))
+           (headline-args
+            (org-context--format-arguments
+             (list
+              (cons "title" full-text)
+              (cons "list" alt-title)
+              (cons "marking" alt-title)
+              (cons "bookmark" alt-title)
+              (cons "reference" headline-label))))
+           (result (concat
+                    headertemplate
+                    (format "[%s]" headline-args)
+                    (and index
+                         (format "\n\\placeregister[%s]"
+                                 (plist-get (cdr index) :command)))
+                    "\n\n"
+                    contents
+                    footercommand)))
+      ;; Special sections are stuck in the plist somewhere else
+      ;; for later rendering
+      (cond
+       (copyingp
+        (let ((copying-sections
+               (plist-get info :context-copying-sections)))
+          (plist-put info :context-copying-sections
+                     (cons result copying-sections))
+          nil))
+       (backmatterp
+        (let ((backmatter-sections
+               (plist-get info :context-backmatter-sections)))
+          (plist-put info :context-backmatter-sections
+                     (cons result backmatter-sections))
+          nil))
+       (frontmatterp
+        (let ((frontmatter-sections
+               (plist-get info :context-frontmatter-sections)))
+          (plist-put info :context-frontmatter-sections
+                     (cons result frontmatter-sections))
+          nil))
+       (appendixp
+        (let ((appendix-sections
+               (plist-get info :context-appendix-sections)))
+          (plist-put info :context-appendix-sections
+                     (cons result appendix-sections))
+          nil))
+       (index
+        (let ((index-sections
+               (plist-get info :context-index-sections)))
+          (plist-put info :context-index-sections
+                     (cons result index-sections))
+          nil))
+       (t result)))))
 
 (defun org-context-format-headline-default-function
     (todo todo-type priority text tags info)
@@ -2464,6 +2493,11 @@ containing contextual information."
          (toccommand (car (plist-get info :context-title-contents-command)))
          (template (cdr (assoc template-name templates)))
          (num-sections (length (org-export-collect-headlines info)))
+         (copying-sections
+          (mapconcat
+           'identity
+           (reverse (plist-get info :context-copying-sections))
+           "\n\n"))
          (frontmatter-sections
           (mapconcat
            'identity
@@ -2478,6 +2512,11 @@ containing contextual information."
           (mapconcat
            'identity
            (reverse (plist-get info :context-appendix-sections))
+           "\n\n"))
+         (index-sections
+          (mapconcat
+           'identity
+           (reverse (plist-get info :context-index-sections))
            "\n\n"))
          (title
           (concat
@@ -2498,7 +2537,9 @@ containing contextual information."
            (cons ?f frontmatter-sections)
            (cons ?c contents)
            (cons ?a appendix-sections)
-           (cons ?b backmatter-sections)))))
+           (cons ?b backmatter-sections)
+           (cons ?o copying-sections)
+           (cons ?i index-sections)))))
 
 ;;;; Italic
 
