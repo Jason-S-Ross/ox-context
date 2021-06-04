@@ -222,8 +222,8 @@
     ("pg" . (:keyword "PINDEX" :command "OrgProgram"))
     ("tp" . (:keyword "TINDEX" :command "OrgDataType"))
     ("vr" . (:keyword "VINDEX" :command "OrgVariable")))
-  "Alist mapping Texinfo index abbreviations to a plist of :keyword, :command pairs.
- :keyword represents the corresponding TexInfo @index name. :command represents
+  "Alist mapping Texinfo index abbreviations to plist of keywords and commands.
+:keyword represents the corresponding TexInfo @index name. :command represents
 the corresponding command name in ConTeXt.")
 
 (defconst org-context-latex-math-environments-re
@@ -1863,7 +1863,7 @@ the coderef."
            text nil t))
 
 (defun org-context--protect-texttt (text)
-  "Protect special chars, then wrap TEXT in \"{\\tt }\""
+  "Protect special chars, then wrap TEXT in \"{\\tt }\"."
   ;; Can't get away with just relying on the \type macro to handle verbatim
   ;; text because it fails in certain contexts such as titles.
   (format "{\\tt %s}" (org-context--protect-text text)))
@@ -2963,7 +2963,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
 ;;;; Paragraph
 
 (defun org-context-paragraph (_paragraph contents info)
-  "Transcode a PARAGRAPH element from Org to LaTeX.
+  "Transcode a PARAGRAPH element from Org to ConTeXt.
 CONTENTS is the contents of the paragraph, as a string.  INFO is
 the plist used as a communication channel."
   (org-context--text-markup contents 'paragraph info))
