@@ -350,6 +350,7 @@ called NAME is created."
    leftoffset=1em,
    framecolor=black,
    location=always,
+   before={\\blank[line]},
    after={\\blank[line]}]
 \\definetyping
   [OrgFixed]
