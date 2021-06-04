@@ -1107,20 +1107,22 @@ This option can also be set with the PLACE keyword."
 
 (defcustom org-context-presets-alist
   '(("empty" . (""))
-    ("article" . ("\\setupwhitespace[big]"
+    ("article" . (""
                   "layout-article"
                   "description-article"
                   "quote-article"
+                  "indent-article"
                   "verse-article"
                   "table-article"
                   "title-article"
                   "sectioning-article"
                   "page-numbering-article"
                   "setup-grid"))
-    ("report" . ("\\setupwhitespace[big]"
+    ("report" . (""
                  "description-article"
                  "layout-article"
                  "quote-article"
+                 "indent-article"
                  "verse-article"
                  "table-article"
                  "title-report"
@@ -1240,6 +1242,8 @@ This option can also be set with the SIGNATURE keyword."
    after={\\stopnarrower
       \\blank[QuoteSkip]
       \\indenting[next]}]")
+    ;; Hanging indents on paragraphs
+    ("indent-article" . "\\setupindenting[yes,medium,next]")
     ;; Indented verse blocks with spaces preserved
     ("verse-article" . "\\defineblank[VerseSkip][1ex]
 \\setuplines
