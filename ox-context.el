@@ -1035,10 +1035,10 @@ a format specification string.
 String keys are as follows:
 
 ?t: The document title command
-?f: Sections tagged :frontmatter: or with the property :FRONTMATTER:
+?f: Sections with the property :FRONTMATTER:
 ?c: Normal sections
-?a: Sections tagged :appendix: or with the property :APPENDIX:
-?b: Sections tagged :backmatter: or with the property :BACKMATTER:
+?a: Sections with the property :APPENDIX:
+?b: Sections with the property :BACKMATTER:
 ?o: Sections with the property :COPYING:
 ?i: Sections with the property :INDEX:"
   :group 'org-export-context
@@ -2211,14 +2211,11 @@ containing contextual information."
                     (assoc i org-context-texinfo-indices-alist)))
            (copyingp (org-not-nil (org-export-get-node-property :COPYING headline t)))
            (frontmatterp
-            (or (member "frontmatter" tags)
-                (org-export-get-node-property :FRONTMATTER headline)))
+            (org-export-get-node-property :FRONTMATTER headline))
            (backmatterp
-            (or (member "backmatter" tags)
-                (org-export-get-node-property :BACKMATTER headline)))
+            (org-export-get-node-property :BACKMATTER headline))
            (appendixp
-            (or (member "appendix" tags)
-                (org-export-get-node-property :APPENDIX headline)))
+            (org-export-get-node-property :APPENDIX headline))
            (headline-args
             (org-context--format-arguments
              (list
