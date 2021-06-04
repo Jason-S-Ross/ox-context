@@ -457,39 +457,12 @@ If nil, examples are not wrapped in an enumeration"
                (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-example-environment
-  '("OrgExampleEnumeration" . "\\startuseMPgraphic{mpos:exampleback}
-  begingroup; save lftbdry; save rtbdry; save lftx; save parframe;
-  for i=1 upto nofmultipars :
-      path lftbdry, rtbdry, parframe;
-      numeric lftx;
-      lftx := xpart(point 0 of leftboundary Page) - 32pt;
-      rtbdry := rightboundary multipars[i];
-      lftbdry := (lftx, ypart (point 0 of rtbdry))
-          -- (lftx, ypart (point 1 of rtbdry));
-      parframe := point 0 of lftbdry
-          --point 1 of lftbdry
-          --point 1 of rtbdry
-          --point 0 of rtbdry
-          --cycle;
-      draw parframe;
-  endfor;
-\\stopuseMPgraphic
-\\definetextbackground
-  [OrgExampleBackground]
-  [frame=off, mp={mpos:exampleback}, location=always]
-\\defineenumeration
+  '("OrgExampleEnumeration" . "\\defineenumeration
   [OrgExampleEnumeration]
   [OrgExampleEnumerationEmpty]
   [title=yes,
    text=Example,
    headalign=middle,
-   style=\\tfx,
-   titlestyle=\\tf,
-   titleleft={\\bold{:}\\space},
-   titleright=,
-   titledistance=0em,
-   before={\\starttextbackground[OrgExampleBackground]},
-   after={\\stoptextbackground},
    alternative=top]")
   "The enumeration to wrap examples in.
 
@@ -514,39 +487,12 @@ If null, listings are not enumerated."
                (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-listing-environment
-  '("OrgListing" . "\\startuseMPgraphic{mpos:listingback}
-  begingroup; save lftbdry; save rtbdry; save lftx; save parframe;
-  for i=1 upto nofmultipars :
-      path lftbdry, rtbdry, parframe;
-      numeric lftx;
-      lftx := xpart(point 0 of leftboundary Page) - 32pt;
-      rtbdry := rightboundary multipars[i];
-      lftbdry := (lftx, ypart (point 0 of rtbdry))
-          -- (lftx, ypart (point 1 of rtbdry));
-      parframe := point 0 of lftbdry
-          --point 1 of lftbdry
-          --point 1 of rtbdry
-          --point 0 of rtbdry
-          --cycle;
-      draw parframe;
-  endfor;
-\\stopuseMPgraphic
-\\definetextbackground
-  [OrgListingBackground]
-  [frame=off, mp={mpos:listingback}, location=always]
-\\defineenumeration
+  '("OrgListing" . "\\defineenumeration
   [OrgListing]
   [OrgListingEmpty]
   [title=yes,
    text=Listing,
    headalign=middle,
-   titlestyle=\\tf,
-   style=\\tfx,
-   titleleft={\\bold{:}\\space},
-   titleright=,
-   titledistance=0em,
-   before={\\starttextbackground[OrgListingBackground]},
-   after={\\stoptextbackground},
    alternative=top]")
   "The enumeration for listings.
 
