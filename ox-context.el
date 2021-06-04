@@ -349,7 +349,8 @@ called NAME is created."
    topoffset=1ex,
    leftoffset=1em,
    framecolor=black,
-   location=always]
+   location=always,
+   after={\\blank[line]}]
 \\definetyping
   [OrgFixed]
   [before={\\starttextbackground[OrgFixedBackground]},
