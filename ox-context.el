@@ -346,6 +346,8 @@ called NAME is created."
   '("OrgFixed" . "\\definetextbackground
   [OrgFixedBackground]
   [backgroundcolor=white,
+   topoffset=1ex,
+   leftoffset=1em,
    framecolor=black,
    location=always]
 \\definetyping
