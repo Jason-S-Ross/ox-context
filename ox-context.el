@@ -3788,7 +3788,7 @@ holding the export options."
           (mapconcat
            (lambda (elem)
              (let ((command (plist-get (cdr elem) :command)))
-               (format "\\defineregister[%s][%ss]" command command)))
+               (format "\\defineregister[%s]" command)))
            org-context-texinfo-indices-alist
            "\n"))
          (unnumbered-headline-commands
