@@ -1112,10 +1112,12 @@ This option can also be set with the PLACE keyword."
                   "description-article"
                   "quote-article"
                   "indent-article"
+                  "toc-article"
                   "verse-article"
                   "table-article"
                   "title-article"
                   "sectioning-article"
+                  "section-numbers-article"
                   "page-numbering-article"
                   "setup-grid"))
     ("report" . (""
@@ -1123,9 +1125,11 @@ This option can also be set with the PLACE keyword."
                  "layout-article"
                  "quote-article"
                  "indent-article"
+                 "toc-article"
                  "verse-article"
                  "table-article"
                  "title-report"
+                 "section-numbers-article"
                  "headlines-report"
                  "page-numbering-article"
                  "setup-grid"))
@@ -1158,175 +1162,7 @@ This option can also be set with the SIGNATURE keyword."
   :type 'string)
 
 (defcustom org-context-snippets-alist
-  '(;; Margin setup for article style
-    ("layout-article" . "\\setuplayout[
-   backspace=103pt,
-   topspace=92pt,
-   header=12pt,
-   headerdistance=25pt,
-   width=middle,
-   height=middle]")
-    ;; US letter paper
-    ("paper-letter" . "\\setuppapersize[letter]")
-    ;; LaTeX-style tables
-    ("table-article" . "\\setupxtable
-  [split=yes,
-   header=repeat,
-   footer=repeat,
-   leftframe=off,
-   rightframe=off,
-   topframe=off,
-   bottomframe=off,
-   loffset=1em,
-   roffset=1em,
-   stretch=on]
-\\setupxtable
-  [OrgTableHeader]
-  [toffset=1ex,
-   foregroundstyle=bold,
-   topframe=on,
-   bottomframe=on]
-\\setupxtable[OrgTableFooter][OrgTableHeader][]
-\\setupxtable
-  [OrgTableHeaderTop]
-  [OrgTableHeader]
-  [bottomframe=off]
-\\setupxtable
-  [OrgTableFooterTop]
-  [OrgTableFooter]
-  [bottomframe=off]
-\\setupxtable
-  [OrgTableHeaderBottom]
-  [OrgTableHeader]
-  [topframe=off]
-\\setupxtable
-  [OrgTableFooterBottom]
-  [OrgTableFooter]
-  [topframe=off]
-\\setupxtable
-  [OrgTableHeaderMid]
-  [OrgTableHeader]
-  [topframe=off,bottomframe=off]
-\\setupxtable
-  [OrgTableFooterMid]
-  [OrgTableFooter]
-  [topframe=off,bottomframe=off]
-\\setupxtable
-  [OrgTableTopRow]
-  [topframe=on]
-\\setupxtable
-  [OrgTableRowGroupStart]
-  [topframe=on]
-\\setupxtable
-  [OrgTableRowGroupEnd]
-  [bottomframe=on]
-\\setupxtable
-  [OrgTableColGroupStart]
-  [leftframe=on]
-\\setupxtable
-  [OrgTableColGroupEnd]
-  [rightframe=on]
-\\setupxtable
-  [OrgTableBottomRow]
-  [bottomframe=on]
-")
-    ;; Indented quote blocks
-    ("quote-article" . "\\defineblank[QuoteSkip][1ex]
-\\setupstartstop
-  [OrgBlockQuote]
-  [style=slanted,
-   before={\\blank[QuoteSkip]
-      \\setupnarrower[left=1em, right=1em]
-      \\startnarrower[left, right]
-      \\noindent},
-   after={\\stopnarrower
-      \\blank[QuoteSkip]
-      \\indenting[next]}]")
-    ;; Hanging indents on paragraphs
-    ("indent-article" . "\\setupindenting[yes,medium,next]")
-    ;; Indented verse blocks with spaces preserved
-    ("verse-article" . "\\defineblank[VerseSkip][1ex]
-\\setuplines
-  [OrgVerse]
-  [before={\\blank[VerseSkip]
-      \\setupnarrower[left=1em, right=1em]
-      \\startnarrower[left, right]},
-   after={\\stopnarrower
-      \\blank[VerseSkip]},
-   space=on]")
-    ;; LaTeX-style descriptions
-    ("description-article" . "\\setupdescription
-  [OrgDesc]
-  [headstyle=bold,
-   style=normal,
-   align=flushleft,
-   alternative=hanging,
-   width=broad,
-   margin=1cm]")
-    ;; LaTeX article style title setup
-    ("title-article" . "\\setuphead[title][align=middle]
-\\define\\OrgMakeTitle{%
-  \\startalignment[center]
-   \\blank[force,2*big]
-   \\title{\\documentvariable{metadata:title}}
-   \\doifnot{\\documentvariable{metadata:subtitle}}{}{
-     \\blank[force,1*big]
-     \\tfa \\documentvariable{metadata:subtitle}}
-   \\doifelse{\\documentvariable{metadata:author}}{}{
-   \\blank[3*medium]
-   {\\tfa \\documentvariable{metadata:email}}
-   }{
-      \\blank[3*medium]
-      {\\tfa \\documentvariable{metadata:author}}
-   }
-   \\blank[2*medium]
-   {\\tfa \\documentvariable{metadata:date}}
-   \\blank[3*medium]
-  \\stopalignment}")
-    ;; LaTeX report style title setup
-    ("title-report" . "\\setuphead[title][align=middle]
-\\define\\OrgMakeTitle{%
-  \\startstandardmakeup[page=yes]
-  \\startalignment[center]
-   \\blank[force,2*big]
-    \\title{\\documentvariable{metadata:title}}
-   \\doifnot{\\documentvariable{metadata:subtitle}}{}{
-     \\blank[force,1*big]
-     \\tfa \\documentvariable{metadata:subtitle}}
-   \\doifelse{\\documentvariable{metadata:author}}{}{
-   \\blank[3*medium]
-   {\\tfa \\documentvariable{metadata:email}}
-   }{
-      \\blank[3*medium]
-      {\\tfa \\documentvariable{metadata:author}}
-   }
-   \\blank[2*medium]
-   {\\tfa \\documentvariable{metadata:date}}
-   \\blank[3*medium]
-  \\stopalignment
-  \\stopstandardmakeup}")
-    ;; Report title setuphead
-    ;; LaTeX Report-style Headlines
-    ("headlines-report" . "\\definehead[subsubsubsection][subsubsection]
-\\definehead[subsubsection][subsection]
-\\definehead[subsection][section]
-\\definehead[section][chapter]
-\\definehead[subsubsubsubsubject][subsubsubsubject]
-\\definehead[subsubsubsubject][subsubsubject]
-\\definehead[subsubsubject][subsubject]
-\\definehead[subsubject][subject]
-\\definehead[subject][title]
-\\setuphead
-  [subject,section]
-  [before={\\startstandardmakeup[
-        headerstate=normal, footerstate=normal, pagestate=start]},
-    after={\\stopstandardmakeup}]")
-    ;; A simple message
-    ("hello" . "% Hello, World!")
-    ;; Title on same page as body
-    ("sectioning-article" . "\\setupsectionblock[frontpart][page=no]
-\\setupsectionblock[bodypart][page=no]")
-    ("page-numbering-article" . "\\setuppagenumbering[location={footer,middle}]")
+  '(
     ;; Syntax highlighting. Note that overriding pscolor overrides
     ;; the default so no further action is needed
     ("colors-pigmints" . "% Syntax highlighting that may superficially resemble Pygments
@@ -1401,8 +1237,76 @@ This option can also be set with the SIGNATURE keyword."
     [String]
     [color={x=BA2121}]
 \\stopcolorscheme")
+    ;; LaTeX-style descriptions
+    ("description-article" . "\\setupdescription
+  [OrgDesc]
+  [headstyle=bold,
+   style=normal,
+   align=flushleft,
+   alternative=hanging,
+   width=broad,
+   margin=1cm]")
+    ;; Report title setuphead
+    ;; LaTeX Report-style Headlines
+    ("headlines-report" . "\\definehead[subsubsubsection][subsubsection]
+\\definehead[subsubsection][subsection]
+\\definehead[subsection][section]
+\\definehead[section][chapter]
+\\definehead[subsubsubsubsubject][subsubsubsubject]
+\\definehead[subsubsubsubject][subsubsubject]
+\\definehead[subsubsubject][subsubject]
+\\definehead[subsubject][subject]
+\\definehead[subject][title]
+\\setuphead
+  [subject,section]
+  [before={\\startstandardmakeup[
+        headerstate=normal, footerstate=normal, pagestate=start]},
+    after={\\stopstandardmakeup}]")
+    ;; Hanging indents on paragraphs
+    ("indent-article" . "\\setupindenting[yes,medium,next]")
+    ;; Margin setup for article style
+    ("layout-article" . "\\setuplayout[
+   backspace=103pt,
+   topspace=92pt,
+   header=12pt,
+   headerdistance=25pt,
+   width=middle,
+   height=middle]")
+    ;; Article page numbering
+    ("page-numbering-article" . "\\setuppagenumbering[location={footer,middle}]")
+    ;; US letter paper
+    ("paper-letter" . "\\setuppapersize[letter]")
+    ;; Indented quote blocks
+    ("quote-article" . "\\defineblank[QuoteSkip][1ex]
+\\setupstartstop
+  [OrgBlockQuote]
+  [style=slanted,
+   before={\\blank[QuoteSkip]
+      \\setupnarrower[left=1em, right=1em]
+      \\startnarrower[left, right]
+      \\noindent},
+   after={\\stopnarrower
+      \\blank[QuoteSkip]
+      \\indenting[next]}]")
+    ;; Title on same page as body
+    ("sectioning-article" . "\\setupsectionblock[frontpart][page=no]
+\\setupsectionblock[bodypart][page=no]")
+    ;; LaTeX article style section numbering
+    ("section-numbers-article" . "\\startsectionblockenvironment[frontpart]
+\\setupheads[conversion=r]
+\\stopsectionblockenvironment
+\\startsectionblockenvironment[appendix]
+\\setuphead[section][conversion=A]
+\\setuphead[subsection][conversion=n, sectionsegments=subsection:*]
+\\stopsectionblockenvironment
+\\startsectionblockenvironment[backpart]
+\\setupheads[number=no]
+\\stopsectionblockenvironment
+")
+    ;; Grid typesetting (can cause issues with dense math)
     ("setup-grid" . "\\setuplayout[grid=both]
 \\setupformulae[grid=both]")
+    ;; Setup metadata for letters
     ("setup-letter" . "\\setupletter[
   fromname={\\documentvariable{metadata:author}},
   fromaddress={\\documentvariable{letter:fromaddress}},
@@ -1420,7 +1324,121 @@ This option can also be set with the SIGNATURE keyword."
   [state=\\documentvariable{letter:foldmarks}]
 \\setupletterlayer
   [backaddress]
-  [state=\\documentvariable{letter:withbackaddress}]"))
+  [state=\\documentvariable{letter:withbackaddress}]")
+    ;; LaTeX-style tables
+    ("table-article" . "\\setupxtable
+  [split=yes,
+   header=repeat,
+   footer=repeat,
+   leftframe=off,
+   rightframe=off,
+   topframe=off,
+   bottomframe=off,
+   loffset=1em,
+   roffset=1em,
+   stretch=on]
+\\setupxtable
+  [OrgTableHeader]
+  [toffset=1ex,
+   foregroundstyle=bold,
+   topframe=on,
+   bottomframe=on]
+\\setupxtable[OrgTableFooter][OrgTableHeader][]
+\\setupxtable
+  [OrgTableHeaderTop]
+  [OrgTableHeader]
+  [bottomframe=off]
+\\setupxtable
+  [OrgTableFooterTop]
+  [OrgTableFooter]
+  [bottomframe=off]
+\\setupxtable
+  [OrgTableHeaderBottom]
+  [OrgTableHeader]
+  [topframe=off]
+\\setupxtable
+  [OrgTableFooterBottom]
+  [OrgTableFooter]
+  [topframe=off]
+\\setupxtable
+  [OrgTableHeaderMid]
+  [OrgTableHeader]
+  [topframe=off,bottomframe=off]
+\\setupxtable
+  [OrgTableFooterMid]
+  [OrgTableFooter]
+  [topframe=off,bottomframe=off]
+\\setupxtable
+  [OrgTableTopRow]
+  [topframe=on]
+\\setupxtable
+  [OrgTableRowGroupStart]
+  [topframe=on]
+\\setupxtable
+  [OrgTableRowGroupEnd]
+  [bottomframe=on]
+\\setupxtable
+  [OrgTableColGroupStart]
+  [leftframe=on]
+\\setupxtable
+  [OrgTableColGroupEnd]
+  [rightframe=on]
+\\setupxtable
+  [OrgTableBottomRow]
+  [bottomframe=on]
+")
+    ;; LaTeX article style title setup
+    ("title-article" . "\\setuphead[title][align=middle]
+\\define\\OrgMakeTitle{%
+  \\startalignment[center]
+   \\blank[force,2*big]
+   \\title{\\documentvariable{metadata:title}}
+   \\doifnot{\\documentvariable{metadata:subtitle}}{}{
+     \\blank[force,1*big]
+     \\tfa \\documentvariable{metadata:subtitle}}
+   \\doifelse{\\documentvariable{metadata:author}}{}{
+   \\blank[3*medium]
+   {\\tfa \\documentvariable{metadata:email}}
+   }{
+      \\blank[3*medium]
+      {\\tfa \\documentvariable{metadata:author}}
+   }
+   \\blank[2*medium]
+   {\\tfa \\documentvariable{metadata:date}}
+   \\blank[3*medium]
+  \\stopalignment}")
+    ;; LaTeX report style title setup
+    ("title-report" . "\\setuphead[title][align=middle]
+\\define\\OrgMakeTitle{%
+  \\startstandardmakeup[page=yes]
+  \\startalignment[center]
+   \\blank[force,2*big]
+    \\title{\\documentvariable{metadata:title}}
+   \\doifnot{\\documentvariable{metadata:subtitle}}{}{
+     \\blank[force,1*big]
+     \\tfa \\documentvariable{metadata:subtitle}}
+   \\doifelse{\\documentvariable{metadata:author}}{}{
+   \\blank[3*medium]
+   {\\tfa \\documentvariable{metadata:email}}
+   }{
+      \\blank[3*medium]
+      {\\tfa \\documentvariable{metadata:author}}
+   }
+   \\blank[2*medium]
+   {\\tfa \\documentvariable{metadata:date}}
+   \\blank[3*medium]
+  \\stopalignment
+  \\stopstandardmakeup}")
+    ;; LaTeX style tables of contents
+    ("toc-article" . "\\setupcombinedlist[content][alternative=c]")
+    ;; Indented verse blocks with spaces preserved
+    ("verse-article" . "\\defineblank[VerseSkip][1ex]
+\\setuplines
+  [OrgVerse]
+  [before={\\blank[VerseSkip]
+    \\setupnarrower[left=1em, right=1em]
+    \\startnarrower[left, right]},
+   after={\\stopnarrower \\blank[VerseSkip]},space=on]"))
   "Alist of snippet names and associated text.
 These snippets will be inserted into the document preamble when
 calling `org-context-make-template'. These snippets are also
