@@ -1846,6 +1846,17 @@ the coderef."
      info 'first-match)
    (signal 'org-link-broken (list ref))))
 
+(defun org-context--protect-url (text)
+  "Protect special characters in string TEXT and return it."
+  (replace-regexp-in-string
+           "[%#\\]"
+           (lambda (m)
+             (pcase m
+               ("\\" "\\letterbackslash ")
+               ("#" "\\letterhash ")
+               ("%" "\\letterpercent ")))
+           text nil t))
+
 (defun org-context--protect-text (text)
   "Protect special characters in string TEXT and return it."
   (replace-regexp-in-string
@@ -2814,7 +2825,7 @@ INFO is a plist holding contextual information. See
          (imagep (org-export-inline-image-p
                   link
                   (plist-get info :context-inline-image-rules)))
-         (path (org-context--protect-text
+         (path (org-context--protect-url
                 (pcase type
                   ((or "http" "https" "ftp" "mailto" "doi")
                    (concat type ":" raw-path))
