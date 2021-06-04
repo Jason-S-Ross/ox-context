@@ -3175,15 +3175,9 @@ ORIGINAL is the original unfiltered text."
              (cdr (assq last-quote quote-defs))))
          text nil t)))
     ;; If closing-stack is not nil, then something went wrong.
-    ;; Recover by replacing all quotes with literals.
+    ;; Don't bother with smart quotes in this case
     (if closing-stack
-        (replace-regexp-in-string
-         "['\"]"
-         (lambda (match)
-           (pcase match
-             ("'" "\\lettersinglequote{}")
-             ("\"" "\\letterdoublequote{}")))
-         text nil t)
+        text
       matched-string)))
 
 ;;;; Radio Target
