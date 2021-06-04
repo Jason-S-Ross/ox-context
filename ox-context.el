@@ -972,8 +972,8 @@ link's path."
 %f
 %c
 %a
-%b
 %i
+%b
 %o")
     ("article" . "\\startfrontmatter
 %t
@@ -986,11 +986,11 @@ link's path."
 
 \\startappendices
 %a
+%i
 \\stopappendices
 
 \\startbackmatter
 %b
-%i
 %o
 \\stopbackmatter")
     ("letter" . "\\startfrontmatter
@@ -1003,11 +1003,11 @@ link's path."
 
 \\startappendices
 %a
+%i
 \\stopappendices
 
 \\startbackmatter
 %b
-%i
 %o
 \\stopbackmatter")
     ("report" . "\\startfrontmatter
@@ -1023,10 +1023,10 @@ link's path."
 
 \\startappendices
 %a
+%i
 \\stopappendices
 \\startbackmatter
 %b
-%i
 %o
 \\stopbackmatter"))
   "Alist of ConTeXt document body templates.
