@@ -747,13 +747,13 @@ This option can also be set with the CLOSING keyword."
   :type 'string)
 
 (defcustom org-context-default-inner-template
-  "empty"
+  "article"
   "The default inner template to use in documents.
 See `org-context-inner-templates-alist'"
   :group 'org-export-context
   :type 'string)
 
-(defcustom org-context-default-preset "empty"
+(defcustom org-context-default-preset "article"
   "A preamble with no style settings for the document elements."
   :group 'org-export-context
   :type '(string :tag "ConTeXt preset"))
