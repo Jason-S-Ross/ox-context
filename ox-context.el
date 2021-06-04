@@ -1527,10 +1527,11 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :safe #'booleanp)
 
 (defcustom org-context-vim-langs-alist
-  (list (list "c++" :vim-name "cpp" :context-name "Cpp")
-        (list "c#" :vim-name "cs" :context-name "CSharp")
-        (list "vba" :vim-name "basic" :context-name "VBA")
-        (list "bash" :vim-name "sh" :context-name "Bash"))
+  '(("c++" :vim-name "cpp" :context-name "Cpp")
+    ("c#" :vim-name "cs" :context-name "CSharp")
+    ("vba" :vim-name "basic" :context-name "VBA")
+    ("bash" :vim-name "sh" :context-name "Bash")
+    ("emacs-lisp" :vim-name "lisp" :context-name "ELisp"))
   "Alist mapping Org language names to their counterparts in Vim and ConTeXt.
 Values not specified here will be automatically computed from the language name
 in Org. Specify a value here if the name of the language in Org doesn't match
