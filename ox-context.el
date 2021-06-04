@@ -1645,7 +1645,10 @@ INFO is a plist contianing contextual information."
       (let* ((value (org-element-property :value object))
              (norm-value
               (with-temp-buffer
-                (insert value)
+                (insert (replace-regexp-in-string
+                         "@\\(\\(?:\\(?:La\\)?TeX\\)\\|\\(?:ConTeXt\\)\\){}"
+                         "\\1"
+                         value))
                 (goto-char (point-min))
                 (while
                     (re-search-forward
