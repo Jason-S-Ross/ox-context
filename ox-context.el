@@ -138,7 +138,6 @@
                   (:context-inline-image-rules nil nil org-context-inline-image-rules)
                   (:context-inline-source-environment nil nil org-context-inline-source-environment)
                   (:context-inlinetask-command nil nil org-context-inlinetask-command)
-                  (:context-inner-template "CONTEXT_TEMPLATE" nil org-context-default-inner-template t)
                   (:context-inner-templates nil nil org-context-inner-templates-alist)
                   (:context-node-property-command nil nil org-context-node-property-command)
                   (:context-number-equations nil "numeq" org-context-number-equations)
@@ -1107,38 +1106,44 @@ This option can also be set with the PLACE keyword."
   :type 'string)
 
 (defcustom org-context-presets-alist
-  '(("empty" . (""))
-    ("article" . (""
-                  "layout-article"
-                  "description-article"
-                  "quote-article"
-                  "indent-article"
-                  "toc-article"
-                  "verse-article"
-                  "table-article"
-                  "title-article"
-                  "sectioning-article"
-                  "section-numbers-article"
-                  "page-numbering-article"
-                  "setup-grid"))
-    ("report" . (""
-                 "description-article"
-                 "layout-article"
-                 "quote-article"
-                 "indent-article"
-                 "toc-article"
-                 "verse-article"
-                 "table-article"
-                 "title-report"
-                 "section-numbers-article"
-                 "headlines-report"
-                 "page-numbering-article"
-                 "setup-grid"))
-    ("letter" . ("\\setupwhitespace[big]
+  '(("empty" .
+     (:literal ""
+      :template "empty"
+      :snippets ()))
+    ("article" .
+     (:literal "\\setupwhitespace[big]"
+      :template "article"
+      :snippets
+      ("layout-article"
+       "description-article"
+       "quote-article"
+       "verse-article"
+       "table-article"
+       "title-article"
+       "sectioning-article"
+       "page-numbering-article"
+       "setup-grid")))
+    ("report" .
+     (:literal "\\setupwhitespace[big]"
+      :template "report"
+      :snippets
+      ("description-article"
+       "quote-article"
+       "verse-article"
+       "table-article"
+       "title-report"
+       "headlines-report"
+       "page-numbering-article"
+       "setup-grid")))
+    ("letter" .
+     (:literal "\\setupwhitespace[big]
 \\usemodule[letter]"
-                 "setup-letter"
-                 "setup-grid")))
+      :template "letter"
+      :snippets
+      ("setup-letter"
+       "setup-grid"))))
   ;; TODO update doc
+  ;; TODO Update customization group
   "Alist of ConTeXt preamble presets."
   :group 'org-export-context
   :type '(repeat
@@ -2470,7 +2475,13 @@ See `org-context-format-inlinetask-function' for details."
 CONTENTS is the transcoded contents string. INFO is a plist
 containing contextual information."
   (let* ((templates (plist-get info :context-inner-templates))
-         (template-name (plist-get info :context-inner-template))
+         (template-name
+          (plist-get
+           (cdr
+            (assoc
+             (plist-get info :context-preset)
+             (plist-get info :context-presets)))
+           :template))
          (titlepagecommand (car (plist-get info :context-titlepage-environment)))
          (titlecommand (org-string-nw-p (car (plist-get info :context-title-command))))
          (toccommand (car (plist-get info :context-title-contents-command)))
@@ -3675,9 +3686,9 @@ holding the export options."
          (header-extra-lines (list (plist-get info :context-header-extra)))
          (preset-name (plist-get info :context-preset))
          (preset-data (cdr (assoc preset-name (plist-get info :context-presets))))
-         (preset-header-string (car preset-data))
+         (preset-header-string (plist-get preset-data :literal))
          (preset-header-snippets
-          (org-context--get-snippet-text info (cdr preset-data)))
+          (org-context--get-snippet-text info (plist-get preset-data :snippets)))
          (user-snippets (org-context--get-snippet-text info (plist-get info :context-snippet)))
          (command-defs
           (let ((deflist
