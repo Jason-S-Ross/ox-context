@@ -2982,7 +2982,6 @@ the plist used as a communication channel."
 CONTENTS is the contents of the list. INFO is a plist holding
 contextual information."
   (let* ((type (org-element-property :type plain-list))
-         (attr (org-export-read-attribute :attr_latex plain-list))
          (bullet
           (org-element-property
            :bullet
