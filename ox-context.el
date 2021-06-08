@@ -3181,7 +3181,6 @@ CONTENTS holds the contents of the block. INFO is a plist
 holding contextual information."
   ;; TODO Use options for something
   (let ((type (org-element-property :type special-block))
-        (opt (org-export-read-attribute :attr_context special-block :options))
         (caption (org-context--caption/label-string special-block info)))
     (org-context--preprocess-special-block special-block contents info)
     (concat (format "\\start%s\n" type)
