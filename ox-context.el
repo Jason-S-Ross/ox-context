@@ -3411,8 +3411,6 @@ a communication channel."
   "Transcode a TABLE-ROW element from Org to ConTeXt.
 CONTENTS is the contents of the row.  INFO is a plist used as
 a communication channel."
-  ;; TODO Allow the user to enable or disable different parts.
-  ;; Parts include head, next, body, foot
   (let* ((table (org-export-get-parent-table table-row))
          (attr (org-export-read-attribute :attr_context table))
          (dimensions (org-export-table-dimensions table info))
