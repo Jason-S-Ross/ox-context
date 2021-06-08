@@ -1,6 +1,11 @@
-;;; ox-context --- Org exporter for ConTeXt
+;;; ox-context --- Org exporter for ConTeXt -*- lexical-binding: t; -*-
+
 ;; Copyright (C) 2021 Jason Ross
 ;; Author: Jason Ross <jasonross1024 at gmail dot com>
+;; Keywords: org, ConTeXt
+;; Version: 0.1
+;; URL: https://github.com/Jason-S-Ross/ox-context
+;; Package-Requires: ((emacs "26") (org "9"))
 
 ;; This is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -13,18 +18,222 @@
 ;; GNU General Public License for more details.
 
 ;; TODO Set indentation level for content
+;; This can be done by putting content into a temporary buffer, setting
+;; (context-mode), and calling (indent-region (point-min) (point-max)).
+;; However, this needs to ignore code blocks, so it must be done carefully.
 ;;
 ;; TODO `org-context--add-reference' needs to be checked against all environments
 ;;
 ;; TODO abstract?
+;;
+;; TODO from-logo
 ;;
 ;; TODO How should "hidden" enumerations be handled?
 ;; In the html exporter, explicitley enumerated items like verses
 ;; have a number that can clash with the number of the item.
 ;; https://orgmode.org/list/55ec0cbb-eebf-0d49-b182-372407c8c84c@gmail.com/T/#u
 ;;
+;; TODO Names of enumerated environments don't match
+;;
 ;;; Commentary:
 
+;; This library implements a ConTeXt back-end for Org generic exporter.
+;; * Export Commands
+;; - `org-context-export-as-context' :: Export as ConTeXt to a temporary
+;;   buffer. Do not create a file.
+;; - `org-context-export-to-context' :: Export as ConTeXt to a file with
+;;   a ~.mkiv~ extension. For ~myfile.org~, exports as ~myfile.mkiv~,
+;;   overwriting without warning.
+;; - `org-context-export-to-pdf' :: Export as a ConTeXt file and convert it
+;;   to pdf.
+;;
+;; * Document-level Keywords
+;;   The following buffer keywords are added:
+;;   - ~ATTENTION~ :: Sets the `letter:attention' ConTeXt document metadata value.
+;;     Added for compatibility with `ox-koma-letter'.
+;;   - ~CLOSING~ :: Sets the `letter:closing' ConTeXt document metadata value.
+;;     See `org-context-closing'. Added for compatibility with `ox-koma-letter'.
+;;   - ~CONTEXT_HEADER~ :: Adds literal ConTeXt to the document preamble
+;;     before custom command definitions.
+;;   - ~CONTEXT_HEADER_EXTRA~ :: Adds literal ConTeXt to the document preamble
+;;     after custom command definitions.
+;;   - ~CONTEXT_PRESET~ :: Specifies the document preset to use from
+;;     `org-context-presets-alist'. See `org-context-default-preset'.
+;;     Presets are the primary method used by `ox-context' to specify document
+;;     structure.
+;;   - ~DATE~ :: Sets the `metadata:date' ConTeXt document metadata variable. Can
+;;     be any valid ConTeXt command. If blank, ~\currentdate~ is used.
+;;   - ~DESCRIPTION~ :: Sets the `metadata:description' ConTeXt document metadata value.
+;;   - ~FROM_ADDRESS~ :: Sets the `letter:fromaddress' ConTeXt document metadata value.
+;;     See `org-context-from-address'. Added for compatibility with `ox-koma-letter'.
+;;   - ~FROM_LOGO~ :: TODO Added for compatibility with `ox-koma-letter'.
+;;   - ~KEYWORDS~ :: Sets the `metadata:keywords' ConTeXt document metadata value.
+;;   - ~LANGUAGE~ :: Sets the `metadata:language' ConTeXt document metatdata value. Adds
+;;     `\language[%s]' to the preamble.
+;;   - ~LOCATION~ :: Sets the `letter:keywords' ConTeXt document metadata value.
+;;     See `org-context-location'. Added for compatibility with `ox-koma-letter'.
+;;   - ~OPENING~ :: Sets the `letter:opening' ConTeXt document metadata value.
+;;     See `org-context-opening'. Added for compatibility with `ox-koma-letter'.
+;;   - ~PHONE_NUMBER~ :: Sets the `metadata:phonenumber' ConTeXt document metadata value.
+;;     See `org-context-phone-number'. Added for compatibility with `ox-koma-letter'.
+;;   - ~PLACE~ :: TODO how is this different from location
+;;     Added for compatibility with `ox-koma-letter'.
+;;   - ~SIGNATURE~ :: Sets the `letter:signature' ConTeXt document metadata value.
+;;     See `org-context-closing'. Added for compatibility with `ox-koma-letter'.
+;;   - ~SUBJECT~ :: Sets the `metadata:subject' ConTeXt document metadata value.
+;;   - ~SUBTITLE~ :: Sets the `metadata:subtitle' ConTeXt document metadata value.
+;;   - ~TO_ADDRESS~ :: Sets the `letter:toaddress' ConTeXt document metadata value.
+;;     Added for compatibility with `ox-koma-letter'.
+;;   - ~TO_NAME~ :: Sets the `letter:toname' ConTeXt document metadata value.
+;;     Added for compatibility with `ox-koma-letter'.
+;;   - ~URL~ :: Sets the `metadata:url' ConTeXt document metadata value.
+;;     See `org-context-url'.
+;;
+;; * Options
+;;   The following additional items are handled from the OPTIONS keyword:
+;;   - ~backaddress~ :: If non-nil, sets the `letter:withbackaddress' ConTeXt
+;;     document metadata value to "start", otherwise "stop". See
+;;     `org-context-use-backaddress'. Added for compatibility with
+;;     `ox-koma-letter'.
+;;   - ~email~ :: If non-nil, sets the `letter:withemail' ConTeXt
+;;     document metadata value to "start", otherwise "stop". See
+;;     `org-context-use-email'. Added for compatibility with
+;;     `ox-koma-letter'.
+;;   - ~foldmarks~ :: If non-nil, sets the `letter:withfoldmarks' ConTeXt
+;;     document metadata value to "start", otherwise "stop". See
+;;     `org-context-use-foldmarks'. Added for compatibility with
+;;     `ox-koma-letter'.
+;;   - ~from-logo~ :: If non-nil, sets the `letter:withfromlogo' ConTeXt
+;;     document metadata value to "start", otherwise "stop". See
+;;     `org-context-use-from-logo'. Added for compatibility with
+;;     `ox-koma-letter'.
+;;   - ~phone~ :: If non-nil, sets the `letter:withphone' ConTeXt
+;;     document metadata value to "start", otherwise "stop". See
+;;     `org-context-use-from-logo'. Added for compatibility with
+;;     `ox-koma-letter'.
+;;   - ~syntax~ :: If ~vim~, use the ~t-vim~ ConTeXt module for syntax
+;;     highlighting. Otherwise, don't highlight source code.
+;;   - ~numeq~ :: if non-nil, equations are numbered.
+;; * In-text Keywords
+;;   The following additional keywords are supported to add content in text:
+;;   - ~ATTR_CONTEXT~ :: Adds a plist of context-dependent configuration options
+;;     for the following element.
+;;   - ~INDEX~ :: Adds a term to the default ConTeXt index.
+;;   - ~CINDEX~ :: Adds an `OrgConcept' keyword. Added for compatibility
+;;     with ~texinfo~ concept keywords.
+;;   - ~FINDEX~ :: Adds an `OrgFunction' keyword. Added for compatibility
+;;     with ~texinfo~ function keywords.
+;;   - ~KINDEX~ :: Adds an `OrgKeystroke' keyword. Added for compatibility
+;;     with ~texinfo~ keystroke keywords.
+;;   - ~PINDEX~ :: Adds an `OrgProgram' keyword. Added for compatibility
+;;     with ~texinfo~ program keywords.
+;;   - ~TINDEX~ :: Adds an `OrgDataType' keyword. Added for compatibility
+;;     with ~texinfo~ data-type keywords.
+;;   - ~VINDEX~ :: Adds an `OrgVariable' keyword. Added for compatibility
+;;     with ~texinfo~ variable keywords.
+;;   - ~CONTEXT~ :: Adds raw ConTeXt at this point.
+;;   - ~TOC~ :: Adds a table of contents or index at this point. Supports the
+;;     following values:
+;;     - ~tables~ :: Adds a list of tables.
+;;     - ~figures~ :: Adds a list of figures.
+;;     - ~equations~ :: Adds a list of equations.
+;;     - ~references~ :: Adds a bibliography.
+;;     - ~definitions~ :: Places the default index.
+;;     - ~headlines~ :: Places a table of contents. Additional options are supported:
+;;       - /depth/ :: An integer in the command will limit the toc to this depth.
+;;       - ~local~ :: If present, limits the scope of the toc to this section.
+;;     - ~listings~ :: Adds a list of code listings.
+;;     - ~verses~ :: Adds a list of verse blocks.
+;;     - ~quotes~ :: Adds a list of quote blocks.
+;;     - ~examples~ :: Adds a list of example blocks.
+;;     - ~cp~ :: Adds an index of concepts defined with the ~CINDEX~ keyword.
+;;     - ~fn~ :: Adds an index of functions defined with the ~FINDEX~ keyword.
+;;     - ~ky~ :: Adds an index of keystrokes defined with the ~KINDEX~ keyword.
+;;     - ~pg~ :: Adds an index of programs defined with the ~PINDEX~ keyword.
+;;     - ~tp~ :: Adds an index of data types defined with the ~TINDEX~ keyword.
+;;     - ~vr~ :: Adds an index of variables defined with the ~VINDEX keyword.
+;;   - ~BIBLIOGRAPHY~ :: Sets the bibliography bib file.
+;;     TODO update documentation for this to support additional options
+;; * Additional Inline Configuration of Elements
+;;   The following elements support additional inline configuration through
+;;   the ~ATTR_CONTEXT~ keyword.
+;; ** Inline images
+;;    Inline images support configuration for the following keys:
+;;    - `:float' :: One of the following values:
+;;      - ~wrap~ :: Places the image in the text, flowing text around it.
+;;      - ~sideways~ :: Places the image rotated 90 degrees.
+;;      - ~multicolumn~ :: Places the image to fit in the column instead of the page.
+;;    - `:width' :: A ConTeXt expression for the desired image width.
+;;      Otherwise, uses `org-context-image-default-width'.
+;;    - `:height' :: A ConTeXt expression for the desired image height.
+;;      Otherwise, uses `org-context-image-default-height'.
+;;    - `:placement' :: Options to pass to the ~\startplacefigure~ command
+;;      for the ~location~ key.
+;; ** Tables
+;; *** Global Options
+;;     Tables support configuration for the following keys:
+;;     - `:location' :: Specifies ~location~ key for the float wrapping the table.
+;;     - `:header' :: Specifies the ~header~ key for the table.
+;;     - `:footer' :: Specifies the ~footer~ key for the table.
+;;     - `:option' :: Specifies the ~option~ key for the table.
+;;     - `:split' :: Specifies the ~split~ key for the table.
+;;     - `:f' :: Specifies if the table has a footer. Footers can be repeated
+;;       across pages. See also `org-context-table-use-footer'. Footers are
+;;       identified as the last row group if there are more than two row groups.
+;;     - `:h' :: Specifies if the table has a header. Headers can be repeated
+;;       across pages. See also `org-context-table-use-header'.
+;;
+;;
+;; *** Content Options
+;;     Table cells at various positions can be styled with additional keys.
+;;     Values passed to these keys will be provided as arguments to
+;;     the ~\startxcell~ macro.
+;;     The locations of cells to style are specified by the following keys:
+;;     - `:n' :: "North"; the top row of cells.
+;;       Defaults to `org-context-table-toprow-style'.
+;;     - `:e' :: "East"; the right-most column of cells.
+;;       Defaults to `org-context-table-rightcol-style'.
+;;     - `:w' :: "West"; the left-most column of cells.
+;;       Defaults to `org-context-table-leftcol-style'.
+;;     - `:s' :: "South"; the bottom row of cells.
+;;       Defaults to `org-context-table-bottomrow-style'.
+;;     - `:nw' :: "North-West"; the cell in the upper-left corner.
+;;       Defaults to `org-context-table-topleft-style'.
+;;     - `:ne' :: "North-East"; the cell in the upper-right.
+;;       Defaults to `org-context-table-topright-style'.
+;;     - `:sw' :: "South-West"; the cell in the lower-left.
+;;       Defaults to `org-context-table-bottomleft-style'.
+;;     - `:se' :: "South-East"; the cell in the lower-right.
+;;       Defaults to `org-context-table-bottomright-style'.
+;;     - `:cgs' :: "Column Group Start"; the cells in the column before a
+;;       column group boundary.
+;;       Defaults to `org-context-table-colgroup-start-style'.
+;;     - `:cge' :: "Column Group End"; the cells in the column after a
+;;       column group boundary.
+;;       Defaults to `org-context-table-colgroup-end-style'.
+;;     - `:rgs' :: "Row Group Start"; the row before a row group boundary.
+;;       Defaults to `org-context-table-rowgroup-start-style'.
+;;     - `:rge' :: "Row Group End"; the row after a row group boundary.
+;;       Defaults to `org-context-table-rowgroup-end-style'.
+;;     - `:h' :: "Header"; the cells in the header. Defaults to
+;;       `org-context-table-header-style'.
+;;     - `:f' :: "Footer"; the cells in the footer. Defaults to
+;;       `org-context-table-footer-style'.
+;;     - `:b' :: "Body"; the cells in the body. Defaults to
+;;       `org-context-table-body-style'.
+;;     - `:ht' :: "Header Top"; the cells in the first row of header rows.
+;;       Defaults to `org-context-table-header-top-style'
+;;     - `:hm' :: "Header Mid"; the cells in header rows not in the top or bottom.
+;;       Defaults to `org-context-table-header-mid-style'.
+;;     - `:hb' :: "Header Bottom"; the cells in the last row of the header rows.
+;;       Defaults to `org-context-table-header-bottom-style'.
+;;     - `:ft' :: "Footer Top"; the cells in the last row of footer rows.
+;;       Defaults to `org-context-table-footer-top-style'.
+;;     - `:fm' :: "Footer Mid"; the cells in the footer rows not in the top or bottom.
+;;       Defaults to `org-context-table-footer-mid-style'.
+;;
+;;
+;;
 ;;; Code:
 
 ;;; Dependencies
