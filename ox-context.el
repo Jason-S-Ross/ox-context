@@ -171,9 +171,6 @@
                   (:context-table-toprow-style nil nil org-context-table-toprow-style)
                   (:context-table-use-footer nil "tablefoot" org-context-table-use-footer)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
-                  (:context-title-command nil nil org-context-title-command)
-                  (:context-title-contents-command nil nil org-context-title-contents-command)
-                  (:context-titlepage-environment nil nil org-context-titlepage-environment)
                   (:context-verse-environment nil nil org-context-verse-environment)
                   (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
                   (:date "DATE" nil "\\currentdate" parse)
@@ -387,15 +384,6 @@ If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
   "The environment name of the block source environment.
 
 If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
-  :group 'org-export-context
-  :type '(cons (string :tag "Environment Name")
-               (string :tag "Environment Definition")))
-
-(defcustom org-context-titlepage-environment
-  '("OrgTitlePage" . "\\definestartstop[OrgTitlePage]")
-  "The environment name that wraps title pages.
-
-If nil, title pages aren't delimited."
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -716,26 +704,6 @@ ScheduledTime"
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
 
-(defcustom org-context-title-command
-  '("OrgMakeTitle" . "\\define\\OrgMakeTitle{}")
-  "The name of the command that creates the document title.
-
-If nil, the document title command isn't created."
-  :group 'org-export-context
-  :type '(cons (string :tag "Command Name")
-               (string :tag "Command Definition")))
-
-(defcustom org-context-title-contents-command
-  '("OrgTitleContents" . "\\define\\OrgTitleContents{%
-  {\\tfc Contents}
-}")
-  "The name of the command that titles the table of contents.
-
-If nil, the table of contents title command isn't created."
-  :group 'org-export-context
-  :type '(cons (string :tag "Command Name")
-               (string :tag "Command Definition")))
-
 ;;;; Element Configuration
 
 ;; These settings configure elements in Org.
@@ -968,15 +936,18 @@ link's path."
                 :value-type (regexp :tag "Path")))
 
 (defcustom org-context-inner-templates-alist
-  '(("empty" . "%t
-%f
+  '(("empty" . "%f
 %c
 %a
 %i
 %b
 %o")
     ("article" . "\\startfrontmatter
-%t
+\\startOrgTitlePage
+\\OrgMakeTitle
+\\OrgTitleContents
+\\placecontent
+\\stopOrgTitlePage
 %f
 \\stopfrontmatter
 
@@ -994,7 +965,11 @@ link's path."
 %o
 \\stopbackmatter")
     ("letter" . "\\startfrontmatter
-%t
+\\startOrgTitlePage
+\\OrgMakeTitle
+\\OrgTitleContents
+\\placecontent
+\\stopOrgTitlePage
 %f
 \\stopfrontmatter
 \\startbodymatter
@@ -1012,7 +987,11 @@ link's path."
 \\stopbackmatter")
     ("report" . "\\startfrontmatter
 \\startstandardmakeup
-%t
+\\startOrgTitlePage
+\\OrgMakeTitle
+\\OrgTitleContents
+\\placecontent
+\\stopOrgTitlePage
 \\stopstandardmakeup
 %f
 \\stopfrontmatter
@@ -1034,7 +1013,6 @@ First element is the name of the template. Second element is
 a format specification string.
 String keys are as follows:
 
-?t: The document title command
 ?f: Sections with the property :FRONTMATTER:
 ?c: Normal sections
 ?a: Sections with the property :APPENDIX:
@@ -1395,6 +1373,7 @@ This option can also be set with the SIGNATURE keyword."
 ")
     ;; LaTeX article style title setup
     ("title-article" . "\\setuphead[title][align=middle]
+\\definestartstop[OrgTitlePage]
 \\define\\OrgMakeTitle{%
   \\startalignment[center]
    \\blank[force,2*big]
@@ -1412,9 +1391,13 @@ This option can also be set with the SIGNATURE keyword."
    \\blank[2*medium]
    {\\tfa \\documentvariable{metadata:date}}
    \\blank[3*medium]
-  \\stopalignment}")
+  \\stopalignment}
+\\define\\OrgTitleContents{%
+  {\\tfc Contents}
+}")
     ;; LaTeX report style title setup
     ("title-report" . "\\setuphead[title][align=middle]
+\\definestartstop[OrgTitlePage]
 \\define\\OrgMakeTitle{%
   \\startstandardmakeup[page=yes]
   \\startalignment[center]
@@ -1434,7 +1417,10 @@ This option can also be set with the SIGNATURE keyword."
    {\\tfa \\documentvariable{metadata:date}}
    \\blank[3*medium]
   \\stopalignment
-  \\stopstandardmakeup}")
+  \\stopstandardmakeup}
+\\define\\OrgTitleContents{%
+  {\\tfc Contents}
+}")
     ;; LaTeX style tables of contents
     ("toc-article" . "\\setupcombinedlist[content][alternative=c]")
     ;; Indented verse blocks with spaces preserved
@@ -2482,9 +2468,6 @@ containing contextual information."
              (plist-get info :context-preset)
              (plist-get info :context-presets)))
            :template))
-         (titlepagecommand (car (plist-get info :context-titlepage-environment)))
-         (titlecommand (org-string-nw-p (car (plist-get info :context-title-command))))
-         (toccommand (car (plist-get info :context-title-contents-command)))
          (template (cdr (assoc template-name templates)))
          (num-sections (length (org-export-collect-headlines info)))
          (copying-sections
@@ -2511,24 +2494,10 @@ containing contextual information."
           (mapconcat
            'identity
            (reverse (plist-get info :context-index-sections))
-           "\n\n"))
-         (title
-          (concat
-           (when (org-string-nw-p titlepagecommand)
-             (format "\\start%s\n" titlepagecommand))
-           (when (org-string-nw-p titlecommand)
-             (format "\\%s\n" titlecommand))
-           (when (and (plist-get info :with-toc)
-                      (> num-sections 0))
-             (concat (when (org-string-nw-p toccommand)
-                       (format "\\%s\n" toccommand))
-                     "\n\\placecontent\n"))
-           (when (org-string-nw-p titlepagecommand)
-             (format "\\stop%s\n" titlepagecommand)))))
+           "\n\n")))
     (format-spec
      template
-     (list (cons ?t title)
-           (cons ?f frontmatter-sections)
+     (list (cons ?f frontmatter-sections)
            (cons ?c contents)
            (cons ?a appendix-sections)
            (cons ?b backmatter-sections)
@@ -3765,15 +3734,6 @@ holding the export options."
                    (list
                     :context-property-drawer-environment
                     "% Create a property drawer style")
-                   (list
-                    :context-title-command
-                    "% Create an empty title command to be overridden by user")
-                   (list
-                    :context-title-contents-command
-                    "% Create a TOC header command")
-                   (list
-                    :context-titlepage-environment
-                    "% Create the title page style")
                    (list
                     :context-verse-environment
                     "% Create a verse style"))))
