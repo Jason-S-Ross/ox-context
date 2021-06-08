@@ -2339,9 +2339,7 @@ command to get."
 (defun org-context-horizontal-rule (horizontal-rule _contents info)
   "Transcode a HORIZONTAL-RULE object from Org to ConTeXt.
 CONTENTS is nil. INFO is a plist holding contextual information."
-  ;; TODO accept attr_context
-  (let ((attr (org-export-read-attribute :attr_latex horizontal-rule))
-        (prev (org-export-get-previous-element horizontal-rule info)))
+  (let ((prev (org-export-get-previous-element horizontal-rule info)))
     (concat
      ;; Make sure the rule doesn't start at the end of the current
      ;; line
@@ -2349,7 +2347,6 @@ CONTENTS is nil. INFO is a plist holding contextual information."
                 (let ((prev-blank (org-element-property :post-blank prev)))
                   (or (not prev-blank) (zerop prev-blank))))
        "\n")
-     ;; TODO get width and thickness from attr_context
      (org-context--add-reference
       horizontal-rule
       "\\textrule"
