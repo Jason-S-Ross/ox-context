@@ -18,8 +18,36 @@
 (unless (featurep 'ox-context)
   (signal 'missing-test-dependency "org-export-context"))
 
-(load "~/Projects/org-mode/testing/org-test.el")
-
+;; (load "~/Projects/org-mode/testing/org-test.el")
+(defmacro context-test-with-temp-customization-value (varname value &rest body)
+  "Execute BODY with VARNAME set to VALUE.
+Sets VARNAME back to VALUE after execution is finished. Returns
+result of exectuing BODY"
+  `(let ((temp (copy-tree ,varname))
+         (result
+          (progn
+            (setq ,varname ,value)
+            (progn ,@body))))
+     (setq ,varname temp)
+     result))
+(def-edebug-spec context-test-with-temp-customization-value (varname value body))
+(defmacro context-test-with-temp-modification (varname &rest body)
+  "Execute BODY, restorying VARNAME's value afterwards."
+  `(let ((temp (copy-tree ,varname))
+         (result (progn ,@body)))
+     (setq ,varname temp)
+     result))
+(def-edebug-spec context-test-with-temp-modification (varname body))
+(defmacro context-test-with-temp-text (text &rest body)
+  "Run BODY in a tempory buffer with Org mode as the active mode
+holding TEXT."
+  `(with-temp-buffer
+    (let ((inside-text (if (stringp ,text) ,text (eval ,text))))
+      (org-mode)
+      (insert inside-text)
+      (goto-char (point-min))
+      ,@body)))
+(def-edebug-spec context-test-with-temp-text (form body))
 ;;; Protecting text
 (ert-deftest test-org-context-clean-text ()
   "Test smart quotations"
@@ -27,13 +55,13 @@
   (should
    (equal
     "testing names of \\TeX{}, \\LaTeX{}, and \\ConTeXt{}. tex, latex, and context shouldn't match."
-    (org-test-with-temp-text "testing names of TeX, LaTeX, and ConTeXt. tex, latex, and context shouldn't match."
+    (context-test-with-temp-text "testing names of TeX, LaTeX, and ConTeXt. tex, latex, and context shouldn't match."
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; Special characters in normal text
   (should
    (equal
     "`\\lettertilde !@\\#\\$\\%^&*()-_=+\\[\\{\\}\\]\\letterbackslash \\|;:'\",<.>/?"
-    (org-test-with-temp-text "`~!@#$%^&*()-_=+[{}]\\|;:'\",<.>/?"
+    (context-test-with-temp-text "`~!@#$%^&*()-_=+[{}]\\|;:'\",<.>/?"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
 
 ;;; Smart Quotation
@@ -43,41 +71,514 @@
   (should
    (equal
     "Quote: \\quotation{Cogito ergo sum} - Descartes"
-    (org-test-with-temp-text "Quote: \"Cogito ergo sum\" - Descartes"
+    (context-test-with-temp-text "Quote: \"Cogito ergo sum\" - Descartes"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; Apostrophe
   (should
    (equal
     "Here's a quote: \\quotation{I think, therefore I am}"
-    (org-test-with-temp-text "Here's a quote: \"I think, therefore I am\""
+    (context-test-with-temp-text "Here's a quote: \"I think, therefore I am\""
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "Here's a nested quote: \\quotation{Descartes says \\quote{I think therefore I am}}"
-    (org-test-with-temp-text "Here's a nested quote: \"Descartes says 'I think therefore I am'\""
+    (context-test-with-temp-text "Here's a nested quote: \"Descartes says 'I think therefore I am'\""
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
 
-;;; Transcode Functions
-(ert-deftest test-org-context-export-markup ()
+;;; Environments
+(ert-deftest test-org-context-environments ()
+  "Test org block environments."
+  ;; Block quotes
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-blockquote-environment
+            (cons name def)
+            (context-test-with-temp-text
+             "#+BEGIN_QUOTE
+foo bar baz
+#+END_QUOTE"
+             (org-trim
+              (org-export-as 'context nil nil nil
+                             '(:context-preset "empty")))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote "\\start")
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "foo bar baz")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote name))
+       document)
+      (string-match-p
+       def document))))
+  ;; Examples
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-example-environment
+            (cons name def)
+            (context-test-with-temp-text
+             "#+BEGIN_EXAMPLE
+foo bar baz
+#+END_EXAMPLE"
+             (org-trim
+              (org-export-as 'context nil nil nil
+                             '(:context-preset "empty")))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote "\\start")
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "foo bar baz")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote name))
+       document)
+      (string-match-p
+       def document))))
+  ;; Fixed
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-fixed-environment
+            (cons name def)
+            (context-test-with-temp-text
+             ": foo bar baz"
+             (org-trim
+              (org-export-as 'context nil nil nil
+                             '(:context-preset "empty")))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote "\\start")
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "foo bar baz")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote name))
+       document)
+      (string-match-p
+       def document))))
+  ;; Inline Source
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-syntax-engine
+            'default
+            (context-test-with-temp-customization-value
+             org-context-inline-source-environment
+             (cons name def)
+             (context-test-with-temp-text
+              "src_python[:exports code]{print(\"Hello, world!\")}"
+              (org-trim
+               (org-export-as 'context nil nil nil
+                              '(:context-preset "empty"))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "[option=python]")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "{")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "print(\"Hello, world!\")")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "}"))
+       document)
+      (string-match-p
+       def document))))
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-syntax-engine
+            'vim
+            (context-test-with-temp-customization-value
+             org-context-inline-source-environment
+             (cons name def)
+             (context-test-with-temp-text
+              "src_python[:exports code]{print(\"Hello, world!\")}"
+              (org-trim
+               (org-export-as 'context nil nil nil
+                              '(:context-preset "empty"))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote name)
+        (regexp-quote "Python")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "{")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "print(\"Hello, world!\")")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "}"))
+       document)
+      (string-match-p
+       def document))))
+  ;; Property Drawers
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (name2 (format "%i" (random)))
+          (def2 (format "%i" (random)))
+          (key (format "%i" (random)))
+          (val (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-export-with-properties
+            t
+            (context-test-with-temp-customization-value
+             org-context-node-property-command
+             (cons name2 def2)
+             (context-test-with-temp-customization-value
+              org-context-property-drawer-environment
+              (cons name def)
+              (context-test-with-temp-text
+               (format "* Foo
+:PROPERTIES:
+:%s: %s
+:END:" key val)
+               (org-trim
+                (org-export-as 'context nil nil nil
+                               '(:context-preset "empty")))))
+
+             ))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote (format "\\start%s" name))
+        "\\(.\\|\n\\)*"
+        (regexp-quote (format "\\%s" name2))
+        "\\(.\\|\n\\)*"
+        (regexp-quote "[")
+        "[^]]*"
+        (regexp-quote (format "key={%s}," key))
+        "[^]]*"
+        (regexp-quote (format "value={%s}" val))
+        "[^]]*"
+        (regexp-quote "]")
+        "\\(.\\|\n\\)*"
+        (regexp-quote (format "\\stop%s" name)))
+       document)
+      (string-match-p def document)
+      (string-match-p def2 document))))
+  ;; Description items
+  (should
+   (let* ((rand (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-description-command
+            (cons "testitemdescription" rand)
+            (context-test-with-temp-text
+             "- foo :: bar"
+             (org-trim
+              (org-export-as 'context nil nil nil
+                             '(:context-preset "empty")))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote "\\starttestitemdescription{foo}")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "bar")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stoptestitemdescription"))
+       document)
+      (string-match-p
+       rand document))))
+  ;; Block Source
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-syntax-engine
+            'default
+            (context-test-with-temp-customization-value
+             org-context-block-source-environment
+             (cons name def)
+             (context-test-with-temp-text
+              "#+BEGIN_SRC python
+print(\"Hello, world!\")
+#+END_SRC"
+              (org-trim
+               (org-export-as 'context nil nil nil
+                              '(:context-preset "empty"))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote (format "\\start%s" name))
+        "[^[]*"
+        (regexp-quote "[")
+        "[^]]*"
+        (regexp-quote "option={python}")
+        "[^]]*"
+        (regexp-quote "]")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "print(\"Hello, world!\")")
+        "\\(.\\|\n\\)*"
+        (regexp-quote (format "\\stop%s" name)))
+       document)
+      (string-match-p
+       def document))))
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-syntax-engine
+            'vim
+            (context-test-with-temp-customization-value
+             org-context-block-source-environment
+             (cons name def)
+             (context-test-with-temp-text
+              "#+BEGIN_SRC python
+print(\"Hello, world!\")
+#+END_SRC"
+              (org-trim
+               (org-export-as 'context nil nil nil
+                              '(:context-preset "empty"))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote (format "\\start%sPython" name))
+        "\\(.\\|\n\\)*"
+        (regexp-quote "print(\"Hello, world!\")")
+        "\\(.\\|\n\\)*"
+        (regexp-quote (format "\\stop%s" name)))
+       document)
+      (string-match-p
+       (concat
+        (regexp-quote "\\definevimtyping")
+        "[^[]*"
+        (regexp-quote (format "[%sPython]" name)))
+       document))))
+  ;; Verses
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-verse-environment
+            (cons name def)
+            (context-test-with-temp-text
+             "#+BEGIN_VERSE
+foo bar baz
+#+END_VERSE"
+             (org-trim
+              (org-export-as 'context nil nil nil
+                             '(:context-preset "empty")))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote "\\start")
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "foo bar baz")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote name))
+       document)
+      (string-match-p
+       def document))))
+  )
+
+;;; Markup Functions
+(ert-deftest test-org-context-markup ()
   "Test inline formatting"
   ;; Bold
   (should
    (equal
-    "\\bold{foo}"
-    (org-test-with-temp-text "*foo*"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+    "\\testbold{foo}"
+    (context-test-with-temp-modification
+     org-context-text-markup-alist
+     (setf (alist-get 'bold org-context-text-markup-alist) "\\testbold{%s}")
+     (context-test-with-temp-text
+      "*foo*"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+  ;; Code
+  (should
+   (equal
+    "\\testcode{bar}"
+    (context-test-with-temp-modification
+     org-context-text-markup-alist
+     (setf (alist-get 'code org-context-text-markup-alist) "\\testcode{%s}")
+     (context-test-with-temp-text
+      "~bar~"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
   ;; Italic
   (should
    (equal
-    "\\italic{foo}"
-    (org-test-with-temp-text "/foo/"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+    "\\testitalic{foo}"
+    (context-test-with-temp-modification
+     org-context-text-markup-alist
+     (setf (alist-get 'italic org-context-text-markup-alist) "\\testitalic{%s}")
+     (context-test-with-temp-text
+      "/foo/"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+  ;; Paragraph
+  (should
+   (equal
+    "\\testpara{foo}"
+    (context-test-with-temp-modification
+     org-context-text-markup-alist
+     (setf (alist-get 'paragraph org-context-text-markup-alist) "\\testpara{%s}")
+     (context-test-with-temp-text
+      "foo"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+  ;; Strikethrough
+  (should
+   (equal
+    "\\teststrike{bar}"
+    (context-test-with-temp-modification
+     org-context-text-markup-alist
+     (setf (alist-get 'strike-through org-context-text-markup-alist) "\\teststrike{%s}")
+     (context-test-with-temp-text
+      "+bar+"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+  ;; Subscript
+  (should
+   (equal
+    "foo\\testsubscript{bar}"
+    (context-test-with-temp-modification
+     org-context-text-markup-alist
+     (setf (alist-get 'subscript org-context-text-markup-alist) "\\testsubscript{%s}")
+     (context-test-with-temp-text
+      "foo_bar"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+  ;; Superscript
+  (should
+   (equal
+    "foo\\testsuperscript{bar}"
+    (context-test-with-temp-modification
+     org-context-text-markup-alist
+     (setf (alist-get 'superscript org-context-text-markup-alist) "\\testsuperscript{%s}")
+     (context-test-with-temp-text
+      "foo^bar"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
   ;; Underline
   (should
    (equal
-    "\\underbar{foo}"
-    (org-test-with-temp-text "/foo/"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+    "\\testunderline{foo}"
+    (context-test-with-temp-modification
+     org-context-text-markup-alist
+     (setf (alist-get 'underline org-context-text-markup-alist) "\\testunderline{%s}")
+     (context-test-with-temp-text
+      "_foo_"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+  ;; Verbatim
+  (should
+   (equal
+    "\\testverbatim{bar}"
+    (context-test-with-temp-modification
+     org-context-text-markup-alist
+     (setf (alist-get 'verbatim org-context-text-markup-alist) "\\testverbatim{%s}")
+     (context-test-with-temp-text
+      "=bar="
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+  ;; TODO Verb
+
+  )
+
+;;; Items
+(ert-deftest test-org-context-items ()
+  "Test inline formatting"
+  ;; Bullet off
+  (should
+   (let* ((rand (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-bullet-off-command
+            (cons "TestItemOff" rand)
+            (context-test-with-temp-text
+             "- [ ] Item 1"
+             (org-trim
+              (org-export-as 'context nil nil nil
+                             '(:context-preset "empty")))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote "\\startitemize")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\sym")
+        "[^{]*"
+        (regexp-quote "{")
+        "[^}]*"
+        (regexp-quote "\\TestItemOff")
+        "[^}]*"
+        (regexp-quote "}"))
+       document)
+      (string-match-p
+       rand document))))
+  ;; Bullet on
+  (should
+   (let* ((rand (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-bullet-on-command
+            (cons "TestItemOn" rand)
+            (context-test-with-temp-text
+             "- [X] Item 1"
+             (org-trim
+              (org-export-as 'context nil nil nil
+                             '(:context-preset "empty")))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote "\\startitemize")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\sym")
+        "[^{]*"
+        (regexp-quote "{")
+        "[^}]*"
+        (regexp-quote "\\TestItemOn")
+        "[^}]*"
+        (regexp-quote "}"))
+       document)
+      (string-match-p
+       rand document))))
+  ;; Bullet trans
+  (should
+   (let* ((rand (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-bullet-trans-command
+            (cons "TestItemTrans" rand)
+            (context-test-with-temp-text
+             "- [-] Item 1"
+             (org-trim
+              (org-export-as 'context nil nil nil
+                             '(:context-preset "empty")))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote "\\startitemize")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\sym")
+        "[^{]*"
+        (regexp-quote "{")
+        "[^}]*"
+        (regexp-quote "\\TestItemTrans")
+        "[^}]*"
+        (regexp-quote "}"))
+       document)
+      (string-match-p
+       rand document))))
+  )
 
 ;;; Empty environment
 (ert-deftest test-org-context-export-empty ()
@@ -85,7 +586,7 @@
   (should
    (equal
     ""
-    (org-test-with-temp-text ""
+    (context-test-with-temp-text ""
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
 
 ;;; Headlines
@@ -100,14 +601,14 @@
      (string-match-p
       (format "\\\\startsection\\[%s\\][\s\n]*\\\\stopsection"
               (format inside-headline-regex headline-name headline-name headline-name headline-name))
-      (org-test-with-temp-text "* Headline 1"
+      (context-test-with-temp-text "* Headline 1"
         (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
     ;; Not-numbered
     (should
      (string-match-p
       (format "\\\\startsubject\\[%s\\][\s\n]*\\\\stopsubject"
               (format inside-headline-regex headline-name headline-name headline-name headline-name))
-      (org-test-with-temp-text "* Headline 1\n:PROPERTIES:\n:UNNUMBERED:\n:END:"
+      (context-test-with-temp-text "* Headline 1\n:PROPERTIES:\n:UNNUMBERED:\n:END:"
         (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
     ;; Escape characters in headlines
     (should
@@ -122,7 +623,7 @@
                  replacement
                  replacement
                  replacement)))
-      (org-test-with-temp-text "* Headline `~!@#$%^&*()_-=+[{}]|\\:;\"'<,>.?/"
+      (context-test-with-temp-text "* Headline `~!@#$%^&*()_-=+[{}]|\\:;\"'<,>.?/"
         (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
     ;; Nested headlines should wrap each other
     (should
@@ -130,14 +631,14 @@
       (format "\\\\startsection\\[%s\\][\s\n]*\\\\startsubsection\\[%s\\][\s\n]*\\\\stopsubsection[\s\n]*\\\\stopsection"
               (format inside-headline-regex "Headline 1" "Headline 1" "Headline 1" "Headline 1")
               (format inside-headline-regex "Headline 2" "Headline 2" "Headline 2" "Headline 2"))
-      (org-test-with-temp-text "* Headline 1\n** Headline 2"
+      (context-test-with-temp-text "* Headline 1\n** Headline 2"
         (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
     ;; Alt text for title
     (should
      (string-match-p
       (format "\\\\startsection\\[%s\\][\s\n]*\\\\stopsection"
               (format inside-headline-regex headline-name "alt" "alt" "alt"))
-      (org-test-with-temp-text "* Headline 1\n:PROPERTIES:\n:ALT_TITLE: alt\n:END:"
+      (context-test-with-temp-text "* Headline 1\n:PROPERTIES:\n:ALT_TITLE: alt\n:END:"
         (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
     ;; todo keywords
     (should
@@ -148,7 +649,7 @@
                       headline-name
                       headline-name
                       headline-name))
-      (org-test-with-temp-text "* TODO Headline 1"
+      (context-test-with-temp-text "* TODO Headline 1"
         (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
     ;; Tags
     (should
@@ -159,7 +660,7 @@
                       headline-name
                       headline-name
                       headline-name))
-      (org-test-with-temp-text "* Headline 1 :tag1:tag2:"
+      (context-test-with-temp-text "* Headline 1 :tag1:tag2:"
         (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
     ;; Priority
     (should
@@ -170,7 +671,7 @@
                       headline-name
                       headline-name
                       headline-name))
-      (org-test-with-temp-text "* [#A] Headline 1"
+      (context-test-with-temp-text "* [#A] Headline 1"
         (org-trim (org-export-as 'context nil nil t '(:context-preset "empty" :with-priority t))))))))
 
 ;;; Keywords
@@ -179,127 +680,127 @@
   (should
    (equal
     "abc"
-    (org-test-with-temp-text "#+CONTEXT: abc"
+    (context-test-with-temp-text "#+CONTEXT: abc"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\index{foo}"
-    (org-test-with-temp-text "#+INDEX: foo"
+    (context-test-with-temp-text "#+INDEX: foo"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\OrgConcept{foo}"
-    (org-test-with-temp-text "#+CINDEX: foo"
+    (context-test-with-temp-text "#+CINDEX: foo"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\OrgFunction{foo}"
-    (org-test-with-temp-text "#+FINDEX: foo"
+    (context-test-with-temp-text "#+FINDEX: foo"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\OrgKeystroke{foo}"
-    (org-test-with-temp-text "#+KINDEX: foo"
+    (context-test-with-temp-text "#+KINDEX: foo"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\OrgProgram{foo}"
-    (org-test-with-temp-text "#+PINDEX: foo"
+    (context-test-with-temp-text "#+PINDEX: foo"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\OrgDataType{foo}"
-    (org-test-with-temp-text "#+TINDEX: foo"
+    (context-test-with-temp-text "#+TINDEX: foo"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\OrgVariable{foo}"
-    (org-test-with-temp-text "#+VINDEX: foo"
+    (context-test-with-temp-text "#+VINDEX: foo"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placelistoftables[criterium=all]"
-    (org-test-with-temp-text "#+TOC: tables"
+    (context-test-with-temp-text "#+TOC: tables"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placelistoffigures[criterium=all]"
-    (org-test-with-temp-text "#+TOC: figures"
+    (context-test-with-temp-text "#+TOC: figures"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placelist[formula][criterium=all]"
-    (org-test-with-temp-text "#+TOC: equations"
+    (context-test-with-temp-text "#+TOC: equations"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placeindex"
-    (org-test-with-temp-text "#+TOC: definitions"
+    (context-test-with-temp-text "#+TOC: definitions"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placeregister[OrgConcept]"
-    (org-test-with-temp-text "#+TOC: cp"
+    (context-test-with-temp-text "#+TOC: cp"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placeregister[OrgFunction]"
-    (org-test-with-temp-text "#+TOC: fn"
+    (context-test-with-temp-text "#+TOC: fn"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placeregister[OrgKeystroke]"
-    (org-test-with-temp-text "#+TOC: ky"
+    (context-test-with-temp-text "#+TOC: ky"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placeregister[OrgProgram]"
-    (org-test-with-temp-text "#+TOC: pg"
+    (context-test-with-temp-text "#+TOC: pg"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placeregister[OrgDataType]"
-    (org-test-with-temp-text "#+TOC: tp"
+    (context-test-with-temp-text "#+TOC: tp"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placeregister[OrgVariable]"
-    (org-test-with-temp-text "#+TOC: vr"
+    (context-test-with-temp-text "#+TOC: vr"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placecontent[]"
-    (org-test-with-temp-text "#+TOC: headlines"
+    (context-test-with-temp-text "#+TOC: headlines"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placecontent[list={section,subject,subsection,subsubject}]"
-    (org-test-with-temp-text "#+TOC: headlines 2"
+    (context-test-with-temp-text "#+TOC: headlines 2"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placecontent[criterium=local,]"
-    (org-test-with-temp-text "#+TOC: headlines local"
+    (context-test-with-temp-text "#+TOC: headlines local"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placelist[OrgListingEmpty][criterium=all]"
-    (org-test-with-temp-text "#+TOC: listings"
+    (context-test-with-temp-text "#+TOC: listings"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placelist[OrgVerseEnumerateEmpty][criterium=all]"
-    (org-test-with-temp-text "#+TOC: verses"
+    (context-test-with-temp-text "#+TOC: verses"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placelist[OrgBlockQuoteEnumEmpty][criterium=all]"
-    (org-test-with-temp-text "#+TOC: quotes"
+    (context-test-with-temp-text "#+TOC: quotes"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   (should
    (equal
     "\\placelist[OrgExampleEnumerationEmpty][criterium=all]"
-    (org-test-with-temp-text "#+TOC: examples"
+    (context-test-with-temp-text "#+TOC: examples"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; TODO test bibliography
   )
@@ -308,49 +809,74 @@
 
 (ert-deftest test-org-context-export-doc-keywords ()
   "Test exporting document-level keywords."
+  ;; ATTENTION
   (should
    (string-match-p
     (regexp-quote "letter:attention={bob}")
-    (org-test-with-temp-text "#+ATTENTION: bob"
+    (context-test-with-temp-text "#+ATTENTION: bob"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  ;; CLOSING
+  (should
+   (string-match-p
+    (regexp-quote "letter:closing={Sincerely, Bob}")
+    (context-test-with-temp-text "#+CLOSING: Sincerely, Bob"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
   (should
    (string-match-p
     (regexp-quote "letter:closing={Sincerely, Bob}")
-    (org-test-with-temp-text "#+CLOSING: Sincerely, Bob"
-      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+    (context-test-with-temp-customization-value
+     org-context-closing
+     "Sincerely, Bob"
+     (context-test-with-temp-text ""
+      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+  ;; CONTEXT_HEADER
   (should
    (string-match-p
     (regexp-quote "foo bar baz")
-    (org-test-with-temp-text "#+CONTEXT_HEADER: foo bar baz"
+    (context-test-with-temp-text "#+CONTEXT_HEADER: foo bar baz"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  ;; CONTEXT_HEADER_EXTRA
   (should
    (string-match-p
     (regexp-quote "foo bar baz")
-    (org-test-with-temp-text "#+CONTEXT_HEADER_EXTRA: foo bar baz"
+    (context-test-with-temp-text "#+CONTEXT_HEADER_EXTRA: foo bar baz"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  ;; DATE
   (should
    (string-match-p
     (regexp-quote "metadata:date={foo}")
-    (org-test-with-temp-text "#+DATE: foo"
+    (context-test-with-temp-text "#+DATE: foo"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  ;; DESCRIPTION
   (should
    (string-match-p
     (regexp-quote "metadata:description={foo}")
-    (org-test-with-temp-text "#+DESCRIPTION: foo"
+    (context-test-with-temp-text "#+DESCRIPTION: foo"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  ;; FROM_ADDRESS
+  (should
+   (string-match-p
+    (regexp-quote "letter:fromaddress={foo}")
+    (context-test-with-temp-text "#+FROM_ADDRESS: foo"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
   (should
    (string-match-p
     (regexp-quote "letter:fromaddress={foo}")
-    (org-test-with-temp-text "#+FROM_ADDRESS: foo"
-      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+    (context-test-with-temp-customization-value
+     org-context-from-address
+     "foo"
+     (context-test-with-temp-text ""
+      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+  ;; KEYWORDS
   (should
    (string-match-p
     (regexp-quote "metadata:keywords={foo bar baz}")
-    (org-test-with-temp-text "#+KEYWORDS: foo bar baz"
+    (context-test-with-temp-text "#+KEYWORDS: foo bar baz"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  ;; LANGUAGE
   (should
    (let ((content
-          (org-test-with-temp-text "#+LANGUAGE: grobnatch"
+          (context-test-with-temp-text "#+LANGUAGE: grobnatch"
             (org-export-as 'context nil nil nil '(:context-preset "empty")))))
      (and
       (string-match-p
@@ -359,50 +885,105 @@
       (string-match-p
        (regexp-quote "\\language[grobnatch]")
        content))))
+  ;; LOCATION
   (should
    (string-match-p
     (regexp-quote "letter:location={grokistan}")
-    (org-test-with-temp-text "#+LOCATION: grokistan"
+    (context-test-with-temp-text "#+LOCATION: grokistan"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "letter:location={grokistan}")
+    (context-test-with-temp-customization-value
+     org-context-location
+     "grokistan"
+     (context-test-with-temp-text ""
+      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+  ;; OPENING
+  (should
+   (string-match-p
+    (regexp-quote "letter:opening={biz buz}")
+    (context-test-with-temp-text "#+OPENING: biz buz"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
   (should
    (string-match-p
     (regexp-quote "letter:opening={biz buz}")
-    (org-test-with-temp-text "#+OPENING: biz buz"
+    (context-test-with-temp-customization-value
+     org-context-opening
+     "biz buz"
+     (context-test-with-temp-text ""
+      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+  ;; PHONE_NUMBER
+  (should
+   (string-match-p
+    (regexp-quote "metadata:phonenumber={314 159 2653}")
+    (context-test-with-temp-text "#+PHONE_NUMBER: 314 159 2653"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
   (should
    (string-match-p
     (regexp-quote "metadata:phonenumber={314 159 2653}")
-    (org-test-with-temp-text "#+PHONE_NUMBER: 314 159 2653"
+    (context-test-with-temp-customization-value
+     org-context-phone-number
+     "314 159 2653"
+     (context-test-with-temp-text ""
+      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+  ;; PLACE
+  (should
+   (string-match-p
+    (regexp-quote "letter:place={Arlen Texas}")
+    (context-test-with-temp-text "#+PLACE: Arlen Texas"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "letter:place={Arlen Texas}")
+    (context-test-with-temp-customization-value
+     org-context-place
+     "Arlen Texas"
+     (context-test-with-temp-text ""
+      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+  ;; SIGNATURE
+  (should
+   (string-match-p
+    (regexp-quote "letter:signature={buz buz}")
+    (context-test-with-temp-text "#+SIGNATURE: buz buz"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
   (should
    (string-match-p
     (regexp-quote "letter:signature={buz buz}")
-    (org-test-with-temp-text "#+SIGNATURE: buz buz"
-      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+    (context-test-with-temp-customization-value
+     org-context-signature
+     "buz buz"
+     (context-test-with-temp-text ""
+      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+  ;; SUBJECT
   (should
    (string-match-p
     (regexp-quote "metadata:subject={vorpal swords}")
-    (org-test-with-temp-text "#+SUBJECT: vorpal swords"
+    (context-test-with-temp-text "#+SUBJECT: vorpal swords"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  ;; SUBTITLE
   (should
    (string-match-p
     (regexp-quote "metadata:subtitle={frumorious bandersnatches}")
-    (org-test-with-temp-text "#+SUBTITLE: frumorious bandersnatches"
+    (context-test-with-temp-text "#+SUBTITLE: frumorious bandersnatches"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  ;; TO_ADDRESS
   (should
    (string-match-p
     (regexp-quote "letter:toaddress={the palace}")
-    (org-test-with-temp-text "#+TO_ADDRESS: the palace"
+    (context-test-with-temp-text "#+TO_ADDRESS: the palace"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  ;; TO_NAME
   (should
    (string-match-p
     (regexp-quote "letter:toname={bob}")
-    (org-test-with-temp-text "#+TO_NAME: bob"
+    (context-test-with-temp-text "#+TO_NAME: bob"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  ;; URL
   (should
    (string-match-p
     (regexp-quote "metadata:url={beware the jabberwock}")
-    (org-test-with-temp-text "#+URL: beware the jabberwock"
+    (context-test-with-temp-text "#+URL: beware the jabberwock"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
   )
 
@@ -415,7 +996,7 @@
     "\\startplacefigure[location={Here}]
 \\externalfigure[./images/cat.jpg][width={\\dimexpr \\hsize - 1em \\relax}]
 \\stopplacefigure"
-    (org-test-with-temp-text "[[./images/cat.jpg]]"
+    (context-test-with-temp-text "[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; With Caption
   (should
@@ -424,7 +1005,7 @@
    location={Here}]
 \\externalfigure[./images/cat.jpg][width={\\dimexpr \\hsize - 1em \\relax}]
 \\stopplacefigure"
-    (org-test-with-temp-text "#+CAPTION: A cat\n[[./images/cat.jpg]]"
+    (context-test-with-temp-text "#+CAPTION: A cat\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; wrap
   (should
@@ -432,7 +1013,7 @@
     "\\startplacefigure[location={here,left}]
 \\externalfigure[./images/cat.jpg][width={0.48\\hsize}]
 \\stopplacefigure"
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :float wrap\n[[./images/cat.jpg]]"
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :float wrap\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; sideways
   (should
@@ -440,7 +1021,7 @@
     "\\startplacefigure[location={page,90}]
 \\externalfigure[./images/cat.jpg][width={\\dimexpr \\hsize - 1em \\relax}]
 \\stopplacefigure"
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :float sideways\n[[./images/cat.jpg]]"
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :float sideways\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; multicolumn
   (should
@@ -448,7 +1029,7 @@
     "\\startplacefigure[location={Here}]
 \\externalfigure[./images/cat.jpg][width={\\dimexpr\\makeupwidth - 1em\\relax}]
 \\stopplacefigure"
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :float multicolumn\n[[./images/cat.jpg]]"
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :float multicolumn\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; Placement
   (should
@@ -456,7 +1037,7 @@
     "\\startplacefigure[location={backspace}]
 \\externalfigure[./images/cat.jpg][width={\\dimexpr \\hsize - 1em \\relax}]
 \\stopplacefigure"
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :placement backspace\n[[./images/cat.jpg]]"
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :placement backspace\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; width
   (should
@@ -464,7 +1045,7 @@
     "\\startplacefigure[location={Here}]
 \\externalfigure[./images/cat.jpg][width={2in}]
 \\stopplacefigure"
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :width 2in\n[[./images/cat.jpg]]"
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :width 2in\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; height
   (should
@@ -472,7 +1053,7 @@
     "\\startplacefigure[location={Here}]
 \\externalfigure[./images/cat.jpg][height={2in}]
 \\stopplacefigure"
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :height 2in\n[[./images/cat.jpg]]"
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :height 2in\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   )
 
@@ -483,43 +1064,43 @@
   (should
    (equal
     "\\goto{\\hyphenatedurl{http://orgmode.org}}[url(http://orgmode.org)]"
-    (org-test-with-temp-text "[[http://orgmode.org]]"
+    (context-test-with-temp-text "[[http://orgmode.org]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; plain link
   (should
    (equal
     "\\goto{\\hyphenatedurl{http://orgmode.org}}[url(http://orgmode.org)]"
-    (org-test-with-temp-text "http://orgmode.org"
+    (context-test-with-temp-text "http://orgmode.org"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; Link with description
   (should
    (equal
     "\\goto{Some Description}[url(http://orgmode.org)]"
-    (org-test-with-temp-text "[[http://orgmode.org][Some Description]]"
+    (context-test-with-temp-text "[[http://orgmode.org][Some Description]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; https
   (should
    (equal
     "\\goto{\\hyphenatedurl{https://orgmode.org}}[url(https://orgmode.org)]"
-    (org-test-with-temp-text "https://orgmode.org"
+    (context-test-with-temp-text "https://orgmode.org"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; doi
   (should
    (equal
     "\\goto{\\hyphenatedurl{doi:10.1000/182}}[url(doi:10.1000/182)]"
-    (org-test-with-temp-text "doi:10.1000/182"
+    (context-test-with-temp-text "doi:10.1000/182"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; ftp
   (should
    (equal
     "\\goto{\\hyphenatedurl{ftp:orgmode.org}}[url(ftp:orgmode.org)]"
-    (org-test-with-temp-text "ftp:orgmode.org"
+    (context-test-with-temp-text "ftp:orgmode.org"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; other
   (should
    (equal
     "\\goto{\\hyphenatedurl{projects.org}}[url(projects.org)]"
-    (org-test-with-temp-text "attachment:projects.org"
+    (context-test-with-temp-text "attachment:projects.org"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   )
 
@@ -530,7 +1111,7 @@
   (should
    (string-match-p
     (regexp-quote "\\startalignment")
-    (org-test-with-temp-text "#+BEGIN_CENTER\nfoo bar baz\n#+END_CENTER"
+    (context-test-with-temp-text "#+BEGIN_CENTER\nfoo bar baz\n#+END_CENTER"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; Center with name
   (should
@@ -541,7 +1122,7 @@
      (regexp-quote "]{foo}")
      (regexp-quote
      "\\startalignment"))
-    (org-test-with-temp-text "#+NAME: foo\n#+BEGIN_CENTER\nfoo bar baz\n#+END_CENTER"
+    (context-test-with-temp-text "#+NAME: foo\n#+BEGIN_CENTER\nfoo bar baz\n#+END_CENTER"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   )
 
@@ -587,8 +1168,45 @@
      (regexp-quote "\\stopxtable")
      "[\s\n]*"
      (regexp-quote "\\stopplacetable"))
-    (org-test-with-temp-text "| foo |"
+    (context-test-with-temp-text "| foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+  ;; Table location disabled in customization
+  (should
+   (not
+    (string-match-p
+     (concat
+      (regexp-quote "\\startplacetable")
+      "[\s\n]*"
+      (regexp-quote "[")
+      "[^]]*"
+      (regexp-quote "location={"))
+     (context-test-with-temp-customization-value
+      org-context-table-split
+      ""
+      (context-test-with-temp-customization-value
+       org-context-table-location
+       ""
+       (context-test-with-temp-text
+        " | foo |"
+        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))))
+  ;; Table location enabled in customization
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startplacetable")
+     "[\s\n]*"
+     (regexp-quote "[")
+     "[^]]*"
+     (regexp-quote "location={bar}"))
+    (context-test-with-temp-customization-value
+     org-context-table-split
+     ""
+     (context-test-with-temp-customization-value
+      org-context-table-location
+      "bar"
+      (context-test-with-temp-text
+       " | foo |"
+       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
   ;; Table location in document keywords
   (should
    (string-match-p
@@ -603,7 +1221,7 @@
     "[^}]*"
     (regexp-quote "}")
     ",?")
-    (org-test-with-temp-text "#+TABLE_LOCATION: there\n
+    (context-test-with-temp-text "#+TABLE_LOCATION: there\n
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; Table location in ATTR_CONTEXT
@@ -620,7 +1238,7 @@
     "[^}]*"
     (regexp-quote "}")
     ",?")
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :location there
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :location there
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; Table location in both
@@ -637,11 +1255,11 @@
     "[^}]*"
     (regexp-quote "}")
     ",?")
-    (org-test-with-temp-text "#+TABLE_LOCATION: here
+    (context-test-with-temp-text "#+TABLE_LOCATION: here
 #+ATTR_CONTEXT: :location there
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
-  ;; Table header repeat by default
+  ;; Table header repeat with customization
   (should
    (string-match-p
     (concat
@@ -658,12 +1276,33 @@
      "[^]]*"
      (regexp-quote "]")
      "[\s\n]*"
-     (regexp-quote "\\startxtablehead")
-    )
-    (org-test-with-temp-text "| foo |
+     (regexp-quote "\\startxtablehead"))
+    (context-test-with-temp-customization-value
+     org-context-table-head
+     "repeat"
+     (context-test-with-temp-text
+      "| foo |
 |-----|
 | bar |"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+  ;; No header in customization
+  (should
+   (not
+    (string-match-p
+     (concat
+      (regexp-quote "\\startxtable")
+      "[\s\n]*"
+      (regexp-quote "[")
+      "[^]]*"
+      (regexp-quote "header={"))
+     (context-test-with-temp-customization-value
+      org-context-table-head
+      ""
+      (context-test-with-temp-text
+       "| foo |
+|-----|
+| bar |"
+       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
   ;; Turn off header repeat in document keywords
   (should
    (not (string-match-p
@@ -675,7 +1314,7 @@
      (regexp-quote "header={")
      "[^}]*"
      "repeat")
-    (org-test-with-temp-text "#+TABLE_HEAD: nil
+    (context-test-with-temp-text "#+TABLE_HEAD: nil
 | foo |
 |-----|
 | bar |"
@@ -691,7 +1330,7 @@
      (regexp-quote "header={")
      "[^}]*"
      "repeat")
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :header repeat
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :header repeat
 | foo |
 |-----|
 | bar |"
@@ -707,7 +1346,7 @@
      (regexp-quote "header={")
      "[^}]*"
      "repeat")
-    (org-test-with-temp-text "#+TABLE_HEAD: nil
+    (context-test-with-temp-text "#+TABLE_HEAD: nil
 #+ATTR_CONTEXT: :header repeat
 | foo |
 |-----|
@@ -724,13 +1363,37 @@
      (regexp-quote "header={")
      "[^}]*"
      "norepeat")
-    (org-test-with-temp-text "#+TABLE_HEAD: repeat
+    (context-test-with-temp-text
+     "#+TABLE_HEAD: repeat
 #+ATTR_CONTEXT: :header norepeat
 | foo |
 |-----|
 | bar |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
-  ;; Table footer not repeat by default
+  ;; Table footer customization enabled
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxtable")
+     "[\s\n]*"
+     (regexp-quote "[")
+     "[^]]*"
+     (regexp-quote "footer={")
+     "[^}]*"
+     "repeat")
+    (context-test-with-temp-customization-value
+     org-context-table-foot
+     "repeat"
+     (context-test-with-temp-text
+      "| foo |
+|-----|
+| bar |
+|-----|
+| baz |"
+      (org-trim
+       (org-export-as 'context nil nil t
+                      '(:context-preset "empty")))))))
+  ;; Table footer customization disabled
   (should
    (not
     (string-match-p
@@ -742,20 +1405,24 @@
       (regexp-quote "footer={")
       "[^}]*"
       "repeat")
-     (org-test-with-temp-text "| foo |
+     (context-test-with-temp-customization-value
+      org-context-table-foot
+      ""
+      (context-test-with-temp-text
+       "| foo |
 |-----|
 | bar |
 |-----|
 | baz |"
        (org-trim
         (org-export-as 'context nil nil t
-                       '(:context-preset "empty")))))))
+                       '(:context-preset "empty"))))))))
   ;; Table footer not present by default
   (should
    (not
     (string-match-p
      (regexp-quote "\\startxtablefoot")
-     (org-test-with-temp-text "| foo |
+     (context-test-with-temp-text "| foo |
 |-----|
 | bar |
 |-----|
@@ -776,7 +1443,7 @@
      "repeat"
      "\\(.\\|\n\\)*"
      (regexp-quote "\\startxtablefoot"))
-    (org-test-with-temp-text "#+TABLE_FOOT: repeat
+    (context-test-with-temp-text "#+TABLE_FOOT: repeat
 | foo |
 |-----|
 | bar |
@@ -796,7 +1463,7 @@
      "repeat"
      "\\(.\\|\n\\)*"
      (regexp-quote "\\startxtablefoot"))
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :footer repeat
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :footer repeat
 | foo |
 |-----|
 | bar |
@@ -816,7 +1483,7 @@
      "repeat"
      "\\(.\\|\n\\)*"
      (regexp-quote "\\startxtablefoot"))
-    (org-test-with-temp-text "#+TABLE_FOOT: nil
+    (context-test-with-temp-text "#+TABLE_FOOT: nil
 #+ATTR_CONTEXT: :footer repeat
 | foo |
 |-----|
@@ -837,7 +1504,7 @@
      "norepeat"
      "\\(.\\|\n\\)*"
      (regexp-quote "\\startxtablefoot"))
-    (org-test-with-temp-text "#+TABLE_FOOT: repeat
+    (context-test-with-temp-text "#+TABLE_FOOT: repeat
 #+ATTR_CONTEXT: :footer norepeat
 | foo |
 |-----|
@@ -845,6 +1512,42 @@
 |-----|
 | baz |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+  ;; Table option in customization
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxtable")
+     "[\s\n]*"
+     (regexp-quote "[")
+     "[^]]*"
+     (regexp-quote "option={")
+    "[^}]*"
+    "bar"
+    "[^}]*"
+    (regexp-quote "}")
+    ",?")
+    (context-test-with-temp-customization-value
+     org-context-table-option
+     "bar"
+     (context-test-with-temp-text
+     "| foo |"
+     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+  ;; Table option not configured
+  (should
+   (not
+    (string-match-p
+     (concat
+      (regexp-quote "\\startxtable")
+      "[\s\n]*"
+      (regexp-quote "[")
+      "[^]]*"
+      (regexp-quote "option={"))
+     (context-test-with-temp-customization-value
+      org-context-table-option
+      ""
+      (context-test-with-temp-text
+       "| foo |"
+       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
   ;; Table option in document keywords
   (should
    (string-match-p
@@ -859,7 +1562,7 @@
     "[^}]*"
     (regexp-quote "}")
     ",?")
-    (org-test-with-temp-text "#+TABLE_OPTION: bar
+    (context-test-with-temp-text "#+TABLE_OPTION: bar
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; Table option in ATTR_CONTEXT
@@ -876,7 +1579,7 @@
     "[^}]*"
     (regexp-quote "}")
     ",?")
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :option bar
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :option bar
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; Table option in both
@@ -893,7 +1596,7 @@
     "[^}]*"
     (regexp-quote "}")
     ",?")
-    (org-test-with-temp-text "#+TABLE_OPTION: bar
+    (context-test-with-temp-text "#+TABLE_OPTION: bar
 #+ATTR_CONTEXT: :option baz
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
@@ -904,7 +1607,7 @@
      (regexp-quote "\\startxtable")
      "[\s\n]*"
      (regexp-quote "[bar]"))
-    (org-test-with-temp-text "#+TABLE_STYLE: bar
+    (context-test-with-temp-text "#+TABLE_STYLE: bar
 
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
@@ -915,7 +1618,7 @@
      (regexp-quote "\\startxtable")
      "[\s\n]*"
      (regexp-quote "[bar]"))
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :table-style bar
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :table-style bar
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; Table style in both
@@ -925,10 +1628,24 @@
      (regexp-quote "\\startxtable")
      "[\s\n]*"
      (regexp-quote "[baz]"))
-    (org-test-with-temp-text "#+TABLE_STYLE: bar
+    (context-test-with-temp-text "#+TABLE_STYLE: bar
 #+ATTR_CONTEXT: :table-style baz
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+  ;; Table style in customization
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxtable")
+     "[\s\n]*"
+     (regexp-quote "[bar]"))
+    (context-test-with-temp-customization-value
+     org-context-table-style
+     "bar"
+     (context-test-with-temp-text "| foo |"
+       (org-trim
+        (org-export-as 'context nil nil t
+                       '(:context-preset "empty")))))))
   ;; Table float style in document keywords
   (should
    (string-match-p
@@ -938,7 +1655,7 @@
      (regexp-quote "[bar]")
      "[\s\n]*"
      (regexp-quote "\\startxtable"))
-    (org-test-with-temp-text "#+TABLE_FLOAT: bar
+    (context-test-with-temp-text "#+TABLE_FLOAT: bar
 
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
@@ -951,9 +1668,25 @@
      (regexp-quote "[bar]")
      "[\s\n]*"
      (regexp-quote "\\startxtable"))
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :float-style bar
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :float-style bar
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+  ;; Table float style with customization
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startplacetable")
+     "[\s\n]*"
+     (regexp-quote "[bar]")
+     "[\s\n]*"
+     (regexp-quote "\\startxtable"))
+    (context-test-with-temp-customization-value
+     org-context-table-float-style
+     "bar"
+     (context-test-with-temp-text "| foo |"
+      (org-trim
+       (org-export-as 'context nil nil t
+                      '(:context-preset "empty")))))))
   ;; Table float style in both
   (should
    (string-match-p
@@ -963,11 +1696,11 @@
      (regexp-quote "[baz]")
      "[\s\n]*"
      (regexp-quote "\\startxtable"))
-    (org-test-with-temp-text "#+TABLE_FLOAT: bar
+    (context-test-with-temp-text "#+TABLE_FLOAT: bar
 #+ATTR_CONTEXT: :float-style baz
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
-  ;; Table split by default
+  ;; Table split when org-context-table-split
   (should
    (string-match-p
     (concat
@@ -990,8 +1723,47 @@
      (regexp-quote "split={yes}")
      "[^]]*"
      (regexp-quote "]"))
-    (org-test-with-temp-text "| foo |"
-      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+    (context-test-with-temp-customization-value
+     org-context-table-split
+     "yes"
+     (context-test-with-temp-text "| foo |"
+       (org-trim
+        (org-export-as 'context nil nil t
+                       '(:context-preset "empty")))))))
+  (should
+   (not
+    (string-match-p
+     (concat
+      (regexp-quote "\\startplacetable")
+      "[\s\n]*"
+      (regexp-quote "[")
+      "[^]]*"
+      (regexp-quote "location={")
+      "[^]]*"
+      (regexp-quote "split"))
+     (context-test-with-temp-customization-value
+      org-context-table-split
+      "no"
+      (context-test-with-temp-text "| foo |"
+        (org-trim
+         (org-export-as 'context nil nil t
+                        '(:context-preset "empty"))))))))
+  (should
+   (not
+    (string-match-p
+     (concat
+      (regexp-quote "\\startxtable")
+      "[\s\n]*"
+      (regexp-quote "[")
+      "[^]]*"
+      (regexp-quote "split={yes}"))
+     (context-test-with-temp-customization-value
+      org-context-table-split
+      "no"
+      (context-test-with-temp-text "| foo |"
+        (org-trim
+         (org-export-as 'context nil nil t
+                        '(:context-preset "empty"))))))))
   ;; Disable Table split in document keywords
   (should
    (not
@@ -1004,7 +1776,7 @@
       (regexp-quote "location={")
       "[^]]*"
       (regexp-quote "split"))
-     (org-test-with-temp-text "#+TABLE_SPLIT: no
+     (context-test-with-temp-text "#+TABLE_SPLIT: no
 
 | foo |"
        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
@@ -1019,7 +1791,7 @@
      (regexp-quote "split={no}")
      "[^]]*"
      (regexp-quote "]"))
-    (org-test-with-temp-text "#+TABLE_SPlIT: no
+    (context-test-with-temp-text "#+TABLE_SPlIT: no
 
 | foo |"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
@@ -1035,7 +1807,7 @@
       (regexp-quote "location={")
       "[^]]*"
       (regexp-quote "split"))
-     (org-test-with-temp-text "#+ATTR_CONTEXT: :split no
+     (context-test-with-temp-text "#+ATTR_CONTEXT: :split no
 | foo |"
        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
   ;; Disable table split in ATTR_CONTEXT (table)
@@ -1049,7 +1821,7 @@
      (regexp-quote "split={no}")
      "[^]]*"
      (regexp-quote "]"))
-    (org-test-with-temp-text "#+ATTR_CONTEXT: :split no
+    (context-test-with-temp-text "#+ATTR_CONTEXT: :split no
 | foo |"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; Table split in both
@@ -1075,7 +1847,7 @@
      (regexp-quote "split={yes}")
      "[^]]*"
      (regexp-quote "]"))
-    (org-test-with-temp-text "#+TABLE_SPLIT: no
+    (context-test-with-temp-text "#+TABLE_SPLIT: no
 #+ATTR_CONTEXT: :split yes
 | foo |"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))

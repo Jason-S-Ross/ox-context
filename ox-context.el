@@ -397,6 +397,8 @@
 ;; they are exposed when creating a derived template but not exposed as part
 ;; of normal configuration.
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-export-quotes-alist
   '((primary-opening . "\\quotation{")
     (primary-closing . "}")
@@ -404,6 +406,8 @@
     (secondary-closing . "}")
     (apostrophe . "'")))
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-texinfo-indices-alist
   '(("cp" . (:keyword "CINDEX" :command "OrgConcept"))
     ("fn" . (:keyword "FINDEX" :command "OrgFunction"))
@@ -415,6 +419,8 @@
 :keyword represents the corresponding TexInfo @index name. :command represents
 the corresponding command name in ConTeXt.")
 
+;; TODO make this custom?
+;; TODO Test
 (defconst org-context-latex-math-environments-re
   (format
    "\\`[ \t]*\\\\begin{%s\\*?}"
@@ -429,66 +435,108 @@ the corresponding command name in ConTeXt.")
       "empheq")))
   "Regexp of LaTeX math environments.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-body-style "OrgTableBody"
   "The default style name for the body row group in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-bottomleft-style "OrgTableBottomLeftCell"
   "The default style name for the bottom left cell in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-bottomright-style "OrgTableBottomRightCell"
   "The default style name for the bottom right cell in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-bottomrow-style "OrgTableBottomRow"
   "The default style name for the bottom row in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-colgroup-end-style "OrgTableColGroupEnd"
   "The default style name for columns ending column groups in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-colgroup-start-style "OrgTableColGroupStart"
   "The default style name for columns starting column groups in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-footer-bottom-style "OrgTableFooterBottom"
   "The default style name for the bottom row in the footer row group in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-footer-mid-style "OrgTableFooterMid"
   "The default style name for footer rows where the footer is only one row.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-footer-style "OrgTableFooter"
   "The default style name for the footer row group in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-footer-top-style "OrgTableFooterTop"
   "The default style name for the top row in the footer row group in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-header-bottom-style "OrgTableHeaderBottom"
   "The default style name for the bottom row in the header row group in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-header-mid-style "OrgTableHeaderMid"
   "The default style name for header rows where the header is only one row.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-header-style "OrgTableHeader"
   "The default style name for the header row group in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-header-top-style "OrgTableHeaderTop"
   "The default style name for the top row in the header row group in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-leftcol-style "OrgTableLeftCol"
   "The default style name for the left column in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-rightcol-style "OrgTableRightCol"
   "The default style name for the right column in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-rowgroup-start-style "OrgTableRowGroupStart"
   "The default style name for rows starting row groups in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-rowgroup-end-style "OrgTableRowGroupEnd"
   "The default style name for rows ending row groups in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-topleft-style "OrgTableTopLeftCell"
   "The default style name for the top left cell in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-topright-style "OrgTableTopRightCell"
   "The default style name for the top right cell in tables.")
 
+;; TODO make this custom
+;; TODO Test
 (defconst org-context-table-toprow-style "OrgTableTopRow"
   "The default style name for the top row in tables.")
 
@@ -596,12 +644,14 @@ If nil, verses aren't delimited."
 ;; These environments wrap around element environments to allow them
 ;; to be enumerated in listings.
 
+;; TODO test
 (defcustom org-context-enumerate-blockquote-empty-environment
   '("OrgBlockQuoteEnumEmpty" . "\\defineenumeration
   [OrgBlockQuoteEnumEmpty]
   [alternative=empty]")
   "The enumeration of the unlabelled blockquote environment.
 
+;; TODO test
 Shares a counter with `org-context-enumerate-blockquote-environment'.
 
 If nil, block quotes are not wrapped in an enumeration"
@@ -609,6 +659,7 @@ If nil, block quotes are not wrapped in an enumeration"
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
+;; TODO test
 (defcustom org-context-enumerate-blockquote-environment
   '("OrgBlockQuoteEnum" . "\\defineenumeration
   [OrgBlockQuoteEnum]
@@ -625,6 +676,7 @@ If nil, block quotes are not wrapped in an enumeration"
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
+;; TODO test
 (defcustom org-context-enumerate-example-empty-environment
   '("OrgExampleEnumerationEmpty" . "\\defineenumeration
   [OrgExampleEnumerationEmpty]
@@ -638,6 +690,7 @@ If nil, examples are not wrapped in an enumeration"
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
+;; TODO test
 (defcustom org-context-enumerate-example-environment
   '("OrgExampleEnumeration" . "\\defineenumeration
   [OrgExampleEnumeration]
@@ -655,6 +708,7 @@ If nil, examples are not wrapped in an enumeration"
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
+;; TODO test
 (defcustom org-context-enumerate-listing-empty-environment
   '("OrgListingEmpty" . "\\defineenumeration
   [OrgListingEmpty]
@@ -668,6 +722,7 @@ If null, listings are not enumerated."
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
+;; TODO Test
 (defcustom org-context-enumerate-listing-environment
   '("OrgListing" . "\\defineenumeration
   [OrgListing]
@@ -685,6 +740,7 @@ If null, listings are not enumerated."
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
+;; TODO test
 (defcustom org-context-enumerate-verse-empty-environment
   '("OrgVerseEnumerateEmpty" . "\\defineenumeration
   [OrgVerseEnumerateEmpty]
@@ -696,6 +752,7 @@ If nil, verses aren't enumerated."
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
+;; TODO test
 (defcustom org-context-enumerate-verse-environment '("OrgVerseEnumerate" . "
 \\defineenumeration
   [OrgVerseEnumerate]
@@ -742,6 +799,7 @@ If nil, the command isn't created."
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
 
+;; TODO test
 (defcustom org-context-clock-command
   '("OrgClock" . "\\def\\OrgClock#1[#2]{%
   \\getparameters
@@ -776,6 +834,7 @@ If nil, \"\\description\" is used"
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
 
+;; TODO test
 (defcustom org-context-drawer-command
   '("OrgDrawer" . "\\define[2]\\OrgDrawer{#2}")
   "The name of the command that formats drawers.
@@ -784,6 +843,7 @@ If nil, the command isn't created."
   :group 'org-export-context
   :type '(cons string string))
 
+;; TODO Test
 (defcustom org-context-headline-command
   '("OrgHeadline" . "\\def\\OrgHeadline#1[#2]{%
   \\getparameters
@@ -806,6 +866,7 @@ If nil, the command isn't created."
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
 
+;; TODO Test
 (defcustom org-context-inlinetask-command
   '("OrgInlineTask" . "\\def\\OrgInlineTask#1[#2]{%
   \\getparameters
@@ -862,6 +923,7 @@ If nil, the command isn't created."
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
 
+;; TODO Test
 (defcustom org-context-planning-command
   '("OrgPlanning" . "\\def\\OrgPlanning#1[#2]{%
   \\getparameters
@@ -908,6 +970,7 @@ This option can also be set with the CLOSING keyword."
   :group 'org-export-context-letter
   :type 'string)
 
+;; TODO test
 (defcustom org-context-default-inner-template
   "article"
   "The default inner template to use in documents.
@@ -915,11 +978,14 @@ See `org-context-inner-templates-alist'"
   :group 'org-export-context
   :type 'string)
 
+;; TODO test
 (defcustom org-context-default-preset "article"
   "A preamble with no style settings for the document elements."
   :group 'org-export-context
   :type '(string :tag "ConTeXt preset"))
 
+;; TODO Test
+;; TODO don't make this a choice; it's stupid
 (defcustom org-context-float-default-placement "left"
   "Default placement for floats."
   :group 'org-export-context
@@ -996,6 +1062,7 @@ See `org-context-inner-templates-alist'"
           (const "fixd"))
   :safe #'stringp)
 
+;; TODO Test
 (defcustom org-context-format-clock-function
   'org-context-format-clock-default-function
   "Function called to format a clock in ConTeXt code.
@@ -1009,6 +1076,7 @@ The function should return the string to be exported."
   :group 'org-export-context
   :type 'function)
 
+;; TODO Test
 (defcustom org-context-format-drawer-function
   'org-context-format-drawer-default-function
   "Function called to format a drawer in ConTeXt code.
@@ -1022,6 +1090,7 @@ The function should return the string to be exported."
   :group 'org-export-context
   :type 'function)
 
+;; TODO Test
 (defcustom org-context-format-headline-function
   'org-context-format-headline-default-function
   "Function for formatting the headline's text.
@@ -1040,6 +1109,7 @@ The function result will be used in the section format string."
   :package-version '(Org . "8.0")
   :type 'function)
 
+;; TODO Test
 (defcustom org-context-format-inlinetask-function
   'org-context-format-inlinetask-default-function
   "Function called to format an inlinetask in LaTeX code.
@@ -1057,6 +1127,7 @@ The function should return the string to be exported."
   :group 'org-export-context
   :type 'function)
 
+;; TODO Test
 (defcustom org-context-format-timestamp-function
   'org-context-format-timestamp-default-function
   "Function called to format a timestamp in ConTeXt code.
@@ -1075,6 +1146,7 @@ keywords."
   :group 'org-export-context-letter
   :type 'string)
 
+;; TODO test
 (defcustom org-context-from-logo ""
   "Commands for inserting the sender's logo, e. g., \\externalfigure[logo.pdf].
 This option can also be set with the FROM_LOGO keyword."
@@ -1082,6 +1154,7 @@ This option can also be set with the FROM_LOGO keyword."
   :type 'string
   :safe #'stringp)
 
+;; TODO Test
 (defcustom org-context-highlighted-langs
   '(("metapost" "mp")
     ("c++" "cpp")
@@ -1095,18 +1168,22 @@ so this is a short list."
            (string :tag "Major mode      ")
            (string :tag "ConTeXt language"))))
 
+;; TODO Test
 (defcustom org-context-image-default-height ""
   "Default height for images."
   :group 'org-export-context
   :type 'string
   :safe #'stringp)
 
+;; TODO This isn't implemented
+;; TODO Test
 (defcustom org-context-image-default-option ""
   "Default option for images."
   :group 'org-export-context
   :type 'string
   :safe #'stringp)
 
+;; TODO Test
 (defcustom org-context-image-default-width "\\dimexpr \\hsize - 1em \\relax"
   "Default width for images."
   ;; TODO This ought to be a ConTeXt command
@@ -1114,6 +1191,7 @@ so this is a short list."
   :type 'string
   :safe #'stringp)
 
+;; TODO Test
 (defcustom org-context-inline-image-rules
   `(("file" . ,(rx "."
                    (or "pdf" "jpeg" "jpg" "png" "ps" "eps" "tikz" "pgf" "svg")
@@ -1128,6 +1206,7 @@ link's path."
   :type '(alist :key-type (string :tag "Type")
                 :value-type (regexp :tag "Path")))
 
+;; TODO Test
 (defcustom org-context-inner-templates-alist
   '(("empty" . "%f
 %c
@@ -1224,6 +1303,7 @@ This option can also be set with the LOCATION keyword."
   :group 'org-export-context-letter
   :type 'string)
 
+;; TODO test
 (defcustom org-context-logfiles-extensions
   '("aux" "bcf" "blg" "fdb_latexmk" "fls" "figlist" "idx" "log" "nav" "out"
     "ptc" "run.xml" "snm" "toc" "vrb" "xdv" "tuc")
@@ -1233,6 +1313,7 @@ non-nil."
   :group 'org-export-context
   :type '(repeat (string :tag "Extension")))
 
+;; TODO test
 (defcustom org-context-number-equations nil
   "Non-nil means insert a \\placeformula line before all formulas for numbering."
   :group 'org-export-context
@@ -1245,6 +1326,7 @@ This option can also be set with the OPENING keyword."
   :group 'org-export-context-letter
   :type 'string)
 
+;; TODO test
 (defcustom org-context-pdf-process
   '("context %f")
   "Commands to process a ConTeXt file to a PDF file.
@@ -1276,6 +1358,7 @@ This option can also be set with the PLACE keyword."
   :group 'org-export-context-letter
   :type 'string)
 
+;; TODO Test
 (defcustom org-context-presets-alist
   '(("empty" .
      (:literal ""
@@ -1324,6 +1407,7 @@ This option can also be set with the PLACE keyword."
                  (repeat :tag "Snippets" :inline t
                          (string :tag "Snippet"))))))
 
+;; TODO test
 (defcustom org-context-remove-logfiles t
   "Non-nil means remove the logfiles produced by PDF production.
 By default, logfiles are files with these extensions: .aux, .idx,
@@ -1338,6 +1422,7 @@ This option can also be set with the SIGNATURE keyword."
   :group 'org-export-context-letter
   :type 'string)
 
+;; TODO Test
 (defcustom org-context-snippets-alist
   '(
     ;; Syntax highlighting. Note that overriding pscolor overrides
@@ -1634,6 +1719,7 @@ available for use in presets. See also `:context-presets'"
            (string :tag "Snippet Name")
            (string :tag "Snippet Value"))))
 
+;; TODO Test
 (defcustom org-context-syntax-engine
   'default
   "Option for the syntax engine."
@@ -1705,6 +1791,7 @@ available for use in presets. See also `:context-presets'"
   :group 'org-export-context
   :type 'string)
 
+;; TODO test
 (defcustom org-context-url ""
   "Sender's URL, e. g., the URL of her homepage.
 This option can also be set with the URL keyword."
@@ -1712,6 +1799,7 @@ This option can also be set with the URL keyword."
   :type 'string
   :safe #'stringp)
 
+;; TODO test
 (defcustom org-context-use-backaddress nil
   "Non-nil prints return address in line above to address.
 This option can also be set with the OPTIONS keyword, e.g.:
@@ -1719,6 +1807,7 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :group 'org-export-context-letter
   :type 'boolean)
 
+;; TODO test
 (defcustom org-context-use-email nil
   "Non-nil prints sender's email address.
 This option can also be set with the OPTIONS keyword, e.g.:
@@ -1726,6 +1815,7 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :group 'org-export-context-letter
   :type 'boolean)
 
+;; TODO test
 (defcustom org-context-use-foldmarks t
   "Configure appearance of folding marks.
 
@@ -1734,6 +1824,7 @@ folding marks at all."
   :group 'org-export-context-letter
   :type 'boolean)
 
+;; TODO test
 (defcustom org-context-use-from-logo nil
   "Non-nil prints sender's FROM_LOGO.
 This option can also be set with the OPTIONS keyword, e.g.:
@@ -1742,6 +1833,7 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :type 'boolean
   :safe #'booleanp)
 
+;; TODO test
 (defcustom org-context-use-phone nil
   "Non-nil prints sender's phone number.
 This option can also be set with the OPTIONS keyword, e.g.:
@@ -1749,6 +1841,7 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :group 'org-export-context-letter
   :type 'boolean)
 
+;; TODO test
 (defcustom org-context-use-place t
   "Non-nil prints the letter's place next to the date.
 This option can also be set with the OPTIONS keyword, e.g.:
@@ -1756,6 +1849,7 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :group 'org-export-context-letter
   :type 'boolean)
 
+;; TODO test
 (defcustom org-context-use-url nil
   "Non-nil prints sender's URL.
 This option can also be set with the OPTIONS keyword, e.g.:
@@ -1764,6 +1858,7 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :type 'boolean
   :safe #'booleanp)
 
+;; TODO Test
 (defcustom org-context-vim-langs-alist
   '(("c++" :vim-name "cpp" :context-name "Cpp")
     ("c#" :vim-name "cs" :context-name "CSharp")
