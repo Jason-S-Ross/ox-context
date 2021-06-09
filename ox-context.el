@@ -70,7 +70,7 @@
 ;;   - ~KEYWORDS~ :: Sets the `metadata:keywords' ConTeXt document metadata value.
 ;;   - ~LANGUAGE~ :: Sets the `metadata:language' ConTeXt document metatdata value. Adds
 ;;     `\language[%s]' to the preamble.
-;;   - ~LOCATION~ :: Sets the `letter:keywords' ConTeXt document metadata value.
+;;   - ~LOCATION~ :: Sets the `letter:location' ConTeXt document metadata value.
 ;;     See `org-context-location'. Added for compatibility with `ox-koma-letter'.
 ;;   - ~OPENING~ :: Sets the `letter:opening' ConTeXt document metadata value.
 ;;     See `org-context-opening'. Added for compatibility with `ox-koma-letter'.
