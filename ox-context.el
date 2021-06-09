@@ -2815,7 +2815,11 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
           ("references" "\\placelistofpublications[criterium=all]")
           ("definitions" "\\placeindex")
           ((pred (lambda (x) (assoc x org-context-texinfo-indices-alist)))
-           (format "\\placeregister[%s]" (plist-get (cdr (assoc value org-context-texinfo-indices-alist)) :command)))
+           (format "\\placeregister[%s]"
+                   (plist-get
+                    (cdr
+                     (assoc value org-context-texinfo-indices-alist))
+                    :command)))
           ((pred (string-match-p "\\<headlines\\>"))
            (let* ((localp (string-match-p "\\<local\\>" value))
                   (parent (org-element-lineage keyword '(headline)))
@@ -3360,7 +3364,7 @@ ORIGINAL is the original unfiltered text."
         (matched-string
          (replace-regexp-in-string
          "['\"]"
-         (lambda (match)
+         (lambda (_match)
            (let ((last-quote (pop quote-status)))
              ;; Because we're using ConTeXt quotation macros, we are sensitive to
              ;; mismatched opening/closing delimiters.
