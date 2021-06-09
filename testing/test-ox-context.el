@@ -832,7 +832,9 @@
     (concat
      (regexp-quote "\\startplacetable")
      "[\s\n]*"
-     (regexp-quote "[bar]"))
+     (regexp-quote "[bar]")
+     "[\s\n]*"
+     (regexp-quote "\\startxtable"))
     (org-test-with-temp-text "#+TABLE_FLOAT: bar
 
 | foo |"
@@ -843,7 +845,9 @@
     (concat
      (regexp-quote "\\startplacetable")
      "[\s\n]*"
-     (regexp-quote "[bar]"))
+     (regexp-quote "[bar]")
+     "[\s\n]*"
+     (regexp-quote "\\startxtable"))
     (org-test-with-temp-text "#+ATTR_CONTEXT: :float-style bar
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
@@ -853,7 +857,9 @@
    (concat
      (regexp-quote "\\startplacetable")
      "[\s\n]*"
-     (regexp-quote "[baz]"))
+     (regexp-quote "[baz]")
+     "[\s\n]*"
+     (regexp-quote "\\startxtable"))
     (org-test-with-temp-text "#+TABLE_FLOAT: bar
 #+ATTR_CONTEXT: :float-style baz
 | foo |"

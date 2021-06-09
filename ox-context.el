@@ -3686,8 +3686,12 @@ a communication channel."
                   ;; is selected
                   (and (> last-row-group-num 2)
                        (or (plist-member attr :f)
+                           (string= "repeat"
+                                    (org-export-data
+                                     (plist-get attr :footer)
+                                     info))
                            (org-string-nw-p
-                            (plist-get info :context-table-use-footer)))))
+                            (org-export-data (plist-get info :context-table-footer) info)))))
                  (last-row-group-p (and row-group-num (= row-group-num last-row-group-num))))
             (and last-row-group-p table-has-footer-p)))
          (header-style (or (plist-get attr :h)
@@ -3854,11 +3858,11 @@ This function assumes TABLE has `org' as its `:type' property and
                   cells)))
     (concat
      (format
-      "\\startplacetable%s%s
+      "\\startplacetable%s
 \\startxtable%s%s
 %s"
-      (if (org-string-nw-p float-style) (format "\n[%s]" float-style) "")
-      (if (org-string-nw-p float-args) (format "\n[%s]" float-args) "")
+      (if (org-string-nw-p float-style) (format "\n[%s]" float-style)
+        (if (org-string-nw-p float-args) (format "\n[%s]" float-args) ""))
       (if (org-string-nw-p table-style) (format "\n[%s]" table-style) "")
       (if (org-string-nw-p table-args) (format "\n[%s]" table-args) "")
       contents)
