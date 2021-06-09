@@ -378,7 +378,20 @@
                   (:context-table-topleft-style nil nil org-context-table-topleft-style)
                   (:context-table-topright-style nil nil org-context-table-topright-style)
                   (:context-table-toprow-style nil nil org-context-table-toprow-style)
-                  (:context-table-use-footer nil "tablefoot" org-context-table-use-footer)
+                  ;; TODO document
+                  (:context-table-location "TABLE_LOCATION" nil org-context-table-location parse)
+                  ;; TODO document
+                  (:context-table-header "TABLE_HEAD" nil org-context-table-head parse)
+                  ;; TODO document
+                  (:context-table-footer "TABLE_FOOT" nil org-context-table-foot parse)
+                  ;; TODO document
+                  (:context-table-option "TABLE_OPTION" nil org-context-table-option parse)
+                  ;; TODO document
+                  (:context-table-style "TABLE_STYLE" nil org-context-table-style parse)
+                  ;; TODO document
+                  (:context-table-float-style "TABLE_FLOAT" nil org-context-table-float-style parse)
+                  ;; TODO document
+                  (:context-table-split "TABLE_SPLIT" nil org-context-table-split parse)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
                   (:context-verse-environment nil nil org-context-verse-environment)
                   (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
@@ -1690,6 +1703,41 @@ available for use in presets. See also `:context-presets'"
     underline
     verbatim
     verb))
+
+(defcustom org-context-table-location "force,here"
+  "Default placement for table floats."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-head "repeat"
+  "If \"repeat\", repeat table headers across pages."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-foot ""
+  "If \"repeat\", repeat table footers across pages."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-option ""
+  "Options to pass to the \"option\" keyword for \"\\startxtable\"."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-style ""
+  "A style string name to pass to \"\\startxtable\"."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-float-style ""
+  "A style string name to pass to \"\\startplacetable\"."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-split "yes"
+  "If \"split\", tables default to split across pages."
+  :group 'org-export-context
+  :type 'string)
 
 (defcustom org-context-url ""
   "Sender's URL, e. g., the URL of her homepage.
@@ -3766,24 +3814,21 @@ This function assumes TABLE has `org' as its `:type' property and
   (let* ((attr (org-export-read-attribute :attr_context table))
          (caption (org-context--caption/label-string table info))
          (label (org-context--label table info t))
-         (location (or (plist-get attr :location) "force,here"))
+         (location (or (plist-get attr :location)
+                       (org-export-data (plist-get info :context-table-location) info)))
          (header (or (plist-get attr :header)
-                     ;; TODO add `:org-context-header' option
-                     (plist-get info :org-context-header)))
+                     (org-export-data (plist-get info :context-table-header) info)))
          (footer (or (plist-get attr :footer)
-                     ;; TODO add `:org-context-footer' option
-                     (plist-get info :org-context-footer)))
+                     (org-export-data (plist-get info :context-table-footer) info)))
          (option (or (plist-get attr :option)
-                     ;; TODO add `:org-context-table-option' option
-                     (plist-get info :org-context-table-option)))
+                     (org-export-data (plist-get info :context-table-option) info)))
          (table-style (or (plist-get attr :table-style)
-                    ;; TODO add `org-context-table-style'
-                    (plist-get info :org-context-table-style)))
+                    (org-export-data (plist-get info :context-table-style) info)))
          (float-style (or (plist-get attr :float-style)
-                          ;; TODO add `org-context-table-float-style'
-                          (plist-get info :org-context-table-float-style)))
-         (split (plist-get attr :split))
-         (location-string (concat (when split "split,") location))
+                          (org-export-data (plist-get info :context-table-float-style) info)))
+         (split (or (plist-get attr :split)
+                    (org-export-data (plist-get info :context-table-split) info)))
+         (location-string (concat (when (string= split "yes") "split,") location))
          (float-args (org-context--format-arguments
                       (list
                        (cons "location" location-string)
@@ -3791,9 +3836,9 @@ This function assumes TABLE has `org' as its `:type' property and
                        (cons "reference" label))))
          (table-args (org-context--format-arguments
                       (list
-                       (cons "split" (when split "yes"))
-                       (cons "header" (when (string= header "repeat") "repeat"))
-                       (cons "footer" (when (string= footer "repeat") "repeat"))
+                       (cons "split" split)
+                       (cons "header" header)
+                       (cons "footer" footer)
                        (cons "option" option))))
          (first-row (org-element-map table 'table-row
                       (lambda (row)
