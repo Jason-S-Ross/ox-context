@@ -88,6 +88,29 @@
 ;;     Added for compatibility with `ox-koma-letter'.
 ;;   - ~URL~ :: Sets the `metadata:url' ConTeXt document metadata value.
 ;;     See `org-context-url'.
+;;   - ~TABLE_LOCATION~ :: Specifies ~location~ key for the float wrapping the table.
+;;     See `org-context-table-location'.
+;;   - ~TABLE_HEAD~ :: Specifies the ~header~ key for the ~\startxtable~ command.
+;;     ~repeat~ is supported; see ConTeXt documentation for other values
+;;     (none known as of this writing).
+;;     See `org-context-table-head'.
+;;   - ~TABLE_FOOT~ :: Specifies the ~footer~ key for the ~\startxtable~ command.
+;;     ~repeat~ is supported; see ConTeXt documentation for other values
+;;     (none known as of this writing).
+;;     See `org-context-table-foot'.
+;;   - ~TABLE_OPTION~ :: Specifies the ~option~ key for the ~\startxtable~ command.
+;;     As of this writing, the values ~stretch~, ~width~, and ~tight~ are supported.
+;;     See `org-context-table-option'.
+;;   - ~TABLE_SPLIT~ :: If "yes", tables are split across pages.
+;;     See `org-context-table-split'.
+;;   - ~TABLE_STYLE~ :: Specifies a named ConTeXt table style to pass to the
+;;     ~\startxtable~ command, defined with the ~\setupxtable~ command.
+;;     See `org-context-table-style'.
+;;   - ~TABLE_FLOAT~ :: Specifies a list of arguments to pass to the
+;;     ~startplacetable~ command, overriding any arguments determined
+;;     automatically by other options.
+;;     See `org-context-table-float'.
+;;
 ;;
 ;; * Options
 ;;   The following additional items are handled from the OPTIONS keyword:
@@ -172,21 +195,13 @@
 ;; ** Tables
 ;; *** Global Options
 ;;     Tables support configuration for the following keys:
-;;     - `:location' :: Specifies ~location~ key for the float wrapping the table.
-;;     - `:header' :: Specifies the ~header~ key for the ~\startxtable~ command.
-;;       ~repeat~ is supported; see ConTeXt documentation for other values
-;;       (none known as of this writing).
-;;     - `:footer' :: Specifies the ~footer~ key for the ~\startxtable~ command.
-;;       ~repeat~ is supported; see ConTeXt documentation for other values
-;;       (none known as of this writing).
-;;     - `:option' :: Specifies the ~option~ key for the ~\startxtable~ command.
-;;       As of this writing, the values ~stretch~, ~width~, and ~tight~ are supported.
-;;     - `:split' :: If "yes", tables are split across pages.
-;;     - `:f' :: Specifies if the table has a footer. Footers can be repeated
-;;       across pages. See also `org-context-table-use-footer'. Footers are
-;;       identified as the last row group if there are more than two row groups.
-;;     - `:h' :: Specifies if the table has a header. Headers can be repeated
-;;       across pages. See also `org-context-table-use-header'.
+;;     - `:location' :: Overrides the ~TABLE_LOCATION~ keyword for this table.
+;;     - `:header' :: Overrides the ~TABLE_HEAD~ keyword for this table.
+;;     - `:footer' :: Overrides the ~TABLE_FOOT~ keyword for this table.
+;;     - `:option' :: Overrides the ~TABLE_OPTION~ keyword for this table.
+;;     - `:split' :: Overrides the ~TABLE_SPLIT~ keyword for this table.
+;;     - `:table-style' :: Overrides the ~TABLE_STYLE~ keyword for this table.
+;;     - `:float-style' :: Overrides the ~TABLE_FLOAT~ keyword for this table.
 ;;
 ;;
 ;; *** Content Options
