@@ -332,166 +332,18 @@
                                        org-context-texinfo-tree-filter)
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
  :options-alist '(
-                  ;; TODO test
                   (:attention "ATTENTION" nil nil newline)
-                  ;; TODO test
                   (:closing "CLOSING" nil org-context-closing parse)
-                  ;; TODO make this a constant
-                  (:context-block-source-environment nil nil org-context-block-source-environment)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-blockquote-environment nil nil org-context-blockquote-environment)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-bullet-off-command nil nil org-context-bullet-off-command)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-bullet-on-command nil nil org-context-bullet-on-command)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-bullet-trans-command nil nil org-context-bullet-trans-command)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-clock-command nil nil org-context-clock-command)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-description-command nil nil org-context-description-command)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-drawer-command nil nil org-context-drawer-command)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-enumerate-blockquote-empty-environment nil nil org-context-enumerate-blockquote-empty-environment)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-enumerate-blockquote-environment nil nil org-context-enumerate-blockquote-environment)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-enumerate-example-empty-environment nil nil org-context-enumerate-example-empty-environment)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-enumerate-example-environment nil nil org-context-enumerate-example-environment)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-enumerate-listing-empty-environment nil nil org-context-enumerate-listing-empty-environment)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-enumerate-listing-environment nil nil org-context-enumerate-listing-environment)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-enumerate-verse-empty-environment nil nil org-context-enumerate-verse-empty-environment)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-enumerate-verse-environment nil nil org-context-enumerate-verse-environment)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-example-environment nil nil org-context-example-environment)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-export-quotes-alist nil nil org-context-export-quotes-alist)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-fixed-environment nil nil org-context-fixed-environment)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-float-default-placement nil nil org-context-float-default-placement)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-format-clock-function nil nil org-context-format-clock-function)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-format-drawer-function nil nil org-context-format-drawer-function)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-format-headline-function nil nil org-context-format-headline-function)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-format-inlinetask-function nil nil org-context-format-inlinetask-function)
-                  ;; TODO test
-                  ;; TODO make this a constant
-                  (:context-format-timestamp-function nil nil org-context-format-timestamp-function)
-                  ;; TODO test
                   (:context-header "CONTEXT_HEADER" nil nil newline)
-                  ;; TODO test
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
-                  ;; TODO test
-                  (:context-headline-command nil nil org-context-headline-command)
-                  ;; TODO test
-                  (:context-highlighted-langs nil nil org-context-highlighted-langs)
-                  ;; TODO test
-                  (:context-image-default-height nil nil org-context-image-default-height)
-                  ;; TODO test
-                  (:context-image-default-option nil nil org-context-image-default-option)
-                  ;; TODO test
-                  (:context-image-default-width nil nil org-context-image-default-width)
-                  ;; TODO test
-                  (:context-inline-image-rules nil nil org-context-inline-image-rules)
-                  ;; TODO test
-                  (:context-inline-source-environment nil nil org-context-inline-source-environment)
-                  ;; TODO test
-                  (:context-inlinetask-command nil nil org-context-inlinetask-command)
-                  ;; TODO test
-                  (:context-inner-templates nil nil org-context-inner-templates-alist)
-                  ;; TODO test
-                  (:context-node-property-command nil nil org-context-node-property-command)
                   ;; TODO test
                   (:context-number-equations nil "numeq" org-context-number-equations)
                   ;; TODO test
-                  (:context-planning-command nil nil org-context-planning-command)
-                  ;; TODO test
                   (:context-preset "CONTEXT_PRESET" nil org-context-default-preset t)
-                  ;; TODO test
-                  (:context-presets nil nil org-context-presets-alist)
-                  ;; TODO test
-                  (:context-property-drawer-environment nil nil org-context-property-drawer-environment)
                   ;; TODO test
                   (:context-snippet "CONTEXT_SNIPPET" nil nil split)
                   ;; TODO test
-                  (:context-snippets nil nil org-context-snippets-alist)
-                  ;; TODO test
                   (:context-syntax-engine nil "syntax" org-context-syntax-engine)
-                  ;; TODO remove from plist
-                  (:context-table-body-style nil nil org-context-table-body-style)
-                  ;; TODO remove from plist
-                  (:context-table-bottomleft-style nil nil org-context-table-bottomleft-style)
-                  ;; TODO remove from plist
-                  (:context-table-bottomright-style nil nil org-context-table-bottomright-style)
-                  ;; TODO remove from plist
-                  (:context-table-bottomrow-style nil nil org-context-table-bottomrow-style)
-                  ;; TODO remove from plist
-                  (:context-table-colgroup-end-style nil nil org-context-table-colgroup-end-style)
-                  ;; TODO remove from plist
-                  (:context-table-colgroup-start-style nil nil org-context-table-colgroup-start-style)
-                  ;; TODO remove from plist
-                  (:context-table-footer-bottom-style nil nil org-context-table-footer-bottom-style)
-                  ;; TODO remove from plist
-                  (:context-table-footer-mid-style nil nil org-context-table-footer-mid-style)
-                  ;; TODO remove from plist
-                  (:context-table-footer-style nil nil org-context-table-footer-style)
-                  ;; TODO remove from plist
-                  (:context-table-footer-top-style nil nil org-context-table-footer-top-style)
-                  ;; TODO remove from plist
-                  (:context-table-header-bottom-style nil nil org-context-table-header-bottom-style)
-                  ;; TODO remove from plist
-                  (:context-table-header-mid-style nil nil org-context-table-header-mid-style)
-                  ;; TODO remove from plist
-                  (:context-table-header-style nil nil org-context-table-header-style)
-                  ;; TODO remove from plist
-                  (:context-table-header-top-style nil nil org-context-table-header-top-style)
-                  ;; TODO remove from plist
-                  (:context-table-leftcol-style nil nil org-context-table-leftcol-style)
-                  ;; TODO remove from plist
-                  (:context-table-rightcol-style nil nil org-context-table-rightcol-style)
-                  ;; TODO remove from plist
-                  (:context-table-rowgroup-end-style nil nil org-context-table-rowgroup-end-style)
-                  ;; TODO remove from plist
-                  (:context-table-rowgroup-start-style nil nil org-context-table-rowgroup-start-style)
-                  ;; TODO remove from plist
-                  (:context-table-topleft-style nil nil org-context-table-topleft-style)
-                  ;; TODO remove from plist
-                  (:context-table-topright-style nil nil org-context-table-topright-style)
-                  ;; TODO remove from plist
-                  (:context-table-toprow-style nil nil org-context-table-toprow-style)
                   (:context-table-location "TABLE_LOCATION" nil org-context-table-location parse)
                   (:context-table-header "TABLE_HEAD" nil org-context-table-head parse)
                   (:context-table-footer "TABLE_FOOT" nil org-context-table-foot parse)
@@ -499,13 +351,6 @@
                   (:context-table-style "TABLE_STYLE" nil org-context-table-style parse)
                   (:context-table-float-style "TABLE_FLOAT" nil org-context-table-float-style parse)
                   (:context-table-split "TABLE_SPLIT" nil org-context-table-split parse)
-                  ;; TODO remove from plist
-                  (:context-text-markup-alist nil nil org-context-text-markup-alist)
-                  ;; TODO remove from plist
-                  (:context-verse-environment nil nil org-context-verse-environment)
-                  ;; TODO remove from plist
-                  (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
-                  ;; TODO test
                   (:date "DATE" nil "\\currentdate" parse)
                   ;; TODO test
                   (:description "DESCRIPTION" nil nil parse)
@@ -1997,18 +1842,18 @@ For non-floats, see `org-context--add-reference'."
   (let* ((main (org-export-get-caption element)))
     (org-export-data main info)))
 
+;; TODO test caption naming
 (defun org-context--enumerated-block
-    (ent contents info env-kw wrap-kw wrap-empty-kw &optional inner-args)
+    (ent contents info env wrap wrap-empty &optional inner-args)
   "Helper function to wrap blocks in the correct environent.
 ENT is the entity to wrap. CONTENTS is the block contents. INFO
-is a plist holding contextual information. ENV-KW is the keyword
-identifying the environment to place the contents into (see
-`options-alist'). WRAP-KW is the keyword identifying the wrapper
-environment to enumerate the contents in (see `options-alist').
-WRAP-EMPTY-KW is the keyword identifying the wrapper environment
-to use if no caption is specified (used to keep numbering
-synchronized; see `options-alist'). INNER-ARGS is an alist of
-arguments to add to the inner environment."
+is a plist holding contextual information. ENV is the name of the
+environment to place the contents into (see `options-alist').
+WRAP is the nam of the wrapper environment to enumerate the
+contents in (see `options-alist'). WRAP-EMPTY is the name of the
+wrapper environment to use if no caption is specified (used to
+keep numbering synchronized; see `options-alist'). INNER-ARGS is
+an alist of arguments to add to the inner environment."
   ;; TODO Don't wrap in an enumerate if caption is nil (?)
   ;; This is related to https://orgmode.org/list/55ec0cbb-eebf-0d49-b182-372407c8c84c@gmail.com/T/#u
   (let* ((caption
@@ -2019,12 +1864,10 @@ arguments to add to the inner environment."
             info)))
          (enumerate-environment
           (org-string-nw-p
-           (car
-            (plist-get info (if (org-string-nw-p caption) wrap-kw wrap-empty-kw)))))
+           (if (org-string-nw-p caption) wrap wrap-empty)))
          (environment
           (org-string-nw-p
-           (car
-            (plist-get info env-kw))))
+           env))
          (label (org-context--label ent info t))
          (args (org-context--format-arguments
                 (list
@@ -2117,8 +1960,7 @@ typing environments can be defined in the template."
                      (let ((lang-info
                             (or
                              (cdr
-                              (assoc org-lang
-                                     (plist-get info :context-vim-langs-alist)))
+                              (assoc org-lang org-context-vim-langs-alist))
                              (list
                               :vim-name (downcase org-lang)
                               :context-name (capitalize org-lang)))))
@@ -2129,16 +1971,14 @@ typing environments can be defined in the template."
                         (concat
                          (or
                           (org-string-nw-p
-                           (car
-                            (plist-get info :context-inline-source-environment)))
+                           (car org-context-inline-source-environment))
                           "")
                          (plist-get lang-info :context-name))
                         :context-block-name
                         (concat
                          (or
                           (org-string-nw-p
-                           (car
-                            (plist-get info :context-block-source-environment)))
+                           (car org-context-block-source-environment))
                           "")
                          (plist-get lang-info :context-name))))
                      lang-cache))))))
@@ -2150,8 +1990,7 @@ containing contextual information."
   (let* ((org-lang (org-element-property :language src-block)))
     (and
      org-lang
-     (or (cadr (assoc org-lang
-                      (plist-get info :context-highlighted-langs)))
+     (or (cadr (assoc org-lang org-context-highlighted-langs))
          (downcase org-lang)))))
 
 (defun org-context--label (datum info &optional force full)
@@ -2259,7 +2098,7 @@ the coderef."
 INFO is a plist used as a communication channel. See
 `org-context-text-markup-alist' for details"
   ;; TODO Handle special cases like the LaTeX backend
-  (let ((fmt (cdr (assq markup (plist-get info :context-text-markup-alist)))))
+  (let ((fmt (cdr (assq markup org-context-text-markup-alist))))
     (cl-case fmt
       ;; No format string: Return raw text.
       ((nil) text)
@@ -2268,17 +2107,16 @@ INFO is a plist used as a communication channel. See
       (protectedtexttt (org-context--protect-texttt text))
       (t (format fmt text)))))
 
-(defun org-context--wrap-env (ent contents info env-key &optional default)
+(defun org-context--wrap-env (ent contents info env &optional default)
   "Wraps content in an environment with a label.
 ENT is the entity to wrap in an environment.
 CONTENTS is the contents of the entity to wrap.
 INFO is a plist containing contextual information.
-ENV-KEY is a keyword from `:options-alist'.
+ENV is the name of an environment.
 DEFAULT is the default environment if the environment
 in ENV-KEY is not implemented.
 Environment is looked up from the info plist."
-  (let* ((prog-env-name (car (plist-get info env-key)))
-         (env-name (or (org-string-nw-p prog-env-name) default)))
+  (let ((env-name (or (org-string-nw-p env) default)))
     (org-context--add-reference
      ent
      (if env-name
@@ -2375,7 +2213,7 @@ contextual information."
            (cons "S" (format-time-string "%S" time))))
          (formatter
           (org-string-nw-p
-           (car (plist-get info :context-clock-command)))))
+           (car org-context-clock-command))))
     (if formatter
         (format "\\%s[%s]" formatter (org-context--format-arguments args))
       (format-time-string "%FT%T%z" time))))
@@ -2385,7 +2223,7 @@ contextual information."
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
   (let ((timestamp (org-element-property :value clock))
-        (formatter (plist-get info :context-format-clock-function)))
+        (formatter org-context-format-clock-function))
     (funcall formatter timestamp info)))
 
 ;;;; Code
@@ -2402,7 +2240,7 @@ INFO is a plist containing contextual information."
 CONTENTS holds the contents of the block.  INFO is a plist
 holding contextual information."
   (let* ((name (org-element-property :drawer-name drawer))
-         (output (funcall (plist-get info :context-format-drawer-function)
+         (output (funcall org-context-format-drawer-function
                           name contents info)))
     (org-context--add-reference drawer output info)))
 
@@ -2412,7 +2250,7 @@ NAME is the name of the drawer. CONTENTS is the contents of the drawer.
 INFO is a plist containing contextual information."
   (let ((formatter
          (org-string-nw-p
-          (car (plist-get info :context-drawer-command)))))
+          (car org-context-drawer-command))))
     (if formatter
         (format "\\%s{%s}{%s}" formatter name contents)
       (format "%s\\hairline %s" name contents))))
@@ -2454,9 +2292,9 @@ CONTENTS is nil. INFO is a plist holding contextual information."
        example-block
        (org-context--preprocess-source-block example-block info)
        info
-       :context-example-environment
-       :context-enumerate-example-environment
-       :context-enumerate-example-empty-environment
+       (car org-context-example-environment)
+       (car org-context-enumerate-example-environment)
+       (car org-context-enumerate-example-empty-environment)
        args))))
 
 ;;;; Export Block
@@ -2489,7 +2327,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
    fixed-width
    (org-remove-indentation (org-element-property :value fixed-width))
    info
-   :context-fixed-environment
+   (car org-context-fixed-environment)
    "typing"))
 
 ;;;; Footnote Reference
@@ -2573,7 +2411,7 @@ containing contextual information."
            (priority (and (plist-get info :with-priority)
                           priority-num
                           (string priority-num)))
-           (full-text (funcall (plist-get info :context-format-headline-function)
+           (full-text (funcall org-context-format-headline-function
                                todo todo-type priority text tags info))
            (notoc (org-export-excluded-from-toc-p headline info))
            (headline-name
@@ -2664,7 +2502,7 @@ TEXT is the text of the headline.
 TAGS is a list of tags associated with the headline.
 INFO is a plist containing contextual information.
 See `org-context-format-headline-function' for details."
-  (let ((formatter (org-string-nw-p (car (plist-get info :context-headline-command)))))
+  (let ((formatter (org-string-nw-p (car org-context-headline-command))))
     (if formatter
         (format
          "\\%s
@@ -2743,7 +2581,7 @@ INFO is a plist holding contextual information."
            (env-name
             (or
              (org-string-nw-p
-              (car (plist-get info :context-inline-source-environment)))
+              (car org-context-inline-source-environment))
              "type")))
       (format "\\%s%s{%s}"
               env-name
@@ -2781,7 +2619,7 @@ holding contextual information."
                         priority-num
                         (make-string 1 priority-num)))
          (label (org-context--label inlinetask info))
-         (format-func (plist-get info :context-format-inlinetask-function)))
+         (format-func org-context-format-inlinetask-function))
     (funcall format-func
              todo todo-type priority title tags contents info)))
 
@@ -2800,7 +2638,7 @@ See `org-context-format-inlinetask-function' for details."
   ;; TODO Strip surrounding colons from tags...
   ;; Or decide not to. LaTeX leaves the colons; html strips them
   (let ((format-command
-         (org-string-nw-p (car (plist-get info :context-inlinetask-command)))))
+         (org-string-nw-p (car org-context-inlinetask-command))))
     (if format-command
         (format
          "\\%s
@@ -2822,15 +2660,14 @@ See `org-context-format-inlinetask-function' for details."
   "Return body of document string after ConTeXt conversion.
 CONTENTS is the transcoded contents string. INFO is a plist
 containing contextual information."
-  (let* ((templates (plist-get info :context-inner-templates))
-         (template-name
+  (let* ((template-name
           (plist-get
            (cdr
             (assoc
              (plist-get info :context-preset)
-             (plist-get info :context-presets)))
+             org-context-presets-alist))
            :template))
-         (template (cdr (assoc template-name templates)))
+         (template (cdr (assoc template-name org-context-inner-templates-alist)))
          (num-sections (length (org-export-collect-headlines info)))
          (copying-sections
           (mapconcat
@@ -2882,12 +2719,12 @@ contextual information."
   (let ((tag (let ((tag (org-element-property :tag item)))
                (and tag (org-export-data tag info))))
         (checkbox (cl-case (org-element-property :checkbox item)
-                    (on (format "\\%s" (car (plist-get info :context-bullet-on-command))))
-                    (off (format "\\%s" (car (plist-get info :context-bullet-off-command))))
-                    (trans (format "\\%s" (car (plist-get info :context-bullet-trans-command)))))))
+                    (on (format "\\%s" (car org-context-bullet-on-command)))
+                    (off (format "\\%s" (car org-context-bullet-off-command)))
+                    (trans (format "\\%s" (car org-context-bullet-trans-command))))))
     (if (eq (org-element-property :type (org-export-get-parent item))
             'descriptive)
-        (let ((descrcommand (car (plist-get info :context-description-command))))
+        (let ((descrcommand (car org-context-description-command)))
           (format "\\start%s{%s}\n%s\n\\stop%s"
                   descrcommand
                   (if (org-string-nw-p checkbox)
@@ -2953,18 +2790,17 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                (format  "\\placecontent[%s]" levelstring))))
           ((or
             (and (pred (string-match-p "\\<listings\\>"))
-                 (let kw :context-enumerate-listing-empty-environment))
+                 (let def org-context-enumerate-listing-empty-environment))
             (and (pred (string-match-p "\\<verses\\>"))
-                 (let kw :context-enumerate-verse-empty-environment))
+                 (let def org-context-enumerate-verse-empty-environment))
             (and (pred (string-match-p "\\<quotes\\>"))
-                 (let kw :context-enumerate-blockquote-empty-environment))
+                 (let def org-context-enumerate-blockquote-empty-environment))
             (and (pred (string-match-p "\\<examples\\>"))
-                 (let kw :context-enumerate-example-empty-environment))
-            (let kw nil))
+                 (let def org-context-enumerate-example-empty-environment))
+            (let def nil))
            (let ((env
                   (org-string-nw-p
-                   (car
-                    (plist-get info kw)))))
+                   (car def))))
              (if env (format "\\placelist[%s][criterium=all]" env)
                ""))))))
 
@@ -3166,9 +3002,8 @@ INFO is a plist holding contextual information. See
   (let* ((type (org-element-property :type link))
          (raw-path (org-element-property :path link))
          (desc (and (not (string= desc "")) desc))
-         (imagep (org-export-inline-image-p
-                  link
-                  (plist-get info :context-inline-image-rules)))
+         (imagep
+          (org-export-inline-image-p link org-context-inline-image-rules))
          (path (org-context--protect-url
                 (pcase type
                   ((or "http" "https" "ftp" "mailto" "doi")
@@ -3240,6 +3075,7 @@ INFO is a plist holding contextual information. See
   "Return the ConTeXt code for an inline image.
 LINK is the link pointing to the inline image. INFO is a plist
 used as a communication channel."
+  ;; TODO use option keyword somehow
   (let* ((parent (org-export-get-parent-element link))
          (path (let ((raw-path (org-element-property :path link)))
                  (if (not (file-name-absolute-p raw-path)) raw-path
@@ -3260,11 +3096,11 @@ used as a communication channel."
                       ;; TODO Give this some config somehow
                       ((eq float 'multicolumn) "\\dimexpr\\makeupwidth - 1em\\relax")
                       ((eq float 'wrap) "0.48\\hsize")
-                      (t (plist-get info :context-image-default-width))))
+                      (t org-context-image-default-width)))
          (height (cond ((plist-get attr :height))
                        ((or (plist-get attr :width)
                             (memq float '(figure wrap))) "")
-                       (t (plist-get info :context-image-default-height))))
+                       (t org-context-image-default-height)))
          (placement (plist-get attr :placement))
          image-code
          options-list)
@@ -3286,7 +3122,7 @@ used as a communication channel."
         (`wrap (progn
                  (add-to-list
                   'location-options
-                  (or placement (plist-get info :context-float-default-placement)))
+                  (or placement org-context-float-default-placement))
                  (or placement (add-to-list 'location-options "here"))))
         (`sideways (progn (add-to-list 'location-options "90")
                           (add-to-list 'location-options "page")))
@@ -3321,8 +3157,7 @@ channel."
 CONTENTS is nil. INFO is a plist holding contextual information."
   (let ((command
          (org-string-nw-p
-          (car
-           (plist-get info :context-node-property-command))))
+          (car org-context-node-property-command)))
         (key (org-element-property :key node-property))
         (value (org-element-property :value node-property)))
     (if command
@@ -3415,9 +3250,9 @@ information."
   (let ((closed (org-element-property :closed planning))
         (deadline (org-element-property :deadline planning))
         (scheduled (org-element-property :scheduled planning))
-        (formatter (plist-get info :context-format-timestamp-function))
+        (formatter org-context-format-timestamp-function)
         (command-name (org-string-nw-p
-                       (car (plist-get info :context-planning-command)))))
+                       (car org-context-planning-command))))
     (if command-name
         (concat (format "\\%s[" command-name)
                 (when closed
@@ -3449,7 +3284,7 @@ holding contextual information."
      property-drawer
      contents
      info
-     :context-property-drawer-environment)))
+     (car org-context-property-drawer-environment))))
 
 ;;;; Quote Block
 
@@ -3460,9 +3295,9 @@ contextual information."
   (when (org-string-nw-p contents)
     (org-context--enumerated-block
      quote-block contents info
-     :context-blockquote-environment
-     :context-enumerate-blockquote-environment
-     :context-enumerate-blockquote-empty-environment)))
+     (car org-context-blockquote-environment)
+     (car org-context-enumerate-blockquote-environment)
+     (car org-context-enumerate-blockquote-empty-environment))))
 
 (defun org-context--format-quote (text info original)
   "Wraps quoted text in `\\quote{}' constructs.
@@ -3472,7 +3307,7 @@ INFO is a plist containing contextual information.
 ORIGINAL is the original unfiltered text."
   (let* ((quote-status
           (copy-sequence (org-export--smart-quote-status (or original text) info)))
-        (quote-defs (plist-get info :context-export-quotes-alist))
+        (quote-defs org-context-export-quotes-alist)
         closing-stack
         ;; Try matching everything
         (matched-string
@@ -3564,10 +3399,9 @@ contextual information."
                   info)))
          (environment
           (car
-           (plist-get info
-                      (if caption
-                          :context-enumerate-listing-environment
-                        :context-enumerate-listing-empty-environment))))
+           (if caption
+               org-context-enumerate-listing-environment
+             org-context-enumerate-listing-empty-environment)))
          (label (org-context--label src-block info t))
          (code (org-context--preprocess-source-block src-block info)))
     (let ((engine (plist-get info :context-syntax-engine))
@@ -3633,7 +3467,7 @@ contextual information."
          (env-name
           (or
            (org-string-nw-p
-            (car (plist-get info :context-block-source-environment)))
+            (car org-context-block-source-environment))
            "typing"))
          (num-start (org-export-get-loc src-block info))
          (num-start-str
@@ -3728,28 +3562,28 @@ a communication channel."
          (ends-colgroup-p (org-export-table-cell-ends-colgroup-p table-cell info))
          (first-col-style (or (plist-get attr :w)
                              (org-string-nw-p
-                              (plist-get info :context-table-leftcol-style))))
+                              org-context-table-leftcol-style)))
          (last-col-style (or (plist-get attr :e)
                             (org-string-nw-p
-                             (plist-get info :context-table-rightcol-style))))
+                             org-context-table-rightcol-style)))
          (top-left-style (or (plist-get attr :nw)
                             (org-string-nw-p
-                             (plist-get info :context-table-topleft-style))))
+                             org-context-table-topleft-style)))
          (top-right-style (or (plist-get attr :ne)
                              (org-string-nw-p
-                              (plist-get info :context-table-topright-style))))
+                              org-context-table-topright-style)))
          (bottom-left-style (or (plist-get attr :sw)
                                (org-string-nw-p
-                                (plist-get info :context-table-bottomleft-style))))
+                                org-context-table-bottomleft-style)))
          (bottom-right-style (or (plist-get attr :se)
                                 (org-string-nw-p
-                                 (plist-get info :context-table-bottomright-style))))
+                                 org-context-table-bottomright-style)))
          (starts-colgroup-style (or (plist-get attr :cgs)
                                     (org-string-nw-p
-                                     (plist-get info :context-table-colgroup-start-style))))
+                                     org-context-table-colgroup-start-style)))
          (ends-colgroup-style (or (plist-get attr :cge)
                                     (org-string-nw-p
-                                     (plist-get info :context-table-colgroup-end-style))))
+                                     org-context-table-colgroup-end-style)))
          (suffix
           (cond ((and first-row-p first-col-p top-left-style) (format "[%s]" top-left-style))
                 ((and first-row-p last-col-p top-right-style) (format "[%s]" top-right-style))
@@ -3805,51 +3639,51 @@ a communication channel."
             (and last-row-group-p table-has-footer-p)))
          (header-style (or (plist-get attr :h)
                            (org-string-nw-p
-                            (plist-get info :context-table-header-style))))
+                            org-context-table-header-style)))
          (footer-style (or (plist-get attr :f)
                            (org-string-nw-p
-                            (plist-get info :context-table-footer-style))))
+                            org-context-table-footer-style)))
          (body-style (or (plist-get attr :b)
                            (org-string-nw-p
-                            (plist-get info :context-table-body-style))))
+                            org-context-table-body-style)))
          (header-mid-row-style
           (or (plist-get attr :hm)
-              (org-string-nw-p (plist-get info :context-table-header-mid-style))))
+              (org-string-nw-p org-context-table-header-mid-style)))
          (footer-mid-row-style
           (or (plist-get attr :fm)
-              (org-string-nw-p (plist-get info :context-table-footer-mid-style))))
+              (org-string-nw-p org-context-table-footer-mid-style)))
          (header-top-row-style
           (or (plist-get attr :ht)
-              (org-string-nw-p (plist-get info :context-table-header-top-style))))
+              (org-string-nw-p org-context-table-header-top-style)))
          (footer-top-row-style
           (or (plist-get attr :ft)
-              (org-string-nw-p (plist-get info :context-table-footer-top-style))))
+              (org-string-nw-p org-context-table-footer-top-style)))
          (header-bottom-row-style
           (or (plist-get attr :hb)
-              (org-string-nw-p (plist-get info :context-table-header-bottom-style))))
+              (org-string-nw-p org-context-table-header-bottom-style)))
          (footer-bottom-row-style
           (or (plist-get attr :hb)
-              (org-string-nw-p (plist-get info :context-table-footer-bottom-style))))
+              (org-string-nw-p org-context-table-footer-bottom-style)))
 
          (row-group-start-style
           (or (plist-get attr :rgs)
               (org-string-nw-p
-               (plist-get info :context-table-rowgroup-start-style))))
+               org-context-table-rowgroup-start-style)))
          (row-group-end-style
           (or (plist-get attr :rge)
               (org-string-nw-p
-               (plist-get info :context-table-rowgroup-end-style))))
+               org-context-table-rowgroup-end-style)))
          (first-row-style
           (or
            (or (plist-get attr :n)
                (org-string-nw-p
-                (plist-get info :context-table-toprow-style)))
+                org-context-table-toprow-style))
            row-group-start-style))
          (last-row-style
           (or
            (or (plist-get attr :s)
                (org-string-nw-p
-                (plist-get info :context-table-bottomrow-style)))
+                org-context-table-bottomrow-style))
            row-group-end-style))
          (first-row-p (= row-num 0))
          (last-row-p (= row-num (- (car dimensions) 1)))
@@ -4014,7 +3848,7 @@ holding the export options."
          (metadata (org-context--list-metadata info))
          (header-extra-lines (list (plist-get info :context-header-extra)))
          (preset-name (plist-get info :context-preset))
-         (preset-data (cdr (assoc preset-name (plist-get info :context-presets))))
+         (preset-data (cdr (assoc preset-name org-context-presets-alist)))
          (preset-header-string (plist-get preset-data :literal))
          (preset-header-snippets
           (org-context--get-snippet-text info (plist-get preset-data :snippets)))
@@ -4023,85 +3857,84 @@ holding the export options."
           (let ((deflist
                   (list
                    (list
-                    :context-blockquote-environment
+                    org-context-blockquote-environment
                     "% blockquote environment")
                    (list
-                    :context-block-source-environment
+                    org-context-block-source-environment
                     "% Create the block source environment")
                    (list
-                    :context-bullet-on-command
+                    org-context-bullet-on-command
                     "% Define on bullet command")
                    (list
-                    :context-bullet-off-command
+                    org-context-bullet-off-command
                     "% Define off bullet command")
                    (list
-                    :context-bullet-trans-command
+                    org-context-bullet-trans-command
                     "% Define incomplete bullet command")
                    (list
-                    :context-description-command
+                    org-context-description-command
                     "% LaTeX-style descriptive enumerations")
                    (list
-                    :context-enumerate-blockquote-empty-environment
+                    org-context-enumerate-blockquote-empty-environment
                     "% Unlabelled blockquote enumeration environment")
                    (list
-                    :context-enumerate-blockquote-environment
+                    org-context-enumerate-blockquote-environment
                     "% blockquote enumeration environment")
                    (list
-                    :context-enumerate-example-empty-environment
+                    org-context-enumerate-example-empty-environment
                     "% Create the unlabelled example enumeration environment")
                    (list
-                    :context-enumerate-example-environment
+                    org-context-enumerate-example-environment
                     "% Create the example enumeration environment")
                    (list
-                    :context-enumerate-listing-empty-environment
+                    org-context-enumerate-listing-empty-environment
                     "% Create the unlabelled listings enumeration environment")
                    (list
-                    :context-enumerate-listing-environment
+                    org-context-enumerate-listing-environment
                     "% Create the listings enumeration environment")
                    (list
-                    :context-enumerate-verse-empty-environment
+                    org-context-enumerate-verse-empty-environment
                     "% Create the unlabelled verse enumeration environment")
                    (list
-                    :context-enumerate-verse-environment
+                    org-context-enumerate-verse-environment
                     "% Create a verse enumeration environment")
                    (list
-                    :context-example-environment
+                    org-context-example-environment
                     "% Create the example environment")
                    (list
-                    :context-fixed-environment
+                    org-context-fixed-environment
                     "% Create the fixed width environment")
                    (list
-                    :context-planning-command
+                    org-context-planning-command
                     "% Define a basic planning command")
                    (list
-                    :context-inline-source-environment
+                    org-context-inline-source-environment
                     "% Create the inline source environment")
                    (list
-                    :context-inlinetask-command
+                    org-context-inlinetask-command
                     "% Define a basic inline task command")
                    (list
-                    :context-headline-command
+                    org-context-headline-command
                     "% Define a basic headline command")
                    (list
-                    :context-clock-command
+                    org-context-clock-command
                     "% Define a basic clock command")
                    (list
-                    :context-drawer-command
+                    org-context-drawer-command
                     "% Define a basic drawer command")
                    (list
-                    :context-node-property-command
+                    org-context-node-property-command
                     "% Define a command for node properties in drawers")
                    (list
-                    :context-property-drawer-environment
+                    org-context-property-drawer-environment
                     "% Create a property drawer style")
                    (list
-                    :context-verse-environment
+                    org-context-verse-environment
                     "% Create a verse style"))))
             (mapconcat
              (lambda (args)
-               (let* ((kw (nth 0 args))
+               (let* ((nameimpl (nth 0 args))
                       (comment (nth 1 args))
-                      (nameimpl (plist-get info kw))
                       (impl (cdr nameimpl)))
                  (concat
                   comment
@@ -4120,27 +3953,27 @@ holding the export options."
                 (kw)
                 (let ((style (plist-get info kw)))
                   (when (org-string-nw-p style) (format "\\setupxtable[%s][]" style))))
-              (list :context-table-toprow-style
-                    :context-table-bottomrow-style
-                    :context-table-leftcol-style
-                    :context-table-rightcol-style
-                    :context-table-topleft-style
-                    :context-table-topright-style
-                    :context-table-bottomleft-style
-                    :context-table-bottomright-style
-                    :context-table-header-style
-                    :context-table-footer-style
-                    :context-table-header-top-style
-                    :context-table-footer-top-style
-                    :context-table-header-bottom-style
-                    :context-table-footer-bottom-style
-                    :context-table-header-mid-style
-                    :context-table-footer-mid-style
-                    :context-table-body-style
-                    :context-table-rowgroup-start-style
-                    :context-table-rowgroup-end-style
-                    :context-table-colgroup-start-style
-                    :context-table-colgroup-end-style))))
+              (list org-context-table-toprow-style
+                    org-context-table-bottomrow-style
+                    org-context-table-leftcol-style
+                    org-context-table-rightcol-style
+                    org-context-table-topleft-style
+                    org-context-table-topright-style
+                    org-context-table-bottomleft-style
+                    org-context-table-bottomright-style
+                    org-context-table-header-style
+                    org-context-table-footer-style
+                    org-context-table-header-top-style
+                    org-context-table-footer-top-style
+                    org-context-table-header-bottom-style
+                    org-context-table-footer-bottom-style
+                    org-context-table-header-mid-style
+                    org-context-table-footer-mid-style
+                    org-context-table-body-style
+                    org-context-table-rowgroup-start-style
+                    org-context-table-rowgroup-end-style
+                    org-context-table-colgroup-start-style
+                    org-context-table-colgroup-end-style))))
            "\n"))
          (index-defs
           (mapconcat
@@ -4327,7 +4160,7 @@ INFO is a plist used as a communication channel."
    (lambda (snippet-name)
      (cdr (assoc
            snippet-name
-           (plist-get info :context-snippets))))
+           org-context-snippets-alist)))
    snippet-names))
  
 ;;;; Timestamp
@@ -4336,7 +4169,7 @@ INFO is a plist used as a communication channel."
   "Transcode a TIMESTAMP object from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
-  (funcall (plist-get info :context-format-timestamp-function) timestamp))
+  (funcall org-context-format-timestamp-function timestamp))
 
 (defun org-context-format-timestamp-default-function (timestamp)
   "Transcode a TIMESTAMP from Org to ConTeXt."
@@ -4372,9 +4205,9 @@ contextual information."
   (when (org-string-nw-p contents)
     (org-context--enumerated-block
      verse-block contents info
-     :context-verse-environment
-     :context-enumerate-verse-environment
-     :context-enumerate-verse-empty-environment)))
+     (car org-context-verse-environment)
+     (car org-context-enumerate-verse-environment)
+     (car org-context-enumerate-verse-empty-environment))))
 
 ;;; End-user functions
 
