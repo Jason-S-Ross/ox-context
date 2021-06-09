@@ -1677,11 +1677,6 @@ available for use in presets. See also `:context-presets'"
   :type '(choice (const :tag "Vim" vim)
                  (const :tag "Default" default)))
 
-(defcustom org-context-table-use-footer ""
-  "If \"repeat\", footer rows will be repeated on all pages."
-  :group 'org-export-context
-  :type 'string)
-
 (defcustom org-context-text-markup-alist
   '((bold ."\\bold{%s}")
     (code . protectedtexttt)
