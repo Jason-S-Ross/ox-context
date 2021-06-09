@@ -1979,8 +1979,8 @@ a plist."
   (let ((label (org-context--label element info t))
         (name (org-export-get-node-property :name element))
         (value (org-export-get-node-property :value element)))
-    (if (or name value)
-        (format "\\reference[%s]{%s}\n" label (or name value))
+    (if name
+        (format "\\reference[%s]{%s}\n" label name)
       (format "\\reference[%s]{}\n" label))))
 
 (defun org-context--get-vim-lang-info (src-block info)
