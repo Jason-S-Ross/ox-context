@@ -2125,36 +2125,12 @@ the coderef."
 (defun org-context--protect-text (text)
   "Protect special characters in string TEXT and return it."
   (replace-regexp-in-string
-           "--\\|[][&@\\|{:$\"}!#^%?'/~_<>()]"
+           "[|\\{}$%#~]"
            (lambda (m)
-             (cond ((equal m "--") "-{}-")
-                   ((equal m "&") "\\letterampersand{}")
-                   ((equal m "@") "\\letterat{}")
-                   ((equal m "\\") "\\letterbackslash{}")
-                   ((equal m "|") "\\letterbar{}")
-                   ((equal m "{") "\\letterbgroup{}")
-                   ((equal m "{") "\\letterbgroup{}")
-                   ((equal m ":") "\\lettercolon{}")
-                   ((equal m "$") "\\letterdollar{}")
-                   ((equal m "\"") "\\letterdoublequote{}")
-                   ((equal m "}") "\\letteregroup{}")
-                   ((equal m "!") "\\letterexclamationmark{}")
-                   ((equal m "#") "\\letterhash{}")
-                   ((equal m "^") "\\letterhat{}")
-                   ((equal m "^") "\\letterhat{}")
-                   ((equal m "[") "\\letterleftbrace{}")
-                   ((equal m "(") "\\letterleftparenthesis{}")
-                   ((equal m "<") "\\letterless{}")
-                   ((equal m ">") "\\lettermore{}")
-                   ((equal m "]") "\\letterrightbrace{}")
-                   ((equal m ")") "\\letterrightparenthesis{}")
-                   ((equal m "%") "\\letterpercent{}")
-                   ((equal m "?") "\\letterquestionmark{}")
-                   ((equal m "'") "\\lettersinglequote{}")
-                   ((equal m "/") "\\letterslash{}")
-                   ((equal m "~") "\\lettertilde{}")
-                   ((equal m "_") "\\letterunderscore{}")
-                   (t (org-context--protect-text m))))
+             (pcase (string-to-char m)
+               (?\\ "\\backslash ")
+               (?~ "\\lettertilde ")
+               (_ "\\\\\\&")))
            text nil t))
 
 (defun org-context--protect-texttt (text)
@@ -3290,17 +3266,16 @@ contextual information."
 	  (let ((case-fold-search nil))
 	    (replace-regexp-in-string
 	     "\\<\\(?:\\(?:La\\)?TeX\\)\\|\\(?:ConTeXt\\)\\>" "\\\\\\&{}"
-	     ;; Protect ^, ~, %, #, &, $, _, { and }.  Also protect \.
+	     ;; Protect special characters.
 	     ;; However, if special strings are used, be careful not
 	     ;; to protect "\" in "\-" constructs.
 	     (replace-regexp-in-string
-	      (concat "[|%$#&{}_~^]\\|\\\\" (and specialp "\\([^-]\\|$\\)"))
+	      (concat "[][|\\{}#%~$]\\|\\\\" (and specialp "\\([^-]\\|$\\)"))
 	      (lambda (m)
-		(cl-case (string-to-char m)
-		  (?\\ "$\\\\backslash$\\1")
-		  (?~ "\\\\textasciitilde{}")
-		  (?^ "\\\\^{}")
-		  (t "\\\\\\&")))
+                (pcase (string-to-char m)
+                  (?\\ "\\\\letterbackslash ")
+                  (?~  "\\\\lettertilde ")
+                  (_ "\\\\\\&")))
 	      text)))))
     (when (plist-get info :with-smart-quotes)
       (setq output (org-context--format-quote output info text)))
@@ -3311,7 +3286,6 @@ contextual information."
     (when (plist-get info :preserve-breaks)
       (setq output (replace-regexp-in-string
 		    "\\(?:[ \t]*\\\\\\\\\\)?[ \t]*\n" "\\\\\n" output nil t)))
-    ;; Return value.
     output))
 
 ;;;; Planning
