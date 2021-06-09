@@ -1861,15 +1861,16 @@ INFO is a plist containing contextual information."
 INFO is a plist containing contextual information."
   (org-context--wrap-latex-math-block tree info))
 
-
 ;;; Internal functions
 
 (defun org-context--add-reference (element contents info)
   "Add a reference label to CONTENTS.
 INFO is a plist containing contextual information.
 ELEMENT is the entity to add a reference label to."
-  (concat (org-context--get-reference element info)
-          contents))
+  (if (not (and (org-string-nw-p contents) (org-element-property :name element)))
+      contents
+    (concat (org-context--get-reference element info)
+          contents)))
 
 (defun org-context--caption/label-string (element info)
   "Return caption and label ConTeXt string for ELEMENT.
