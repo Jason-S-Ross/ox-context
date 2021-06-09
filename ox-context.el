@@ -331,112 +331,227 @@
                   (:filter-parse-tree  org-context-math-block-tree-filter
                                        org-context-texinfo-tree-filter)
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
- :options-alist '((:attention "ATTENTION" nil nil newline)
+ :options-alist '(
+                  ;; TODO test
+                  (:attention "ATTENTION" nil nil newline)
+                  ;; TODO test
                   (:closing "CLOSING" nil org-context-closing parse)
+                  ;; TODO make this a constant
                   (:context-block-source-environment nil nil org-context-block-source-environment)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-blockquote-environment nil nil org-context-blockquote-environment)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-bullet-off-command nil nil org-context-bullet-off-command)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-bullet-on-command nil nil org-context-bullet-on-command)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-bullet-trans-command nil nil org-context-bullet-trans-command)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-clock-command nil nil org-context-clock-command)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-description-command nil nil org-context-description-command)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-drawer-command nil nil org-context-drawer-command)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-enumerate-blockquote-empty-environment nil nil org-context-enumerate-blockquote-empty-environment)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-enumerate-blockquote-environment nil nil org-context-enumerate-blockquote-environment)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-enumerate-example-empty-environment nil nil org-context-enumerate-example-empty-environment)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-enumerate-example-environment nil nil org-context-enumerate-example-environment)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-enumerate-listing-empty-environment nil nil org-context-enumerate-listing-empty-environment)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-enumerate-listing-environment nil nil org-context-enumerate-listing-environment)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-enumerate-verse-empty-environment nil nil org-context-enumerate-verse-empty-environment)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-enumerate-verse-environment nil nil org-context-enumerate-verse-environment)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-example-environment nil nil org-context-example-environment)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-export-quotes-alist nil nil org-context-export-quotes-alist)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-fixed-environment nil nil org-context-fixed-environment)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-float-default-placement nil nil org-context-float-default-placement)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-format-clock-function nil nil org-context-format-clock-function)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-format-drawer-function nil nil org-context-format-drawer-function)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-format-headline-function nil nil org-context-format-headline-function)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-format-inlinetask-function nil nil org-context-format-inlinetask-function)
+                  ;; TODO test
+                  ;; TODO make this a constant
                   (:context-format-timestamp-function nil nil org-context-format-timestamp-function)
+                  ;; TODO test
                   (:context-header "CONTEXT_HEADER" nil nil newline)
+                  ;; TODO test
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
+                  ;; TODO test
                   (:context-headline-command nil nil org-context-headline-command)
+                  ;; TODO test
                   (:context-highlighted-langs nil nil org-context-highlighted-langs)
+                  ;; TODO test
                   (:context-image-default-height nil nil org-context-image-default-height)
+                  ;; TODO test
                   (:context-image-default-option nil nil org-context-image-default-option)
+                  ;; TODO test
                   (:context-image-default-width nil nil org-context-image-default-width)
+                  ;; TODO test
                   (:context-inline-image-rules nil nil org-context-inline-image-rules)
+                  ;; TODO test
                   (:context-inline-source-environment nil nil org-context-inline-source-environment)
+                  ;; TODO test
                   (:context-inlinetask-command nil nil org-context-inlinetask-command)
+                  ;; TODO test
                   (:context-inner-templates nil nil org-context-inner-templates-alist)
+                  ;; TODO test
                   (:context-node-property-command nil nil org-context-node-property-command)
+                  ;; TODO test
                   (:context-number-equations nil "numeq" org-context-number-equations)
+                  ;; TODO test
                   (:context-planning-command nil nil org-context-planning-command)
+                  ;; TODO test
                   (:context-preset "CONTEXT_PRESET" nil org-context-default-preset t)
+                  ;; TODO test
                   (:context-presets nil nil org-context-presets-alist)
+                  ;; TODO test
                   (:context-property-drawer-environment nil nil org-context-property-drawer-environment)
+                  ;; TODO test
                   (:context-snippet "CONTEXT_SNIPPET" nil nil split)
+                  ;; TODO test
                   (:context-snippets nil nil org-context-snippets-alist)
+                  ;; TODO test
                   (:context-syntax-engine nil "syntax" org-context-syntax-engine)
+                  ;; TODO remove from plist
                   (:context-table-body-style nil nil org-context-table-body-style)
+                  ;; TODO remove from plist
                   (:context-table-bottomleft-style nil nil org-context-table-bottomleft-style)
+                  ;; TODO remove from plist
                   (:context-table-bottomright-style nil nil org-context-table-bottomright-style)
+                  ;; TODO remove from plist
                   (:context-table-bottomrow-style nil nil org-context-table-bottomrow-style)
+                  ;; TODO remove from plist
                   (:context-table-colgroup-end-style nil nil org-context-table-colgroup-end-style)
+                  ;; TODO remove from plist
                   (:context-table-colgroup-start-style nil nil org-context-table-colgroup-start-style)
+                  ;; TODO remove from plist
                   (:context-table-footer-bottom-style nil nil org-context-table-footer-bottom-style)
+                  ;; TODO remove from plist
                   (:context-table-footer-mid-style nil nil org-context-table-footer-mid-style)
+                  ;; TODO remove from plist
                   (:context-table-footer-style nil nil org-context-table-footer-style)
+                  ;; TODO remove from plist
                   (:context-table-footer-top-style nil nil org-context-table-footer-top-style)
+                  ;; TODO remove from plist
                   (:context-table-header-bottom-style nil nil org-context-table-header-bottom-style)
+                  ;; TODO remove from plist
                   (:context-table-header-mid-style nil nil org-context-table-header-mid-style)
+                  ;; TODO remove from plist
                   (:context-table-header-style nil nil org-context-table-header-style)
+                  ;; TODO remove from plist
                   (:context-table-header-top-style nil nil org-context-table-header-top-style)
+                  ;; TODO remove from plist
                   (:context-table-leftcol-style nil nil org-context-table-leftcol-style)
+                  ;; TODO remove from plist
                   (:context-table-rightcol-style nil nil org-context-table-rightcol-style)
+                  ;; TODO remove from plist
                   (:context-table-rowgroup-end-style nil nil org-context-table-rowgroup-end-style)
+                  ;; TODO remove from plist
                   (:context-table-rowgroup-start-style nil nil org-context-table-rowgroup-start-style)
+                  ;; TODO remove from plist
                   (:context-table-topleft-style nil nil org-context-table-topleft-style)
+                  ;; TODO remove from plist
                   (:context-table-topright-style nil nil org-context-table-topright-style)
+                  ;; TODO remove from plist
                   (:context-table-toprow-style nil nil org-context-table-toprow-style)
-                  ;; TODO document
                   (:context-table-location "TABLE_LOCATION" nil org-context-table-location parse)
-                  ;; TODO document
                   (:context-table-header "TABLE_HEAD" nil org-context-table-head parse)
-                  ;; TODO document
                   (:context-table-footer "TABLE_FOOT" nil org-context-table-foot parse)
-                  ;; TODO document
                   (:context-table-option "TABLE_OPTION" nil org-context-table-option parse)
-                  ;; TODO document
                   (:context-table-style "TABLE_STYLE" nil org-context-table-style parse)
-                  ;; TODO document
                   (:context-table-float-style "TABLE_FLOAT" nil org-context-table-float-style parse)
-                  ;; TODO document
                   (:context-table-split "TABLE_SPLIT" nil org-context-table-split parse)
+                  ;; TODO remove from plist
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
+                  ;; TODO remove from plist
                   (:context-verse-environment nil nil org-context-verse-environment)
+                  ;; TODO remove from plist
                   (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
+                  ;; TODO test
                   (:date "DATE" nil "\\currentdate" parse)
+                  ;; TODO test
                   (:description "DESCRIPTION" nil nil parse)
+                  ;; TODO test
                   (:from-address "FROM_ADDRESS" nil org-context-from-address newline)
+                  ;; TODO test
                   (:from-logo "FROM_LOGO" nil org-context-from-logo)
+                  ;; TODO test
                   (:keywords "KEYWORDS" nil nil parse)
+                  ;; TODO test
                   (:location "LOCATION" nil org-context-location)
+                  ;; TODO test
                   (:opening "OPENING" nil org-context-opening parse)
+                  ;; TODO test
                   (:phone-number "PHONE_NUMBER" nil org-context-phone-number)
+                  ;; TODO test
                   (:place "PLACE" nil org-context-place)
+                  ;; TODO test
                   (:signature "SIGNATURE" nil org-context-closing parse)
+                  ;; TODO test
                   (:subject "SUBJECT" nil nil parse)
+                  ;; TODO test
                   (:subtitle "SUBTITLE" nil nil parse)
+                  ;; TODO test
                   (:to-address "TO_ADDRESS" nil nil newline)
+                  ;; TODO test
                   (:to-name "TO_NAME" nil nil newline)
+                  ;; TODO test
                   (:url "URL" nil org-context-url)
+                  ;; TODO test
                   (:with-backaddress nil "backaddress" org-context-use-backaddress)
+                  ;; TODO test
                   (:with-email nil "email" org-context-use-email)
+                  ;; TODO test
                   (:with-foldmarks nil "foldmarks" org-context-use-foldmarks)
+                  ;; TODO implement this
+                  ;; TODO test
                   (:with-from-logo nil "from-logo" org-context-use-from-logo)
+                  ;; TODO implement this
+                  ;; TODO test
                   (:with-phone nil "phone" org-context-use-phone)
+                  ;; TODO implement this
+                  ;; TODO test
                   (:with-place nil "place" org-context-use-place)
+                  ;; TODO implement this
+                  ;; TODO test
                   (:with-url nil "url" org-context-use-url)))
 
 ;;; Constants
@@ -2438,8 +2553,8 @@ uniform."
   "Transcode a HEADLINE element from Org to ConTeXt.
 CONTENTS is the content of the section. INFO is a plist
 containing contextual information."
-  ;; TODO Handle category from `org-export-get-category'
   ;; TODO Handle node property from `org-export-get-node-property'
+  ;; TODO strip all special characters from listing, etc.
   (unless (org-element-property :footnote-section-p headline)
     (let* ((level (org-export-get-relative-level headline info))
            (numberedp (org-export-numbered-headline-p headline info))
@@ -2905,7 +3020,6 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                    ;; (cons "title" caption)
                    (cons "reference" label))))
            )
-      ;; TODO 'table 'src-block
       (pcase type
         ('math
          ;; TODO equaton eqnarray math displaymath
@@ -3600,6 +3714,7 @@ contextual information."
   "Transcode a TABLE-CELL from Org to ConTeXt.
 CONTENTS is the cell contents. INFO is a plist used as
 a communication channel."
+  ;; TODO Don't look at the plist for these.
   (let* ((table (org-export-get-parent-table table-cell))
          (table-row (org-export-get-parent table-cell))
          (alignment (org-export-table-cell-alignment table-cell info))
@@ -4172,11 +4287,13 @@ holding the export options."
 (defun org-context--list-metadata (info)
   "Create a `format-spec' for document meta-data.
 INFO is a plist used as a communication channel."
+  ;; TODO handle arbitrary metadata.
   (list
     (cons "metadata:author" (org-export-data (plist-get info :author) info))
     (cons "metadata:title" (org-export-data (plist-get info :title) info))
     (cons "metadata:email" (org-export-data (plist-get info :email) info))
     (cons "metadata:subtitle" (org-export-data (plist-get info :subtitle) info))
+    ;; TODO why are these wrapped in a math block???
     (cons "metadata:keywords" (org-export-data (org-context--wrap-latex-math-block
                                                 (plist-get info :keywords) info)
                                                info))
