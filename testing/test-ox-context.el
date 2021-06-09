@@ -14,6 +14,7 @@
 ;;; Code:
 
 
+
 (unless (featurep 'ox-context)
   (signal 'missing-test-dependency "org-export-context"))
 
@@ -301,6 +302,108 @@
     (org-test-with-temp-text "#+TOC: examples"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   ;; TODO test bibliography
+  )
+
+;;; Document Keywords
+
+(ert-deftest test-org-context-export-doc-keywords ()
+  "Test exporting document-level keywords."
+  (should
+   (string-match-p
+    (regexp-quote "letter:attention={bob}")
+    (org-test-with-temp-text "#+ATTENTION: bob"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "letter:closing={Sincerely, Bob}")
+    (org-test-with-temp-text "#+CLOSING: Sincerely, Bob"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "foo bar baz")
+    (org-test-with-temp-text "#+CONTEXT_HEADER: foo bar baz"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "foo bar baz")
+    (org-test-with-temp-text "#+CONTEXT_HEADER_EXTRA: foo bar baz"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "metadata:date={foo}")
+    (org-test-with-temp-text "#+DATE: foo"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "metadata:description={foo}")
+    (org-test-with-temp-text "#+DESCRIPTION: foo"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "letter:fromaddress={foo}")
+    (org-test-with-temp-text "#+FROM_ADDRESS: foo"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "metadata:keywords={foo bar baz}")
+    (org-test-with-temp-text "#+KEYWORDS: foo bar baz"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (let ((content
+          (org-test-with-temp-text "#+LANGUAGE: grobnatch"
+            (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+     (and
+      (string-match-p
+       (regexp-quote "metadata:language={grobnatch}")
+       content)
+      (string-match-p
+       (regexp-quote "\\language[grobnatch]")
+       content))))
+  (should
+   (string-match-p
+    (regexp-quote "letter:location={grokistan}")
+    (org-test-with-temp-text "#+LOCATION: grokistan"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "letter:opening={biz buz}")
+    (org-test-with-temp-text "#+OPENING: biz buz"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "metadata:phonenumber={314 159 2653}")
+    (org-test-with-temp-text "#+PHONE_NUMBER: 314 159 2653"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "letter:signature={buz buz}")
+    (org-test-with-temp-text "#+SIGNATURE: buz buz"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "metadata:subject={vorpal swords}")
+    (org-test-with-temp-text "#+SUBJECT: vorpal swords"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "metadata:subtitle={frumorious bandersnatches}")
+    (org-test-with-temp-text "#+SUBTITLE: frumorious bandersnatches"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "letter:toaddress={the palace}")
+    (org-test-with-temp-text "#+TO_ADDRESS: the palace"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "letter:toname={bob}")
+    (org-test-with-temp-text "#+TO_NAME: bob"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "metadata:url={beware the jabberwock}")
+    (org-test-with-temp-text "#+URL: beware the jabberwock"
+      (org-export-as 'context nil nil nil '(:context-preset "empty")))))
   )
 
 ;;; Images

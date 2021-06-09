@@ -352,33 +352,23 @@
                   (:context-table-float-style "TABLE_FLOAT" nil org-context-table-float-style parse)
                   (:context-table-split "TABLE_SPLIT" nil org-context-table-split parse)
                   (:date "DATE" nil "\\currentdate" parse)
-                  ;; TODO test
                   (:description "DESCRIPTION" nil nil parse)
-                  ;; TODO test
                   (:from-address "FROM_ADDRESS" nil org-context-from-address newline)
                   ;; TODO test
+                  ;; TODO implement
                   (:from-logo "FROM_LOGO" nil org-context-from-logo)
-                  ;; TODO test
                   (:keywords "KEYWORDS" nil nil parse)
-                  ;; TODO test
                   (:location "LOCATION" nil org-context-location)
-                  ;; TODO test
                   (:opening "OPENING" nil org-context-opening parse)
-                  ;; TODO test
                   (:phone-number "PHONE_NUMBER" nil org-context-phone-number)
                   ;; TODO test
+                  ;; TODO what does this do
                   (:place "PLACE" nil org-context-place)
-                  ;; TODO test
                   (:signature "SIGNATURE" nil org-context-closing parse)
-                  ;; TODO test
                   (:subject "SUBJECT" nil nil parse)
-                  ;; TODO test
                   (:subtitle "SUBTITLE" nil nil parse)
-                  ;; TODO test
                   (:to-address "TO_ADDRESS" nil nil newline)
-                  ;; TODO test
                   (:to-name "TO_NAME" nil nil newline)
-                  ;; TODO test
                   (:url "URL" nil org-context-url)
                   ;; TODO test
                   (:with-backaddress nil "backaddress" org-context-use-backaddress)
