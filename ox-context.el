@@ -173,10 +173,15 @@
 ;; *** Global Options
 ;;     Tables support configuration for the following keys:
 ;;     - `:location' :: Specifies ~location~ key for the float wrapping the table.
-;;     - `:header' :: Specifies the ~header~ key for the table.
-;;     - `:footer' :: Specifies the ~footer~ key for the table.
-;;     - `:option' :: Specifies the ~option~ key for the table.
-;;     - `:split' :: Specifies the ~split~ key for the table.
+;;     - `:header' :: Specifies the ~header~ key for the ~\startxtable~ command.
+;;       ~repeat~ is supported; see ConTeXt documentation for other values
+;;       (none known as of this writing).
+;;     - `:footer' :: Specifies the ~footer~ key for the ~\startxtable~ command.
+;;       ~repeat~ is supported; see ConTeXt documentation for other values
+;;       (none known as of this writing).
+;;     - `:option' :: Specifies the ~option~ key for the ~\startxtable~ command.
+;;       As of this writing, the values ~stretch~, ~width~, and ~tight~ are supported.
+;;     - `:split' :: If "yes", tables are split across pages.
 ;;     - `:f' :: Specifies if the table has a footer. Footers can be repeated
 ;;       across pages. See also `org-context-table-use-footer'. Footers are
 ;;       identified as the last row group if there are more than two row groups.
@@ -219,6 +224,7 @@
 ;;       `org-context-table-header-style'.
 ;;     - `:f' :: "Footer"; the cells in the footer. Defaults to
 ;;       `org-context-table-footer-style'.
+;;       NOTE: If this key is present, tables will attempt to use footers.
 ;;     - `:b' :: "Body"; the cells in the body. Defaults to
 ;;       `org-context-table-body-style'.
 ;;     - `:ht' :: "Header Top"; the cells in the first row of header rows.
