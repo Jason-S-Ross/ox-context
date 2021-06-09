@@ -3699,10 +3699,10 @@ a communication channel."
                            (org-string-nw-p
                             (plist-get info :context-table-body-style))))
          (header-mid-row-style
-          (or (plist-get attr :ho)
+          (or (plist-get attr :hm)
               (org-string-nw-p (plist-get info :context-table-header-mid-style))))
          (footer-mid-row-style
-          (or (plist-get attr :fo)
+          (or (plist-get attr :fm)
               (org-string-nw-p (plist-get info :context-table-footer-mid-style))))
          (header-top-row-style
           (or (plist-get attr :ht)
