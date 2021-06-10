@@ -4221,7 +4221,7 @@ INFO is a plist used as a communication channel."
     (cons "letter:toaddress" (org-export-data (plist-get info :to-address) info))
     (cons "letter:toname" (org-export-data (plist-get info :to-name) info))
     (cons "letter:attention" (org-export-data (plist-get info :attention) info))
-    (cons "location" (org-export-data (plist-get info :place) info))
+    (cons "letter:place" (org-export-data (plist-get info :place) info))
     (cons "letter:location" (org-export-data (plist-get info :location) info))
     (cons "metadata:subject" (org-export-data (plist-get info :subject) info))
     (cons "letter:opening" (org-export-data (plist-get info :opening) info))
