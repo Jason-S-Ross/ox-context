@@ -3477,11 +3477,13 @@ holding contextual information."
   "Transcode a SRC-BLOCK element from Org to LaTeX.
 CONTENTS holds the contents of the item. INFO is a plist holding
 contextual information."
-  (let* ((caption (org-trim
-                 (org-export-data
-                  (or (org-export-get-caption src-block t)
-                      (org-export-get-caption src-block))
-                  info)))
+  (let* ((caption
+          (org-string-nw-p
+           (org-trim
+            (org-export-data
+             (or (org-export-get-caption src-block t)
+                 (org-export-get-caption src-block))
+             info))))
          (environment
           (car
            (if caption
