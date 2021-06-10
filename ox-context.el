@@ -364,7 +364,7 @@
                   ;; TODO test
                   ;; TODO what does this do
                   (:place "PLACE" nil org-context-place)
-                  (:signature "SIGNATURE" nil org-context-closing parse)
+                  (:signature "SIGNATURE" nil org-context-signature parse)
                   (:subject "SUBJECT" nil nil parse)
                   (:subtitle "SUBTITLE" nil nil parse)
                   (:to-address "TO_ADDRESS" nil nil newline)
