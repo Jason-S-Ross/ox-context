@@ -644,14 +644,12 @@ If nil, verses aren't delimited."
 ;; These environments wrap around element environments to allow them
 ;; to be enumerated in listings.
 
-;; TODO test
 (defcustom org-context-enumerate-blockquote-empty-environment
   '("OrgBlockQuoteEnumEmpty" . "\\defineenumeration
   [OrgBlockQuoteEnumEmpty]
   [alternative=empty]")
   "The enumeration of the unlabelled blockquote environment.
 
-;; TODO test
 Shares a counter with `org-context-enumerate-blockquote-environment'.
 
 If nil, block quotes are not wrapped in an enumeration"
@@ -659,7 +657,6 @@ If nil, block quotes are not wrapped in an enumeration"
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
-;; TODO test
 (defcustom org-context-enumerate-blockquote-environment
   '("OrgBlockQuoteEnum" . "\\defineenumeration
   [OrgBlockQuoteEnum]
@@ -676,7 +673,6 @@ If nil, block quotes are not wrapped in an enumeration"
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
-;; TODO test
 (defcustom org-context-enumerate-example-empty-environment
   '("OrgExampleEnumerationEmpty" . "\\defineenumeration
   [OrgExampleEnumerationEmpty]
@@ -690,7 +686,6 @@ If nil, examples are not wrapped in an enumeration"
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
-;; TODO test
 (defcustom org-context-enumerate-example-environment
   '("OrgExampleEnumeration" . "\\defineenumeration
   [OrgExampleEnumeration]
@@ -708,7 +703,6 @@ If nil, examples are not wrapped in an enumeration"
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
-;; TODO test
 (defcustom org-context-enumerate-listing-empty-environment
   '("OrgListingEmpty" . "\\defineenumeration
   [OrgListingEmpty]
@@ -722,7 +716,6 @@ If null, listings are not enumerated."
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
-;; TODO Test
 (defcustom org-context-enumerate-listing-environment
   '("OrgListing" . "\\defineenumeration
   [OrgListing]
@@ -740,7 +733,6 @@ If null, listings are not enumerated."
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
-;; TODO test
 (defcustom org-context-enumerate-verse-empty-environment
   '("OrgVerseEnumerateEmpty" . "\\defineenumeration
   [OrgVerseEnumerateEmpty]
@@ -752,7 +744,6 @@ If nil, verses aren't enumerated."
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
-;; TODO test
 (defcustom org-context-enumerate-verse-environment '("OrgVerseEnumerate" . "
 \\defineenumeration
   [OrgVerseEnumerate]

@@ -92,55 +92,192 @@ holding TEXT."
   (should
    (let* ((name (format "%i" (random)))
           (def (format "%i" (random)))
+          (enumname (format "%i" (random)))
+          (enumdef (format "%i" (random)))
           (document
            (context-test-with-temp-customization-value
-            org-context-blockquote-environment
-            (cons name def)
-            (context-test-with-temp-text
-             "#+BEGIN_QUOTE
+            org-context-enumerate-blockquote-empty-environment
+            (cons enumname enumdef)
+            (context-test-with-temp-customization-value
+             org-context-blockquote-environment
+             (cons name def)
+             (context-test-with-temp-text
+              "#+BEGIN_QUOTE
 foo bar baz
 #+END_QUOTE"
-             (org-trim
-              (org-export-as 'context nil nil nil
-                             '(:context-preset "empty")))))))
+              (org-trim
+               (org-export-as 'context nil nil nil
+                              '(:context-preset "empty"))))))))
      (and
       (string-match-p
        (concat
+        (regexp-quote "\\start")
+        (regexp-quote enumname)
+        "[^[]*"
+        (regexp-quote "[")
+        "[^]]*"
+        (regexp-quote "reference={org")
+        "[0-9a-f]+"
+        (regexp-quote "}")
+        "[^]]*"
+        (regexp-quote "]")
+        "\\(.\\|\n\\)*"
         (regexp-quote "\\start")
         (regexp-quote name)
         "\\(.\\|\n\\)*"
         (regexp-quote "foo bar baz")
         "\\(.\\|\n\\)*"
         (regexp-quote "\\stop")
-        (regexp-quote name))
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote enumname))
        document)
+      (string-match-p def document)
+      (string-match-p enumdef document))))
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (enumname (format "%i" (random)))
+          (enumdef (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-enumerate-blockquote-environment
+            (cons enumname enumdef)
+            (context-test-with-temp-customization-value
+             org-context-blockquote-environment
+             (cons name def)
+             (context-test-with-temp-text
+              "#+CAPTION: foo
+#+BEGIN_QUOTE
+foo bar baz
+#+END_QUOTE"
+              (org-trim
+               (org-export-as 'context nil nil nil
+                              '(:context-preset "empty"))))))))
+     (and
       (string-match-p
-       def document))))
+       (concat
+        (regexp-quote "\\start")
+        (regexp-quote enumname)
+        "[^[]*"
+        (regexp-quote "[")
+        "[^]]*"
+        (regexp-quote "title={foo}")
+        "[^]]*"
+        (regexp-quote "reference={org")
+        "[0-9a-f]+"
+        (regexp-quote "}")
+        "[^]]*"
+        (regexp-quote "]")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\start")
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "foo bar baz")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote enumname)
+        )
+       document)
+      (string-match-p def document)
+      (string-match-p enumdef document))))
   ;; Examples
   (should
    (let* ((name (format "%i" (random)))
           (def (format "%i" (random)))
+          (enumname (format "%i" (random)))
+          (enumdef (format "%i" (random)))
           (document
            (context-test-with-temp-customization-value
-            org-context-example-environment
-            (cons name def)
-            (context-test-with-temp-text
-             "#+BEGIN_EXAMPLE
+            org-context-enumerate-example-empty-environment
+            (cons enumname enumdef)
+            (context-test-with-temp-customization-value
+             org-context-example-environment
+             (cons name def)
+             (context-test-with-temp-text
+              "#+BEGIN_EXAMPLE
 foo bar baz
 #+END_EXAMPLE"
-             (org-trim
-              (org-export-as 'context nil nil nil
-                             '(:context-preset "empty")))))))
+              (org-trim
+               (org-export-as 'context nil nil nil
+                              '(:context-preset "empty"))))))))
      (and
       (string-match-p
        (concat
+        (regexp-quote "\\start")
+        (regexp-quote enumname)
+        "[^[]*"
+        (regexp-quote "[")
+        "[^]]*"
+        (regexp-quote "reference={org")
+        "[0-9a-f]+"
+        (regexp-quote "}")
+        "[^]]*"
+        (regexp-quote "]")
+        "\\(.\\|\n\\)*"
         (regexp-quote "\\start")
         (regexp-quote name)
         "\\(.\\|\n\\)*"
         (regexp-quote "foo bar baz")
         "\\(.\\|\n\\)*"
         (regexp-quote "\\stop")
-        (regexp-quote name))
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote enumname))
+       document)
+      (string-match-p
+       def document))))
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (enumname (format "%i" (random)))
+          (enumdef (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-enumerate-example-environment
+            (cons enumname enumdef)
+            (context-test-with-temp-customization-value
+             org-context-example-environment
+             (cons name def)
+             (context-test-with-temp-text
+              "#+CAPTION: foo
+#+BEGIN_EXAMPLE
+foo bar baz
+#+END_EXAMPLE"
+              (org-trim
+               (org-export-as 'context nil nil nil
+                              '(:context-preset "empty"))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote "\\start")
+        (regexp-quote enumname)
+        "[^[]*"
+        (regexp-quote "[")
+        "[^]]*"
+        (regexp-quote "title={foo}")
+        "[^]]*"
+        (regexp-quote "reference={org")
+        "[0-9a-f]+"
+        (regexp-quote "}")
+        "[^]]*"
+        (regexp-quote "]")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\start")
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "foo bar baz")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote enumname))
        document)
       (string-match-p
        def document))))
@@ -304,23 +441,39 @@ foo bar baz
   (should
    (let* ((name (format "%i" (random)))
           (def (format "%i" (random)))
+          (enumname (format "%i" (random)))
+          (enumdef (format "%i" (random)))
           (document
            (context-test-with-temp-customization-value
-            org-context-syntax-engine
-            'default
+            org-context-enumerate-listing-empty-environment
+            (cons enumname enumdef)
             (context-test-with-temp-customization-value
-             org-context-block-source-environment
-             (cons name def)
-             (context-test-with-temp-text
-              "#+BEGIN_SRC python
+             org-context-syntax-engine
+             'default
+             (context-test-with-temp-customization-value
+              org-context-block-source-environment
+              (cons name def)
+              (context-test-with-temp-text
+               "#+BEGIN_SRC python
 print(\"Hello, world!\")
 #+END_SRC"
-              (org-trim
-               (org-export-as 'context nil nil nil
-                              '(:context-preset "empty"))))))))
+               (org-trim
+                (org-export-as 'context nil nil nil
+                               '(:context-preset "empty")))))))))
      (and
       (string-match-p
        (concat
+        (regexp-quote "\\start")
+        (regexp-quote enumname)
+        "[^[]*"
+        (regexp-quote "[")
+        "[^]]*"
+        (regexp-quote "reference={org")
+        "[0-9a-f]+"
+        (regexp-quote "}")
+        "[^]]*"
+        (regexp-quote "]")
+        "\\(.\\|\n\\)*"
         (regexp-quote (format "\\start%s" name))
         "[^[]*"
         (regexp-quote "[")
@@ -331,7 +484,66 @@ print(\"Hello, world!\")
         "\\(.\\|\n\\)*"
         (regexp-quote "print(\"Hello, world!\")")
         "\\(.\\|\n\\)*"
-        (regexp-quote (format "\\stop%s" name)))
+        (regexp-quote (format "\\stop%s" name))
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote enumname))
+       document)
+      (string-match-p
+       def document))))
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (enumname (format "%i" (random)))
+          (enumdef (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-enumerate-listing-environment
+            (cons enumname enumdef)
+            (context-test-with-temp-customization-value
+             org-context-syntax-engine
+             'default
+             (context-test-with-temp-customization-value
+              org-context-block-source-environment
+              (cons name def)
+              (context-test-with-temp-text
+               "#+CAPTION: foo
+#+BEGIN_SRC python
+print(\"Hello, world!\")
+#+END_SRC"
+               (org-trim
+                (org-export-as 'context nil nil nil
+                               '(:context-preset "empty")))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote "\\start")
+        (regexp-quote enumname)
+        "[^[]*"
+        (regexp-quote "[")
+        "[^]]*"
+        (regexp-quote "title={foo}")
+        "[^]]*"
+        (regexp-quote "reference={org")
+        "[0-9a-f]+"
+        (regexp-quote "}")
+        "[^]]*"
+        (regexp-quote "]")
+        "\\(.\\|\n\\)*"
+        (regexp-quote (format "\\start%s" name))
+        "[^[]*"
+        (regexp-quote "[")
+        "[^]]*"
+        (regexp-quote "option={python}")
+        "[^]]*"
+        (regexp-quote "]")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "print(\"Hello, world!\")")
+        "\\(.\\|\n\\)*"
+        (regexp-quote (format "\\stop%s" name))
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote enumname))
        document)
       (string-match-p
        def document))))
@@ -371,27 +583,95 @@ print(\"Hello, world!\")
   (should
    (let* ((name (format "%i" (random)))
           (def (format "%i" (random)))
+          (enumname (format "%i" (random)))
+          (enumdef (format "%i" (random)))
           (document
            (context-test-with-temp-customization-value
-            org-context-verse-environment
-            (cons name def)
-            (context-test-with-temp-text
-             "#+BEGIN_VERSE
+            org-context-enumerate-verse-empty-environment
+            (cons enumname enumdef)
+            (context-test-with-temp-customization-value
+             org-context-verse-environment
+             (cons name def)
+             (context-test-with-temp-text
+              "#+BEGIN_VERSE
 foo bar baz
 #+END_VERSE"
-             (org-trim
-              (org-export-as 'context nil nil nil
-                             '(:context-preset "empty")))))))
+              (org-trim
+               (org-export-as 'context nil nil nil
+                              '(:context-preset "empty"))))))))
      (and
       (string-match-p
        (concat
+        (regexp-quote "\\start")
+        (regexp-quote enumname)
+        "[^[]*"
+        (regexp-quote "[")
+        "[^]]*"
+        (regexp-quote "reference={org")
+        "[0-9a-f]+"
+        (regexp-quote "}")
+        "[^]]*"
+        (regexp-quote "]")
+        "\\(.\\|\n\\)*"
         (regexp-quote "\\start")
         (regexp-quote name)
         "\\(.\\|\n\\)*"
         (regexp-quote "foo bar baz")
         "\\(.\\|\n\\)*"
         (regexp-quote "\\stop")
-        (regexp-quote name))
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote enumname))
+       document)
+      (string-match-p
+       def document))))
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (enumname (format "%i" (random)))
+          (enumdef (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-enumerate-verse-environment
+            (cons enumname enumdef)
+            (context-test-with-temp-customization-value
+             org-context-verse-environment
+             (cons name def)
+             (context-test-with-temp-text
+              "#+CAPTION: foo
+#+BEGIN_VERSE
+foo bar baz
+#+END_VERSE"
+              (org-trim
+               (org-export-as 'context nil nil nil
+                              '(:context-preset "empty"))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote "\\start")
+        (regexp-quote enumname)
+        "[^[]*"
+        (regexp-quote "[")
+        "[^]]*"
+        (regexp-quote "title={foo}")
+        "[^]]*"
+        (regexp-quote "reference={org")
+        "[0-9a-f]+"
+        (regexp-quote "}")
+        "[^]]*"
+        (regexp-quote "]")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\start")
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "foo bar baz")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote name)
+        "\\(.\\|\n\\)*"
+        (regexp-quote "\\stop")
+        (regexp-quote enumname))
        document)
       (string-match-p
        def document))))
