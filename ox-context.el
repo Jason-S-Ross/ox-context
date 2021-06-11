@@ -332,9 +332,7 @@
                                        org-context-texinfo-tree-filter)
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
  :options-alist '(
-                  ;; TODO test
                   (:attention "ATTENTION" nil nil newline)
-                  ;; TODO test
                   (:closing "CLOSING" nil org-context-closing parse)
                   ;; TODO test
                   (:context-block-source-environment nil nil org-context-block-source-environment)
@@ -386,9 +384,7 @@
                   (:context-format-inlinetask-function nil nil org-context-format-inlinetask-function)
                   ;; TODO test
                   (:context-format-timestamp-function nil nil org-context-format-timestamp-function)
-                  ;; TODO test
                   (:context-header "CONTEXT_HEADER" nil nil newline)
-                  ;; TODO test
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
                   ;; TODO test
                   (:context-headline-command nil nil org-context-headline-command)
@@ -470,35 +466,20 @@
                   ;; TODO remove from plist
                   ;; TODO test
                   (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
-                  ;; TODO test
                   (:date "DATE" nil "\\currentdate" parse)
-                  ;; TODO test
                   (:description "DESCRIPTION" nil nil parse)
-                  ;; TODO test
                   (:from-address "FROM_ADDRESS" nil org-context-from-address newline)
-                  ;; TODO test
                   (:from-logo "FROM_LOGO" nil org-context-from-logo)
-                  ;; TODO test
                   (:keywords "KEYWORDS" nil nil parse)
-                  ;; TODO test
                   (:location "LOCATION" nil org-context-location)
-                  ;; TODO test
                   (:opening "OPENING" nil org-context-opening parse)
-                  ;; TODO test
                   (:phone-number "PHONE_NUMBER" nil org-context-phone-number)
-                  ;; TODO test
                   (:place "PLACE" nil org-context-place)
-                  ;; TODO test
                   (:signature "SIGNATURE" nil org-context-signature parse)
-                  ;; TODO test
                   (:subject "SUBJECT" nil nil parse)
-                  ;; TODO test
                   (:subtitle "SUBTITLE" nil nil parse)
-                  ;; TODO test
                   (:to-address "TO_ADDRESS" nil nil newline)
-                  ;; TODO test
                   (:to-name "TO_NAME" nil nil newline)
-                  ;; TODO test
                   (:url "URL" nil org-context-url)
                   ;; TODO test
                   (:with-backaddress nil "backaddress" org-context-use-backaddress)
@@ -537,7 +518,7 @@
     (apostrophe . "'")))
 
 ;; TODO make this custom
-;; TODO Test
+;; TODO move to this plist
 (defconst org-context-texinfo-indices-alist
   '(("cp" . (:keyword "CINDEX" :command "OrgConcept"))
     ("fn" . (:keyword "FINDEX" :command "OrgFunction"))

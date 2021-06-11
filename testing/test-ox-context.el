@@ -1565,6 +1565,17 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+ATTENTION: bob"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/keyword-attention-plist ()
+  "Test the ATTENTION keyword."
+  (should
+   (string-match-p
+    (regexp-quote "letter:attention={bob}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as
+      'context nil nil nil
+      '(:context-preset "empty"
+        :attention "bob"))))))
 (ert-deftest test-org-context/keyword-closing ()
   "Test the CLOSING keyword."
   (should
@@ -1573,6 +1584,17 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+CLOSING: Sincerely, Bob"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/keyword-closing-plist ()
+  "Test the CLOSING keyword."
+  (should
+   (string-match-p
+    (regexp-quote "letter:closing={Sincerely, Bob}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as
+      'context nil nil nil
+      '(:context-preset "empty"
+        :closing "Sincerely, Bob"))))))
 (ert-deftest test-org-context/keyword-context-header ()
   "Test the CONTEXT_HEADER keyword."
   (should
@@ -1581,6 +1603,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+CONTEXT_HEADER: foo bar baz"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/keyword-context-header-plist ()
+  "Test the CONTEXT_HEADER keyword."
+  (should
+   (string-match-p
+    (regexp-quote "foo bar baz")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:context-header "foo bar baz"))))))
 (ert-deftest test-org-context/keyword-context-header-extra ()
   "Test the CONTEXT_HEADER_EXTRA keyword."
   (should
@@ -1589,6 +1619,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+CONTEXT_HEADER_EXTRA: foo bar baz"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/keyword-context-header-extra-plist ()
+  "Test the CONTEXT_HEADER_EXTRA keyword."
+  (should
+   (string-match-p
+    (regexp-quote "foo bar baz")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:context-header-extra "foo bar baz"))))))
 (ert-deftest test-org-context/keyword-date ()
   "Test the DATE keyword."
   (should
@@ -1597,6 +1635,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+DATE: foo"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/keyword-date-plist ()
+  "Test the DATE keyword."
+  (should
+   (string-match-p
+    (regexp-quote "metadata:date={foo}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:date "foo"))))))
 (ert-deftest test-org-context/keyword-description ()
   "Test the DESCRIPTION keyword."
   (should
@@ -1605,6 +1651,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+DESCRIPTION: foo"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/keyword-description-plist ()
+  "Test the DESCRIPTION keyword."
+  (should
+   (string-match-p
+    (regexp-quote "metadata:description={foo}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:description "foo"))))))
 (ert-deftest test-org-context/keyword-from-address-doc ()
   "Test the FROM_ADDRESS keyword."
   (should
@@ -1624,6 +1678,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
      (context-test-with-temp-text
       ""
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))))
+(ert-deftest test-org-context/keyword-from-address-plist ()
+  "Test the FROM_ADDRESS variable in customization."
+  (should
+   (string-match-p
+    (regexp-quote "letter:fromaddress={foo}")
+    (context-test-with-temp-text
+      ""
+      (org-export-as 'context nil nil nil '(:from-address "foo"))))))
 (ert-deftest test-org-context/keyword-keywords ()
   "Test the KEYWORDS document keyword."
   (should
@@ -1632,6 +1694,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+KEYWORDS: foo bar baz"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/keyword-keywords-plist ()
+  "Test the KEYWORDS document keyword."
+  (should
+   (string-match-p
+    (regexp-quote "metadata:keywords={foo bar baz}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:keywords "foo bar baz"))))))
 (ert-deftest test-org-context/keyword-language ()
   "Test the LANGUAGE keyword"
   (let ((content
@@ -1665,6 +1735,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
      (context-test-with-temp-text
       ""
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))))
+(ert-deftest test-org-context/keyword-location-plist ()
+  "Test the LOCATION keyword in the document."
+  (should
+   (string-match-p
+    (regexp-quote "letter:location={grokistan}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:location "grokistan"))))))
 (ert-deftest test-org-context/keyword-opening-doc ()
   "Test the OPENING keyword in the document body."
   (should
@@ -1684,6 +1762,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
      (context-test-with-temp-text
       ""
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))))
+(ert-deftest test-org-context/keyword-opening-plist ()
+  "Test the OPENING keyword in the document body."
+  (should
+   (string-match-p
+    (regexp-quote "letter:opening={biz buz}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:opening "biz buz"))))))
 (ert-deftest test-org-context/keyword-phonenumber-doc ()
   "Test the PHONE_NUMBER keyword."
   (should
@@ -1703,6 +1789,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
      (context-test-with-temp-text
       ""
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))))
+(ert-deftest test-org-context/keyword-phonenumber-plist ()
+  "Test the PHONE_NUMBER keyword."
+  (should
+   (string-match-p
+    (regexp-quote "metadata:phonenumber={314 159 2653}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:phone-number "314 159 2653"))))))
 (ert-deftest test-org-context/keyword-place-doc ()
   "Test the PLACE keyword in the document."
   (should
@@ -1722,6 +1816,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
      (context-test-with-temp-text
       ""
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))))
+(ert-deftest test-org-context/keyword-place-plist ()
+  "Test the PLACE keyword in the document."
+  (should
+   (string-match-p
+    (regexp-quote "letter:place={Arlen Texas}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:place "Arlen Texas"))))))
 (ert-deftest test-org-context/keyword-signature-doc ()
   "Test the SIGNATURE keyword in the document."
   (should
@@ -1741,6 +1843,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
      (context-test-with-temp-text
       ""
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))))
+(ert-deftest test-org-context/keyword-signature-plist ()
+  "Test the SIGNATURE keyword in the document."
+  (should
+   (string-match-p
+    (regexp-quote "letter:signature={buz buz}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:signature "buz buz"))))))
 (ert-deftest test-org-context/keyword-subject ()
   "Test the SUBJECT keyword."
   (should
@@ -1749,6 +1859,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+SUBJECT: vorpal swords"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/keyword-subject-plist ()
+  "Test the SUBJECT keyword."
+  (should
+   (string-match-p
+    (regexp-quote "metadata:subject={vorpal swords}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:subject "vorpal swords"))))))
 (ert-deftest test-org-context/keyword-subtitle ()
   "Test the SUBTITLE keyword."
   (should
@@ -1757,6 +1875,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+SUBTITLE: frumorious bandersnatches"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/keyword-subtitle-plist ()
+  "Test the SUBTITLE keyword."
+  (should
+   (string-match-p
+    (regexp-quote "metadata:subtitle={frumorious bandersnatches}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:subtitle "frumorious bandersnatches"))))))
 (ert-deftest test-org-context/keyword-to-address ()
   "Test the TO_ADDRESS keyword."
   (should
@@ -1765,6 +1891,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+TO_ADDRESS: the palace"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/keyword-to-address-plist ()
+  "Test the TO_ADDRESS keyword."
+  (should
+   (string-match-p
+    (regexp-quote "letter:toaddress={the palace}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:to-address "the palace"))))))
 (ert-deftest test-org-context/keyword-to-name ()
   "Test the TO_NAME keyword."
   (should
@@ -1773,6 +1907,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+TO_NAME: bob"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/keyword-to-name-plist ()
+  "Test the TO_NAME keyword."
+  (should
+   (string-match-p
+    (regexp-quote "letter:toname={bob}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:to-name "bob"))))))
 (ert-deftest test-org-context/keyword-url-doc ()
   "Test the URL keyword in the document."
   (should
@@ -1792,6 +1934,14 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
      (context-test-with-temp-text
       ""
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))))
+(ert-deftest test-org-context/keyword-url-plist ()
+  "Test the URL keyword in the document."
+  (should
+   (string-match-p
+    (regexp-quote "metadata:url={beware the jabberwock}")
+    (context-test-with-temp-text
+     ""
+     (org-export-as 'context nil nil nil '(:url "beware the jabberwock"))))))
 
 
 ;;; Images
@@ -2729,7 +2879,6 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
 
 | foo |"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
-
 (ert-deftest test-org-context/table-split-attr-none ()
   "Test table split disabled in ATTR_CONTEXT."
   (should-not
