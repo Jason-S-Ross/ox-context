@@ -2918,21 +2918,15 @@ contextual information."
   "Transcode a KEYWORD element from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((key (org-element-property :key keyword))
-        (value (org-element-property :value keyword)))
+        (value (org-element-property :value keyword))
+        (special-indices
+         (map
+          'identity
+          (lambda (elem) (plist-get (cdr elem) :keyword))
+          org-context-texinfo-indices-alist)))
     (pcase key
      ("CONTEXT" value)
      ("INDEX" (format "\\index{%s}" (org-context--protect-text value)))
-     ((rx (in "CFKPTV") "INDEX")
-      (format "\\%s{%s}"
-              (plist-get
-               (cdr
-                (car
-                 (seq-filter
-                  (lambda (elem)
-                    (string= key (plist-get (cdr elem) :keyword)))
-                  org-context-texinfo-indices-alist)))
-               :command)
-              (org-context--protect-text value)))
      ("TOC"
       (let ((case-fold-search t))
         (pcase value
@@ -2998,7 +2992,18 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
       (let ((file (org-context--get-bib-file keyword)))
         (plist-put info :context-bib-command
                    (format "\\usebtxdataset[%s]" file))
-        nil)))))
+        nil))
+     (pred (lambda (x) (member x special-indices))
+      (format "\\%s{%s}"
+              (plist-get
+               (cdr
+                (car
+                 (seq-filter
+                  (lambda (elem)
+                    (string= key (plist-get (cdr elem) :keyword)))
+                  org-context-texinfo-indices-alist)))
+               :command)
+              (org-context--protect-text value))))))
 
 (defun org-context--get-bib-file (keyword)
   "Return bibliography file as a string.
