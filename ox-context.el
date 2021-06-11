@@ -334,94 +334,63 @@
  :options-alist '(
                   (:attention "ATTENTION" nil nil newline)
                   (:closing "CLOSING" nil org-context-closing parse)
-                  ;; TODO test
                   (:context-block-source-environment nil nil org-context-block-source-environment)
-                  ;; TODO test
                   (:context-blockquote-environment nil nil org-context-blockquote-environment)
-                  ;; TODO test
                   (:context-bullet-off-command nil nil org-context-bullet-off-command)
-                  ;; TODO test
                   (:context-bullet-on-command nil nil org-context-bullet-on-command)
-                  ;; TODO test
                   (:context-bullet-trans-command nil nil org-context-bullet-trans-command)
-                  ;; TODO test
                   (:context-clock-command nil nil org-context-clock-command)
-                  ;; TODO test
                   (:context-description-command nil nil org-context-description-command)
-                  ;; TODO test
                   (:context-drawer-command nil nil org-context-drawer-command)
-                  ;; TODO test
                   (:context-enumerate-blockquote-empty-environment nil nil org-context-enumerate-blockquote-empty-environment)
-                  ;; TODO test
                   (:context-enumerate-blockquote-environment nil nil org-context-enumerate-blockquote-environment)
-                  ;; TODO test
                   (:context-enumerate-example-empty-environment nil nil org-context-enumerate-example-empty-environment)
-                  ;; TODO test
                   (:context-enumerate-example-environment nil nil org-context-enumerate-example-environment)
-                  ;; TODO test
                   (:context-enumerate-listing-empty-environment nil nil org-context-enumerate-listing-empty-environment)
-                  ;; TODO test
                   (:context-enumerate-listing-environment nil nil org-context-enumerate-listing-environment)
-                  ;; TODO test
                   (:context-enumerate-verse-empty-environment nil nil org-context-enumerate-verse-empty-environment)
-                  ;; TODO test
                   (:context-enumerate-verse-environment nil nil org-context-enumerate-verse-environment)
-                  ;; TODO test
                   (:context-example-environment nil nil org-context-example-environment)
                   ;; TODO test
                   (:context-export-quotes-alist nil nil org-context-export-quotes-alist)
-                  ;; TODO test
                   (:context-fixed-environment nil nil org-context-fixed-environment)
                   ;; TODO test
                   (:context-float-default-placement nil nil org-context-float-default-placement)
-                  ;; TODO test
                   (:context-format-clock-function nil nil org-context-format-clock-function)
-                  ;; TODO test
                   (:context-format-drawer-function nil nil org-context-format-drawer-function)
                   ;; TODO test
                   (:context-format-headline-function nil nil org-context-format-headline-function)
-                  ;; TODO test
                   (:context-format-inlinetask-function nil nil org-context-format-inlinetask-function)
-                  ;; TODO test
                   (:context-format-timestamp-function nil nil org-context-format-timestamp-function)
                   (:context-header "CONTEXT_HEADER" nil nil newline)
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
-                  ;; TODO test
                   (:context-headline-command nil nil org-context-headline-command)
                   ;; TODO test
                   (:context-highlighted-langs nil nil org-context-highlighted-langs-alist)
-                  ;; TODO test
                   (:context-image-default-height nil nil org-context-image-default-height)
                   ;; TODO test
                   ;; TODO Implement
                   (:context-image-default-option nil nil org-context-image-default-option)
-                  ;; TODO test
                   (:context-image-default-width nil nil org-context-image-default-width)
                   ;; TODO test
                   (:context-inline-image-rules nil nil org-context-inline-image-rules)
-                  ;; TODO test
                   (:context-inline-source-environment nil nil org-context-inline-source-environment)
-                  ;; TODO test
                   (:context-inlinetask-command nil nil org-context-inlinetask-command)
                   ;; TODO test
                   (:context-inner-templates nil nil org-context-inner-templates-alist)
-                  ;; TODO test
                   (:context-node-property-command nil nil org-context-node-property-command)
                   ;; TODO test
                   (:context-number-equations nil "numeq" org-context-number-equations)
-                  ;; TODO test
                   (:context-planning-command nil nil org-context-planning-command)
                   ;; TODO test
                   (:context-preset "CONTEXT_PRESET" nil org-context-preset t)
                   ;; TODO test
                   (:context-presets nil nil org-context-presets-alist)
-                  ;; TODO test
                   (:context-property-drawer-environment nil nil org-context-property-drawer-environment)
                   ;; TODO test
                   (:context-snippet "CONTEXT_SNIPPET" nil nil split)
                   ;; TODO test
                   (:context-snippets nil nil org-context-snippets-alist)
-                  ;; TODO test
                   (:context-syntax-engine nil "syntax" org-context-syntax-engine)
                   (:context-table-body-style nil nil org-context-table-body-style)
                   (:context-table-bottomleft-style nil nil org-context-table-bottomleft-style)
@@ -460,10 +429,7 @@
                   (:context-table-split "TABLE_SPLIT" nil org-context-table-split parse)
                   ;; TODO test
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
-                  ;; TODO remove from plist
-                  ;; TODO test
                   (:context-verse-environment nil nil org-context-verse-environment)
-                  ;; TODO remove from plist
                   ;; TODO test
                   (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
                   (:date "DATE" nil "\\currentdate" parse)
