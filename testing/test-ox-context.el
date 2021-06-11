@@ -17,8 +17,56 @@
 
 (unless (featurep 'ox-context)
   (signal 'missing-test-dependency "org-export-context"))
+(unless (featurep 'org-inlinetask)
+  (signal 'missing-test-dependency "org-inlinetask"))
 
-;; (load "~/Projects/org-mode/testing/org-test.el")
+(require 'cl)
+(defun context-test-perms (l)
+  "Return all permutations of l"
+  (if (null l)
+      (list '())
+    (mapcan #'(lambda( a )
+                (mapcan #'(lambda( p )
+                            (list (cons a p)))
+                        (context-test-perms (cl-remove a l :count 1))))
+            l)))
+
+(defun context-test-build-ConTeXt-argument-regex (arguments &optional nobrackets nopermute)
+  "Construct a regexp to match combinations of ARGUMENTS.
+ARGUMENTS is an alist of key, value pairs to pass to the
+command."
+  (concat
+   (regexp-quote "[")
+   "[[:space:]]*"
+   (mapconcat
+    (lambda (l)
+     (concat
+      "\\("
+      (mapconcat
+       (lambda (kv)
+         (concat
+          "[[:space:]]*"
+          (car kv)
+          "[[:space:]]*"
+          (regexp-quote "=")
+          "[[:space:]]*"
+          (and (not nobrackets) (regexp-quote "{"))
+          "[[:space:]]*"
+          (cdr kv)
+          "[[:space:]]*"
+          (and (not nobrackets) (regexp-quote "}"))
+          "[[:space:]]*"))
+       l
+       (regexp-quote ",")
+       )
+      ",?"
+      "\\)"))
+    (if nopermute (list arguments) (context-test-perms arguments))
+    "\\|")
+   "[[:space:]]*"
+   (regexp-quote "]")
+))
+
 (defmacro context-test-with-temp-customization-value (varname value &rest body)
   "Execute BODY with VARNAME set to VALUE.
 Sets VARNAME back to VALUE after execution is finished. Returns
@@ -114,13 +162,8 @@ foo bar baz
         (regexp-quote "\\start")
         (regexp-quote enumname)
         "[^[]*"
-        (regexp-quote "[")
-        "[^]]*"
-        (regexp-quote "reference={org")
-        "[0-9a-f]+"
-        (regexp-quote "}")
-        "[^]]*"
-        (regexp-quote "]")
+        (context-test-build-ConTeXt-argument-regex
+         '(("reference" . "org[0-9a-f]+")))
         "\\(.\\|\n\\)*"
         (regexp-quote "\\start")
         (regexp-quote name)
@@ -211,13 +254,8 @@ foo bar baz
         (regexp-quote "\\start")
         (regexp-quote enumname)
         "[^[]*"
-        (regexp-quote "[")
-        "[^]]*"
-        (regexp-quote "reference={org")
-        "[0-9a-f]+"
-        (regexp-quote "}")
-        "[^]]*"
-        (regexp-quote "]")
+        (context-test-build-ConTeXt-argument-regex
+         '(("reference" . "org[0-9a-f]+")))
         "\\(.\\|\n\\)*"
         (regexp-quote "\\start")
         (regexp-quote name)
@@ -258,15 +296,9 @@ foo bar baz
         (regexp-quote "\\start")
         (regexp-quote enumname)
         "[^[]*"
-        (regexp-quote "[")
-        "[^]]*"
-        (regexp-quote "title={foo}")
-        "[^]]*"
-        (regexp-quote "reference={org")
-        "[0-9a-f]+"
-        (regexp-quote "}")
-        "[^]]*"
-        (regexp-quote "]")
+        (context-test-build-ConTeXt-argument-regex
+         '(("reference" . "org[0-9a-f]+")
+           ("title" . "foo")))
         "\\(.\\|\n\\)*"
         (regexp-quote "\\start")
         (regexp-quote name)
@@ -402,13 +434,10 @@ foo bar baz
         "\\(.\\|\n\\)*"
         (regexp-quote (format "\\%s" name2))
         "\\(.\\|\n\\)*"
-        (regexp-quote "[")
-        "[^]]*"
-        (regexp-quote (format "key={%s}," key))
-        "[^]]*"
-        (regexp-quote (format "value={%s}" val))
-        "[^]]*"
-        (regexp-quote "]")
+        (context-test-build-ConTeXt-argument-regex
+         (list (cons "key" key)
+               (cons "value" val)))
+        "test"
         "\\(.\\|\n\\)*"
         (regexp-quote (format "\\stop%s" name)))
        document)
@@ -465,22 +494,65 @@ print(\"Hello, world!\")
        (concat
         (regexp-quote "\\start")
         (regexp-quote enumname)
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         '(("reference" . "org[0-9a-f]+")
+           ("location" . "force,split")))
+        "[[:space:]]*"
+        (regexp-quote (format "\\start%s" name))
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         '(("option" . "python")))
+        "[[:space:]]*"
+        (regexp-quote "print(\"Hello, world!\")")
+        "[[:space:]]*"
+        (regexp-quote (format "\\stop%s" name))
+        "[[:space:]]*"
+        (regexp-quote "\\stop")
+        (regexp-quote enumname))
+       document)
+      (string-match-p
+       def document))))
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (enumname (format "%i" (random)))
+          (enumdef (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-highlighted-langs-alist
+            '(("foolang" . "barlang"))
+            (context-test-with-temp-customization-value
+            org-context-enumerate-listing-empty-environment
+            (cons enumname enumdef)
+            (context-test-with-temp-customization-value
+             org-context-syntax-engine
+             'default
+             (context-test-with-temp-customization-value
+              org-context-block-source-environment
+              (cons name def)
+              (context-test-with-temp-text
+               "#+BEGIN_SRC foolang
+print(\"Hello, world!\")
+#+END_SRC"
+               (org-trim
+                (org-export-as 'context nil nil nil
+                               '(:context-preset "empty"))))))))
+           ))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote "\\start")
+        (regexp-quote enumname)
         "[^[]*"
-        (regexp-quote "[")
-        "[^]]*"
-        (regexp-quote "reference={org")
-        "[0-9a-f]+"
-        (regexp-quote "}")
-        "[^]]*"
-        (regexp-quote "]")
+        (context-test-build-ConTeXt-argument-regex
+         '(("reference" . "org[0-9a-f]+")
+           ("location" . "force,split")))
         "\\(.\\|\n\\)*"
         (regexp-quote (format "\\start%s" name))
         "[^[]*"
-        (regexp-quote "[")
-        "[^]]*"
-        (regexp-quote "option={python}")
-        "[^]]*"
-        (regexp-quote "]")
+        (context-test-build-ConTeXt-argument-regex
+         '(("option" . "barlang")))
         "\\(.\\|\n\\)*"
         (regexp-quote "print(\"Hello, world!\")")
         "\\(.\\|\n\\)*"
@@ -520,23 +592,16 @@ print(\"Hello, world!\")
         (regexp-quote "\\start")
         (regexp-quote enumname)
         "[^[]*"
-        (regexp-quote "[")
-        "[^]]*"
-        (regexp-quote "title={foo}")
-        "[^]]*"
-        (regexp-quote "reference={org")
-        "[0-9a-f]+"
-        (regexp-quote "}")
-        "[^]]*"
-        (regexp-quote "]")
+        (context-test-build-ConTeXt-argument-regex
+         '(("title" . "foo")
+           ("reference" . "org[0-9a-f]+")
+           ("location" . "force,split")))
         "\\(.\\|\n\\)*"
         (regexp-quote (format "\\start%s" name))
         "[^[]*"
-        (regexp-quote "[")
-        "[^]]*"
-        (regexp-quote "option={python}")
-        "[^]]*"
-        (regexp-quote "]")
+        (context-test-build-ConTeXt-argument-regex
+         '(("option" . "python")))
+        "ass"
         "\\(.\\|\n\\)*"
         (regexp-quote "print(\"Hello, world!\")")
         "\\(.\\|\n\\)*"
@@ -578,6 +643,46 @@ print(\"Hello, world!\")
         (regexp-quote "\\definevimtyping")
         "[^[]*"
         (regexp-quote (format "[%sPython]" name)))
+       document))))
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-vim-langs-alist
+            '(("foolang" :vim-name "bazlang" :context-name "Barlang"))
+            (context-test-with-temp-customization-value
+             org-context-syntax-engine
+             'vim
+             (context-test-with-temp-customization-value
+              org-context-block-source-environment
+              (cons name def)
+              (context-test-with-temp-text
+               "#+BEGIN_SRC foolang
+print(\"Hello, world!\")
+#+END_SRC"
+               (org-trim
+                (org-export-as 'context nil nil nil
+                               '(:context-preset "empty")))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote (format "\\start%sBarlang" name))
+        "\\(.\\|\n\\)*"
+        (regexp-quote "print(\"Hello, world!\")")
+        "\\(.\\|\n\\)*"
+        (regexp-quote (format "\\stop%s" name)))
+       document)
+      (string-match-p
+       (concat
+        (regexp-quote "\\definevimtyping")
+        "[^[]*"
+        (regexp-quote (format "[%sBarlang]" name))
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         '(("syntax" . "bazlang")
+           ("escape" . "command"))
+         t))
        document))))
   ;; Verses
   (should
@@ -651,31 +756,296 @@ foo bar baz
        (concat
         (regexp-quote "\\start")
         (regexp-quote enumname)
-        "[^[]*"
-        (regexp-quote "[")
-        "[^]]*"
-        (regexp-quote "title={foo}")
-        "[^]]*"
-        (regexp-quote "reference={org")
-        "[0-9a-f]+"
-        (regexp-quote "}")
-        "[^]]*"
-        (regexp-quote "]")
-        "\\(.\\|\n\\)*"
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         '(("title" . "foo")
+           ("reference" . "org[0-9a-f]+")))
+        "[[:space:]]*"
         (regexp-quote "\\start")
         (regexp-quote name)
-        "\\(.\\|\n\\)*"
+        "[[:space:]]*"
         (regexp-quote "foo bar baz")
-        "\\(.\\|\n\\)*"
+        "[[:space:]]*"
         (regexp-quote "\\stop")
         (regexp-quote name)
-        "\\(.\\|\n\\)*"
+        "[[:space:]]*"
         (regexp-quote "\\stop")
         (regexp-quote enumname))
        document)
       (string-match-p
        def document))))
+  ;; Drawers
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-format-drawer-function
+            (lambda (name contents info)
+              (let ((formatter
+                     (car (plist-get info :context-drawer-command))))
+                (format "\\TEST%s{%s}{%s}" formatter name contents)))
+            (context-test-with-temp-customization-value
+             org-context-drawer-command
+             (cons name def)
+             (context-test-with-temp-text
+              ":MyDrawer:
+foo bar baz
+:END:"
+              (org-trim
+               (org-export-as 'context nil nil nil
+                              '(:context-preset "empty"))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote (format "\\TEST%s" name))
+        "[^{]*"
+        (regexp-quote "{")
+        "[^}]*"
+        (regexp-quote "MyDrawer")
+        "[^}]*"
+        (regexp-quote "}")
+        "\\(.\\|\n\\)*"
+        (regexp-quote "{")
+        "[^}]*"
+        (regexp-quote "foo bar baz")
+        "[^}]*"
+        (regexp-quote "}"))
+       document)
+      (string-match-p def document))))
+  ;; Inline Tasks
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-format-inlinetask-function
+            (lambda (todo todo-type priority title tags contents info)
+              (let ((format-command
+                     (org-string-nw-p (car (plist-get info :context-inlinetask-command)))))
+                (if format-command
+                    (format
+                     "\\%s
+  [%s]"
+                     format-command
+                     (org-context--format-arguments
+                      (list
+                       (cons "TestTodo" todo)
+                       (cons "TestTodoType" todo-type)
+                       (cons "TestPriority" priority)
+                       (cons "TestTitle" title)
+                       (cons "TestTags" (org-make-tag-string (mapcar #'org-context--protect-text tags)))
+                       (cons "TestContents" contents))))
+                  (concat title "\\hairline" contents "\\hairline")))
+              )
+            (context-test-with-temp-customization-value
+             org-context-inlinetask-command
+             (cons name def)
+             (context-test-with-temp-text
+              "*************** TODO [#A] my task :tag1:tag2:
+foo bar baz
+*************** END"
+              (org-trim
+               (org-export-as 'context nil nil nil
+                              '(:context-preset "empty"))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote (format "\\%s" name))
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         '(("TestTodo" . "TODO")
+           ("TestTodoType" . "todo")
+           ("TestTitle" . "my task")
+           ("TestTags" . ":tag1:tag2:")
+           ("TestContents" . "foo bar baz"))
+         nil t))
+       document)
+      (string-match-p def document))))
+  ;; Planning
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (plan-string (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-format-timestamp-function
+           (lambda (timestamp)
+             (format-time-string
+              "TEST TIMESTAMP %Y"
+              (org-timestamp-to-time timestamp)))
+            (context-test-with-temp-customization-value
+             org-export-with-planning
+             t
+             (context-test-with-temp-customization-value
+              org-context-planning-command
+              (cons name def)
+              (context-test-with-temp-text
+               "*** TODO write article about the Earth for the Guide
+DEADLINE: <2004-02-29 Sun>"
+               (org-trim
+                (org-export-as 'context nil nil nil
+                               '(:context-preset "empty")))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote (format "\\%s" name))
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list (cons "DeadlineString" org-deadline-string)
+               (cons "DeadlineTime" "TEST TIMESTAMP 2004"))))
+       document)
+      (string-match-p def document))))
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (plan-string (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-format-timestamp-function
+           (lambda (timestamp)
+             (format-time-string
+              "TEST TIMESTAMP %Y"
+              (org-timestamp-to-time timestamp)))
+            (context-test-with-temp-customization-value
+             org-export-with-planning
+             t
+             (context-test-with-temp-customization-value
+              org-context-planning-command
+              (cons name def)
+              (context-test-with-temp-text
+               "*** TODO write article about the Earth for the Guide
+SCHEDULED: <2004-02-29 Sun>"
+               (org-trim
+                (org-export-as 'context nil nil nil
+                               '(:context-preset "empty")))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote (format "\\%s" name))
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list (cons "ScheduledString" org-scheduled-string)
+               (cons "ScheduledTime" "TEST TIMESTAMP 2004"))))
+       document)
+      (string-match-p def document))))
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (plan-string (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-format-timestamp-function
+           (lambda (timestamp)
+             (format-time-string
+              "TEST TIMESTAMP %Y"
+              (org-timestamp-to-time timestamp)))
+            (context-test-with-temp-customization-value
+             org-export-with-planning
+             t
+             (context-test-with-temp-customization-value
+              org-context-planning-command
+              (cons name def)
+              (context-test-with-temp-text
+               "*** TODO write article about the Earth for the Guide
+CLOSED: <2004-02-29 Sun>"
+               (org-trim
+                (org-export-as 'context nil nil nil
+                               '(:context-preset "empty")))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote (format "\\%s" name))
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list (cons "ClosedString" org-closed-string)
+               (cons "ClosedTime" "TEST TIMESTAMP 2004"))))
+       document)
+      (string-match-p def document))))
+  (should
+   ;; NOTE This could fail if the function changes the order
+   ;; the arguments are provided, but all arguments are present.
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (plan-string (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-context-format-timestamp-function
+           (lambda (timestamp)
+             (format-time-string
+              "TEST TIMESTAMP %Y"
+              (org-timestamp-to-time timestamp)))
+            (context-test-with-temp-customization-value
+             org-export-with-planning
+             t
+             (context-test-with-temp-customization-value
+              org-context-planning-command
+              (cons name def)
+              (context-test-with-temp-text
+               "*** TODO write article about the Earth for the Guide
+SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
+               (org-trim
+                (org-export-as 'context nil nil nil
+                               '(:context-preset "empty")))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote (format "\\%s" name))
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list (cons "ClosedString" org-closed-string)
+               (cons "ClosedTime" "TEST TIMESTAMP 2003")
+               (cons "DeadlineString" org-deadline-string)
+               (cons "DeadlineTime" "TEST TIMESTAMP 2004")
+               (cons "ScheduledString" org-scheduled-string)
+               (cons "ScheduledTime" "TEST TIMESTAMP 2002")
+
+               )
+         nil t)
+        )
+       document)
+      (string-match-p def document))))
+  ;; Clock
+  (should
+   (let* ((name (format "%i" (random)))
+          (def (format "%i" (random)))
+          (document
+           (context-test-with-temp-customization-value
+            org-export-with-clocks
+            t
+            (context-test-with-temp-customization-value
+             org-context-format-clock-function
+             (lambda (timestamp info)
+               (let ((formatter
+                      (car (plist-get info :context-clock-command)))
+                     )
+                 (format "\\%s[%s]"
+                         formatter
+                         (format-time-string
+                          "%Y"
+                          (org-timestamp-to-time timestamp)))))
+             (context-test-with-temp-customization-value
+              org-context-clock-command
+              (cons name def)
+              (context-test-with-temp-text
+               "CLOCK: [2021-01-15 Fri 16:58   ]"
+               (org-trim
+                (org-export-as 'context nil nil nil
+                               '(:context-preset "empty")))))))))
+     (and
+      (string-match-p
+       (concat
+        (regexp-quote (format "\\%s" name))
+        "[^[]*"
+        (regexp-quote "[")
+        "[^]]*"
+        (regexp-quote "2021")
+        "[^]]*"
+        (regexp-quote "]"))
+       document)
+      (string-match-p def document))))
   )
+
 
 ;;; Markup Functions
 (ert-deftest test-org-context-markup ()
@@ -873,7 +1243,22 @@ foo bar baz
 (ert-deftest test-org-context-export-headline ()
   "Test `org-context-headline'"
   (let ((inside-headline-regex
-         "title={\\\\OrgHeadline[\s\n]*\\[Text={%s}\\]},[\s\n]*list={%s},[\s\n]*marking={%s},[\s\n]*bookmark={%s},[\s\n]*reference={sec:org[a-f0-9]+}")
+         "title={\\\\TestOrgHeadline[\s\n]*\\[Text={%s}\\]},[\s\n]*list={%s},[\s\n]*marking={%s},[\s\n]*bookmark={%s},[\s\n]*reference={sec:org[a-f0-9]+}")
+        (headline-command
+         '("TestOrgHeadline" . "\\def\\TestOrgHeadline#1[#2]{%
+  \\getparameters
+    [TestOrgHeadline]
+    [Todo=,
+     TodoType=,
+     Priority=,
+     Text=,
+     Tags=,
+     #2]
+  \\doifnot{\\TestOrgHeadlineTodo}{}{{\\sansbold{\\smallcaps{\\TestOrgHeadlineTodo}}\\space}}%
+  \\doifnot{\\TestOrgHeadlinePriority}{}{{\\inframed{\\TestOrgHeadlinePriority}\\space}}%
+  \\TestOrgHeadlineText%
+  \\doifnot{\\TestOrgHeadlineTags}{}{{\\hfill\\tt\\TestOrgHeadlineTags}}%
+}"))
         (headline-name "Headline 1"))
 
     ;; Trivial case
@@ -881,15 +1266,23 @@ foo bar baz
      (string-match-p
       (format "\\\\startsection\\[%s\\][\s\n]*\\\\stopsection"
               (format inside-headline-regex headline-name headline-name headline-name headline-name))
-      (context-test-with-temp-text "* Headline 1"
-        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+      (context-test-with-temp-customization-value
+       org-context-headline-command
+       headline-command
+       (context-test-with-temp-text
+        "* Headline 1"
+        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
     ;; Not-numbered
     (should
      (string-match-p
       (format "\\\\startsubject\\[%s\\][\s\n]*\\\\stopsubject"
               (format inside-headline-regex headline-name headline-name headline-name headline-name))
-      (context-test-with-temp-text "* Headline 1\n:PROPERTIES:\n:UNNUMBERED:\n:END:"
-        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+      (context-test-with-temp-customization-value
+       org-context-headline-command
+       headline-command
+       (context-test-with-temp-text
+        "* Headline 1\n:PROPERTIES:\n:UNNUMBERED:\n:END:"
+        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
     ;; Escape characters in headlines
     (should
      (string-match-p
@@ -903,56 +1296,75 @@ foo bar baz
                  replacement
                  replacement
                  replacement)))
-      (context-test-with-temp-text "* Headline `~!@#$%^&*()_-=+[{}]|\\:;\"'<,>.?/"
-        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+      (context-test-with-temp-customization-value
+       org-context-headline-command
+       headline-command
+       (context-test-with-temp-text "* Headline `~!@#$%^&*()_-=+[{}]|\\:;\"'<,>.?/"
+        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
     ;; Nested headlines should wrap each other
     (should
      (string-match-p
       (format "\\\\startsection\\[%s\\][\s\n]*\\\\startsubsection\\[%s\\][\s\n]*\\\\stopsubsection[\s\n]*\\\\stopsection"
               (format inside-headline-regex "Headline 1" "Headline 1" "Headline 1" "Headline 1")
               (format inside-headline-regex "Headline 2" "Headline 2" "Headline 2" "Headline 2"))
-      (context-test-with-temp-text "* Headline 1\n** Headline 2"
-        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+      (context-test-with-temp-customization-value
+       org-context-headline-command
+       headline-command
+       (context-test-with-temp-text "* Headline 1\n** Headline 2"
+        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
     ;; Alt text for title
     (should
      (string-match-p
       (format "\\\\startsection\\[%s\\][\s\n]*\\\\stopsection"
               (format inside-headline-regex headline-name "alt" "alt" "alt"))
-      (context-test-with-temp-text "* Headline 1\n:PROPERTIES:\n:ALT_TITLE: alt\n:END:"
-        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+      (context-test-with-temp-customization-value
+       org-context-headline-command
+       headline-command
+       (context-test-with-temp-text "* Headline 1\n:PROPERTIES:\n:ALT_TITLE: alt\n:END:"
+        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
     ;; todo keywords
     (should
      (string-match-p
       (format "\\\\startsection\\[%s\\][\s\n]*\\\\stopsection"
-              (format "title={\\\\OrgHeadline[\s\n]*\\[Todo={TODO},[\s\n]*Text={%s}\\]},[\s\n]*list={%s},[\s\n]*marking={%s},[\s\n]*bookmark={%s},[\s\n]*reference={sec:org[a-f0-9]+}"
+              (format "title={\\\\TestOrgHeadline[\s\n]*\\[Todo={TODO},[\s\n]*Text={%s}\\]},[\s\n]*list={%s},[\s\n]*marking={%s},[\s\n]*bookmark={%s},[\s\n]*reference={sec:org[a-f0-9]+}"
                       headline-name
                       headline-name
                       headline-name
                       headline-name))
-      (context-test-with-temp-text "* TODO Headline 1"
-        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+      (context-test-with-temp-customization-value
+       org-context-headline-command
+       headline-command
+       (context-test-with-temp-text "* TODO Headline 1"
+        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
     ;; Tags
     (should
      (string-match-p
       (format "\\\\startsection\\[%s\\][\s\n]*\\\\stopsection"
-              (format "title={\\\\OrgHeadline[\s\n]*\\[Text={%s},[\s\n]*Tags={tag1:tag2}\\]},[\s\n]*list={%s},[\s\n]*marking={%s},[\s\n]*bookmark={%s},[\s\n]*reference={sec:org[a-f0-9]+}"
+              (format "title={\\\\TestOrgHeadline[\s\n]*\\[Text={%s},[\s\n]*Tags={tag1:tag2}\\]},[\s\n]*list={%s},[\s\n]*marking={%s},[\s\n]*bookmark={%s},[\s\n]*reference={sec:org[a-f0-9]+}"
                       headline-name
                       headline-name
                       headline-name
                       headline-name))
-      (context-test-with-temp-text "* Headline 1 :tag1:tag2:"
-        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+      (context-test-with-temp-customization-value
+       org-context-headline-command
+       headline-command
+       (context-test-with-temp-text "* Headline 1 :tag1:tag2:"
+        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
     ;; Priority
     (should
      (string-match-p
       (format "\\\\startsection\\[%s\\][\s\n]*\\\\stopsection"
-              (format "title={\\\\OrgHeadline[\s\n]*\\[Priority={A},[\s\n]*Text={%s}\\]},[\s\n]*list={%s},[\s\n]*marking={%s},[\s\n]*bookmark={%s},[\s\n]*reference={sec:org[a-f0-9]+}"
+              (format "title={\\\\TestOrgHeadline[\s\n]*\\[Priority={A},[\s\n]*Text={%s}\\]},[\s\n]*list={%s},[\s\n]*marking={%s},[\s\n]*bookmark={%s},[\s\n]*reference={sec:org[a-f0-9]+}"
                       headline-name
                       headline-name
                       headline-name
                       headline-name))
-      (context-test-with-temp-text "* [#A] Headline 1"
-        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty" :with-priority t))))))))
+      (context-test-with-temp-customization-value
+       org-context-headline-command
+       headline-command
+       (context-test-with-temp-text "* [#A] Headline 1"
+        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty" :with-priority t)))))))
+    ))
 
 ;;; Keywords
 (ert-deftest test-org-context-export-keywords ()
@@ -1265,6 +1677,15 @@ foo bar baz
     (regexp-quote "metadata:url={beware the jabberwock}")
     (context-test-with-temp-text "#+URL: beware the jabberwock"
       (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "metadata:url={beware the jabberwock}")
+    (context-test-with-temp-customization-value
+     org-context-url
+     "beware the jabberwock"
+     (context-test-with-temp-text
+      ""
+      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
   )
 
 ;;; Images
@@ -1274,10 +1695,18 @@ foo bar baz
   (should
    (equal
     "\\startplacefigure[location={Here}]
-\\externalfigure[./images/cat.jpg][width={\\dimexpr \\hsize - 1em \\relax}]
+\\externalfigure[./images/cat.jpg][width={TestWidth}]
 \\stopplacefigure"
-    (context-test-with-temp-text "[[./images/cat.jpg]]"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+    (context-test-with-temp-customization-value
+     org-context-image-default-height
+     ""
+     (context-test-with-temp-customization-value
+      org-context-image-default-width
+      "TestWidth"
+      (context-test-with-temp-text
+       "[[./images/cat.jpg]]"
+       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))
+      ))))
   ;; With Caption
   (should
    (equal
@@ -1335,6 +1764,33 @@ foo bar baz
 \\stopplacefigure"
     (context-test-with-temp-text "#+ATTR_CONTEXT: :height 2in\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+  (should
+   (equal
+    "\\startplacefigure[location={Here}]
+\\externalfigure[./images/cat.jpg][height={TestHeight},
+   width={TestWidth}]
+\\stopplacefigure"
+    (context-test-with-temp-customization-value
+     org-context-image-default-width
+     "TestWidth"
+     (context-test-with-temp-customization-value
+      org-context-image-default-height "TestHeight"
+      (context-test-with-temp-text
+       "[[./images/cat.jpg]]"
+       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+  (should
+   (equal
+    "\\startplacefigure[location={Here}]
+\\externalfigure[./images/cat.jpg][height={TestHeight}]
+\\stopplacefigure"
+    (context-test-with-temp-customization-value
+     org-context-image-default-width
+     ""
+     (context-test-with-temp-customization-value
+      org-context-image-default-height "TestHeight"
+      (context-test-with-temp-text
+       "[[./images/cat.jpg]]"
+       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
   )
 
 ;;; Links
@@ -1400,6 +1856,7 @@ foo bar baz
      (regexp-quote "\\reference[org")
      "[0-9a-f]+"
      (regexp-quote "]{foo}")
+     "\\(.\\|\n\\)*"
      (regexp-quote
      "\\startalignment"))
     (context-test-with-temp-text "#+NAME: foo\n#+BEGIN_CENTER\nfoo bar baz\n#+END_CENTER"
@@ -2132,6 +2589,315 @@ foo bar baz
 | foo |"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
   )
+
+;;; Document Structure
+(ert-deftest test-org-context-document-structure ()
+  "Test that document structure matches what we expect generally."
+  (should
+   (let ((document
+          (context-test-with-temp-customization-value
+           org-context-texinfo-indices-alist
+           '(("foo" . (:keyword "FOOINDEX" :command "TestFooIndex")))
+           (context-test-with-temp-customization-value
+            org-context-inner-templates-alist
+            '(("TestFrame" . "
+BACKMATTER
+%b
+INDEX
+%i
+CONTENT
+%c
+COPYING
+%o
+APPENDIX
+%a
+FRONTMATTER
+%f
+"))
+            (context-test-with-temp-customization-value
+             org-context-preset
+             "TestPreset"
+             (context-test-with-temp-customization-value
+              org-context-presets-alist
+              '(("TestPreset" .
+                 (:literal "Test Literal"
+                  :template "TestFrame"
+                  :snippets ("TestSnippet"))))
+              (context-test-with-temp-customization-value
+               org-context-snippets-alist
+               '(("TestSnippet" . "A Test Snippet"))
+               (context-test-with-temp-text
+                "
+* Backmatter Headline
+:PROPERTIES:
+:BACKMATTER:
+:END:
+Some back matter
+
+* Appendix Headline 1
+:PROPERTIES:
+:APPENDIX:
+:END:
+Appendix
+
+* Normal Headline 1
+Normal section
+
+* Copying Headline 1
+:PROPERTIES:
+:COPYING:
+:END:
+Some copying section
+
+* Index Headline 1
+:PROPERTIES:
+:INDEX: foo
+:END:
+Some Index
+
+* Frontmatter Headline 1
+:PROPERTIES:
+:FRONTMATTER:
+:END:
+Some Frontmatter
+
+* Copying Headline 2
+:PROPERTIES:
+:COPYING:
+:END:
+Some more copying section
+
+* Appendix Headline 2
+:PROPERTIES:
+:APPENDIX:
+:END:
+More appendix
+
+* Frontmatter Headline 2
+:PROPERTIES:
+:FRONTMATTER:
+:END:
+Some more frontmatter
+
+* Index Headline 2
+:PROPERTIES:
+:INDEX: foo
+:END:
+Some More Index
+"
+                (org-trim
+                 (org-export-as 'context nil nil nil))))))))))
+     (and
+      (string-match-p
+       (concat
+        "BACKMATTER"
+        "[[:space:]]*"
+        (regexp-quote "\\startsection")
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list  (cons "title"
+                      (concat
+                       (regexp-quote "\\OrgHeadline")
+                       "[[:space:]]*"
+                       (context-test-build-ConTeXt-argument-regex
+                        '(("Text" . "Backmatter Headline")))))
+                (cons "list" "Backmatter Headline")
+                (cons "marking" "Backmatter Headline")
+                (cons "bookmark" "Backmatter Headline")
+                (cons "reference" "sec:org[0-9a-f]+"))
+         nil t)
+        "[[:space:]]*"
+        (regexp-quote "Some back matter")
+        "[[:space:]]*"
+        (regexp-quote "\\stopsection")
+        "[[:space:]]*"
+        "INDEX"
+        "[[:space:]]*"
+        (regexp-quote "\\startsection")
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list  (cons "title"
+                      (concat
+                       (regexp-quote "\\OrgHeadline")
+                       "[[:space:]]*"
+                       (context-test-build-ConTeXt-argument-regex
+                        '(("Text" . "Index Headline 1")))))
+                (cons "list" "Index Headline 1")
+                (cons "marking" "Index Headline 1")
+                (cons "bookmark" "Index Headline 1")
+                (cons "reference" "sec:org[0-9a-f]+"))
+         nil t)
+        "[[:space:]]*"
+        (regexp-quote "\\placeregister[TestFooIndex]")
+        "[[:space:]]*"
+        (regexp-quote "Some Index")
+        "[[:space:]]*"
+        (regexp-quote "\\stopsection")
+        "[[:space:]]*"
+        (regexp-quote "\\startsection")
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list  (cons "title"
+                      (concat
+                       (regexp-quote "\\OrgHeadline")
+                       "[[:space:]]*"
+                       (context-test-build-ConTeXt-argument-regex
+                        '(("Text" . "Index Headline 2")))))
+                (cons "list" "Index Headline 2")
+                (cons "marking" "Index Headline 2")
+                (cons "bookmark" "Index Headline 2")
+                (cons "reference" "sec:org[0-9a-f]+"))
+         nil t)
+        "[[:space:]]*"
+        (regexp-quote "\\placeregister[TestFooIndex]")
+        "[[:space:]]*"
+        (regexp-quote "Some More Index")
+        "[[:space:]]*"
+        (regexp-quote "\\stopsection")
+        "[[:space:]]*"
+        "CONTENT"
+        "[[:space:]]*"
+        (regexp-quote "\\startsection")
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list  (cons "title"
+                      (concat
+                       (regexp-quote "\\OrgHeadline")
+                       "[[:space:]]*"
+                       (context-test-build-ConTeXt-argument-regex
+                        '(("Text" . "Normal Headline 1")))))
+                (cons "list" "Normal Headline 1")
+                (cons "marking" "Normal Headline 1")
+                (cons "bookmark" "Normal Headline 1")
+                (cons "reference" "sec:org[0-9a-f]+"))
+         nil t)
+        "[[:space:]]*"
+        (regexp-quote "Normal section")
+        "[[:space:]]*"
+        (regexp-quote "\\stopsection")
+        "[[:space:]]*"
+        "COPYING"
+        "[[:space:]]*"
+        (regexp-quote "\\startsection")
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list  (cons "title"
+                      (concat
+                       (regexp-quote "\\OrgHeadline")
+                       "[[:space:]]*"
+                       (context-test-build-ConTeXt-argument-regex
+                        '(("Text" . "Copying Headline 1")))))
+                (cons "list" "Copying Headline 1")
+                (cons "marking" "Copying Headline 1")
+                (cons "bookmark" "Copying Headline 1")
+                (cons "reference" "sec:org[0-9a-f]+"))
+         nil t)
+        "[[:space:]]*"
+        (regexp-quote "Some copying section")
+        "[[:space:]]*"
+        (regexp-quote "\\stopsection")
+        "[[:space:]]*"
+        (regexp-quote "\\startsection")
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list  (cons "title"
+                      (concat
+                       (regexp-quote "\\OrgHeadline")
+                       "[[:space:]]*"
+                       (context-test-build-ConTeXt-argument-regex
+                        '(("Text" . "Copying Headline 2")))))
+                (cons "list" "Copying Headline 2")
+                (cons "marking" "Copying Headline 2")
+                (cons "bookmark" "Copying Headline 2")
+                (cons "reference" "sec:org[0-9a-f]+"))
+         nil t)
+        "[[:space:]]*"
+        (regexp-quote "Some more copying section")
+        "[[:space:]]*"
+        (regexp-quote "\\stopsection")
+        "[[:space:]]*"
+        "APPENDIX"
+        "[[:space:]]*"
+        (regexp-quote "\\startsection")
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list  (cons "title"
+                      (concat
+                       (regexp-quote "\\OrgHeadline")
+                       "[[:space:]]*"
+                       (context-test-build-ConTeXt-argument-regex
+                        '(("Text" . "Appendix Headline 1")))))
+                (cons "list" "Appendix Headline 1")
+                (cons "marking" "Appendix Headline 1")
+                (cons "bookmark" "Appendix Headline 1")
+                (cons "reference" "sec:org[0-9a-f]+"))
+         nil t)
+        "[[:space:]]*"
+        (regexp-quote "Appendix")
+        "[[:space:]]*"
+        (regexp-quote "\\stopsection")
+        "[[:space:]]*"
+        (regexp-quote "\\startsection")
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list  (cons "title"
+                      (concat
+                       (regexp-quote "\\OrgHeadline")
+                       "[[:space:]]*"
+                       (context-test-build-ConTeXt-argument-regex
+                        '(("Text" . "Appendix Headline 2")))))
+                (cons "list" "Appendix Headline 2")
+                (cons "marking" "Appendix Headline 2")
+                (cons "bookmark" "Appendix Headline 2")
+                (cons "reference" "sec:org[0-9a-f]+"))
+         nil t)
+        "[[:space:]]*"
+        (regexp-quote "More appendix")
+        "[[:space:]]*"
+        (regexp-quote "\\stopsection")
+        "[[:space:]]*"
+        "FRONTMATTER"
+        "[[:space:]]*"
+        (regexp-quote "\\startsection")
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list  (cons "title"
+                      (concat
+                       (regexp-quote "\\OrgHeadline")
+                       "[[:space:]]*"
+                       (context-test-build-ConTeXt-argument-regex
+                        '(("Text" . "Frontmatter Headline 1")))))
+                (cons "list" "Frontmatter Headline 1")
+                (cons "marking" "Frontmatter Headline 1")
+                (cons "bookmark" "Frontmatter Headline 1")
+                (cons "reference" "sec:org[0-9a-f]+"))
+         nil t)
+        "[[:space:]]*"
+        (regexp-quote "Some Frontmatter")
+        "[[:space:]]*"
+        (regexp-quote "\\stopsection")
+        "[[:space:]]*"
+        (regexp-quote "\\startsection")
+        "[[:space:]]*"
+        (context-test-build-ConTeXt-argument-regex
+         (list  (cons "title"
+                      (concat
+                       (regexp-quote "\\OrgHeadline")
+                       "[[:space:]]*"
+                       (context-test-build-ConTeXt-argument-regex
+                        '(("Text" . "Frontmatter Headline 2")))))
+                (cons "list" "Frontmatter Headline 2")
+                (cons "marking" "Frontmatter Headline 2")
+                (cons "bookmark" "Frontmatter Headline 2")
+                (cons "reference" "sec:org[0-9a-f]+"))
+         nil t)
+        "[[:space:]]*"
+        (regexp-quote "Some more Frontmatter")
+        "[[:space:]]*"
+        (regexp-quote "\\stopsection")
+        "[[:space:]]*")
+       document)
+      (string-match-p "A Test Snippet" document)))))
 
 (provide 'test-ox-context)
 ;;; test-ox-context ends here
