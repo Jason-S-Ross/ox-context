@@ -1434,45 +1434,16 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+INDEX: foo"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/keyword-cindex ()
-  "Test the CINDEX keyword."
+(ert-deftest test-org-context/keyword-index-custom ()
+  "Test an index from `org-context-texinfo-indices-alist'."
   (should
    (equal
-    "\\OrgConcept{foo}"
-    (context-test-with-temp-text "#+CINDEX: foo"
-      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/keyword-findex ()
-  "Test the FINDEX keyword."
-  (should
-   (equal
-    "\\OrgFunction{foo}"
-    (context-test-with-temp-text
-     "#+FINDEX: foo"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/keyword-kindex ()
-  "Test the KINDEX keyword."
-  (should
-   (equal
-    "\\OrgKeystroke{foo}"
-    (context-test-with-temp-text
-     "#+KINDEX: foo"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/keyword-pindex ()
-  "Test the PINDEX keyword."
-  (should
-   (equal
-    "\\OrgProgram{foo}"
-    (context-test-with-temp-text
-     "#+PINDEX: foo"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/keyword-tindex ()
-  "Test the TINDEX keyword."
-  (should
-   (equal
-    "\\OrgDataType{foo}"
-    (context-test-with-temp-text
-     "#+TINDEX: foo"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+    "\\TestFoo{foo}"
+    (context-test-with-temp-customization-value
+     org-context-texinfo-indices-alist
+     '(("foo" . (:keyword "FOOINDEX" :command "TestFoo")))
+     (context-test-with-temp-text "#+FOOINDEX: foo"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/keyword-vindex ()
   "Test the VINDEX keyword."
   (should
@@ -1513,52 +1484,17 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
     (context-test-with-temp-text
      "#+TOC: definitions"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/keyword-toc-cp ()
-  "Test placing list of concepts."
+(ert-deftest test-org-context/keyword-toc-custom ()
+  "Test placing list from `org-context-texinfo-indices-alist'."
   (should
    (equal
-    "\\placeregister[OrgConcept]"
-    (context-test-with-temp-text
-     "#+TOC: cp"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/keyword-toc-fn ()
-  "Test placing list of orgfunctions."
-  (should
-   (equal
-    "\\placeregister[OrgFunction]"
-    (context-test-with-temp-text
-     "#+TOC: fn"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/keyword-toc-ky ()
-  "Test placing list of keystrokes."
-  (should
-   (equal
-    "\\placeregister[OrgKeystroke]"
-    (context-test-with-temp-text
-     "#+TOC: ky"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/keyword-toc-pg ()
-  "Test placing list of programs."
-  (should
-   (equal
-    "\\placeregister[OrgProgram]"
-    (context-test-with-temp-text "#+TOC: pg"
-      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/keyword-toc-tp ()
-  "Test placing list of datatypes."
-  (should
-   (equal
-    "\\placeregister[OrgDataType]"
-    (context-test-with-temp-text "#+TOC: tp"
-      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/keyword-toc-vr ()
-  "Test placing list of variables."
-  (should
-   (equal
-    "\\placeregister[OrgVariable]"
-    (context-test-with-temp-text
-     "#+TOC: vr"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+    "\\placeregister[TestFoo]"
+    (context-test-with-temp-customization-value
+     org-context-texinfo-indices-alist
+     '(("foo" . (:keyword "FOOINDEX" :command "TestFoo")))
+     (context-test-with-temp-text
+     "#+TOC: foo"
+     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/keyword-toc-headline-plain ()
   "Test placing plain toc"
   (should
