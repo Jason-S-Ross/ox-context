@@ -111,7 +111,6 @@ holding TEXT."
     (context-test-with-temp-text
      "testing names of TeX, LaTeX, and ConTeXt. tex, latex, and context shouldn't match."
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-
 (ert-deftest test-org-context/protect-special-para ()
   "Protect special characters in text"
   (should
@@ -127,27 +126,47 @@ holding TEXT."
   (should
    (equal
     "Quote: \\quotation{Cogito ergo sum} - Descartes"
-    (context-test-with-temp-text
-     "Quote: \"Cogito ergo sum\" - Descartes"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-
+    (context-test-with-temp-customization-value
+     org-context-export-quotes-alist
+     '((primary-opening . "\\quotation{")
+       (primary-closing . "}")
+       (secondary-opening . "\\quote{")
+       (secondary-closing . "}")
+       (apostrophe . "'"))
+     (context-test-with-temp-text
+      "Quote: \"Cogito ergo sum\" - Descartes"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/smart-quote-apostrophe ()
   "Test apostrophes in text."
   (should
    (equal
     "Here's a quote: \\quotation{I think, therefore I am}"
-    (context-test-with-temp-text
-     "Here's a quote: \"I think, therefore I am\""
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-
+    (context-test-with-temp-customization-value
+     org-context-export-quotes-alist
+     '((primary-opening . "\\quotation{")
+       (primary-closing . "}")
+       (secondary-opening . "\\quote{")
+       (secondary-closing . "}")
+       (apostrophe . "'"))
+     (context-test-with-temp-text
+      "Here's a quote: \"I think, therefore I am\""
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/smart-quote-nested ()
   "Test nested quotes."
   (should
    (equal
-    "Here's a nested quote: \\quotation{Descartes says \\quote{I think therefore I am}}"
-    (context-test-with-temp-text
+    "Here\\TestApostrophes a nested quote: \\TestPrimary{Descartes says \\TestSecondary{I think therefore I am}}"
+    (context-test-with-temp-customization-value
+     org-context-export-quotes-alist
+     '((primary-opening . "\\TestPrimary{")
+       (primary-closing . "}")
+       (secondary-opening . "\\TestSecondary{")
+       (secondary-closing . "}")
+       (apostrophe . "\\TestApostrophe"))
+     (context-test-with-temp-text
      "Here's a nested quote: \"Descartes says 'I think therefore I am'\""
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+
 
 
 ;;; Environments
