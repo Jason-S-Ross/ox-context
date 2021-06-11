@@ -2777,7 +2777,620 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
 #+ATTR_CONTEXT: :split yes
 | foo |"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-
+;;;; Table cell styles
+(setq test-org-context--basic-table
+"#+ATTR_CONTEXT: :footer repeat
+| N   | N^2 | N^3 | N^4 | sqrt(n) | sqrt[4](N) |
+| foo | bar | baz | baz | buz     | foo        |
+| foo | bar | baz | baz | buz     | foo        |
+| foo | bar | baz | baz | buz     | foo        |
+|-----+-----+-----+-----+---------+------------|
+| /   | <   |     | >   | <       | >          |
+| 1   | 1   | 1   | 1   | 1       | 1          |
+| 1   | 1   | 1   | 1   | 1       | 1          |
+| 1   | 1   | 1   | 1   | 1       | 1          |
+|-----+-----+-----+-----+---------+------------|
+| ab  | de  | ag  | ce  | fe      | dd         |
+| ab  | de  | ag  | ce  | fe      | dd         |
+|-----+-----+-----+-----+---------+------------|
+| ab  | cd  | ef  | gh  | ij      | kl         |
+| 1   | 1   | 1   | 1   | 1       | 1          |
+| 1   | 1   | 1   | 1   | 1       | 1          |
+| ab  | cd  | ef  | gh  | ij      | kl         |
+")
+(ert-deftest test-org-context/table-body-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxtablebody")
+     "[[:space:]]*"
+     (regexp-quote "[TestBody]"))
+    (context-test-with-temp-customization-value
+     org-context-table-body-style
+     "TestBody"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-body-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxtablebody")
+     "[[:space:]]*"
+     (regexp-quote "[TestBody]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim (org-export-as
+                'context nil nil t
+                '(:context-preset "empty"
+                  :context-table-body-style "TestBody")))))))
+(ert-deftest test-org-context/table-bottomleft-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestBottomLeft]"))
+    (context-test-with-temp-customization-value
+     org-context-table-bottomleft-style
+     "TestBottomLeft"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-bottomleft-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestBottomLeft]"))
+    (context-test-with-temp-text
+      test-org-context--basic-table
+      (org-trim
+       (org-export-as
+        'context nil nil t
+        '(:context-preset "empty"
+          :context-table-bottomleft-style "TestBottomLeft")))))))
+(ert-deftest test-org-context/table-bottomright-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestBottomRight]"))
+    (context-test-with-temp-customization-value
+     org-context-table-bottomright-style
+     "TestBottomRight"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-bottomright-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestBottomRight]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-bottomright-style "TestBottomRight")))))))
+(ert-deftest test-org-context/table-bottomrow-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestBottomRow]"))
+    (context-test-with-temp-customization-value
+     org-context-table-bottomrow-style
+     "TestBottomRow"
+     (context-test-with-temp-text
+      "| abc |
+| 123 |"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-bottomrow-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestBottomRow]"))
+    (context-test-with-temp-text
+     "| abc |
+| 123 |"
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-bottomrow-style "TestBottomRow")))))))
+(ert-deftest test-org-context/table-colgroup-end-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupEnd]"))
+    (context-test-with-temp-customization-value
+     org-context-table-colgroup-end-style
+     "TestColgroupEnd"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-colgroup-end-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupEnd]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-colgroup-end-style "TestColgroupEnd")))))))
+(ert-deftest test-org-context/table-colgroup-start-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupStart]"))
+    (context-test-with-temp-customization-value
+     org-context-table-colgroup-start-style
+     "TestColgroupStart"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-colgroup-start-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupStart]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-colgroup-start-style "TestColgroupStart")))))))
+(ert-deftest test-org-context/table-footer-bottom-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestFooterBottomStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-footer-bottom-style
+     "TestFooterBottomStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-footer-bottom-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestFooterBottomStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-footer-bottom-style "TestFooterBottomStyle")))))))
+(ert-deftest test-org-context/table-footer-mid-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestFooterMidStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-footer-mid-style
+     "TestFooterMidStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-footer-mid-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestFooterMidStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-footer-mid-style "TestFooterMidStyle")))))))
+(ert-deftest test-org-context/table-footer-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxtablefoot")
+     "[[:space:]]*"
+     (regexp-quote "[TestFooterStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-footer-style
+     "TestFooterStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-footer-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxtablefoot")
+     "[[:space:]]*"
+     (regexp-quote "[TestFooterStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-footer-style "TestFooterStyle")))))))
+(ert-deftest test-org-context/table-footer-top-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestFooterTopStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-footer-top-style
+     "TestFooterTopStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-footer-top-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestFooterTopStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-footer-top-style "TestFooterTopStyle")))))))
+(ert-deftest test-org-context/table-header-bottom-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestHeaderBottomStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-header-bottom-style
+     "TestHeaderBottomStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-header-bottom-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestHeaderBottomStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-header-bottom-style "TestHeaderBottomStyle")))))))
+(ert-deftest test-org-context/table-header-mid-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestHeaderMidStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-header-mid-style
+     "TestHeaderMidStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-header-mid-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestHeaderMidStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-header-mid-style "TestHeaderMidStyle")))))))
+(ert-deftest test-org-context/table-header-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxtablehead")
+     "[[:space:]]*"
+     (regexp-quote "[TestHeaderStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-header-style
+     "TestHeaderStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-header-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxtablehead")
+     "[[:space:]]*"
+     (regexp-quote "[TestHeaderStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-header-style "TestHeaderStyle")))))))
+(ert-deftest test-org-context/table-header-top-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestHeaderTopStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-header-top-style
+     "TestHeaderTopStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-header-top-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestHeaderTopStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-header-top-style "TestHeaderTopStyle")))))))
+(ert-deftest test-org-context/table-leftcolstyle-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestLeftcolStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-leftcol-style
+     "TestLeftcolStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-leftcolstyle-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestLeftcolStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-leftcol-style "TestLeftcolStyle")))))))
+(ert-deftest test-org-context/table-rightcol-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestRightcolStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-rightcol-style
+     "TestRightcolStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-rightcol-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestRightcolStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-rightcol-style "TestRightcolStyle")))))))
+(ert-deftest test-org-context/table-rowgroup-start-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestRowgroupStartStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-rowgroup-start-style
+     "TestRowgroupStartStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-rowgroup-start-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestRowgroupStartStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-rowgroup-start-style "TestRowgroupStartStyle")))))))
+(ert-deftest test-org-context/table-rowgroup-end-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestRowgroupEndStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-rowgroup-end-style
+     "TestRowgroupEndStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-rowgroup-end-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestRowgroupEndStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-rowgroup-end-style "TestRowgroupEndStyle")))))))
+(ert-deftest test-org-context/table-topleft-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestTopleftStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-topleft-style
+     "TestTopleftStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-topleft-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestTopleftStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-topleft-style "TestTopleftStyle")))))))
+(ert-deftest test-org-context/table-topright-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestToprightStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-topright-style
+     "TestToprightStyle"
+     (context-test-with-temp-text test-org-context--basic-table
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-topright-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestToprightStyle]"))
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-topright-style "TestToprightStyle")))))))
+(ert-deftest test-org-context/table-toprow-style-cust ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestToprowStyle]"))
+    (context-test-with-temp-customization-value
+     org-context-table-toprow-style
+     "TestToprowStyle"
+     (context-test-with-temp-text
+      "| abc |
+| 123 |"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/table-toprow-style-plist ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestToprowStyle]"))
+    (context-test-with-temp-text
+     "| abc |
+| 123 |"
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-table-toprow-style "TestToprowStyle")))))))
 ;;; Document Structure
 (ert-deftest test-org-context/document-structure-1 ()
   "Test that document structure matches what we expect generally."

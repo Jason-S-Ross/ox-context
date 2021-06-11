@@ -427,47 +427,26 @@
                   (:context-snippets nil nil org-context-snippets-alist)
                   ;; TODO test
                   (:context-syntax-engine nil "syntax" org-context-syntax-engine)
-                  ;; TODO test
                   (:context-table-body-style nil nil org-context-table-body-style)
-                  ;; TODO test
                   (:context-table-bottomleft-style nil nil org-context-table-bottomleft-style)
-                  ;; TODO test
                   (:context-table-bottomright-style nil nil org-context-table-bottomright-style)
-                  ;; TODO test
                   (:context-table-bottomrow-style nil nil org-context-table-bottomrow-style)
-                  ;; TODO test
                   (:context-table-colgroup-end-style nil nil org-context-table-colgroup-end-style)
-                  ;; TODO test
                   (:context-table-colgroup-start-style nil nil org-context-table-colgroup-start-style)
-                  ;; TODO test
                   (:context-table-footer-bottom-style nil nil org-context-table-footer-bottom-style)
-                  ;; TODO test
                   (:context-table-footer-mid-style nil nil org-context-table-footer-mid-style)
-                  ;; TODO test
                   (:context-table-footer-style nil nil org-context-table-footer-style)
-                  ;; TODO test
                   (:context-table-footer-top-style nil nil org-context-table-footer-top-style)
-                  ;; TODO test
                   (:context-table-header-bottom-style nil nil org-context-table-header-bottom-style)
-                  ;; TODO test
                   (:context-table-header-mid-style nil nil org-context-table-header-mid-style)
-                  ;; TODO test
                   (:context-table-header-style nil nil org-context-table-header-style)
-                  ;; TODO test
                   (:context-table-header-top-style nil nil org-context-table-header-top-style)
-                  ;; TODO test
                   (:context-table-leftcol-style nil nil org-context-table-leftcol-style)
-                  ;; TODO test
                   (:context-table-rightcol-style nil nil org-context-table-rightcol-style)
-                  ;; TODO test
                   (:context-table-rowgroup-end-style nil nil org-context-table-rowgroup-end-style)
-                  ;; TODO test
                   (:context-table-rowgroup-start-style nil nil org-context-table-rowgroup-start-style)
-                  ;; TODO test
                   (:context-table-topleft-style nil nil org-context-table-topleft-style)
-                  ;; TODO test
                   (:context-table-topright-style nil nil org-context-table-topright-style)
-                  ;; TODO test
                   (:context-table-toprow-style nil nil org-context-table-toprow-style)
                   ;; TODO test
                   (:context-table-location "TABLE_LOCATION" nil org-context-table-location parse)
@@ -587,107 +566,86 @@ the corresponding command name in ConTeXt.")
   "Regexp of LaTeX math environments.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-body-style "OrgTableBody"
   "The default style name for the body row group in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-bottomleft-style "OrgTableBottomLeftCell"
   "The default style name for the bottom left cell in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-bottomright-style "OrgTableBottomRightCell"
   "The default style name for the bottom right cell in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-bottomrow-style "OrgTableBottomRow"
   "The default style name for the bottom row in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-colgroup-end-style "OrgTableColGroupEnd"
   "The default style name for columns ending column groups in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-colgroup-start-style "OrgTableColGroupStart"
   "The default style name for columns starting column groups in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-footer-bottom-style "OrgTableFooterBottom"
   "The default style name for the bottom row in the footer row group in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-footer-mid-style "OrgTableFooterMid"
   "The default style name for footer rows where the footer is only one row.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-footer-style "OrgTableFooter"
   "The default style name for the footer row group in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-footer-top-style "OrgTableFooterTop"
   "The default style name for the top row in the footer row group in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-header-bottom-style "OrgTableHeaderBottom"
   "The default style name for the bottom row in the header row group in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-header-mid-style "OrgTableHeaderMid"
   "The default style name for header rows where the header is only one row.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-header-style "OrgTableHeader"
   "The default style name for the header row group in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-header-top-style "OrgTableHeaderTop"
   "The default style name for the top row in the header row group in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-leftcol-style "OrgTableLeftCol"
   "The default style name for the left column in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-rightcol-style "OrgTableRightCol"
   "The default style name for the right column in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-rowgroup-start-style "OrgTableRowGroupStart"
   "The default style name for rows starting row groups in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-rowgroup-end-style "OrgTableRowGroupEnd"
   "The default style name for rows ending row groups in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-topleft-style "OrgTableTopLeftCell"
   "The default style name for the top left cell in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-topright-style "OrgTableTopRightCell"
   "The default style name for the top right cell in tables.")
 
 ;; TODO make this custom
-;; TODO Test
 (defconst org-context-table-toprow-style "OrgTableTopRow"
   "The default style name for the top row in tables.")
 
