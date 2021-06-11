@@ -3391,6 +3391,276 @@ SCHEDULED: <2002-02-29 Sun> CLOSED: <2003-02-29 Sun> DEADLINE: <2004-02-29 Sun>"
        'context nil nil t
        '(:context-preset "empty"
          :context-table-toprow-style "TestToprowStyle")))))))
+;;;; Table approximate layout
+(ert-deftest test-org-context/table-layout ()
+  "Test complete table structure."
+  ;; TODO this captures repeated ~startxtablebody~ commands (a known problem)
+  (should
+   (string-match-p
+    (
+concat
+     (regexp-quote "\\startplacetable")
+     "[[:space:]]*"
+     (regexp-quote "[")
+     "[^]]*"
+     (regexp-quote "]")
+     "[[:space:]]*"
+     (regexp-quote "\\startxtable")
+     "[[:space:]]*"
+     (regexp-quote "[")
+     "[^]]*"
+     (regexp-quote "]")
+     "[[:space:]]*"
+     (regexp-quote "\\startxtablehead")
+     "[[:space:]]*"
+     (regexp-quote "[TestHeaderStyle]")
+     "[[:space:]]*"
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestHeaderTopStyle]")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestTopleftStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupStartStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupEndStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupStartStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestToprightStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\stopxrow")
+     "[[:space:]]*"
+     "\\("
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestHeaderMidStyle]")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestLeftcolStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupStartStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupEndStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupStartStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestRightcolStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\stopxrow")
+     "\\)+"
+     "[[:space:]]*"
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestHeaderBottomStyle]")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestLeftcolStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupStartStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupEndStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupStartStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestRightcolStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\stopxrow")
+     "[[:space:]]*"
+     (regexp-quote "\\stopxtablehead")
+     "[[:space:]]*"
+
+     (regexp-quote "\\startxtablebody")
+     "[[:space:]]*"
+     (regexp-quote "[TestBodyStyle]")
+     "[[:space:]]*"
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestRowgroupStartStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxrow")
+     "[[:space:]]*"
+     (regexp-quote "\\startxrow")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxrow")
+     "[[:space:]]*"
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestRowgroupEndStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxrow")
+     "[[:space:]]*"
+     (regexp-quote "\\stopxtablebody")
+     "[[:space:]]*"
+
+     (regexp-quote "\\startxtablefoot")
+     "[[:space:]]*"
+     (regexp-quote "[TestFooterStyle]")
+     "[[:space:]]*"
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestFooterTopStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxrow")
+     "[[:space:]]*"
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestFooterMidStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxrow")
+     "[[:space:]]*"
+
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\startxrow")
+     "[[:space:]]*"
+     (regexp-quote "[TestFooterBottomStyle]")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestBottomleftStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupStartStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupEndStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestColgroupStartStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\startxcell")
+     "[[:space:]]*"
+     (regexp-quote "[TestBottomrightStyle]")
+     "\\(.\\|\n\\)*"
+     (regexp-quote "\\stopxcell")
+     "[[:space:]]*"
+     (regexp-quote "\\stopxrow")
+     "[[:space:]]*"
+     (regexp-quote "\\stopxtablefoot")
+     "[[:space:]]*"
+     (regexp-quote "\\stopxtable")
+     "[[:space:]]*"
+     (regexp-quote "\\stopplacetable")
+
+
+
+
+     )
+
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+:context-table-body-style "TestBodyStyle"
+:context-table-bottomleft-style "TestBottomleftStyle"
+:context-table-bottomright-style  "TestBottomrightStyle"
+:context-table-bottomrow-style "TestBottomRowStyle"
+:context-table-colgroup-end-style  "TestColgroupEndStyle"
+:context-table-colgroup-start-style "TestColgroupStartStyle"
+:context-table-footer-bottom-style "TestFooterBottomStyle"
+:context-table-footer-mid-style "TestFooterMidStyle"
+:context-table-footer-style "TestFooterStyle"
+:context-table-footer-top-style "TestFooterTopStyle"
+:context-table-header-bottom-style "TestHeaderBottomStyle"
+:context-table-header-mid-style "TestHeaderMidStyle"
+:context-table-header-style "TestHeaderStyle"
+:context-table-header-top-style "TestHeaderTopStyle"
+:context-table-leftcol-style "TestLeftcolStyle"
+:context-table-rightcol-style "TestRightcolStyle"
+:context-table-rowgroup-end-style "TestRowgroupEndStyle"
+:context-table-rowgroup-start-style "TestRowgroupStartStyle"
+:context-table-topleft-style "TestTopleftStyle"
+:context-table-topright-style "TestToprightStyle"
+:context-table-toprow-style "TestToprowStyle"
+         ))))))
+  )
 ;;; Document Structure
 (ert-deftest test-org-context/document-structure-1 ()
   "Test that document structure matches what we expect generally."

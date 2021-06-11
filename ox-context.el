@@ -3913,6 +3913,9 @@ a communication channel."
                            (format "[%s]" row-group-start-style))
                           (t ""))
                     contents)))
+         ;; TODO There is a bug where if multiple row groups are present,
+         ;; multiple startxtablebody/stopxtablebody groups appear in
+         ;; the output.
          (group-tags
           (cond
            (headerp
