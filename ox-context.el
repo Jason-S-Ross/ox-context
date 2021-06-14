@@ -412,6 +412,7 @@
                   (:context-table-style "TABLE_STYLE" nil org-context-table-style parse)
                   (:context-table-float-style "TABLE_FLOAT" nil org-context-table-float-style parse)
                   (:context-table-split "TABLE_SPLIT" nil org-context-table-split parse)
+                  (:context-texinfo-indices nil nil org-context-texinfo-indices-alist)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
                   (:context-verse-environment nil nil org-context-verse-environment)
                   (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
@@ -2486,7 +2487,7 @@ containing contextual information."
            (footercommand (format "\n\\stop%s" headline-name))
            (headline-label (org-context--label headline info t ))
            (index (let ((i (org-export-get-node-property :INDEX headline t)))
-                    (assoc i org-context-texinfo-indices-alist)))
+                    (assoc i (plist-get info :context-texinfo-indices))))
            (copyingp (org-not-nil (org-export-get-node-property :COPYING headline t)))
            (frontmatterp
             (org-export-get-node-property :FRONTMATTER headline))
@@ -2802,12 +2803,13 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
          (map
           'identity
           (lambda (elem) (plist-get (cdr elem) :keyword))
-          org-context-texinfo-indices-alist)))
+          (plist-get info :context-texinfo-indices))))
     (pcase key
      ("CONTEXT" value)
      ("INDEX" (format "\\index{%s}" (org-context--protect-text value)))
      ("TOC"
-      (let ((case-fold-search t))
+      (let ((case-fold-search t)
+            (texinfo-indices (plist-get info :context-texinfo-indices)))
         (pcase value
           ;; TODO consts for these commands
           ("tables" "\\placelistoftables[criterium=all]")
@@ -2815,11 +2817,11 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
           ("equations" "\\placelist[formula][criterium=all]")
           ("references" "\\placelistofpublications[criterium=all]")
           ("definitions" "\\placeindex")
-          ((pred (lambda (x) (assoc x org-context-texinfo-indices-alist)))
+          ((pred (lambda (x) (assoc x texinfo-indices)))
            (format "\\placeregister[%s]"
                    (plist-get
                     (cdr
-                     (assoc value org-context-texinfo-indices-alist))
+                     (assoc value texinfo-indices))
                     :command)))
           ((pred (string-match-p "\\<headlines\\>"))
            (let* ((localp (string-match-p "\\<local\\>" value))
@@ -2880,7 +2882,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                  (seq-filter
                   (lambda (elem)
                     (string= key (plist-get (cdr elem) :keyword)))
-                  org-context-texinfo-indices-alist)))
+                  (plist-get info :context-texinfo-indices))))
                :command)
               (org-context--protect-text value))))))
 
@@ -4048,7 +4050,7 @@ holding the export options."
            (lambda (elem)
              (let ((command (plist-get (cdr elem) :command)))
                (format "\\defineregister[%s]" command)))
-           org-context-texinfo-indices-alist
+           (plist-get info :context-texinfo-indices)
            "\n"))
          (unnumbered-headline-commands
           (let* ((notoc-headline-cache (plist-get info :context-notoc-headline-cache))
