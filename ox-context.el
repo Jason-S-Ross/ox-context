@@ -351,21 +351,18 @@
                   (:context-enumerate-verse-empty-environment nil nil org-context-enumerate-verse-empty-environment)
                   (:context-enumerate-verse-environment nil nil org-context-enumerate-verse-environment)
                   (:context-example-environment nil nil org-context-example-environment)
-                  ;; TODO test
                   (:context-export-quotes-alist nil nil org-context-export-quotes-alist)
                   (:context-fixed-environment nil nil org-context-fixed-environment)
                   ;; TODO test
                   (:context-float-default-placement nil nil org-context-float-default-placement)
                   (:context-format-clock-function nil nil org-context-format-clock-function)
                   (:context-format-drawer-function nil nil org-context-format-drawer-function)
-                  ;; TODO test
                   (:context-format-headline-function nil nil org-context-format-headline-function)
                   (:context-format-inlinetask-function nil nil org-context-format-inlinetask-function)
                   (:context-format-timestamp-function nil nil org-context-format-timestamp-function)
                   (:context-header "CONTEXT_HEADER" nil nil newline)
                   (:context-header-extra "CONTEXT_HEADER_EXTRA" nil nil newline)
                   (:context-headline-command nil nil org-context-headline-command)
-                  ;; TODO test
                   (:context-highlighted-langs nil nil org-context-highlighted-langs-alist)
                   (:context-image-default-height nil nil org-context-image-default-height)
                   ;; TODO test
@@ -376,20 +373,15 @@
                   (:context-inline-image-rules nil nil org-context-inline-image-rules)
                   (:context-inline-source-environment nil nil org-context-inline-source-environment)
                   (:context-inlinetask-command nil nil org-context-inlinetask-command)
-                  ;; TODO test
                   (:context-inner-templates nil nil org-context-inner-templates-alist)
                   (:context-node-property-command nil nil org-context-node-property-command)
                   ;; TODO test
                   (:context-number-equations nil "numeq" org-context-number-equations)
                   (:context-planning-command nil nil org-context-planning-command)
-                  ;; TODO test
                   (:context-preset "CONTEXT_PRESET" nil org-context-preset t)
-                  ;; TODO test
                   (:context-presets nil nil org-context-presets-alist)
                   (:context-property-drawer-environment nil nil org-context-property-drawer-environment)
-                  ;; TODO test
                   (:context-snippet "CONTEXT_SNIPPET" nil nil split)
-                  ;; TODO test
                   (:context-snippets nil nil org-context-snippets-alist)
                   (:context-syntax-engine nil "syntax" org-context-syntax-engine)
                   (:context-table-body-style nil nil org-context-table-body-style)
@@ -413,24 +405,15 @@
                   (:context-table-topleft-style nil nil org-context-table-topleft-style)
                   (:context-table-topright-style nil nil org-context-table-topright-style)
                   (:context-table-toprow-style nil nil org-context-table-toprow-style)
-                  ;; TODO test
                   (:context-table-location "TABLE_LOCATION" nil org-context-table-location parse)
-                  ;; TODO test
                   (:context-table-header "TABLE_HEAD" nil org-context-table-head parse)
-                  ;; TODO test
                   (:context-table-footer "TABLE_FOOT" nil org-context-table-foot parse)
-                  ;; TODO test
                   (:context-table-option "TABLE_OPTION" nil org-context-table-option parse)
-                  ;; TODO test
                   (:context-table-style "TABLE_STYLE" nil org-context-table-style parse)
-                  ;; TODO test
                   (:context-table-float-style "TABLE_FLOAT" nil org-context-table-float-style parse)
-                  ;; TODO test
                   (:context-table-split "TABLE_SPLIT" nil org-context-table-split parse)
-                  ;; TODO test
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
                   (:context-verse-environment nil nil org-context-verse-environment)
-                  ;; TODO test
                   (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
                   (:date "DATE" nil "\\currentdate" parse)
                   (:description "DESCRIPTION" nil nil parse)
@@ -447,23 +430,12 @@
                   (:to-address "TO_ADDRESS" nil nil newline)
                   (:to-name "TO_NAME" nil nil newline)
                   (:url "URL" nil org-context-url)
-                  ;; TODO test
                   (:with-backaddress nil "backaddress" org-context-use-backaddress)
-                  ;; TODO test
                   (:with-email nil "email" org-context-use-email)
-                  ;; TODO test
                   (:with-foldmarks nil "foldmarks" org-context-use-foldmarks)
-                  ;; TODO implement this
-                  ;; TODO test
                   (:with-from-logo nil "from-logo" org-context-use-from-logo)
-                  ;; TODO implement this
-                  ;; TODO test
                   (:with-phone nil "phone" org-context-use-phone)
-                  ;; TODO implement this
-                  ;; TODO test
                   (:with-place nil "place" org-context-use-place)
-                  ;; TODO implement this
-                  ;; TODO test
                   (:with-url nil "url" org-context-use-url)))
 
 ;;; Constants
@@ -511,91 +483,6 @@ the corresponding command name in ConTeXt.")
       ;; empheq
       "empheq")))
   "Regexp of LaTeX math environments.")
-
-;; TODO make this custom
-(defconst org-context-table-body-style "OrgTableBody"
-  "The default style name for the body row group in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-bottomleft-style "OrgTableBottomLeftCell"
-  "The default style name for the bottom left cell in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-bottomright-style "OrgTableBottomRightCell"
-  "The default style name for the bottom right cell in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-bottomrow-style "OrgTableBottomRow"
-  "The default style name for the bottom row in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-colgroup-end-style "OrgTableColGroupEnd"
-  "The default style name for columns ending column groups in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-colgroup-start-style "OrgTableColGroupStart"
-  "The default style name for columns starting column groups in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-footer-bottom-style "OrgTableFooterBottom"
-  "The default style name for the bottom row in the footer row group in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-footer-mid-style "OrgTableFooterMid"
-  "The default style name for footer rows where the footer is only one row.")
-
-;; TODO make this custom
-(defconst org-context-table-footer-style "OrgTableFooter"
-  "The default style name for the footer row group in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-footer-top-style "OrgTableFooterTop"
-  "The default style name for the top row in the footer row group in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-header-bottom-style "OrgTableHeaderBottom"
-  "The default style name for the bottom row in the header row group in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-header-mid-style "OrgTableHeaderMid"
-  "The default style name for header rows where the header is only one row.")
-
-;; TODO make this custom
-(defconst org-context-table-header-style "OrgTableHeader"
-  "The default style name for the header row group in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-header-top-style "OrgTableHeaderTop"
-  "The default style name for the top row in the header row group in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-leftcol-style "OrgTableLeftCol"
-  "The default style name for the left column in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-rightcol-style "OrgTableRightCol"
-  "The default style name for the right column in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-rowgroup-start-style "OrgTableRowGroupStart"
-  "The default style name for rows starting row groups in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-rowgroup-end-style "OrgTableRowGroupEnd"
-  "The default style name for rows ending row groups in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-topleft-style "OrgTableTopLeftCell"
-  "The default style name for the top left cell in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-topright-style "OrgTableTopRightCell"
-  "The default style name for the top right cell in tables.")
-
-;; TODO make this custom
-(defconst org-context-table-toprow-style "OrgTableTopRow"
-  "The default style name for the top row in tables.")
-
 ;;; User configuration variables
 
 (defgroup org-export-context nil
@@ -609,6 +496,61 @@ the corresponding command name in ConTeXt.")
   :group 'org-export-context)
 
 ;;;; ConTeXt environments
+
+;;;;; Table Styles
+
+
+(defcustom org-context-table-header-mid-style "OrgTableHeaderMid"
+  "The default style name for header rows where the header is only one row."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-header-style "OrgTableHeader"
+  "The default style name for the header row group in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-header-top-style "OrgTableHeaderTop"
+  "The default style name for the top row in the header row group in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-leftcol-style "OrgTableLeftCol"
+  "The default style name for the left column in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-rightcol-style "OrgTableRightCol"
+  "The default style name for the right column in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-rowgroup-start-style "OrgTableRowGroupStart"
+  "The default style name for rows starting row groups in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-rowgroup-end-style "OrgTableRowGroupEnd"
+  "The default style name for rows ending row groups in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-topleft-style "OrgTableTopLeftCell"
+  "The default style name for the top left cell in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-topright-style "OrgTableTopRightCell"
+  "The default style name for the top right cell in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-toprow-style "OrgTableTopRow"
+  "The default style name for the top row in tables."
+  :group 'org-export-context
+  :type 'string)
+
+
 
 ;;;;; Element Environments
 
@@ -1020,14 +962,12 @@ See `org-context-inner-templates-alist'"
   :group 'org-export-context
   :type 'string)
 
-;; TODO test
 (defcustom org-context-preset "article"
   "A preamble with no style settings for the document elements."
   :group 'org-export-context
   :type '(string :tag "ConTeXt preset"))
 
 ;; TODO Test
-;; TODO don't make this a choice; it's stupid
 (defcustom org-context-float-default-placement "left"
   "Default placement for floats."
   :group 'org-export-context
@@ -1130,7 +1070,6 @@ The function should return the string to be exported."
   :group 'org-export-context
   :type 'function)
 
-;; TODO Test
 (defcustom org-context-format-headline-function
   'org-context-format-headline-default-function
   "Function for formatting the headline's text.
@@ -1830,7 +1769,6 @@ This option can also be set with the URL keyword."
   :type 'string
   :safe #'stringp)
 
-;; TODO test
 (defcustom org-context-use-backaddress nil
   "Non-nil prints return address in line above to address.
 This option can also be set with the OPTIONS keyword, e.g.:
@@ -1838,7 +1776,6 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :group 'org-export-context-letter
   :type 'boolean)
 
-;; TODO test
 (defcustom org-context-use-email nil
   "Non-nil prints sender's email address.
 This option can also be set with the OPTIONS keyword, e.g.:
@@ -1846,7 +1783,6 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :group 'org-export-context-letter
   :type 'boolean)
 
-;; TODO test
 (defcustom org-context-use-foldmarks t
   "Configure appearance of folding marks.
 
@@ -1855,7 +1791,6 @@ folding marks at all."
   :group 'org-export-context-letter
   :type 'boolean)
 
-;; TODO test
 (defcustom org-context-use-from-logo nil
   "Non-nil prints sender's FROM_LOGO.
 This option can also be set with the OPTIONS keyword, e.g.:
@@ -1864,7 +1799,6 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :type 'boolean
   :safe #'booleanp)
 
-;; TODO test
 (defcustom org-context-use-phone nil
   "Non-nil prints sender's phone number.
 This option can also be set with the OPTIONS keyword, e.g.:
@@ -1872,7 +1806,6 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :group 'org-export-context-letter
   :type 'boolean)
 
-;; TODO test
 (defcustom org-context-use-place t
   "Non-nil prints the letter's place next to the date.
 This option can also be set with the OPTIONS keyword, e.g.:
@@ -1880,7 +1813,6 @@ This option can also be set with the OPTIONS keyword, e.g.:
   :group 'org-export-context-letter
   :type 'boolean)
 
-;; TODO test
 (defcustom org-context-use-url nil
   "Non-nil prints sender's URL.
 This option can also be set with the OPTIONS keyword, e.g.:
@@ -3681,7 +3613,6 @@ contextual information."
   "Transcode a TABLE-CELL from Org to ConTeXt.
 CONTENTS is the cell contents. INFO is a plist used as
 a communication channel."
-  ;; TODO Don't look at the plist for these.
   (let* ((table (org-export-get-parent-table table-cell))
          (table-row (org-export-get-parent table-cell))
          (alignment (org-export-table-cell-alignment table-cell info))
@@ -4287,7 +4218,12 @@ INFO is a plist used as a communication channel."
     (cons "letter:closing" (org-export-data (plist-get info :closing) info))
     (cons "letter:signature" (org-export-data (plist-get info :signature) info))
     (cons "letter:foldmarks" (if (plist-get info :with-foldmarks) "start" "stop"))
-    (cons "letter:withbackaddress" (if (plist-get info :with-backaddress) "start" "stop"))))
+    (cons "letter:withbackaddress" (if (plist-get info :with-backaddress) "start" "stop"))
+    (cons "letter:withemail" (if (plist-get info :with-email) "start" "stop"))
+    (cons "letter:withfromlogo" (if (plist-get info :with-from-logo) "start" "stop"))
+    (cons "letter:withphone" (if (plist-get info :with-phone) "start" "stop"))
+    (cons "letter:withplace" (if (plist-get info :with-place) "start" "stop"))
+    (cons "letter:withurl" (if (plist-get info :with-url) "start" "stop"))))
 
 (defun org-context--get-snippet-text (info snippet-names)
   "Return snippets given a list of SNIPPET NAMES.
