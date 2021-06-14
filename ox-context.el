@@ -501,6 +501,61 @@ the corresponding command name in ConTeXt.")
 ;;;;; Table Styles
 
 
+(defcustom org-context-table-body-style "OrgTableBody"
+  "The default style name for the body row group in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-bottomleft-style "OrgTableBottomLeftCell"
+  "The default style name for the bottom left cell in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-bottomright-style "OrgTableBottomRightCell"
+  "The default style name for the bottom right cell in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-bottomrow-style "OrgTableBottomRow"
+  "The default style name for the bottom row in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-colgroup-end-style "OrgTableColGroupEnd"
+  "The default style name for columns ending column groups in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-colgroup-start-style "OrgTableColGroupStart"
+  "The default style name for columns starting column groups in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-footer-bottom-style "OrgTableFooterBottom"
+  "The default style name for the bottom row in the footer row group in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-footer-mid-style "OrgTableFooterMid"
+  "The default style name for footer rows where the footer is only one row."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-footer-style "OrgTableFooter"
+  "The default style name for the footer row group in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-footer-top-style "OrgTableFooterTop"
+  "The default style name for the top row in the footer row group in tables."
+  :group 'org-export-context
+  :type 'string)
+
+(defcustom org-context-table-header-bottom-style "OrgTableHeaderBottom"
+  "The default style name for the bottom row in the header row group in tables."
+  :group 'org-export-context
+  :type 'string)
+
 (defcustom org-context-table-header-mid-style "OrgTableHeaderMid"
   "The default style name for header rows where the header is only one row."
   :group 'org-export-context
