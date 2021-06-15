@@ -438,36 +438,6 @@
 
 ;;; Constants
 
-;; TODO Many of these constants appear as options. Is this ideomatic? It makes
-;; sense for creating derived templates but it incurs a performance penalty.
-;; The advantage of having constants linked to the `options-alist' is that
-;; they are exposed when creating a derived template but not exposed as part
-;; of normal configuration.
-
-;; TODO make this custom
-;; TODO Test
-(defconst org-context-export-quotes-alist
-  '((primary-opening . "\\quotation{")
-    (primary-closing . "}")
-    (secondary-opening . "\\quote{")
-    (secondary-closing . "}")
-    (apostrophe . "'")))
-
-;; TODO make this custom
-;; TODO move to this plist
-(defconst org-context-texinfo-indices-alist
-  '(("cp" . (:keyword "CINDEX" :command "OrgConcept"))
-    ("fn" . (:keyword "FINDEX" :command "OrgFunction"))
-    ("ky" . (:keyword "KINDEX" :command "OrgKeystroke"))
-    ("pg" . (:keyword "PINDEX" :command "OrgProgram"))
-    ("tp" . (:keyword "TINDEX" :command "OrgDataType"))
-    ("vr" . (:keyword "VINDEX" :command "OrgVariable")))
-  "Alist mapping Texinfo index abbreviations to plist of keywords and commands.
-:keyword represents the corresponding TexInfo @index name. :command represents
-the corresponding command name in ConTeXt.")
-
-;; TODO make this custom?
-;; TODO Test
 (defconst org-context-latex-math-environments-re
   (format
    "\\`[ \t]*\\\\begin{%s\\*?}"
@@ -1027,20 +997,24 @@ arguments:
 
 ;; These settings configure elements in Org.
 
-
 (defcustom org-context-closing ""
   "Letter's closing, as a string.
 This option can also be set with the CLOSING keyword."
   :group 'org-export-context-letter
   :type 'string)
 
-;; TODO test
-(defcustom org-context-default-inner-template
-  "article"
-  "The default inner template to use in documents.
-See `org-context-inner-templates-alist'"
+(defcustom org-context-export-quotes-alist
+  '((primary-opening . "\\quotation{")
+    (primary-closing . "}")
+    (secondary-opening . "\\quote{")
+    (secondary-closing . "}")
+    (apostrophe . "'"))
+  "Alist defining quote delimiters.
+These define how different quotes are delimited in the output."
   :group 'org-export-context
-  :type 'string)
+  :type '(alist
+          :key-type (symbol :tag "Type")
+          :value-type (string :tag "Command")))
 
 (defcustom org-context-preset "article"
   "The defalt preset to use when exporting.
@@ -1048,81 +1022,11 @@ See `org-context-presets-alist' for more information."
   :group 'org-export-context
   :type '(string :tag "ConTeXt preset"))
 
-;; TODO Test
-(defcustom org-context-float-default-placement "left"
-  "Default placement for floats."
+(defcustom org-context-float-default-placement "here"
+  "Default placement for floats. This is passed as the \"location\"
+key to the \"\\startplacefigure\" command. "
   :group 'org-export-context
-  :type '(choice
-          (const "split")
-          (const "always")
-          (const "left")
-          (const "right")
-          (const "inner")
-          (const "outer")
-          (const "backspace")
-          (const "cutspace")
-          (const "inleft")
-          (const "inright")
-          (const "inmargin")
-          (const "leftmargin")
-          (const "rightmargin")
-          (const "leftedge")
-          (const "rightedge")
-          (const "innermargin")
-          (const "outermargin")
-          (const "inneredge")
-          (const "outeredge")
-          (const "text")
-          (const "opposite")
-          (const "reset")
-          (const "height")
-          (const "depth")
-          (const "line")
-          (const "+line")
-          (const "-line")
-          (const "halfline")
-          (const "grid")
-          (const "high")
-          (const "low")
-          (const "fit")
-          (const "90")
-          (const "180")
-          (const "270")
-          (const "nonumber")
-          (const "none")
-          (const "local")
-          (const "here")
-          (const "force")
-          (const "margin")
-          (const "hang")
-          (const "+hang")
-          (const "-hang")
-          (const "hanging")
-          (const "tall")
-          (const "both")
-          (const "middle")
-          (const "offset")
-          (const "top")
-          (const "bottom")
-          (const "auto")
-          (const "page")
-          (const "leftpage")
-          (const "rightpage")
-          (const "somewhere")
-          (const "effective")
-          (const "header")
-          (const "footer")
-          (const "tblr")
-          (const "lrtb")
-          (const "tbrl")
-          (const "rltb")
-          (const "fxtb")
-          (const "btlr")
-          (const "lrbt")
-          (const "btrl")
-          (const "rlbt")
-          (const "fxbt")
-          (const "fixd"))
+  :type 'string
   :safe #'stringp)
 
 (defcustom org-context-format-clock-function
@@ -1213,17 +1117,16 @@ This option can also be set with the FROM_LOGO keyword."
   :safe #'stringp)
 
 (defcustom org-context-highlighted-langs-alist
-  '(("metapost" "mp")
-    ("c++" "cpp")
-    ("c#" "cs"))
+  '(("metapost" . "mp")
+    ("c++" . "cpp")
+    ("c#" . "cs"))
   "Alist mapping languages to their counterpart in ConTeXt.
 ConTeXt only supports a couple of languages out-of-the-box
 so this is a short list."
   :group 'org-export-context
-  :type '(repeat
-          (list
-           (string :tag "Major mode      ")
-           (string :tag "ConTeXt language"))))
+  :type '(alist
+          :key-type (string :tag "Major mode")
+          :value-type (string :tag "ConTeXt language")))
 
 (defcustom org-context-image-default-height ""
   "Default height for images."
@@ -1231,8 +1134,6 @@ so this is a short list."
   :type 'string
   :safe #'stringp)
 
-;; TODO This isn't implemented
-;; TODO Test
 (defcustom org-context-image-default-option ""
   "Default option for images."
   :group 'org-export-context
@@ -1240,8 +1141,8 @@ so this is a short list."
   :safe #'stringp)
 
 (defcustom org-context-image-default-width "\\dimexpr \\hsize - 1em \\relax"
-  "Default width for images."
-  ;; TODO This ought to be a ConTeXt command
+  "Default width for images. This is passed to the \"width\" key of the
+\"\\placeexternalfigure\" command."
   :group 'org-export-context
   :type 'string
   :safe #'stringp)
@@ -1345,9 +1246,9 @@ String keys are as follows:
 ?o: Sections with the property :COPYING:
 ?i: Sections with the property :INDEX:"
   :group 'org-export-context
-  :type '(repeat
-          (cons (string :tag "Template Name")
-                (string :tag "Template Contents"))))
+  :type '(alist
+          :key-type (string :tag "Template Name")
+          :value-type (string :tag "Template Contents")))
 
 (defcustom org-context-location ""
   "Sender's extension field, as a string.
@@ -1461,12 +1362,16 @@ with the following keys:
     `org-context-snippets-alist') to include in the preamble"
   ;; TODO Update customization group
   :group 'org-export-context
-  :type '(repeat
-          (cons :tag "Preset Definition"
-           (string :tag "Preset Name")
-           (list (string :tag "Raw Command")
-                 (repeat :tag "Snippets" :inline t
-                         (string :tag "Snippet"))))))
+  :type '(alist
+          :key-type (string :tag "Preset Name")
+          :value-type
+          (list
+           (const :tag "" :literal)
+           (string :tag "Raw Inputs")
+           (const :tag "" :template)
+           (string :tag "Template name")
+           (const :tag "" :snippets)
+           (repeat (string :tag "Snippet Name")))))
 
 ;; TODO test
 (defcustom org-context-remove-logfiles t
@@ -1772,12 +1677,11 @@ This option can also be set with the SIGNATURE keyword."
   "Alist of snippet names and associated text.
 These snippets will be inserted into the document preamble when
 calling `org-context-make-template'. These snippets are also
-available for use in presets. See also `:context-presets'"
+available for use in presets. See also `org-context-presets-alist'"
   :group 'org-export-context
-  :type `(repeat
-          (cons
-           (string :tag "Snippet Name")
-           (string :tag "Snippet Value"))))
+  :type `(alist
+          :key-type (string :tag "Snippet Name")
+          :value-type (string :tag "Snippet Value")))
 
 (defcustom org-context-syntax-engine
   'default
@@ -1787,34 +1691,6 @@ The `vim' option requires Vim to be installed."
   :group 'org-export-context
   :type '(choice (const :tag "Vim" vim)
                  (const :tag "Default" default)))
-
-(defcustom org-context-text-markup-alist
-  '((bold ."\\bold{%s}")
-    (code . protectedtexttt)
-    (italic . "\\italic{%s}")
-    (paragraph . "%s")
-    (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
-    (subscript . "\\low{%s}")
-    (superscript . "\\high{%s}")
-    (underline . "\\underbar{%s}")
-    (verbatim . protectedtexttt)
-    (verb . "\\type{%s}"))
-  "Alist of ConTeXt expressions to convert text markup."
-  :group 'org-export-context
-  :version "26.1"
-  :package-version '(Org . "8.3")
-  :type 'alist
-  :options
-  '(bold
-    code
-    italic
-    paragraph
-    strike-through
-    subscript
-    superscript
-    underline
-    verbatim
-    verb))
 
 (defcustom org-context-table-location "force,here"
   "Default placement for table floats.
@@ -1865,6 +1741,51 @@ This string is passed to the \"split\" key of the
 \"\\startxtable\" command."
   :group 'org-export-context
   :type 'string)
+
+(defcustom org-context-text-markup-alist
+  '((bold ."\\bold{%s}")
+    (code . protectedtexttt)
+    (italic . "\\italic{%s}")
+    (paragraph . "%s")
+    (strike-through . "\\inframed[frame=off]{\\overstrike{%s}}")
+    (subscript . "\\low{%s}")
+    (superscript . "\\high{%s}")
+    (underline . "\\underbar{%s}")
+    (verbatim . protectedtexttt)
+    (verb . "\\type{%s}"))
+  "Alist of ConTeXt expressions to convert text markup."
+  :group 'org-export-context
+  :version "26.1"
+  :package-version '(Org . "8.3")
+  :type 'alist
+  :options
+  '(bold
+    code
+    italic
+    paragraph
+    strike-through
+    subscript
+    superscript
+    underline
+    verbatim
+    verb))
+
+(defcustom org-context-texinfo-indices-alist
+  '(("cp" . (:keyword "CINDEX" :command "OrgConcept"))
+    ("fn" . (:keyword "FINDEX" :command "OrgFunction"))
+    ("ky" . (:keyword "KINDEX" :command "OrgKeystroke"))
+    ("pg" . (:keyword "PINDEX" :command "OrgProgram"))
+    ("tp" . (:keyword "TINDEX" :command "OrgDataType"))
+    ("vr" . (:keyword "VINDEX" :command "OrgVariable")))
+  "Alist mapping Texinfo index abbreviations to plist of keywords and commands.
+:keyword represents the corresponding TexInfo @index name. :command represents
+the corresponding command name in ConTeXt."
+  :group 'org-export-context
+  :type '(alist :key-type string
+                :value-type (list (const :tag "" :keyword)
+                                  (string :tag "Keyword")
+                                  (const :tag "" :command)
+                                  (string :tag "Command"))))
 
 (defcustom org-context-url ""
   "Sender's URL, e. g., the URL of her homepage.
