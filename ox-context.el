@@ -2374,11 +2374,12 @@ holding contextual information.  See `org-export-data'."
 
 ;;;; Entity
 
-(defun org-context-entity (entity _contennts info)
+;; TODO Test
+(defun org-context-entity (entity _contents _info)
   "Transcode an ENTITY object from Org to ConTeXt.
 CONTENTS are the definition itself. INFO is a plist
 holding contextual information."
-  (org-element-property :context entity))
+  (org-element-property :latex entity))
 
 ;;;; Example Block
 
