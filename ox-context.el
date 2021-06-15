@@ -33,7 +33,6 @@
 ;; have a number that can clash with the number of the item.
 ;; https://orgmode.org/list/55ec0cbb-eebf-0d49-b182-372407c8c84c@gmail.com/T/#u
 ;;
-;; TODO Names of enumerated environments don't match
 ;;
 ;;; Commentary:
 
@@ -728,8 +727,8 @@ If nil, block quotes are not wrapped in an enumeration"
                (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-example-empty-environment
-  '("OrgExampleEnumerationEmpty" . "\\defineenumeration
-  [OrgExampleEnumerationEmpty]
+  '("OrgExampleEnumEmpty" . "\\defineenumeration
+  [OrgExampleEnumEmpty]
   [alternative=empty]")
   "The enumeration of the unlabelled example environment.
 
@@ -741,9 +740,9 @@ If nil, examples are not wrapped in an enumeration"
                (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-example-environment
-  '("OrgExampleEnumeration" . "\\defineenumeration
-  [OrgExampleEnumeration]
-  [OrgExampleEnumerationEmpty]
+  '("OrgExampleEnum" . "\\defineenumeration
+  [OrgExampleEnum]
+  [OrgExampleEnumEmpty]
   [title=yes,
    text=Example,
    headalign=middle,
@@ -758,8 +757,8 @@ If nil, examples are not wrapped in an enumeration"
                (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-listing-empty-environment
-  '("OrgListingEmpty" . "\\defineenumeration
-  [OrgListingEmpty]
+  '("OrgListingEnumEmpty" . "\\defineenumeration
+  [OrgListingEnumEmpty]
   [alternative=empty]")
   "The enumeration for unlabelled listings.
 
@@ -771,9 +770,9 @@ If null, listings are not enumerated."
                (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-listing-environment
-  '("OrgListing" . "\\defineenumeration
-  [OrgListing]
-  [OrgListingEmpty]
+  '("OrgListingEnum" . "\\defineenumeration
+  [OrgListingEnum]
+  [OrgListingEnumEmpty]
   [title=yes,
    text=Listing,
    headalign=middle,
@@ -788,8 +787,8 @@ If null, listings are not enumerated."
                (string :tag "Environment Definition")))
 
 (defcustom org-context-enumerate-verse-empty-environment
-  '("OrgVerseEnumerateEmpty" . "\\defineenumeration
-  [OrgVerseEnumerateEmpty]
+  '("OrgVerseEnumEmpty" . "\\defineenumeration
+  [OrgVerseEnumEmpty]
   [alternative=empty]")
   "The environment name that wraps verses to list them.
 
@@ -798,10 +797,10 @@ If nil, verses aren't enumerated."
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
 
-(defcustom org-context-enumerate-verse-environment '("OrgVerseEnumerate" . "
+(defcustom org-context-enumerate-verse-environment '("OrgVerseEnum" . "
 \\defineenumeration
-  [OrgVerseEnumerate]
-  [OrgVerseEnumerateEmpty]
+  [OrgVerseEnum]
+  [OrgVerseEnumEmpty]
   [title=yes,
    text=Verse,
    alternative=top]")
@@ -2929,7 +2928,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
         (plist-put info :context-bib-command
                    (format "\\usebtxdataset[%s]" file))
         nil))
-     (pred (lambda (x) (member x special-indices))
+     ((pred (lambda (x) (member x special-indices)))
       (format "\\%s{%s}"
               (plist-get
                (cdr
