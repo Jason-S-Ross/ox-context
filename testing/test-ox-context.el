@@ -3876,6 +3876,75 @@ DEADLINE: <2004-02-29 Sun>"
         'context nil nil t
         (list :context-inline-image-rules
               `(("file" . ,(rx "." "foo" eos)))))))))))
+(ert-deftest test-org-context/image-options-cust ()
+  "Test image options set in customization."
+  (should
+   (string-match-p
+   (concat
+    (regexp-quote "\\externalfigure[./images/cat.jpg]")
+    "[[:space:]]*"
+    (regexp-quote "[")
+    "[^]]*"
+    (regexp-quote "TestOption=Foo")
+    "[^]]*"
+    (regexp-quote "]"))
+    (context-test-with-temp-customization-value
+     org-context-image-default-option "TestOption=Foo"
+     (context-test-with-temp-text
+      "[[./images/cat.jpg]]"
+      (org-trim
+       (org-export-as
+        'context nil nil t)))))))
+(ert-deftest test-org-context/image-options-plist ()
+  "Test image options set in customization."
+  (should
+   (string-match-p
+   (concat
+    (regexp-quote "\\externalfigure[./images/cat.jpg]")
+    "[[:space:]]*"
+    (regexp-quote "[")
+    "[^]]*"
+    (regexp-quote "TestOption=Foo")
+    "[^]]*"
+    (regexp-quote "]"))
+    (context-test-with-temp-text
+      "[[./images/cat.jpg]]"
+      (org-trim
+       (org-export-as
+        'context nil nil t
+        '(:context-image-default-option "TestOption=Foo")))))))
+(ert-deftest test-org-context/image-options-opt ()
+  "Test image options set in customization."
+  (should
+   (string-match-p
+   (concat
+    (regexp-quote "\\externalfigure[./images/cat.jpg]")
+    "[[:space:]]*"
+    (regexp-quote "[")
+    "[^]]*"
+    (regexp-quote "TestOption=Foo")
+    "[^]]*"
+    (regexp-quote "]"))
+    (context-test-with-temp-text
+      "#+ATTR_CONTEXT: :options TestOption=Foo
+[[./images/cat.jpg]]"
+      (org-trim (org-export-as 'context nil nil t))))))
+(ert-deftest test-org-context/image-options-bracketed ()
+  "Test image options set in customization."
+  (should
+   (string-match-p
+   (concat
+    (regexp-quote "\\externalfigure[./images/cat.jpg]")
+    "[[:space:]]*"
+    (regexp-quote "[")
+    "[^]]*"
+    (regexp-quote "TestOption=Foo")
+    "[^]]*"
+    (regexp-quote "]"))
+    (context-test-with-temp-text
+      "#+ATTR_CONTEXT: :options [TestOption=Foo]
+[[./images/cat.jpg]]"
+      (org-trim (org-export-as 'context nil nil t))))))
 
 
 ;;; Links

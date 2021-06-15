@@ -3261,15 +3261,23 @@ used as a communication channel."
                         ((string= float "multicolumn") 'multicolumn))))
          (width (cond ((plist-get attr :width))
                       ((plist-get attr :height) "")
-                      ;; TODO Give this some config somehow
+                      ;; TODO Make this configurable
                       ((eq float 'multicolumn) "\\dimexpr\\makeupwidth - 1em\\relax")
+                      ;; TODO Make this configurable
                       ((eq float 'wrap) "0.48\\hsize")
                       (t (plist-get info :context-image-default-width))))
          (height (cond ((plist-get attr :height))
                        ((or (plist-get attr :width)
                             (memq float '(figure wrap))) "")
                        (t (plist-get info :context-image-default-height))))
-         (placement (plist-get attr :placement))
+         (placement (or
+                     (plist-get attr :placement)
+                     (plist-get info :context-float-default-placement)))
+         (options (let ((opt (or (plist-get attr :options)
+                                 (plist-get info :context-image-default-option))))
+                    (if (string-match "\\`\\[\\(.*\\)\\]\\'" opt)
+                        (match-string 1 opt)
+                      opt)))
          image-code
          options-list)
     ;; TODO tikz and pgf
@@ -3283,19 +3291,21 @@ used as a communication channel."
     (setq image-code
           (format "\\externalfigure[%s][%s]"
                   path
-                  (org-context--format-arguments options-list)))
+                  (if options
+                      (concat
+                       options
+                       ","
+                       (org-context--format-arguments options-list))
+                    (org-context--format-arguments options-list))))
     (let (env-options
           location-options)
+      (add-to-list 'location-options placement)
       (pcase float
-        (`wrap (progn
-                 (add-to-list
-                  'location-options
-                  (or placement (plist-get info :context-float-default-placement)))
-                 (or placement (add-to-list 'location-options "here"))))
+        (`wrap (add-to-list 'location-options "here"))
         (`sideways (progn (add-to-list 'location-options "90")
                           (add-to-list 'location-options "page")))
         (_ (progn
-             (add-to-list 'location-options (or placement "Here")))))
+             (add-to-list 'location-options (or placement "here")))))
       (add-to-list 'env-options
                    (cons "location" (mapconcat 'identity location-options ",")))
       (add-to-list 'env-options
