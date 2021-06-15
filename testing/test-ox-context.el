@@ -256,16 +256,10 @@ foo bar baz
       (concat
        (regexp-quote "\\start")
        (regexp-quote enumname)
-       "[^[]*"
-       (regexp-quote "[")
-       "[^]]*"
-       (regexp-quote "title={foo}")
-       "[^]]*"
-       (regexp-quote "reference={org")
-       "[0-9a-f]+"
-       (regexp-quote "}")
-       "[^]]*"
-       (regexp-quote "]")
+       "[[:space:]]*"
+       (context-test-build-ConTeXt-argument-regex
+        '(("title" . "foo")
+          ("reference" . "org[0-9a-f]+")))
        "\\(.\\|\n\\)*"
        (regexp-quote "\\start")
        (regexp-quote name)
@@ -368,6 +362,84 @@ foo bar baz
       document))
     (should (string-match-p def document))
     (should (string-match-p enumdef document))))
+;;;; Dynamic Blocks
+(ert-deftest test-org-context/dynamic-block ()
+  "Test dynamic blocks."
+  (should
+   (equal
+    "foo bar baz"
+    (context-test-with-temp-text
+     "#+BEGIN: foo :bar 1 :baz 2
+foo bar baz
+#+END:"
+     (org-trim
+      (org-export-as 'context nil nil t
+                     '(:context-preset "empty")))))))
+;;;; Entities
+(ert-deftest test-org-context/entity ()
+  "Test dynamic blocks."
+  (should
+   (equal
+    "À"
+    (context-test-with-temp-text
+     "\\Agrave"
+     (org-trim
+      (org-export-as 'context nil nil t
+                     '(:context-preset "empty")))))))
+
+;;;; Export block
+(ert-deftest test-org-context/export-context ()
+  "Test exporting context."
+  (should
+   (equal
+    "foo"
+    (context-test-with-temp-text
+     "#+BEGIN_EXPORT context
+foo
+#+END_EXPORT"
+     (org-trim
+      (org-export-as 'context nil nil t
+                     '(:context-preset "empty")))))))
+(ert-deftest test-org-context/export-tex ()
+  "Test exporting context."
+  (should
+   (equal
+    "foo"
+    (context-test-with-temp-text
+     "#+BEGIN_EXPORT tex
+foo
+#+END_EXPORT"
+     (org-trim
+      (org-export-as 'context nil nil t
+                     '(:context-preset "empty")))))))
+(ert-deftest test-org-context/export-metapost ()
+  "Test exporting context."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startMPcode")
+     "[[:space:]]*"
+     "foo"
+     "[[:space:]]*"
+     (regexp-quote "\\stopMPcode"))
+    (context-test-with-temp-text
+     "#+BEGIN_EXPORT metapost
+foo
+#+END_EXPORT"
+     (org-trim
+      (org-export-as 'context nil nil t
+                     '(:context-preset "empty")))))))
+;;;; Export snippet
+(ert-deftest test-org-context/export-snippet ()
+  "Test exporting snippet."
+  (should
+   (equal
+    "foo"
+    (context-test-with-temp-text
+     "@@context:foo@@"
+     (org-trim
+      (org-export-as 'context nil nil t
+                     '(:context-preset "empty")))))))
 ;;;; Example
 (ert-deftest test-org-context/example-1 ()
   "Test simple example."
@@ -580,6 +652,120 @@ foo bar baz
        (regexp-quote name))
       document))
     (should (string-match-p def document))))
+;;;; Footnote
+(ert-deftest test-org-context/footnote-simple ()
+  "Test exporting footnote."
+  (let* ((content
+          (context-test-with-temp-text
+           "Footnotes: [fn:: l1 ]"
+           (org-trim
+            (org-export-as 'context nil nil t
+                           '(:context-preset "empty")))))
+         (matches
+          (string-match
+           (concat
+            (regexp-quote "Footnotes: \\note[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]")
+            "[[:space:]]*"
+            (regexp-quote "\\footnotetext[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]")
+            "[[:space:]]*"
+            (regexp-quote "{l1}")
+            )
+           content)))
+    (should
+     (equal
+      (match-string 1 content)
+      (match-string 2 content)))))
+(ert-deftest test-org-context/footnote-nested ()
+  "Test exporting footnote."
+  (let* ((content
+          (context-test-with-temp-text
+           "Footnotes: [fn:: l1 [fn:: l2 [fn:: l3]]]"
+           (org-trim
+            (org-export-as 'context nil nil t
+                           '(:context-preset "empty")))))
+         (matches
+          (string-match
+           (concat
+            (regexp-quote "Footnotes: \\note[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]")
+            "[[:space:]]*"
+            (regexp-quote "\\footnotetext[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]")
+            "[[:space:]]*"
+            (regexp-quote "{l1 \\note[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]}%")
+            "[[:space:]]*"
+            (regexp-quote "\\footnotetext[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]")
+            "[[:space:]]*"
+            (regexp-quote "{l2 \\note[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]}%")
+            "[[:space:]]*"
+            (regexp-quote "\\footnotetext[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]")
+            "[[:space:]]*"
+            (regexp-quote "{l3}")
+            )
+           content)))
+    (should
+     (equal
+      (match-string 1 content)
+      (match-string 2 content)))
+    (should
+     (equal
+      (match-string 3 content)
+      (match-string 4 content)))
+    (should
+     (equal
+      (match-string 5 content)
+      (match-string 6 content)))))
+(ert-deftest test-org-context/footnote-table ()
+  "Test exporting footnote."
+  (let* ((content
+          (context-test-with-temp-text
+           "| foo [fn:: l1 ] |"
+           (org-trim
+            (org-export-as 'context nil nil t
+                           '(:context-preset "empty")))))
+         (matches
+          (string-match
+           (concat
+            (regexp-quote "foo \\note[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]")
+            "[[:space:]]*"
+            (regexp-quote "\\footnotetext[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]")
+            "[[:space:]]*"
+            (regexp-quote "{l1}")
+            )
+           content)))
+    (should
+     (equal
+      (match-string 1 content)
+      (match-string 2 content)))))
+;;;; Horizontal Rule
+(ert-deftest test-org-context/hrule ()
+  "Test horizontal rules."
+  (should
+   (equal
+    "\\textrule"
+    (context-test-with-temp-text
+     "-----"
+     (org-trim
+      (org-export-as 'context nil nil t
+                     '(:context-preset "empty")))))))
 ;;;; Inline source
 (ert-deftest test-org-context/inline-src-1 ()
   "Test inline source with default formatter"
@@ -701,6 +887,269 @@ foo bar baz
        (regexp-quote "}"))
       document))
     (should (string-match-p def document))))
+;;;; Itemized List
+(ert-deftest test-org-context/items-simple ()
+  "Test plain flat lists."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startitemize")
+     "[[:space:]]*"
+     (regexp-quote "\\item A")
+     "[[:space:]]*"
+     (regexp-quote "\\item B")
+     "[[:space:]]*"
+     (regexp-quote "\\item C")
+     "[[:space:]]*"
+     (regexp-quote "\\stopitemize")
+     )
+    (context-test-with-temp-text
+     "- A
+- B
+- C"
+     (org-trim
+      (org-export-as 'context nil nil t
+                     '(:context-preset "empty")))))))
+(ert-deftest test-org-context/items-alpha ()
+  "Test alphabetized flat lists."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startitemize[a]")
+     "[[:space:]]*"
+     (regexp-quote "\\item foo")
+     "[[:space:]]*"
+     (regexp-quote "\\item bar")
+     "[[:space:]]*"
+     (regexp-quote "\\item baz")
+     "[[:space:]]*"
+     (regexp-quote "\\stopitemize")
+     )
+    (context-test-with-temp-text
+"a. foo
+b. bar
+c. baz"
+
+     (org-trim
+      (org-export-as 'context nil nil t
+                     '(:context-preset "empty")))))))
+(ert-deftest test-org-context/items-num ()
+  "Test alphabetized flat lists."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startitemize[n]")
+     "[[:space:]]*"
+     (regexp-quote "\\item foo")
+     "[[:space:]]*"
+     (regexp-quote "\\item bar")
+     "[[:space:]]*"
+     (regexp-quote "\\item baz")
+     "[[:space:]]*"
+     (regexp-quote "\\stopitemize")
+     )
+    (context-test-with-temp-text
+"1. foo
+2. bar
+3. baz"
+
+     (org-trim
+      (org-export-as 'context nil nil t
+                     '(:context-preset "empty")))))))
+(ert-deftest test-org-context/items-nested ()
+  "Test alphabetized flat lists."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startitemize[n]")
+     "[[:space:]]*"
+     (regexp-quote "\\item foo")
+     "[[:space:]]*"
+     (regexp-quote "\\startitemize")
+     "[[:space:]]*"
+     (regexp-quote "\\item e1")
+     "[[:space:]]*"
+     (regexp-quote "\\item e2")
+     "[[:space:]]*"
+     (regexp-quote "\\startitemize[a]")
+     "[[:space:]]*"
+     (regexp-quote "\\item e2.1")
+     "[[:space:]]*"
+     (regexp-quote "\\item e2.2")
+     "[[:space:]]*"
+     (regexp-quote "\\stopitemize")
+     "[[:space:]]*"
+     (regexp-quote "\\stopitemize")
+     "[[:space:]]*"
+     (regexp-quote "\\item bar")
+     "[[:space:]]*"
+     (regexp-quote "\\item baz")
+     "[[:space:]]*"
+     (regexp-quote "\\stopitemize")
+     )
+    (context-test-with-temp-text
+"1. foo
+  - e1
+  - e2
+    a. e2.1
+    b. e2.2
+2. bar
+3. baz"
+
+     (org-trim
+      (org-export-as 'context nil nil t
+                     '(:context-preset "empty")))))))
+;;;; LaTeX Fragment
+(ert-deftest test-org-context/latex-fragment-dddollar-unnumbered ()
+  "Test double-dollar equations with no numbering."
+  (let ((content
+         (context-test-with-temp-text
+          "$$foo$$"
+          (org-trim
+           (org-export-as 'context nil nil t
+                          '(:context-preset "empty"
+                            :context-number-equations nil))))))
+    (should
+     (string-match-p
+      (concat
+       (regexp-quote "\\startformula")
+       "[[:space:]]*"
+       "foo"
+       "[[:space:]]*"
+       (regexp-quote "\\stopformula"))
+      content))
+    (should-not
+     (string-match-p
+      (regexp-quote "placeformula")
+      content))))
+(ert-deftest test-org-context/latex-fragment-ddollar-numbered-doc ()
+  "Test numbering double-dollar equations in document options."
+  (let ((content
+         (context-test-with-temp-text
+          "#+OPTIONS: numeq:t
+$$foo$$"
+          (org-trim
+           (org-export-as 'context nil nil t
+                          '(:context-preset "empty"
+                            :context-number-equations nil))))))
+    (should
+     (string-match-p
+      (concat
+       (regexp-quote "\\placeformula")
+       "[[:space:]]*"
+       (regexp-quote "\\startformula")
+       "[[:space:]]*"
+       "foo"
+       "[[:space:]]*"
+       (regexp-quote "\\stopformula"))
+      content))))
+(ert-deftest test-org-context/latex-fragment-ddollar-numbered-plist ()
+  "Test numbering double-dollar equations in plist."
+  (let ((content
+         (context-test-with-temp-text
+          "$$foo$$"
+          (org-trim
+           (org-export-as 'context nil nil t
+                          '(:context-preset "empty"
+                            :context-number-equations t))))))
+    (should
+     (string-match-p
+      (concat
+       (regexp-quote "\\placeformula")
+       "[[:space:]]*"
+       (regexp-quote "\\startformula")
+       "[[:space:]]*"
+       "foo"
+       "[[:space:]]*"
+       (regexp-quote "\\stopformula"))
+      content))))
+(ert-deftest test-org-context/latex-fragment-ddollar-numbered-cust ()
+  "Test numbering double-dollar equations with customization variables."
+  (let ((content
+         (context-test-with-temp-customization-value
+          org-context-number-equations
+          t
+          (context-test-with-temp-text
+           "$$foo$$"
+           (org-trim
+            (org-export-as 'context nil nil t
+                           '(:context-preset "empty")))))))
+    (should
+     (string-match-p
+      (concat
+       (regexp-quote "\\placeformula")
+       "[[:space:]]*"
+       (regexp-quote "\\startformula")
+       "[[:space:]]*"
+       "foo"
+       "[[:space:]]*"
+       (regexp-quote "\\stopformula"))
+      content))))
+(ert-deftest test-org-context/latex-fragment-bracket-numbered-doc ()
+  "Test matching bracket-delimited equations."
+  (let ((content
+         (context-test-with-temp-text
+          "#+OPTIONS: numeq:t
+\\[foo\\]"
+          (org-trim
+           (org-export-as 'context nil nil t
+                          '(:context-preset "empty"
+                            :context-number-equations nil))))))
+    (should
+     (string-match-p
+      (concat
+       (regexp-quote "\\placeformula")
+       "[[:space:]]*"
+       (regexp-quote "\\startformula")
+       "[[:space:]]*"
+       "foo"
+       "[[:space:]]*"
+       (regexp-quote "\\stopformula"))
+      content))))
+(ert-deftest test-org-context/latex-fragment-paren-doc ()
+  "Test matching parenthesis-delimited equations."
+  (let ((content
+         (context-test-with-temp-text
+          "\\(foo\\)"
+          (org-trim
+           (org-export-as 'context nil nil t
+                          '(:context-preset "empty"
+                            :context-number-equations nil))))))
+    (should (string-match-p (concat (regexp-quote "\\m{foo}")) content))))
+(ert-deftest test-org-context/latex-fragment-dollar-doc ()
+  "Test matching single-dollar equations."
+  (let ((content
+         (context-test-with-temp-text
+          "$foo$"
+          (org-trim
+           (org-export-as 'context nil nil t
+                          '(:context-preset "empty"
+                            :context-number-equations nil))))))
+    (should (string-match-p (concat (regexp-quote "\\m{foo}")) content))))
+;; TODO citations
+(ert-deftest test-org-context/latex-fragment-citation-1 ()
+  "Test citations."
+  (let ((content
+         (context-test-with-temp-text
+          "\\cite{foo}"
+          (org-trim
+           (org-export-as 'context nil nil t
+                          '(:context-preset "empty"
+                            :context-number-equations nil))))))
+    (should (string-match-p (concat (regexp-quote "\\cite[foo]")) content))))
+;;;; Line Break
+
+(ert-deftest test-org-context/latex-fragment-line-break ()
+  "Test citations."
+  (let ((content
+         (context-test-with-temp-text
+          "foo\\\\
+bar"
+          (org-trim
+           (org-export-as 'context nil nil t
+                          '(:context-preset "empty"
+                            :context-number-equations nil))))))
+    (should (string-match-p (concat (regexp-quote "foo\\crlf\nbar")) content))))
 ;;;; Property Drawers
 (ert-deftest test-org-context/property-drawers ()
   "Test property drawers."
@@ -1215,6 +1664,198 @@ print(\"Hello, world!\")
           ("escape" . "command"))
         t))
       document))))
+(ert-deftest test-org-context/block-source-links-1 ()
+  "Test block source links with links retained."
+  (let* ((document
+          (context-test-with-temp-text
+           "
+#+BEGIN_SRC javascript
+    (ref:JavaRef)
+#+END_SRC
+
+Here's a link to [[(JavaRef)]]
+"
+           (org-trim
+            (org-export-as
+             'context nil nil t
+             '(:context-preset "empty")))))
+         (match
+          (string-match
+           (concat
+            (regexp-quote "/BTEX\\reference[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote ":JavaRef]{JavaRef}\\inright{JavaRef}/ETEX")
+            "\\(?:.\\|\n\\)*"
+            (regexp-quote "Here's a link to \\goto{JavaRef}[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote ":JavaRef]"))
+           document)))
+    (should match)
+    (should
+     (equal
+      (match-string 1 document)
+      (match-string 2 document)))))
+(ert-deftest test-org-context/block-source-links-2 ()
+  "Test block source links with links removed."
+  (let* ((document
+          (context-test-with-temp-text
+           "
+#+BEGIN_SRC javascript -r
+    (ref:JavaRef)
+#+END_SRC
+
+Here's a link to [[(JavaRef)]]
+"
+           (org-trim
+            (org-export-as
+             'context nil nil t
+             '(:context-preset "empty")))))
+         (match
+          (string-match
+           (concat
+            (regexp-quote "/BTEX\\reference[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote ":JavaRef]{1}/ETEX")
+            "\\(?:.\\|\n\\)*"
+            (regexp-quote "Here's a link to \\goto{\\ref[default][")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote ":JavaRef]}[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote ":JavaRef]")
+            )
+           document)))
+    (should match)
+    (should
+     (equal
+      (match-string 1 document)
+      (match-string 2 document)))
+    (should
+     (equal
+      (match-string 1 document)
+      (match-string 3 document)))))
+(ert-deftest test-org-context/block-source-linenum-on-default ()
+  "Test block source line numbering."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startOrgBlkSrc[")
+     "[^]]*"
+     (regexp-quote "numbering={line}")
+     "[^]]*"
+     (regexp-quote "]"))
+    (context-test-with-temp-text
+     "#+BEGIN_SRC javascript -n
+foo
+#+END_SRC"
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-syntax-engine default
+         :context-block-source-environment ("OrgBlkSrc" . ""))))))))
+(ert-deftest test-org-context/block-source-linenum-on-vim ()
+  "Test block source line numbering."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startOrgBlkSrcJavascript")
+     (context-test-build-ConTeXt-argument-regex
+      '(("numbering" . "yes"))
+      nil nil t))
+    (context-test-with-temp-text
+     "
+#+BEGIN_SRC javascript -n
+foo
+#+END_SRC"
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-syntax-engine vim
+         :context-preset "empty"
+         :context-block-source-environment ("OrgBlkSrc" . ""))))))))
+(ert-deftest test-org-context/block-source-linenum-off ()
+  "Test block source line numbering."
+  (should-not
+   (string-match-p
+    (concat
+     (regexp-quote "\\startOrgBlkSrc[")
+     "[^]]*"
+     (regexp-quote "numbering={line}")
+     "[^]]*"
+     (regexp-quote "]"))
+    (context-test-with-temp-text
+     "#+BEGIN_SRC javascript
+foo
+#+END_SRC"
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-syntax-engine default
+         :context-block-source-environment ("OrgBlkSrc" . ""))))))))
+(ert-deftest test-org-context/block-source-linenum-default-continue ()
+  "Test block source line numbering."
+  (should-not
+   (string-match-p
+    (concat
+     (regexp-quote "\\stopOrgBlkSrc[")
+     "[[:space:]]*"
+     (regexp-quote "\\startOrgBlkSrc")
+     (context-test-build-ConTeXt-argument-regex
+      '(("numbering" . "line")
+        ("start" . "2")))
+     "[[:space:]]*"
+     "[^]]*"
+     (regexp-quote "numbering={line}")
+     "[^]]*"
+     (regexp-quote "]"))
+    (context-test-with-temp-text
+     "#+BEGIN_SRC javascript
+foo
+bar
+#+END_SRC
+#+BEGIN_SRC javascript +n
+foo
+#+END_SRC
+"
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-syntax-engine default
+         :context-block-source-environment ("OrgBlkSrc" . ""))))))))
+(ert-deftest test-org-context/block-source-linenum-vim-continue ()
+  "Test block source line numbering."
+  (should-not
+   (string-match-p
+    (concat
+     (regexp-quote "\\stopOrgBlkSrc[")
+     "[[:space:]]*"
+     (regexp-quote "\\startOrgBlkSrc")
+     (context-test-build-ConTeXt-argument-regex
+      '(("numbering" . "yes")
+        ("numberstart" . "2")))
+     "[[:space:]]*"
+     "[^]]*"
+     (regexp-quote "numbering={line}")
+     "[^]]*"
+     (regexp-quote "]"))
+    (context-test-with-temp-text
+     "#+BEGIN_SRC javascript
+foo
+bar
+#+END_SRC
+#+BEGIN_SRC javascript +n
+foo
+#+END_SRC
+"
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-syntax-engine vim
+         :context-block-source-environment ("OrgBlkSrc" . ""))))))))
+
 ;;;;; Verses
 (ert-deftest test-org-context/verses-1 ()
   "Test verses"
@@ -2385,7 +3026,7 @@ DEADLINE: <2004-02-29 Sun>"
   "Place list of listings."
   (should
    (equal
-    "\\placelist[OrgListingEmpty][criterium=all]"
+    "\\placelist[OrgListingEnumEmpty][criterium=all]"
     (context-test-with-temp-text
      "#+TOC: listings"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
@@ -2393,7 +3034,7 @@ DEADLINE: <2004-02-29 Sun>"
   "Test placing list of verses."
   (should
    (equal
-    "\\placelist[OrgVerseEnumerateEmpty][criterium=all]"
+    "\\placelist[OrgVerseEnumEmpty][criterium=all]"
     (context-test-with-temp-text
      "#+TOC: verses"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
@@ -2409,7 +3050,7 @@ DEADLINE: <2004-02-29 Sun>"
   "Test placing list of examples."
   (should
    (equal
-    "\\placelist[OrgExampleEnumerationEmpty][criterium=all]"
+    "\\placelist[OrgExampleEnumEmpty][criterium=all]"
     (context-test-with-temp-text "#+TOC: examples"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
 (ert-deftest test-org-context/keyword-bibliography ()
@@ -3000,27 +3641,47 @@ DEADLINE: <2004-02-29 Sun>"
 (ert-deftest test-org-context/image-simple ()
   "Test exporting simple image."
   (should
-   (equal
-    "\\startplacefigure[location={Here}]
-\\externalfigure[./images/cat.jpg][width={TestWidth}]
-\\stopplacefigure"
+   (string-match-p
+    (concat
+     (regexp-quote "\\startplacefigure")
+     "[[:space:]]*"
+     (context-test-build-ConTeXt-argument-regex
+      '(("location" . "TestLocation")))
+     "[[:space:]]*"
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     "[[:space:]]*"
+     (context-test-build-ConTeXt-argument-regex
+      '(("width" . "TestWidth")))
+     "[[:space:]]*"
+     (regexp-quote "\\stopplacefigure"))
     (context-test-with-temp-customization-value
-     org-context-image-default-height
-     ""
+     org-context-float-default-placement
+     "TestLocation"
      (context-test-with-temp-customization-value
-      org-context-image-default-width
-      "TestWidth"
-      (context-test-with-temp-text
-       "[[./images/cat.jpg]]"
-       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))
-      )))))
+      org-context-image-default-height
+      ""
+      (context-test-with-temp-customization-value
+       org-context-image-default-width
+       "TestWidth"
+       (context-test-with-temp-text
+        "[[./images/cat.jpg]]"
+        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))))
 (ert-deftest test-org-context/image-simple-plist ()
   "Test exporting simple image."
   (should
-   (equal
-    "\\startplacefigure[location={Here}]
-\\externalfigure[./images/cat.jpg][width={TestWidth}]
-\\stopplacefigure"
+   (string-match-p
+    (concat
+     (regexp-quote "\\startplacefigure")
+     "[[:space:]]*"
+     (context-test-build-ConTeXt-argument-regex
+      '(("location" . "TestLocation")))
+     "[[:space:]]*"
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     "[[:space:]]*"
+     (context-test-build-ConTeXt-argument-regex
+      '(("width" . "TestWidth")))
+     "[[:space:]]*"
+     (regexp-quote "\\stopplacefigure"))
     (context-test-with-temp-text
      "[[./images/cat.jpg]]"
      (org-trim
@@ -3028,96 +3689,121 @@ DEADLINE: <2004-02-29 Sun>"
        'context nil nil t
        '(:context-preset "empty"
          :context-image-default-height ""
-         :context-image-default-width "TestWidth")))))))
+         :context-image-default-width "TestWidth"
+         :context-float-default-placement "TestLocation")))))))
 (ert-deftest test-org-context/image-caption ()
   "Test image with caption."
   (should
-   (equal
-    "\\startplacefigure[title={A cat},
-   location={Here}]
-\\externalfigure[./images/cat.jpg][width={\\dimexpr \\hsize - 1em \\relax}]
-\\stopplacefigure"
+   (string-match-p
+    (concat
+     (regexp-quote "\\startplacefigure")
+     (context-test-build-ConTeXt-argument-regex
+      '(("title" . "A cat"))
+      nil nil t))
     (context-test-with-temp-text
      "#+CAPTION: A cat\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
 (ert-deftest test-org-context/image-wrap ()
   "Test image with wrap position."
   (should
-   (equal
-    "\\startplacefigure[location={here,left}]
-\\externalfigure[./images/cat.jpg][width={0.48\\hsize}]
-\\stopplacefigure"
+   (string-match-p
+    (concat
+     (regexp-quote "\\startplacefigure")
+     "[[:space:]]*"
+     (context-test-build-ConTeXt-argument-regex
+      '(("location" . "here,left"))))
     (context-test-with-temp-text
      "#+ATTR_CONTEXT: :float wrap\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
 (ert-deftest test-org-context/image-sideways ()
   "Test image with sideways position."
   (should
-   (equal
-    "\\startplacefigure[location={page,90}]
-\\externalfigure[./images/cat.jpg][width={\\dimexpr \\hsize - 1em \\relax}]
-\\stopplacefigure"
-    (context-test-with-temp-text
-     "#+ATTR_CONTEXT: :float sideways\n[[./images/cat.jpg]]"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+   (string-match-p
+    (concat
+     (regexp-quote "\\startplacefigure")
+     "[[:space:]]*"
+     (context-test-build-ConTeXt-argument-regex
+      '(("location" . "page,90,"))))
+    (context-test-with-temp-customization-value
+     org-context-float-default-placement
+     ""
+     (context-test-with-temp-text
+      "#+ATTR_CONTEXT: :float sideways\n[[./images/cat.jpg]]"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/image-multicolumn ()
   "Test image with multicolumn position."
   (should
-   (equal
-    "\\startplacefigure[location={Here}]
-\\externalfigure[./images/cat.jpg][width={\\dimexpr\\makeupwidth - 1em\\relax}]
-\\stopplacefigure"
+   (string-match-p
+    (concat
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     (context-test-build-ConTeXt-argument-regex
+      (list (cons "width" (regexp-quote "\\dimexpr\\makeupwidth - 1em\\relax")))))
     (context-test-with-temp-text
      "#+ATTR_CONTEXT: :float multicolumn\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/image-placement ()
+(ert-deftest test-org-context/image-placement-doc ()
   "Test image with specific placement."
   (should
-   (equal
-    "\\startplacefigure[location={backspace}]
-\\externalfigure[./images/cat.jpg][width={\\dimexpr \\hsize - 1em \\relax}]
-\\stopplacefigure"
+   (string-match-p
+    (regexp-quote "\\startplacefigure[location={backspace}]")
     (context-test-with-temp-text
      "#+ATTR_CONTEXT: :placement backspace\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
-(ert-deftest test-org-context/image-placement ()
+(ert-deftest test-org-context/image-placement-cust ()
   "Test image with specific placement."
   (should
-   (equal
-    "\\startplacefigure[location={backspace}]
-\\externalfigure[./images/cat.jpg][width={\\dimexpr \\hsize - 1em \\relax}]
-\\stopplacefigure"
+   (string-match-p
+    (regexp-quote "\\startplacefigure[location={backspace}]")
+    (context-test-with-temp-customization-value
+     org-context-float-default-placement
+     "backspace"
+     (context-test-with-temp-text
+      "[[./images/cat.jpg]]"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/image-placement-plist ()
+  "Test image with specific placement."
+  (should
+   (string-match-p
+    (regexp-quote "\\startplacefigure[location={backspace}]")
     (context-test-with-temp-text
-     "#+ATTR_CONTEXT: :placement backspace\n[[./images/cat.jpg]]"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+     "[[./images/cat.jpg]]"
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-float-default-placement "backspace")))))))
 (ert-deftest test-org-context/image-width-local ()
   "Test image with specified width."
   (should
-   (equal
-    "\\startplacefigure[location={Here}]
-\\externalfigure[./images/cat.jpg][width={2in}]
-\\stopplacefigure"
+   (string-match-p
+    (concat
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     "[[:space:]]*"
+     (context-test-build-ConTeXt-argument-regex
+      '(("width" . "2in"))))
     (context-test-with-temp-text
      "#+ATTR_CONTEXT: :width 2in\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
 (ert-deftest test-org-context/image-height-local ()
   "Test image with specified height."
   (should
-   (equal
-    "\\startplacefigure[location={Here}]
-\\externalfigure[./images/cat.jpg][height={2in}]
-\\stopplacefigure"
+   (string-match-p
+    (concat
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     (context-test-build-ConTeXt-argument-regex
+      '(("height" . "2in"))))
     (context-test-with-temp-text
      "#+ATTR_CONTEXT: :height 2in\n[[./images/cat.jpg]]"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
 (ert-deftest test-org-context/image-width-height-cust ()
   "Test image options set with customization values."
   (should
-   (equal
-    "\\startplacefigure[location={Here}]
-\\externalfigure[./images/cat.jpg][height={TestHeight},
-   width={TestWidth}]
-\\stopplacefigure"
+   (string-match-p
+    (concat
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     (context-test-build-ConTeXt-argument-regex
+      '(("height" . "TestHeight")
+        ("width" . "TestWidth"))))
     (context-test-with-temp-customization-value
      org-context-image-default-width
      "TestWidth"
@@ -3129,11 +3815,12 @@ DEADLINE: <2004-02-29 Sun>"
 (ert-deftest test-org-context/image-width-height-plist ()
   "Test image options set with customization values."
   (should
-   (equal
-    "\\startplacefigure[location={Here}]
-\\externalfigure[./images/cat.jpg][height={TestHeight},
-   width={TestWidth}]
-\\stopplacefigure"
+   (string-match-p
+    (concat
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     (context-test-build-ConTeXt-argument-regex
+      '(("height" . "TestHeight")
+        ("width" . "TestWidth"))))
     (context-test-with-temp-text
      "[[./images/cat.jpg]]"
      (org-trim
@@ -3145,10 +3832,12 @@ DEADLINE: <2004-02-29 Sun>"
 (ert-deftest test-org-context/image-height-cust ()
   "Test image height set in customization."
   (should
-   (equal
-    "\\startplacefigure[location={Here}]
-\\externalfigure[./images/cat.jpg][height={TestHeight}]
-\\stopplacefigure"
+   (string-match-p
+    (concat
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     "[[:space:]]*"
+     (context-test-build-ConTeXt-argument-regex
+      '(("height" . "TestHeight"))))
     (context-test-with-temp-customization-value
      org-context-image-default-width
      ""
@@ -3157,6 +3846,36 @@ DEADLINE: <2004-02-29 Sun>"
       (context-test-with-temp-text
        "[[./images/cat.jpg]]"
        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))))
+(ert-deftest test-org-context/image-rules-cust ()
+  "Test image rules set in customization."
+  (should
+   (string-match-p
+    (regexp-quote "\\externalfigure[./images/cat.foo]")
+    (context-test-with-temp-customization-value
+     org-context-inline-image-rules
+     `(("file" . ,(rx "."
+                   "foo"
+                   eos)))
+     ""
+     (context-test-with-temp-customization-value
+      org-context-image-default-height "TestHeight"
+      (context-test-with-temp-text
+       "[[./images/cat.foo]]"
+       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))))
+(ert-deftest test-org-context/image-rules-plist ()
+  "Test image rules set in customization."
+  (should
+   (string-match-p
+    (regexp-quote "\\externalfigure[./images/cat.foo]")
+    (context-test-with-temp-customization-value
+     org-context-image-default-height "TestHeight"
+     (context-test-with-temp-text
+      "[[./images/cat.foo]]"
+      (org-trim
+       (org-export-as
+        'context nil nil t
+        (list :context-inline-image-rules
+              `(("file" . ,(rx "." "foo" eos)))))))))))
 
 
 ;;; Links
@@ -3242,6 +3961,47 @@ DEADLINE: <2004-02-29 Sun>"
      "#+NAME: foo\n#+BEGIN_CENTER\nfoo bar baz\n#+END_CENTER"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
 
+;;; Special Blocks
+(ert-deftest test-org-context/special-block-notitle ()
+  "Test special block exports."
+ (should
+  (string-match-p
+   (concat
+    (regexp-quote "\\startFOO")
+    "[[:space:]]*"
+    (context-test-build-ConTeXt-argument-regex
+     '(("reference" . "org[0-9a-f]+")))
+    "[[:space:]]*"
+    (regexp-quote "foo bar baz")
+    "[[:space:]]*"
+    (regexp-quote "\\stopFOO"))
+   (context-test-with-temp-text
+           "#+BEGIN_FOO
+foo bar baz
+#+END_FOO"
+           (org-export-as
+            'context nil nil t '(:context-preset "empty"))))) )
+(ert-deftest test-org-context/special-block-title ()
+  "Test special block exports."
+ (should
+  (string-match-p
+   (concat
+    (regexp-quote "\\startFOO")
+    "[[:space:]]*"
+    (context-test-build-ConTeXt-argument-regex
+     '(("reference" . "org[0-9a-f]+")
+       ("title" . "bar")))
+    "[[:space:]]*"
+    (regexp-quote "foo bar baz")
+    "[[:space:]]*"
+    (regexp-quote "\\stopFOO"))
+   (context-test-with-temp-text
+           "#+CAPTION: bar
+#+BEGIN_FOO
+foo bar baz
+#+END_FOO"
+           (org-export-as
+            'context nil nil t '(:context-preset "empty"))))) )
 
 ;;; Tables
 (ert-deftest test-org-context/table-empty ()
@@ -5044,6 +5804,82 @@ concat
 :context-table-topleft-style "TestTopleftStyle"
 :context-table-topright-style "TestToprightStyle"
 :context-table-toprow-style "TestToprowStyle")))))))
+;;; Radio Targets
+(ert-deftest testo-org-context/radio-target ()
+  "Test radio targets."
+  (let* ((content
+          (context-test-with-temp-text
+           "<<<target>>>
+foo
+target"
+           (org-trim
+            (org-export-as 'context nil nil t
+                           '(:context-preset "empty")))))
+         (reference
+          (progn
+            (string-match
+             (concat
+              (regexp-quote "\\reference[")
+              "\\(org[0-9a-f]+\\)"
+              (regexp-quote "]"))
+             content)
+            (match-string 1 content))))
+    (should
+     (string-match-p
+      (concat
+       (regexp-quote "\\reference[")
+       reference
+       (regexp-quote "]")
+       (regexp-quote "{target}")
+       "[[:space:]]*target"
+       "[[:space:]]*"
+       "foo"
+       "[[:space:]]*"
+       (regexp-quote "\\goto{target}[")
+       reference
+       (regexp-quote "]"))
+      content))))
+;;; Statistics Cookie
+(ert-deftest testo-org-context/statistics-cookie ()
+  "Test statistics cookie."
+  (should
+   (equal
+    "[123\\%]"
+    (context-test-with-temp-text
+     "[123%]"
+     (org-trim
+      (org-export-as 'context nil nil t
+                     '(:context-preset "empty")))))))
+;;; Target
+(ert-deftest testo-org-context/target ()
+  "Test targets."
+  (let* ((document
+          (context-test-with-temp-text
+           "<<target>>
+foo bar [[target]]"
+           (org-trim
+            (org-export-as 'context nil nil t
+                           '(:context-preset "empty")))))
+         (match
+          (string-match
+           (concat
+            (regexp-quote "\\reference[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]{target}")
+            "[[:space:]]*"
+            (regexp-quote "foo bar \\goto{\\ref[default][")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]}[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]"))
+           document)))
+    (should match)
+    (should
+     (equal (match-string 1 document)
+            (match-string 2 document)))
+    (should
+     (equal (match-string 1 document)
+            (match-string 3 document)))))
 ;;; Document Structure
 (ert-deftest test-org-context/document-structure-1 ()
   "Test that document structure matches what we expect generally."

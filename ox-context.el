@@ -352,7 +352,6 @@
                   (:context-example-environment nil nil org-context-example-environment)
                   (:context-export-quotes-alist nil nil org-context-export-quotes-alist)
                   (:context-fixed-environment nil nil org-context-fixed-environment)
-                  ;; TODO test
                   (:context-float-default-placement nil nil org-context-float-default-placement)
                   (:context-format-clock-function nil nil org-context-format-clock-function)
                   (:context-format-drawer-function nil nil org-context-format-drawer-function)
@@ -368,7 +367,6 @@
                   ;; TODO Implement
                   (:context-image-default-option nil nil org-context-image-default-option)
                   (:context-image-default-width nil nil org-context-image-default-width)
-                  ;; TODO test
                   (:context-inline-image-rules nil nil org-context-inline-image-rules)
                   (:context-inline-source-environment nil nil org-context-inline-source-environment)
                   (:context-inlinetask-command nil nil org-context-inlinetask-command)
@@ -1160,7 +1158,6 @@ The function should return the string to be exported."
   :group 'org-export-context
   :type 'function)
 
-;; TODO Test
 (defcustom org-context-format-timestamp-function
   'org-context-format-timestamp-default-function
   "Function called to format a timestamp in ConTeXt code.
@@ -1221,7 +1218,6 @@ so this is a short list."
   :type 'string
   :safe #'stringp)
 
-;; TODO Test
 (defcustom org-context-inline-image-rules
   `(("file" . ,(rx "."
                    (or "pdf" "jpeg" "jpg" "png" "ps" "eps" "tikz" "pgf" "svg")
@@ -1342,7 +1338,6 @@ non-nil."
   :group 'org-export-context
   :type '(repeat (string :tag "Extension")))
 
-;; TODO test
 (defcustom org-context-number-equations nil
   "Non-nil means insert a \\placeformula line before all formulas for numbering."
   :group 'org-export-context
@@ -2374,12 +2369,13 @@ holding contextual information.  See `org-export-data'."
 
 ;;;; Entity
 
-;; TODO Test
 (defun org-context-entity (entity _contents _info)
   "Transcode an ENTITY object from Org to ConTeXt.
 CONTENTS are the definition itself. INFO is a plist
 holding contextual information."
-  (org-element-property :latex entity))
+  ;; Just use the utf-8 version because ConTeXt supports utf-8.
+  ;; Can't guarantee codes for LaTeX will match.
+  (org-element-property :utf-8 entity))
 
 ;;;; Example Block
 
