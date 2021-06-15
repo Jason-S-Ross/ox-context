@@ -607,14 +607,13 @@ the corresponding command name in ConTeXt.")
 
 ;;;;; Element Environments
 
-;; TODO Documentations for these environment defs
 ;; These environments wrap block elements to provide the core implementation.
 
 (defcustom org-context-blockquote-environment
   '("OrgBlockQuote" . "\\definenarrower[OrgBlockQuote][left=2em,right=2em]")
   "The environment name of the block quote environment.
 
-If nil, block quotes aren't delimited."
+Cons list of NAME, DEF. If nil, block quotes aren't delimited."
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -646,7 +645,8 @@ called NAME is created."
    after={\\stoptextbackground}]")
   "The environment name of the fixed-width environment.
 
-If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
+Cons list of NAME, DEF. If nil, examples are enclosed in
+\"\\starttyping\" / \"\\stoptying\""
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -657,7 +657,8 @@ If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
    after={\\stopframedtext}]")
   "The environment name of the property drawer environment.
 
-If nil, examples are enclosed in \"\\startframedtext\" / \"\\stopframedtext\""
+Cons list of NAME, DEF. If nil, examples are enclosed in
+\"\\startframedtext\" / \"\\stopframedtext\""
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -666,7 +667,8 @@ If nil, examples are enclosed in \"\\startframedtext\" / \"\\stopframedtext\""
   '("OrgInlineSrc" . "\\definetype[OrgInlineSrc]")
   "The environment name of the inline source environment.
 
-If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
+Cons list of NAME, DEF. If nil, examples are enclosed in
+\"\\starttyping\" / \"\\stoptying\""
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -675,7 +677,8 @@ If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
   '("OrgBlkSrc" . "\\definetyping[OrgBlkSrc][escape=yes]")
   "The environment name of the block source environment.
 
-If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
+Cons list of NAME, DEF. If nil, examples are enclosed in
+\"\\starttyping\" / \"\\stoptying\""
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -684,7 +687,7 @@ If nil, examples are enclosed in \"\\starttyping\" / \"\\stoptying\""
   '("OrgVerse" . "\\definelines[OrgVerse]")
   "The environment name of the verse environment.
 
-If nil, verses aren't delimited."
+Cons list of NAME, DEF. If nil, verses aren't delimited."
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -701,9 +704,9 @@ If nil, verses aren't delimited."
   [alternative=empty]")
   "The enumeration of the unlabelled blockquote environment.
 
-Shares a counter with `org-context-enumerate-blockquote-environment'.
-
-If nil, block quotes are not wrapped in an enumeration"
+Cons list of NAME, DEF. By default, shares a counter with
+`org-context-enumerate-blockquote-environment'. If nil, block
+quotes are not wrapped in an enumeration"
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -717,9 +720,9 @@ If nil, block quotes are not wrapped in an enumeration"
    alternative=top]")
   "The enumeration of the blockquote environment.
 
-Shares a counter with `org-context-enumerate-blockquote-empty-environment'.
-
-If nil, block quotes are not wrapped in an enumeration"
+Cons list of NAME, DEF. By default, shares a counter with
+`org-context-enumerate-blockquote-empty-environment'. If nil,
+block quotes are not wrapped in an enumeration"
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -730,9 +733,9 @@ If nil, block quotes are not wrapped in an enumeration"
   [alternative=empty]")
   "The enumeration of the unlabelled example environment.
 
-Shares a counter with `org-context-enumerate-example-environment'.
-
-If nil, examples are not wrapped in an enumeration"
+Cons list of NAME, DEF. By default, shares a counter with
+`org-context-enumerate-example-environment'. If nil, examples are
+not wrapped in an enumeration"
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -747,9 +750,9 @@ If nil, examples are not wrapped in an enumeration"
    alternative=top]")
   "The enumeration to wrap examples in.
 
-Shares a counter with `org-context-enumerate-example-empty-environment'
-
-If nil, examples are not wrapped in an enumeration"
+Cons list of NAME, DEF. By default, shares a counter with
+`org-context-enumerate-example-empty-environment' If nil,
+examples are not wrapped in an enumeration"
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -760,9 +763,9 @@ If nil, examples are not wrapped in an enumeration"
   [alternative=empty]")
   "The enumeration for unlabelled listings.
 
-Shares a counter with `org-context-enumerate-listing-environment'.
-
-If null, listings are not enumerated."
+Cons list of NAME, DEF. By default, shares a counter with
+`org-context-enumerate-listing-environment'. If null, listings
+are not enumerated."
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -777,9 +780,9 @@ If null, listings are not enumerated."
    alternative=top]")
   "The enumeration for listings.
 
-Shares a counter with `org-context-enumerate-listing-empty-environment'.
-
-If null, listings are not enumerated."
+Cons list of NAME, DEF. By default, shares a counter with
+`org-context-enumerate-listing-empty-environment'. If null,
+listings are not enumerated."
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -790,7 +793,7 @@ If null, listings are not enumerated."
   [alternative=empty]")
   "The environment name that wraps verses to list them.
 
-If nil, verses aren't enumerated."
+Cons list of NAME, DEF. If nil, verses aren't enumerated."
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -804,7 +807,7 @@ If nil, verses aren't enumerated."
    alternative=top]")
   "The environment name that wraps verses to list them.
 
-If nil, verses aren't enumerated."
+Cons list of NAME, DEF. If nil, verses aren't enumerated."
   :group 'org-export-context
   :type '(cons (string :tag "Environment Name")
                (string :tag "Environment Definition")))
@@ -818,7 +821,8 @@ If nil, verses aren't enumerated."
   '("OrgItemOff" . "\\define\\OrgItemOff{\\square}")
   "The name of the command that creates bullets for uncompleted items.
 
-If nil, the command isn't created."
+Cons list of NAME, DEF. If nil, the command isn't created.
+Command should take no arguments."
   :group 'org-export-context
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
@@ -827,7 +831,8 @@ If nil, the command isn't created."
   '("OrgItemOn" . "\\define\\OrgItemOn{\\boxplus}")
   "The name of the command that creates bullets for completed items.
 
-If nil, the command isn't created."
+Cons list of NAME, DEF. If nil, the command isn't created.
+Command should take no arguments."
   :group 'org-export-context
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
@@ -836,7 +841,8 @@ If nil, the command isn't created."
   '("OrgItemTrans" . "\\define\\OrgItemTrans{\\boxtimes}")
   "The name of the command that creates bullets for partially completed items.
 
-If nil, the command isn't created."
+Cons list of NAME, DEF. If nil, the command isn't created.
+Command should take no arguments."
   :group 'org-export-context
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
@@ -861,7 +867,15 @@ If nil, the command isn't created."
 }")
   "The name of the command that formats clocks.
 
-If nil, the command isn't created."
+Cons list of NAME, DEF. If nil, the command isn't created.
+Command should take the following keyword arguments:
+  `y': The year
+  `m': The month
+  `d': The day
+  `H': The hour on a 24 hour clock
+  `I': The hour on a 12 hour clock
+  `M': The minute
+  `S': The second"
   :group 'org-export-context
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
@@ -870,7 +884,8 @@ If nil, the command isn't created."
   '("OrgDesc" . "\\definedescription[OrgDesc]")
   "The command name to be used for Org description items.
 
-If nil, \"\\description\" is used"
+Cons list of NAME, DEF. If nil, \"\\description\" is used.
+Should define a description environment."
   :group 'org-export-context
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
@@ -879,7 +894,9 @@ If nil, \"\\description\" is used"
   '("OrgDrawer" . "\\define[2]\\OrgDrawer{#2}")
   "The name of the command that formats drawers.
 
-If nil, the command isn't created."
+Cons list of NAME, DEF. If nil, the command isn't created.
+Command should take a single argument -- the contents of the
+drawer."
   :group 'org-export-context
   :type '(cons string string))
 
@@ -900,7 +917,14 @@ If nil, the command isn't created."
 }")
   "The name of the command that formats headlines.
 
-If nil, the command isn't created."
+Cons list of NAME, DEF. If nil, the command isn't created.
+The command should take the following keyword arguments:
+
+  `Todo': The todo keyword (if any) for the headline
+  `TodoType': The type of the todo keyword for the headline
+  `Priority': The headline's priority (if any)
+  `Text': The text of the headline
+  `Tags': The tags of the headline (as a colon-delimited list)"
   :group 'org-export-context
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
@@ -932,15 +956,14 @@ If nil, the command isn't created."
 }")
   "The name of the command that formats inline tasks.
 
-Receives the following keyword arguments:
-
-Todo
-TodoType
-Priority
-Title
-Tags
-Contents
-
+Cons list of NAME, DEF.The command should take the following
+keyword arguments:
+  `Todo': The todo keyword (if any) for the headline
+  `TodoType': The type of the todo keyword for the headline
+  `Priority': The headline's priority (if any)
+  `Title': The title of the headline
+  `Tags': The tags of the headline (as a colon-delimited list)
+  `Contents': The contents of the inline tasks
 If nil, returns a basic command with only the title and contents"
   :group 'org-export-context
   :type '(cons (string :tag "Command Name")
@@ -954,9 +977,13 @@ If nil, returns a basic command with only the title and contents"
      value=,
      #2]%
 {\\tt \\OrgNodePropkey: \\OrgNodePropvalue}\\crlf}")
-  "The name of the command that formats drawers.
+  "The name of the command that formats nodes in drawers.
 
-If nil, the command isn't created."
+Cons list of NAME, DEF. Command should take the following keyword
+arguments:
+
+  `key': The node property key
+  `value': The node property value"
   :group 'org-export-context
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
@@ -982,16 +1009,16 @@ If nil, the command isn't created."
 }")
   "The name of the command that formats planning items.
 
-If nil, just returns a plain text time stamp and label.
+Cons list of NAME, DEF. If nil, just returns a plain text time
+stamp and label. The command should accept the following keyword
+arguments:
 
-Receives the following keyword arguments:
-
-ClosedString
-ClosedTime
-DeadlineString
-DeadlineTime
-ScheduledString
-ScheduledTime"
+  `ClosedString': The locally-defined CLOSED keyword
+  `ClosedTime': The time the item was closed
+  `DeadlineString': The locally-defined DEADLINE keyword
+  `DeadlineTime': The time of the deadline
+  `ScheduledString': The locally-defined SCHEDULED keyword
+  `ScheduledTime': The time scheduled"
   :group 'org-export-context
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
@@ -1016,7 +1043,8 @@ See `org-context-inner-templates-alist'"
   :type 'string)
 
 (defcustom org-context-preset "article"
-  "A preamble with no style settings for the document elements."
+  "The defalt preset to use when exporting.
+See `org-context-presets-alist' for more information."
   :group 'org-export-context
   :type '(string :tag "ConTeXt preset"))
 
@@ -1339,7 +1367,9 @@ non-nil."
   :type '(repeat (string :tag "Extension")))
 
 (defcustom org-context-number-equations nil
-  "Non-nil means insert a \\placeformula line before all formulas for numbering."
+  "Whether equations created with \"$$ $$\" or \"\\[ \\]\"
+delimiters are numbered. Non-nil means insert a \\placeformula
+line before all formulas for numbering."
   :group 'org-export-context
   :type 'boolean)
 
@@ -1419,9 +1449,17 @@ This option can also be set with the PLACE keyword."
       :snippets
       ("setup-letter"
        "setup-grid"))))
-  ;; TODO update doc
+  "Alist of ConTeXt preamble presets.
+
+Presets are used to specify document structure, as well as
+specifying the document preamble. The cdr of each item is a plist
+with the following keys:
+  `literal': Literal ConTeXt code to include in the preamble
+  `template': A template specifying document structure
+    (see `org-context-inner-templates-alist')
+  `snippets': A list of snippets (as defined in
+    `org-context-snippets-alist') to include in the preamble"
   ;; TODO Update customization group
-  "Alist of ConTeXt preamble presets."
   :group 'org-export-context
   :type '(repeat
           (cons :tag "Preset Definition"
@@ -1743,7 +1781,8 @@ available for use in presets. See also `:context-presets'"
 
 (defcustom org-context-syntax-engine
   'default
-  "Option for the syntax engine."
+  "Option for the engine to use to perform syntax highlighting.
+The `vim' option requires Vim to be installed."
   :tag "Default Syntax Engine"
   :group 'org-export-context
   :type '(choice (const :tag "Vim" vim)
@@ -1778,37 +1817,52 @@ available for use in presets. See also `:context-presets'"
     verb))
 
 (defcustom org-context-table-location "force,here"
-  "Default placement for table floats."
+  "Default placement for table floats.
+
+Contents are passed to the \"location\" key of the
+\"\\startplacetable\" command when creating tables."
   :group 'org-export-context
   :type 'string)
 
 (defcustom org-context-table-head "repeat"
-  "If \"repeat\", repeat table headers across pages."
+  "If \"repeat\", repeat table headers across pages.
+
+This string is passed to the \"header\" key of the
+\"\\startxtable\" command."
   :group 'org-export-context
   :type 'string)
 
 (defcustom org-context-table-foot ""
-  "If \"repeat\", repeat table footers across pages."
+  "If \"repeat\", repeat table footers across pages.
+
+This string is passed to the \"footer\" key of the
+\"\\startxtable\" command."
   :group 'org-export-context
   :type 'string)
 
 (defcustom org-context-table-option ""
-  "Options to pass to the \"option\" keyword for \"\\startxtable\"."
+  "Options to pass to the \"option\" keyword for \"\\startxtable\".
+
+This string is passed to the \"option\" key of the
+\"\\startxtable\" command."
   :group 'org-export-context
   :type 'string)
 
 (defcustom org-context-table-style ""
-  "A style string name to pass to \"\\startxtable\"."
+  "A style string name to pass to use with the \"\\startxtable\" command."
   :group 'org-export-context
   :type 'string)
 
 (defcustom org-context-table-float-style ""
-  "A style string name to pass to \"\\startplacetable\"."
+  "A style string name to use with the \"\\startplacetable\" command."
   :group 'org-export-context
   :type 'string)
 
 (defcustom org-context-table-split "yes"
-  "If \"split\", tables default to split across pages."
+  "If \"split\", tables default to split across pages.
+
+This string is passed to the \"split\" key of the
+\"\\startxtable\" command."
   :group 'org-export-context
   :type 'string)
 
