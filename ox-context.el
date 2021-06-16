@@ -3564,6 +3564,7 @@ INFO is a plist containing contextual information."
          (num-start (org-export-get-loc src-block info))
          (retain-labels (org-element-property :retain-labels src-block))
          (line-num 0)
+         (reference-command (plist-get info :context-source-label))
          (reffed-code
           (mapconcat
            (lambda (line)
