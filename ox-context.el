@@ -412,6 +412,7 @@
                   (:context-table-split "TABLE_SPLIT" nil org-context-table-split parse)
                   (:context-texinfo-indices nil nil org-context-texinfo-indices-alist)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
+                  (:context-toc-command-alist nil nil org-context-toc-command-alist)
                   (:context-verse-environment nil nil org-context-verse-environment)
                   (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
                   (:date "DATE" nil "\\currentdate" parse)
@@ -1800,6 +1801,21 @@ This string is passed to the \"split\" key of the
     verbatim
     verb))
 
+(defcustom org-context-toc-command-alist
+  '(("tables" . "\\placelistoftables[criterium=all]")
+    ("figures" . "\\placelistoffigures[criterium=all]")
+    ("equations" . "\\placelist[formula][criterium=all]")
+    ("references" . "\\placelistofpublications[criterium=all]")
+    ("definitions" . "\\placeindex"))
+  "Alist of KEYWORD, COMMAND pairs.
+
+\"#+TOC: KEYWORD\" results in COMMAND being inserted at this
+location. KEYWORD should be lower-case."
+  :group 'org-export-context
+  :type '(alist
+          :key-type (string :tag "Keyword")
+          :value-type (string :tag "Command")))
+
 (defcustom org-context-texinfo-indices-alist
   '(("cp" . (:keyword "CINDEX" :command "OrgConcept"))
     ("fn" . (:keyword "FINDEX" :command "OrgFunction"))
@@ -2865,53 +2881,47 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
      ("INDEX" (format "\\index{%s}" (org-context--protect-text value)))
      ("TOC"
       (let ((case-fold-search t)
-            (texinfo-indices (plist-get info :context-texinfo-indices)))
-        (pcase value
-          ;; TODO consts for these commands
-          ("tables" "\\placelistoftables[criterium=all]")
-          ("figures" "\\placelistoffigures[criterium=all]")
-          ("equations" "\\placelist[formula][criterium=all]")
-          ("references" "\\placelistofpublications[criterium=all]")
-          ("definitions" "\\placeindex")
-          ((pred (lambda (x) (assoc x texinfo-indices)))
-           (format "\\placeregister[%s]"
-                   (plist-get
-                    (cdr
-                     (assoc value texinfo-indices))
-                    :command)))
-          ((pred (string-match-p "\\<headlines\\>"))
-           (let* ((localp (string-match-p "\\<local\\>" value))
-                  (parent (org-element-lineage keyword '(headline)))
-                  (depth
-                   (if (string-match "\\<[0-9]+\\>" value)
-                       (string-to-number (match-string 0 value))
-                     0))
-                  (level (+ depth
-                            (if (not (and localp parent)) 0
-                              (org-export-get-relative-level parent info))))
-                  (levelstring (if (> level 0)
-                                   (format "list={%s}"
-                                           (org-context--get-all-headline-commands level))
-                                 "")))
-             (if localp (format  "\\placecontent[criterium=local,%s]" levelstring)
-               (format  "\\placecontent[%s]" levelstring))))
-          ((or
-            (and (pred (string-match-p "\\<listings\\>"))
-                 (let kw :context-enumerate-listing-empty-environment))
-            (and (pred (string-match-p "\\<verses\\>"))
-                 (let kw :context-enumerate-verse-empty-environment))
-            (and (pred (string-match-p "\\<quotes\\>"))
-                 (let kw :context-enumerate-blockquote-empty-environment))
-            (and (pred (string-match-p "\\<examples\\>"))
-                 (let kw :context-enumerate-example-empty-environment))
-            (let kw nil))
-           (let ((env
-                  (org-string-nw-p
-                   (car
-                    (plist-get info kw)))))
-             (if env (format "\\placelist[%s][criterium=all]" env)
-               ""))))))
+            (texinfo-command (assoc value (plist-get info :context-texinfo-indices)))
+            (toc-command (assoc value (plist-get info :context-toc-command-alist)))
+            kw)
 
+        (cond
+
+         (toc-command (cdr toc-command))
+         (texinfo-command
+          (format "\\placeregister[%s]"
+                  (plist-get (cdr texinfo-command) :command)))
+         ((string-match-p "\\<headlines\\>" value)
+          (let* ((localp (string-match-p "\\<local\\>" value))
+                 (parent (org-element-lineage keyword '(headline)))
+                 (depth
+                  (if (string-match "\\<[0-9]+\\>" value)
+                      (string-to-number (match-string 0 value))
+                    0))
+                 (level (+ depth
+                           (if (not (and localp parent)) 0
+                             (org-export-get-relative-level parent info))))
+                 (levelstring (if (> level 0)
+                                  (format "list={%s}"
+                                          (org-context--get-all-headline-commands level))
+                                "")))
+            (if localp (format  "\\placecontent[criterium=local,%s]" levelstring)
+              (format  "\\placecontent[%s]" levelstring))))
+         ((or
+           (and (string-match-p "\\<listings\\>" value)
+                (setq kw :context-enumerate-listing-empty-environment))
+           (and (string-match-p "\\<verses\\>" value)
+                (setq kw :context-enumerate-verse-empty-environment))
+           (and (string-match-p "\\<quotes\\>" value)
+                (setq kw :context-enumerate-blockquote-empty-environment))
+           (and (string-match-p "\\<examples\\>" value)
+                (setq kw :context-enumerate-example-empty-environment)))
+          (let ((env
+                 (org-string-nw-p
+                  (car
+                   (plist-get info kw)))))
+            (if env (format "\\placelist[%s][criterium=all]" env)
+              ""))))))
      ("BIBLIOGRAPHY"
       ;; TODO
       ;;
