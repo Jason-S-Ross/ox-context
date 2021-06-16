@@ -14,6 +14,8 @@
 ;;; Code:
 
 ;; TODO This shouldn't rely on the existing empty environment
+;; TODO Don't need to use `context-test-with-temp-customization-value'.
+;;      Just use let binding!
 
 
 (unless (featurep 'ox-context)
@@ -77,13 +79,8 @@ if hitting the regexp max length limit)"
   "Execute BODY with VARNAME set to VALUE.
 Sets VARNAME back to VALUE after execution is finished. Returns
 result of exectuing BODY"
-  `(let ((temp (copy-tree ,varname))
-         (result
-          (progn
-            (setq ,varname ,value)
-            (progn ,@body))))
-     (setq ,varname temp)
-     result))
+  `(let ((,varname ,value))
+     ,@body))
 (def-edebug-spec context-test-with-temp-customization-value (varname value body))
 (defmacro context-test-with-temp-modification (varname &rest body)
   "Execute BODY, restorying VARNAME's value afterwards."
@@ -1733,6 +1730,38 @@ Here's a link to [[(JavaRef)]]
      (equal
       (match-string 1 document)
       (match-string 3 document)))))
+(ert-deftest test-org-context/block-source-links-3 ()
+  "Test block source links with links retained."
+  (let* ((document
+          (context-test-with-temp-text
+           "
+#+BEGIN_SRC javascript
+    (ref:JavaRef)
+#+END_SRC
+
+Here's a link to [[(JavaRef)]]
+"
+           (org-trim
+            (org-export-as
+             'context nil nil t
+             '(:context-preset "empty"
+               :context-source-label "\\Foo{%s}")))))
+         (match
+          (string-match
+           (concat
+            (regexp-quote "/BTEX\\reference[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote ":JavaRef]{JavaRef}\\Foo{JavaRef}/ETEX")
+            "\\(?:.\\|\n\\)*"
+            (regexp-quote "Here's a link to \\goto{JavaRef}[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote ":JavaRef]"))
+           document)))
+    (should match)
+    (should
+     (equal
+      (match-string 1 document)
+      (match-string 2 document)))))
 (ert-deftest test-org-context/block-source-linenum-on-default ()
   "Test block source line numbering."
   (should
@@ -3053,6 +3082,28 @@ DEADLINE: <2004-02-29 Sun>"
     "\\placelist[OrgExampleEnumEmpty][criterium=all]"
     (context-test-with-temp-text "#+TOC: examples"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+(ert-deftest test-org-context/keyword-toc-custom-plist ()
+  "Test placing custom list."
+  (should
+   (equal
+    "\\placelist[Foo]"
+    (context-test-with-temp-text "#+TOC: foo"
+      (org-trim (org-export-as
+                 'context nil nil t
+                 '(:context-preset "empty"
+                   :context-toc-command-alist (("foo" . "\\placelist[Foo]")))))))))
+(ert-deftest test-org-context/keyword-toc-custom-cust ()
+  "Test placing custom list."
+  (should
+   (equal
+    "\\placelist[Foo]"
+    (context-test-with-temp-customization-value
+     org-context-toc-command-alist
+     '(("foo" . "\\placelist[Foo]"))
+     (context-test-with-temp-text "#+TOC: foo"
+      (org-trim (org-export-as
+                 'context nil nil t
+                 '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/keyword-bibliography ()
   "Test placing bibliography"
   ;; TODO
@@ -3659,10 +3710,10 @@ DEADLINE: <2004-02-29 Sun>"
      "TestLocation"
      (context-test-with-temp-customization-value
       org-context-image-default-height
-      ""
+      nil
       (context-test-with-temp-customization-value
        org-context-image-default-width
-       "TestWidth"
+       '((t . "TestWidth"))
        (context-test-with-temp-text
         "[[./images/cat.jpg]]"
         (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))))
@@ -3688,8 +3739,8 @@ DEADLINE: <2004-02-29 Sun>"
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-image-default-height ""
-         :context-image-default-width "TestWidth"
+         :context-image-default-height nil
+         :context-image-default-width ((t . "TestWidth"))
          :context-float-default-placement "TestLocation")))))))
 (ert-deftest test-org-context/image-caption ()
   "Test image with caption."
@@ -3714,7 +3765,8 @@ DEADLINE: <2004-02-29 Sun>"
       '(("location" . "here,left"))))
     (context-test-with-temp-text
      "#+ATTR_CONTEXT: :float wrap\n[[./images/cat.jpg]]"
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+     (let ((org-context-float-default-placement "left"))
+       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/image-sideways ()
   "Test image with sideways position."
   (should
@@ -3802,13 +3854,12 @@ DEADLINE: <2004-02-29 Sun>"
     (concat
      (regexp-quote "\\externalfigure[./images/cat.jpg]")
      (context-test-build-ConTeXt-argument-regex
-      '(("height" . "TestHeight")
-        ("width" . "TestWidth"))))
+      '(("width" . "TestWidth"))))
     (context-test-with-temp-customization-value
      org-context-image-default-width
-     "TestWidth"
+     '((t . "TestWidth"))
      (context-test-with-temp-customization-value
-      org-context-image-default-height "TestHeight"
+      org-context-image-default-height '((t . "TestHeight"))
       (context-test-with-temp-text
        "[[./images/cat.jpg]]"
        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))))
@@ -3819,16 +3870,67 @@ DEADLINE: <2004-02-29 Sun>"
     (concat
      (regexp-quote "\\externalfigure[./images/cat.jpg]")
      (context-test-build-ConTeXt-argument-regex
-      '(("height" . "TestHeight")
-        ("width" . "TestWidth"))))
+      '(("width" . "TestWidth"))))
     (context-test-with-temp-text
      "[[./images/cat.jpg]]"
      (org-trim
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-image-default-height "TestHeight"
-         :context-image-default-width "TestWidth")))))))
+         :context-image-default-height ((t . "TestHeight"))
+         :context-image-default-width ((t .  "TestWidth")))))))))
+(ert-deftest test-org-context/image-width-wrap ()
+  "Test image options set with customization values."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     (context-test-build-ConTeXt-argument-regex
+      '(("width" . "TestWidth"))))
+    (context-test-with-temp-text
+     "#+ATTR_CONTEXT: :float wrap
+[[./images/cat.jpg]]"
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-image-default-width ((wrap .  "TestWidth")))))))))
+(ert-deftest test-org-context/image-width-sideways ()
+  "Test image options set with customization values."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     (context-test-build-ConTeXt-argument-regex
+      '(("width" . "TestWidth"))))
+    (context-test-with-temp-text
+     "#+ATTR_CONTEXT: :float sideways
+[[./images/cat.jpg]]"
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-image-default-height nil
+         :context-image-default-width ((t . "Foo")
+                                       (sideways .  "TestWidth")))))))))
+(ert-deftest test-org-context/image-width-multicolumn ()
+  "Test image options set with customization values."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     (context-test-build-ConTeXt-argument-regex
+      '(("width" . "TestWidth"))))
+    (context-test-with-temp-text
+     "#+ATTR_CONTEXT: :float multicolumn
+[[./images/cat.jpg]]"
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-image-default-height nil
+         :context-image-default-width ((t . "Foo")
+                                       (multicolumn .  "TestWidth")))))))))
 (ert-deftest test-org-context/image-height-cust ()
   "Test image height set in customization."
   (should
@@ -3840,11 +3942,12 @@ DEADLINE: <2004-02-29 Sun>"
       '(("height" . "TestHeight"))))
     (context-test-with-temp-customization-value
      org-context-image-default-width
-     ""
+     '((t . "TestWidth"))
      (context-test-with-temp-customization-value
-      org-context-image-default-height "TestHeight"
+      org-context-image-default-height '((t . "TestHeight"))
       (context-test-with-temp-text
-       "[[./images/cat.jpg]]"
+       "#+ATTR_CONTEXT: :width nil
+[[./images/cat.jpg]]"
        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))))
 (ert-deftest test-org-context/image-rules-cust ()
   "Test image rules set in customization."
@@ -3857,18 +3960,16 @@ DEADLINE: <2004-02-29 Sun>"
                    "foo"
                    eos)))
      ""
-     (context-test-with-temp-customization-value
-      org-context-image-default-height "TestHeight"
-      (context-test-with-temp-text
-       "[[./images/cat.foo]]"
-       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))))
+     (context-test-with-temp-text
+      "[[./images/cat.foo]]"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/image-rules-plist ()
   "Test image rules set in customization."
   (should
    (string-match-p
     (regexp-quote "\\externalfigure[./images/cat.foo]")
     (context-test-with-temp-customization-value
-     org-context-image-default-height "TestHeight"
+     org-context-image-default-height '((t . "TestHeight"))
      (context-test-with-temp-text
       "[[./images/cat.foo]]"
       (org-trim
@@ -4958,7 +5059,7 @@ foo bar baz
      "[[:space:]]*"
      (context-test-build-ConTeXt-argument-regex
       '(("location" . "split"))
-      nil nill t))
+      nil nil t))
     (context-test-with-temp-customization-value
      org-context-table-split
      "yes"
@@ -4972,7 +5073,8 @@ foo bar baz
      (regexp-quote "\\startxtable")
      "[[:space:]]*"
      (context-test-build-ConTeXt-argument-regex
-      '(("split" . "no"))))
+      '(("split" . "no"))
+      nil nil t))
     (context-test-with-temp-text "#+ATTR_CONTEXT: :split no
 | foo |"
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
@@ -5613,266 +5715,272 @@ foo bar baz
 ;;;; Table approximate layout
 (ert-deftest test-org-context/table-layout ()
   "Test complete table structure."
-  ;; TODO this captures repeated ~startxtablebody~ commands (a known problem)
-  (should
-   (string-match-p
-    (
-concat
-     (regexp-quote "\\startplacetable")
-     "[[:space:]]*"
-     (regexp-quote "[")
-     "[^]]*"
-     (regexp-quote "]")
-     "[[:space:]]*"
-     (regexp-quote "\\startxtable")
-     "[[:space:]]*"
-     (regexp-quote "[")
-     "[^]]*"
-     (regexp-quote "]")
-     "[[:space:]]*"
-     (regexp-quote "\\startxtablehead")
-     "[[:space:]]*"
-     (regexp-quote "[TestHeaderStyle]")
-     "[[:space:]]*"
-     (regexp-quote "\\startxrow")
-     "[[:space:]]*"
-     (regexp-quote "[TestHeaderTopStyle]")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestTopleftStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestColgroupStartStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestColgroupEndStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestColgroupStartStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestToprightStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\stopxrow")
-     "[[:space:]]*"
-     "\\("
-     (regexp-quote "\\startxrow")
-     "[[:space:]]*"
-     (regexp-quote "[TestHeaderMidStyle]")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestLeftcolStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestColgroupStartStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestColgroupEndStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestColgroupStartStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestRightcolStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\stopxrow")
-     "\\)+"
-     "[[:space:]]*"
-     (regexp-quote "\\startxrow")
-     "[[:space:]]*"
-     (regexp-quote "[TestHeaderBottomStyle]")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestLeftcolStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestColgroupStartStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestColgroupEndStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestColgroupStartStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestRightcolStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\stopxrow")
-     "[[:space:]]*"
-     (regexp-quote "\\stopxtablehead")
-     "[[:space:]]*"
+  (let ((content
+         (context-test-with-temp-text
+          test-org-context--basic-table
+          (org-trim
+           (org-export-as
+            'context nil nil t
+            '(:context-preset "empty"
+              :context-table-body-style "TestBodyStyle"
+              :context-table-bottomleft-style "TestBottomleftStyle"
+              :context-table-bottomright-style  "TestBottomrightStyle"
+              :context-table-bottomrow-style "TestBottomRowStyle"
+              :context-table-colgroup-end-style  "TestColgroupEndStyle"
+              :context-table-colgroup-start-style "TestColgroupStartStyle"
+              :context-table-footer-bottom-style "TestFooterBottomStyle"
+              :context-table-footer-mid-style "TestFooterMidStyle"
+              :context-table-footer-style "TestFooterStyle"
+              :context-table-footer-top-style "TestFooterTopStyle"
+              :context-table-header-bottom-style "TestHeaderBottomStyle"
+              :context-table-header-mid-style "TestHeaderMidStyle"
+              :context-table-header-style "TestHeaderStyle"
+              :context-table-header-top-style "TestHeaderTopStyle"
+              :context-table-leftcol-style "TestLeftcolStyle"
+              :context-table-rightcol-style "TestRightcolStyle"
+              :context-table-rowgroup-end-style "TestRowgroupEndStyle"
+              :context-table-rowgroup-start-style "TestRowgroupStartStyle"
+              :context-table-topleft-style "TestTopleftStyle"
+              :context-table-topright-style "TestToprightStyle"
+              :context-table-toprow-style "TestToprowStyle"))))))
+    (should
+     (string-match-p
+      (concat
+       (regexp-quote "\\startplacetable")
+       "[[:space:]]*"
+       (regexp-quote "[")
+       "[^]]*"
+       (regexp-quote "]")
+       "[[:space:]]*"
+       (regexp-quote "\\startxtable")
+       "[[:space:]]*"
+       (regexp-quote "[")
+       "[^]]*"
+       (regexp-quote "]")
+       "[[:space:]]*"
+       (regexp-quote "\\startxtablehead")
+       "[[:space:]]*"
+       (regexp-quote "[TestHeaderStyle]")
+       "[[:space:]]*"
+       (regexp-quote "\\startxrow")
+       "[[:space:]]*"
+       (regexp-quote "[TestHeaderTopStyle]")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestTopleftStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestColgroupStartStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestColgroupEndStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestColgroupStartStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestToprightStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\stopxrow")
+       "[[:space:]]*"
+       "\\("
+       (regexp-quote "\\startxrow")
+       "[[:space:]]*"
+       (regexp-quote "[TestHeaderMidStyle]")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestLeftcolStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestColgroupStartStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestColgroupEndStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestColgroupStartStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestRightcolStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\stopxrow")
+       "\\)+"
+       "[[:space:]]*"
+       (regexp-quote "\\startxrow")
+       "[[:space:]]*"
+       (regexp-quote "[TestHeaderBottomStyle]")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestLeftcolStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestColgroupStartStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestColgroupEndStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestColgroupStartStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestRightcolStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\stopxrow")
+       "[[:space:]]*"
+       (regexp-quote "\\stopxtablehead")
+       "[[:space:]]*"
 
-     (regexp-quote "\\startxtablebody")
-     "[[:space:]]*"
-     (regexp-quote "[TestBodyStyle]")
-     "[[:space:]]*"
-     (regexp-quote "\\startxrow")
-     "[[:space:]]*"
-     (regexp-quote "[TestRowgroupStartStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxrow")
-     "[[:space:]]*"
-     (regexp-quote "\\startxrow")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxrow")
-     "[[:space:]]*"
-     (regexp-quote "\\startxrow")
-     "[[:space:]]*"
-     (regexp-quote "[TestRowgroupEndStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxrow")
-     "[[:space:]]*"
-     (regexp-quote "\\stopxtablebody")
-     "[[:space:]]*"
+       (regexp-quote "\\startxtablebody")
+       "[[:space:]]*"
+       (regexp-quote "[TestBodyStyle]")
+       "[[:space:]]*"
+       (regexp-quote "\\startxrow")
+       "[[:space:]]*"
+       (regexp-quote "[TestRowgroupStartStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxrow")
+       "[[:space:]]*"
+       (regexp-quote "\\startxrow")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxrow")
+       "[[:space:]]*"
+       (regexp-quote "\\startxrow")
+       "[[:space:]]*"
+       (regexp-quote "[TestRowgroupEndStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxrow")
+       "[[:space:]]*"
+       (regexp-quote "\\stopxtablebody")
+       "[[:space:]]*"
 
-     (regexp-quote "\\startxtablefoot")
-     "[[:space:]]*"
-     (regexp-quote "[TestFooterStyle]")
-     "[[:space:]]*"
-     (regexp-quote "\\startxrow")
-     "[[:space:]]*"
-     (regexp-quote "[TestFooterTopStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxrow")
-     "[[:space:]]*"
-     (regexp-quote "\\startxrow")
-     "[[:space:]]*"
-     (regexp-quote "[TestFooterMidStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxrow")
-     "[[:space:]]*"
+       (regexp-quote "\\startxtablefoot")
+       "[[:space:]]*"
+       (regexp-quote "[TestFooterStyle]")
+       "[[:space:]]*"
+       (regexp-quote "\\startxrow")
+       "[[:space:]]*"
+       (regexp-quote "[TestFooterTopStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxrow")
+       "[[:space:]]*"
+       (regexp-quote "\\startxrow")
+       "[[:space:]]*"
+       (regexp-quote "[TestFooterMidStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxrow")
+       "[[:space:]]*"
 
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\startxrow")
-     "[[:space:]]*"
-     (regexp-quote "[TestFooterBottomStyle]")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestBottomleftStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestColgroupStartStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestColgroupEndStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestColgroupStartStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\startxcell")
-     "[[:space:]]*"
-     (regexp-quote "[TestBottomrightStyle]")
-     "\\(.\\|\n\\)*"
-     (regexp-quote "\\stopxcell")
-     "[[:space:]]*"
-     (regexp-quote "\\stopxrow")
-     "[[:space:]]*"
-     (regexp-quote "\\stopxtablefoot")
-     "[[:space:]]*"
-     (regexp-quote "\\stopxtable")
-     "[[:space:]]*"
-     (regexp-quote "\\stopplacetable"))
-
-    (context-test-with-temp-text
-     test-org-context--basic-table
-     (org-trim
-      (org-export-as
-       'context nil nil t
-       '(:context-preset "empty"
-:context-table-body-style "TestBodyStyle"
-:context-table-bottomleft-style "TestBottomleftStyle"
-:context-table-bottomright-style  "TestBottomrightStyle"
-:context-table-bottomrow-style "TestBottomRowStyle"
-:context-table-colgroup-end-style  "TestColgroupEndStyle"
-:context-table-colgroup-start-style "TestColgroupStartStyle"
-:context-table-footer-bottom-style "TestFooterBottomStyle"
-:context-table-footer-mid-style "TestFooterMidStyle"
-:context-table-footer-style "TestFooterStyle"
-:context-table-footer-top-style "TestFooterTopStyle"
-:context-table-header-bottom-style "TestHeaderBottomStyle"
-:context-table-header-mid-style "TestHeaderMidStyle"
-:context-table-header-style "TestHeaderStyle"
-:context-table-header-top-style "TestHeaderTopStyle"
-:context-table-leftcol-style "TestLeftcolStyle"
-:context-table-rightcol-style "TestRightcolStyle"
-:context-table-rowgroup-end-style "TestRowgroupEndStyle"
-:context-table-rowgroup-start-style "TestRowgroupStartStyle"
-:context-table-topleft-style "TestTopleftStyle"
-:context-table-topright-style "TestToprightStyle"
-:context-table-toprow-style "TestToprowStyle")))))))
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\startxrow")
+       "[[:space:]]*"
+       (regexp-quote "[TestFooterBottomStyle]")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestBottomleftStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestColgroupStartStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestColgroupEndStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestColgroupStartStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\startxcell")
+       "[[:space:]]*"
+       (regexp-quote "[TestBottomrightStyle]")
+       "\\(.\\|\n\\)*"
+       (regexp-quote "\\stopxcell")
+       "[[:space:]]*"
+       (regexp-quote "\\stopxrow")
+       "[[:space:]]*"
+       (regexp-quote "\\stopxtablefoot")
+       "[[:space:]]*"
+       (regexp-quote "\\stopxtable")
+       "[[:space:]]*"
+       (regexp-quote "\\stopplacetable"))
+      content))
+    (should-not
+     (string-match-p
+      (concat
+       (regexp-quote "\\startxtablebody")
+       "\\(.\\|\n\\)"
+       (regexp-quote "\\startxtablebody"))
+      content))))
 ;;; Radio Targets
 (ert-deftest testo-org-context/radio-target ()
   "Test radio targets."
