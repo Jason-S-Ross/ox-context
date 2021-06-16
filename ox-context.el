@@ -1129,11 +1129,21 @@ so this is a short list."
           :key-type (string :tag "Major mode")
           :value-type (string :tag "ConTeXt language")))
 
-(defcustom org-context-image-default-height ""
-  "Default height for images."
+(defcustom org-context-image-default-height nil
+  "Default height for images.
+This is passed to the \"width\" key of the
+\"\\placeexternalfigure\" command. Keys represent different
+contexts (\"t\" being the default case). Values are the command
+to use."
   :group 'org-export-context
-  :type 'string
-  :safe #'stringp)
+  :type '(alist
+          :key-type (choice
+                     :tag "Context"
+                     (const t)
+                     (const wrap)
+                     (const multicolumn)
+                     (const sideways))
+          :value-type (string :tag "Height command")))
 
 (defcustom org-context-image-default-option ""
   "Default option for images."
@@ -1141,12 +1151,25 @@ so this is a short list."
   :type 'string
   :safe #'stringp)
 
-(defcustom org-context-image-default-width "\\dimexpr \\hsize - 1em \\relax"
-  "Default width for images. This is passed to the \"width\" key of the
-\"\\placeexternalfigure\" command."
+(defcustom org-context-image-default-width
+  '((t . "\\dimexpr \\hsize - 1em \\relax")
+    (sideways . "\\dimexpr \\hsize - 1em \\relax")
+    (multicolumn . "\\dimexpr\\makeupwidth - 1em\\relax")
+    (wrap . "0.48\\hsize"))
+  "Default width for images.
+This is passed to the \"width\" key of the
+\"\\placeexternalfigure\" command. Keys represent different
+contexts (\"t\" being the default case). Values are the command
+to use. "
   :group 'org-export-context
-  :type 'string
-  :safe #'stringp)
+  :type '(alist
+          :key-type (choice
+                     :tag "Context"
+                     (const t)
+                     (const wrap)
+                     (const multicolumn)
+                     (const sideways))
+          :value-type (string :tag "Width command")))
 
 (defcustom org-context-inline-image-rules
   `(("file" . ,(rx "."
@@ -3189,15 +3212,17 @@ used as a communication channel."
                         ((string= float "multicolumn") 'multicolumn))))
          (width (cond ((plist-get attr :width))
                       ((plist-get attr :height) "")
-                      ;; TODO Make this configurable
-                      ((eq float 'multicolumn) "\\dimexpr\\makeupwidth - 1em\\relax")
-                      ;; TODO Make this configurable
-                      ((eq float 'wrap) "0.48\\hsize")
-                      (t (plist-get info :context-image-default-width))))
+                      (t (and (not (plist-member attr :width))
+                              (let ((widths (plist-get info :context-image-default-width)))
+                                (cdr (or (assoc float widths)
+                                         (assoc t widths))))))))
          (height (cond ((plist-get attr :height))
                        ((or (plist-get attr :width)
                             (memq float '(figure wrap))) "")
-                       (t (plist-get info :context-image-default-height))))
+                       (t (and (not (plist-member attr :height))
+                               (let ((heights (plist-get info :context-image-default-height)))
+                                 (cdr (or (assoc float heights)
+                                          (assoc t heights))))))))
          (placement (or
                      (plist-get attr :placement)
                      (plist-get info :context-float-default-placement)))
