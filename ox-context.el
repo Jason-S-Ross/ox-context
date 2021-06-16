@@ -4232,13 +4232,8 @@ INFO is a plist used as a communication channel."
     (cons "metadata:title" (org-export-data (plist-get info :title) info))
     (cons "metadata:email" (org-export-data (plist-get info :email) info))
     (cons "metadata:subtitle" (org-export-data (plist-get info :subtitle) info))
-    ;; TODO why are these wrapped in a math block???
-    (cons "metadata:keywords" (org-export-data (org-context--wrap-latex-math-block
-                                                (plist-get info :keywords) info)
-                                               info))
-    (cons "metadata:description" (org-export-data (org-context--wrap-latex-math-block
-                                                   (plist-get info :description) info)
-                                                  info))
+    (cons "metadata:keywords" (org-export-data (plist-get info :keywords) info))
+    (cons "metadata:description" (org-export-data (plist-get info :description) info))
     (cons "metadata:creator" (plist-get info :creator))
     (cons "metadata:language" (plist-get info :language))
     (cons "Lang" (capitalize (plist-get info :language)))
