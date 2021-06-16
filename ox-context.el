@@ -3720,25 +3720,32 @@ a communication channel."
          (row-num (or (org-export-table-row-number table-row info) 0))
          (row-group-num (or (org-export-table-row-group table-row info) 0))
          (headerp (org-export-table-row-in-header-p table-row info))
-         (footerp
-          (let* ((last-row-num (org-export-get-parent-element
-                                (org-export-get-table-cell-at
-                                 (cons (- (car dimensions) 1) (- (cdr dimensions) 1))
-                                 table info)))
-                 (last-row-group-num (org-export-table-row-group last-row-num info))
-                 (table-has-footer-p
-                  ;; Table has a footer if it has 3 or more row groups and footer
-                  ;; is selected
-                  (and (> last-row-group-num 2)
-                       (or (plist-member attr :f)
-                           (string= "repeat"
-                                    (org-export-data
-                                     (plist-get attr :footer)
-                                     info))
-                           (org-string-nw-p
-                            (org-export-data (plist-get info :context-table-footer) info)))))
-                 (last-row-group-p (and row-group-num (= row-group-num last-row-group-num))))
-            (and last-row-group-p table-has-footer-p)))
+         (last-row-num (org-export-get-parent-element
+                        (org-export-get-table-cell-at
+                         (cons (- (car dimensions) 1) (- (cdr dimensions) 1))
+                         table info)))
+         (last-row-group-num (org-export-table-row-group last-row-num info))
+         (table-has-footer-p
+          ;; Table has a footer if it has 3 or more row groups and footer
+          ;; is selected
+          (and (> last-row-group-num 2)
+               (or (plist-member attr :f)
+                   (string= "repeat"
+                            (org-export-data
+                             (plist-get attr :footer)
+                             info))
+                   (org-string-nw-p
+                    (org-export-data (plist-get info :context-table-footer) info)))))
+         (last-row-group-p (and row-group-num (= row-group-num last-row-group-num)))
+         (footerp (and last-row-group-p table-has-footer-p))
+         (first-body-group-p
+          (if (org-export-table-has-header-p table info)
+              (= row-group-num 2)
+            (= row-group-num 1)))
+         (last-body-group-p
+          (if table-has-footer-p
+              (and row-group-num (= row-group-num (- last-row-group-num 1)))
+            last-row-group-p))
          (header-style (or (plist-get attr :h)
                            (org-string-nw-p
                             (plist-get info :context-table-header-style))))
@@ -3842,15 +3849,21 @@ a communication channel."
            (headerp
             (list "\\startxtablehead%s\n" header-style "\\stopxtablehead"))
            (footerp
-            (list "\\startxtablefoot%s\n" footer-style "\\stopxtablefoot"))
-           (t (list "\\startxtablebody%s\n" body-style "\\stopxtablebody")))))
-    (concat (and starts-row-group-p
+            (list "\\startxtablefoot%s\n" footer-style "\\stopxtablefoot")))))
+    (concat
+     (and starts-row-group-p first-body-group-p
+       (format "\\startxtablebody%s\n"
+               (if (org-string-nw-p body-style)
+                   (format "[%s]" body-style)
+                 "")))
+     (and starts-row-group-p group-tags
                  (format (nth 0 group-tags)
                          (if (org-string-nw-p (nth 1 group-tags))
                              (format "[%s]" (nth 1 group-tags))
                            "")))
-            wrappedcontents
-            (and ends-row-group-p (nth 2 group-tags)))))
+     wrappedcontents
+     (and ends-row-group-p group-tags (nth 2 group-tags))
+     (and ends-row-group-p last-body-group-p "\\stopxtablebody"))))
 
 ;;;; Table
 
@@ -3925,8 +3938,7 @@ This function assumes TABLE has `org' as its `:type' property and
                    "\n")
         "\n\\stopxrow"))
      "\\stopxtable
-\\stopplacetable\n"
-     )))
+\\stopplacetable\n")))
 
 ;;;; Target
 
