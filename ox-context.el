@@ -3230,17 +3230,15 @@ used as a communication channel."
                                  (plist-get info :context-image-default-option))))
                     (if (string-match "\\`\\[\\(.*\\)\\]\\'" opt)
                         (match-string 1 opt)
-                      opt)))
+                      (org-string-nw-p opt))))
          image-code
          options-list)
-    ;; TODO tikz and pgf
-    ;; tikz graphics seem to be more trouble than they're worth.
-    ;; A lot of the markup has to be stripped to get a conversion.
-    ;; TODO Add scale, or width and height to options
-    (when (org-string-nw-p width)
-      (setq options-list (add-to-list 'options-list (cons "width" width))))
-    (when (org-string-nw-p height)
-      (setq options-list (add-to-list 'options-list (cons "height" height))))
+    ;; TODO Add scale to options
+    (cond
+     ((org-string-nw-p width)
+      (push (cons "width" width) options-list))
+     ((org-string-nw-p height)
+      (push (cons "height" height) options-list)))
     (setq image-code
           (format "\\externalfigure[%s][%s]"
                   path
@@ -3252,19 +3250,19 @@ used as a communication channel."
                     (org-context--format-arguments options-list))))
     (let (env-options
           location-options)
-      (add-to-list 'location-options placement)
+      (push placement location-options)
       (pcase float
-        (`wrap (add-to-list 'location-options "here"))
-        (`sideways (progn (add-to-list 'location-options "90")
-                          (add-to-list 'location-options "page")))
-        (_ (progn
-             (add-to-list 'location-options (or placement "here")))))
-      (add-to-list 'env-options
-                   (cons "location" (mapconcat 'identity location-options ",")))
-      (add-to-list 'env-options
-                   (cons "reference" label))
+        (`wrap (push "here" location-options))
+        (`sideways (progn (push "90" location-options)
+                          (push "page" location-options)))
+        (_ (or placement (push "here" location-options))))
+      (push
+       (cons "location"
+             (mapconcat 'identity (delq nil (delete-dups location-options)) ","))
+            env-options)
+      (push (cons "reference" label) env-options)
       (when (org-string-nw-p caption)
-        (add-to-list 'env-options (cons "title" caption)))
+        (push (cons "title" caption) env-options))
       (format
        "\\startplacefigure[%s]
 %s
