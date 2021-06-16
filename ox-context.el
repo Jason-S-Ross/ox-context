@@ -380,6 +380,7 @@
                   (:context-property-drawer-environment nil nil org-context-property-drawer-environment)
                   (:context-snippet "CONTEXT_SNIPPET" nil nil split)
                   (:context-snippets nil nil org-context-snippets-alist)
+                  (:context-source-label nil nil org-context-source-label)
                   (:context-syntax-engine nil "syntax" org-context-syntax-engine)
                   (:context-table-body-style nil nil org-context-table-body-style)
                   (:context-table-bottomleft-style nil nil org-context-table-bottomleft-style)
@@ -1682,6 +1683,12 @@ available for use in presets. See also `org-context-presets-alist'"
   :type `(alist
           :key-type (string :tag "Snippet Name")
           :value-type (string :tag "Snippet Value")))
+
+(defcustom org-context-source-label "\\inright{%s}"
+  "Command to use to format source block reference labels.
+Should be a format string taking a single argument (the name of the label)"
+  :group 'org-export-context
+  :type 'string)
 
 (defcustom org-context-syntax-engine
   'default
@@ -3552,9 +3559,9 @@ INFO is a plist containing contextual information."
                           ((not retain-labels)
                            (format "\\reference[%s]{%d}" ref-label line-num))
                           (t (format "\\reference[%s]{%s}" ref-label ref)))
-                      ;; TODO Provide configuration for visible code labels
-                      (when retain-labels
-                        (format "\\inright{%s}" ref))))))))
+                      (when (and (org-element-property :retain-labels src-block)
+                                 reference-command)
+                        (format reference-command ref))))))))
            (split-string code "\n")
            "\n")))
     reffed-code))
