@@ -61,7 +61,7 @@
 ;;   - ~CONTEXT_HEADER_EXTRA~ :: Adds literal ConTeXt to the document preamble
 ;;     after custom command definitions.
 ;;   - ~CONTEXT_PRESET~ :: Specifies the document preset to use from
-;;     `org-context-presets-alist'. See `org-context-default-preset'.
+;;     `org-context-presets-alist'. See `org-context-preset'.
 ;;     Presets are the primary method used by `ox-context' to specify document
 ;;     structure.
 ;;   - ~DATE~ :: Sets the `metadata:date' ConTeXt document metadata variable. Can
