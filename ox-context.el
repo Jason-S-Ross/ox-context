@@ -24,15 +24,19 @@
 ;;
 ;; TODO `org-context--add-reference' needs to be checked against all environments
 ;;
-;; TODO abstract?
-;;
-;; TODO from-logo
 ;;
 ;; TODO How should "hidden" enumerations be handled?
 ;; In the html exporter, explicitley enumerated items like verses
 ;; have a number that can clash with the number of the item.
 ;; https://orgmode.org/list/55ec0cbb-eebf-0d49-b182-372407c8c84c@gmail.com/T/#u
 ;;
+;; TODO should alists be called alist or not?
+;;
+;; TODO letter template
+;;
+;; TODO report template
+;;
+;; TODO article template
 ;;
 ;;; Commentary:
 
@@ -363,8 +367,6 @@
                   (:context-headline-command nil nil org-context-headline-command)
                   (:context-highlighted-langs nil nil org-context-highlighted-langs-alist)
                   (:context-image-default-height nil nil org-context-image-default-height)
-                  ;; TODO test
-                  ;; TODO Implement
                   (:context-image-default-option nil nil org-context-image-default-option)
                   (:context-image-default-width nil nil org-context-image-default-width)
                   (:context-inline-image-rules nil nil org-context-inline-image-rules)
@@ -372,7 +374,6 @@
                   (:context-inlinetask-command nil nil org-context-inlinetask-command)
                   (:context-inner-templates nil nil org-context-inner-templates-alist)
                   (:context-node-property-command nil nil org-context-node-property-command)
-                  ;; TODO test
                   (:context-number-equations nil "numeq" org-context-number-equations)
                   (:context-planning-command nil nil org-context-planning-command)
                   (:context-preset "CONTEXT_PRESET" nil org-context-preset t)
@@ -1385,7 +1386,6 @@ with the following keys:
     (see `org-context-inner-templates-alist')
   `snippets': A list of snippets (as defined in
     `org-context-snippets-alist') to include in the preamble"
-  ;; TODO Update customization group
   :group 'org-export-context
   :type '(alist
           :key-type (string :tag "Preset Name")
@@ -1559,6 +1559,7 @@ This option can also be set with the SIGNATURE keyword."
     ("setup-grid" . "\\setuplayout[grid=both]
 \\setupformulae[grid=both]")
     ;; Setup metadata for letters
+    ;; TODO All letter parameters
     ("setup-letter" . "\\setupletter[
   fromname={\\documentvariable{metadata:author}},
   fromaddress={\\documentvariable{letter:fromaddress}},
@@ -1972,8 +1973,6 @@ WRAP-EMPTY-KW is the keyword identifying the wrapper environment
 to use if no caption is specified (used to keep numbering
 synchronized; see `options-alist'). INNER-ARGS is an alist of
 arguments to add to the inner environment."
-  ;; TODO Don't wrap in an enumerate if caption is nil (?)
-  ;; This is related to https://orgmode.org/list/55ec0cbb-eebf-0d49-b182-372407c8c84c@gmail.com/T/#u
   (let* ((caption
           (org-trim
            (org-export-data
@@ -2519,7 +2518,10 @@ uniform."
 CONTENTS is the content of the section. INFO is a plist
 containing contextual information."
   ;; TODO Handle node property from `org-export-get-node-property'
-  ;; TODO strip all special characters from listing, etc.
+  ;; TODO Strip all special characters from bookmark.
+  ;;      NOTE: Escape characters show up in bookmarks.
+  ;;            However, characters must be escaped.
+  ;;            I don't know the solution, but it's a marginal problem.
   (unless (org-element-property :footnote-section-p headline)
     (let* ((level (org-export-get-relative-level headline info))
            (numberedp (org-export-numbered-headline-p headline info))
@@ -2762,8 +2764,6 @@ CONTENTS is the contents of the task.
 INFO is a plist containing contextual information.
 See `org-context-format-inlinetask-function' for details."
 
-  ;; TODO Strip surrounding colons from tags...
-  ;; Or decide not to. LaTeX leaves the colons; html strips them
   (let ((format-command
          (org-string-nw-p (car (plist-get info :context-inlinetask-command)))))
     (if format-command
@@ -2963,6 +2963,7 @@ return nil instead."
 
 ;;;; Latex Enviroment
 
+;; TODO Test
 (defun org-context-latex-environment (latex-environment _contents info)
   "Transcode a LATEX-ENVIRONMENT element from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
@@ -3075,6 +3076,8 @@ The TYPE is determined from the actual latex environment."
 
 ;;;; Latex Fragment
 
+;; TODO There is currently a project for standard citations in org mode.
+;; No good reason to build this around the multitude of implementations.
 (defun org-context-latex-fragment (latex-fragment _contents info)
   "Transcode a LATEX-FRAGMENT object from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
@@ -3096,6 +3099,8 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                    (org-context--get-citation-key latex-fragment)))
           (t value))))
 
+;; TODO test
+;; TODO Get up to speed on what this is
 (defun org-context--citation-p (object)
   "Non-nil when OBJECT is a citation."
   (cl-case (org-element-type object)
@@ -3103,6 +3108,8 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
     (latex-fragment
      (string-match "\\`\\\\cite{" (org-element-property :value object)))))
 
+;; TODO test
+;; TODO get up to speed on what this is
 (defun org-context--get-citation-key (citation)
   "Return key for a given citation, as a string.
 CITATION is a `latex-fragment' or `link' type object satisfying
@@ -3501,6 +3508,10 @@ holding contextual information."
 
 ;;;; Special Block
 
+;; TODO Reconsider this. Why bother generating special environments
+;; that do nothing? Why not just rely on the user to provide the
+;; environments they want to use? They will have to provide definitions
+;; anyway. Also, these definitions will override any pre-existing definitions.
 (defun org-context--preprocess-special-block (block _contents info)
   "Add a special BLOCK type to a cache variable in INFO."
   (let* ((type (org-element-property :type block))
@@ -3517,6 +3528,7 @@ holding contextual information."
 CONTENTS holds the contents of the block. INFO is a plist
 holding contextual information."
   ;; TODO Use options for something
+  ;; TODO wrap these in an enumeration environment that gets generated on the fly
   (let ((type (org-element-property :type special-block))
         (caption (org-context--caption/label-string special-block info)))
     (org-context--preprocess-special-block special-block contents info)
@@ -3842,7 +3854,6 @@ a communication channel."
          (wrappedcontents
           (when contents
             (format "\\startxrow%s\n%s\\stopxrow\n"
-                    ;; TODO The order of this should maybe be configurable
                     (cond ((and headerp
                                 (org-export-table-row-starts-header-p table-row info)
                                 (org-export-table-row-ends-header-p table-row info))
@@ -3882,9 +3893,6 @@ a communication channel."
                            (format "[%s]" row-group-start-style))
                           (t ""))
                     contents)))
-         ;; TODO There is a bug where if multiple row groups are present,
-         ;; multiple startxtablebody/stopxtablebody groups appear in
-         ;; the output.
          (group-tags
           (cond
            (headerp
@@ -3987,8 +3995,6 @@ This function assumes TABLE has `org' as its `:type' property and
   "Transcode a TARGET object from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual
 information."
-  ;; TODO This should refer to the section header name,
-  ;; not the plain text of the section.
   (format "\\reference[%s]{%s}" (org-context--label target info)
           (org-export-get-node-property :value target)))
 
@@ -4504,9 +4510,7 @@ create a log buffer and do not remove log files.
 Return PDF file name or raise an error if it couldn't be
 produced."
   (unless snippet (message "Processing ConTeXt file %s..." texfile))
-  (let* (;; TODO bibtex compiler options?
-         (process org-context-pdf-process)
-         ;; TODO bibtex spec?
+  (let* ((process org-context-pdf-process)
          (log-buf-name "*Org PDF ConTeXt Output*")
          (log-buf (and (not snippet) (get-buffer-create log-buf-name)))
          (outfile (org-compile-file texfile process "pdf"
