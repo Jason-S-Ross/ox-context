@@ -3209,7 +3209,8 @@ INFO is a plist holding contextual information. See
   "Return the ConTeXt code for an inline image.
 LINK is the link pointing to the inline image. INFO is a plist
 used as a communication channel."
-  (let* ((parent (org-export-get-parent-element link))
+  (let* ((case-fold-search t)
+         (parent (org-export-get-parent-element link))
          (path (let ((raw-path (org-element-property :path link)))
                  (if (not (file-name-absolute-p raw-path)) raw-path
                    (expand-file-name raw-path))))
