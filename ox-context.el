@@ -2461,9 +2461,6 @@ CONTENTS is nil. INFO is a plist holding contextual information."
 (defun org-context-footnote-reference (footnote-reference _contents info)
   "Transcode a FOOTNOTE-REFERENCE element from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
-  ;;
-  ;; Use `org-export-collect-elements' to collect all
-  ;; footnotes in the document
   (let* ((label (org-element-property :label footnote-reference))
          (footnote-definition
           (org-export-get-footnote-definition footnote-reference info))
