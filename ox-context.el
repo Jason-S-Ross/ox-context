@@ -79,7 +79,8 @@
 ;;     See `org-context-opening'. Added for compatibility with `ox-koma-letter'.
 ;;   - ~PHONE_NUMBER~ :: Sets the `metadata:phonenumber' ConTeXt document metadata value.
 ;;     See `org-context-phone-number'. Added for compatibility with `ox-koma-letter'.
-;;   - ~PLACE~ :: TODO how is this different from location
+;;   - ~PLACE~ :: Sets the `letter:place' ConTeXt document metadata value.
+;;     See `org-context-place'. Added for compatibility with `ox-koma-letter'.
 ;;     Added for compatibility with `ox-koma-letter'.
 ;;   - ~SIGNATURE~ :: Sets the `letter:signature' ConTeXt document metadata value.
 ;;     See `org-context-closing'. Added for compatibility with `ox-koma-letter'.
