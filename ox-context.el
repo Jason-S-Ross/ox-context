@@ -3266,34 +3266,16 @@ holding contextual information."
 
 ;;;; Special Block
 
-;; TODO Reconsider this. Why bother generating special environments
-;; that do nothing? Why not just rely on the user to provide the
-;; environments they want to use? They will have to provide definitions
-;; anyway. Also, these definitions will override any pre-existing definitions.
-(defun org-context--preprocess-special-block (block _contents info)
-  "Add a special BLOCK type to a cache variable in INFO."
-  (let* ((type (org-element-property :type block))
-         (env-cache
-          (or (plist-get info :context-special-env-cache)
-              (let ((ec (list type)))
-                (plist-put info :context-special-env-cache ec)
-                ec))))
-    (or (member type env-cache)
-        (plist-put info :context-special-env-cache (cons type env-cache)))))
-
-(defun org-context-special-block (special-block contents info)
+(defun org-context-special-block (special-block contents _info)
   "Transcode a SPECIAL-BLOCK element from Org to ConTeXt.
 CONTENTS holds the contents of the block. INFO is a plist
 holding contextual information."
-  ;; TODO Use options for something
-  ;; TODO wrap these in an enumeration environment that gets generated on the fly
   (let ((type (org-element-property :type special-block))
-        (caption (org-context--caption/label-string special-block info)))
-    (org-context--preprocess-special-block special-block contents info)
-    (concat (format "\\start%s\n" type)
+        (opt (org-export-read-attribute :attr_context special-block :options)))
+    (concat (format "\\start%s%s\n"
+                    type
+                    (if opt (format "[%s]" opt) ""))
             contents
-            "\\crlf"
-            caption
             (format "\n\\stop%s" type))))
 
 ;;;; Src Block
@@ -3935,12 +3917,6 @@ holding the export options."
                          context-block-name vim-lang))))
              (hash-table-keys vim-lang-hash)
              "\n")))
-         (special-envs
-          (mapconcat
-           (lambda (env)
-             (format "\\definestartstop[%s]" env))
-           (plist-get info :context-special-env-cache)
-           "\n"))
          (bib-place (plist-get info :context-bib-command)))
     (concat
      (and time-stamp
@@ -4005,8 +3981,6 @@ holding the export options."
    table-defs
    "\n"
    index-defs
-   "\n"
-   special-envs
    "
 %===============================================================================
 % Preset Commands

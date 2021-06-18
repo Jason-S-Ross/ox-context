@@ -3973,44 +3973,37 @@ baz & buz
 ;;; Special Blocks
 (ert-deftest test-org-context/special-block-notitle ()
   "Test special block exports."
- (should
-  (string-match-p
-   (concat
-    (regexp-quote "\\startFOO")
-    "[[:space:]]*"
-    (context-test-build-ConTeXt-argument-regex
-     '(("reference" . "org[0-9a-f]+")))
-    "[[:space:]]*"
-    (regexp-quote "foo bar baz")
-    "[[:space:]]*"
-    (regexp-quote "\\stopFOO"))
-   (context-test-with-temp-text
-           "#+BEGIN_FOO
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startFOO")
+     "[[:space:]]*"
+     (regexp-quote "foo bar baz")
+     "[[:space:]]*"
+     (regexp-quote "\\stopFOO"))
+    (context-test-with-temp-text
+     "#+BEGIN_FOO
 foo bar baz
 #+END_FOO"
-           (org-export-as
-            'context nil nil t '(:context-preset "empty"))))) )
-(ert-deftest test-org-context/special-block-title ()
+     (org-export-as
+      'context nil nil t '(:context-preset "empty"))))) )
+(ert-deftest test-org-context/special-block-meta ()
   "Test special block exports."
- (should
-  (string-match-p
-   (concat
-    (regexp-quote "\\startFOO")
-    "[[:space:]]*"
-    (context-test-build-ConTeXt-argument-regex
-     '(("reference" . "org[0-9a-f]+")
-       ("title" . "bar")))
-    "[[:space:]]*"
-    (regexp-quote "foo bar baz")
-    "[[:space:]]*"
-    (regexp-quote "\\stopFOO"))
-   (context-test-with-temp-text
-           "#+CAPTION: bar
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startFOO[foo=bar]")
+     "[[:space:]]*"
+     (regexp-quote "foo bar baz")
+     "[[:space:]]*"
+     (regexp-quote "\\stopFOO"))
+    (context-test-with-temp-text
+     "#+ATTR_CONTEXT: :options foo=bar
 #+BEGIN_FOO
 foo bar baz
 #+END_FOO"
-           (org-export-as
-            'context nil nil t '(:context-preset "empty"))))) )
+     (org-export-as
+      'context nil nil t '(:context-preset "empty"))))))
 
 ;;; Tables
 (ert-deftest test-org-context/table-empty ()
