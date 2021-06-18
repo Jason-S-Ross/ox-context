@@ -949,8 +949,10 @@ See `org-context-presets-alist' for more information."
   :type '(string :tag "ConTeXt preset"))
 
 (defcustom org-context-float-default-placement "here"
-  "Default placement for floats. This is passed as the \"location\"
-key to the \"\\startplacefigure\" command. "
+  "Default placement for floats.
+
+This is passed as the \"location\" key to the
+\"\\startplacefigure\" command."
   :group 'org-export-context
   :type 'string
   :safe #'stringp)
@@ -1041,6 +1043,7 @@ so this is a short list."
 
 (defcustom org-context-image-default-height nil
   "Default height for images.
+
 This is passed to the \"width\" key of the
 \"\\placeexternalfigure\" command. Keys represent different
 contexts (\"t\" being the default case). Values are the command
@@ -1063,10 +1066,11 @@ to use."
 
 (defcustom org-context-image-default-scale nil
   "Default scale for images.
+
 This is passed to the \"width\" key of the
 \"\\placeexternalfigure\" command. Keys represent different
 contexts (\"t\" being the default case). Values are the command
-to use. "
+to use."
   :group 'org-export-context
   :type '(alist
           :key-type (choice
@@ -1083,10 +1087,11 @@ to use. "
     (multicolumn . "\\dimexpr\\makeupwidth - 1em\\relax")
     (wrap . "0.48\\hsize"))
   "Default width for images.
+
 This is passed to the \"width\" key of the
 \"\\placeexternalfigure\" command. Keys represent different
 contexts (\"t\" being the default case). Values are the command
-to use. "
+to use."
   :group 'org-export-context
   :type '(alist
           :key-type (choice
@@ -1191,8 +1196,9 @@ non-nil."
   :type '(repeat (string :tag "Extension")))
 
 (defcustom org-context-number-equations nil
-  "Whether equations created with \"$$ $$\" or \"\\[ \\]\"
-delimiters are numbered. Non-nil means insert a \\placeformula
+  "Control numbering with \"$$ $$\" or \"\\[ \\]\" delimiters.
+
+Non-nil means insert a \\placeformula
 line before all formulas for numbering."
   :group 'org-export-context
   :type 'boolean)
@@ -1840,8 +1846,7 @@ verbatim environments)."
 INFO is the current export state, as
 a plist."
   (let ((label (org-context--label element info t))
-        (name (org-export-get-node-property :name element))
-        (value (org-export-get-node-property :value element)))
+        (name (org-export-get-node-property :name element)))
     (if name
         (format "\\reference[%s]{%s}\n" label name)
       (format "\\reference[%s]{}\n" label))))
@@ -2264,8 +2269,7 @@ CONTENTS is nil. INFO is a plist holding contextual information."
 (defun org-context-footnote-reference (footnote-reference _contents info)
   "Transcode a FOOTNOTE-REFERENCE element from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
-  (let* ((label (org-element-property :label footnote-reference))
-         (footnote-definition
+  (let* ((footnote-definition
           (org-export-get-footnote-definition footnote-reference info))
          (reference-label (org-context--label footnote-definition info t))
          (contents (org-trim (org-export-data footnote-definition info)))
@@ -2546,7 +2550,6 @@ holding contextual information."
          (priority (and (plist-get info :with-priority)
                         priority-num
                         (make-string 1 priority-num)))
-         (label (org-context--label inlinetask info))
          (format-func (plist-get info :context-format-inlinetask-function)))
     (funcall format-func
              todo todo-type priority title tags contents info)))
@@ -2595,7 +2598,6 @@ containing contextual information."
              (plist-get info :context-presets)))
            :template))
          (template (cdr (assoc template-name templates)))
-         (num-sections (length (org-export-collect-headlines info)))
          (copying-sections
           (mapconcat
            'identity
@@ -2671,7 +2673,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
   (let ((key (org-element-property :key keyword))
         (value (org-element-property :value keyword))
         (special-indices
-         (map
+         (cl-map
           'identity
           (lambda (elem) (plist-get (cdr elem) :keyword))
           (plist-get info :context-texinfo-indices))))
@@ -2759,7 +2761,6 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
             (not (string-match "\\*$" environment-name)))
            (type (org-context--environment-type latex-environment))
            (label (org-context--label latex-environment info t))
-           (caption (org-context--caption/label-string latex-environment info))
            (args (org-context--format-arguments
                   (list
                    (cons "reference" label)))))
@@ -2807,8 +2808,8 @@ The TYPE is determined from the actual latex environment."
   (let* ((latex-env-re "\\\\begin{\\([A-Za-z0-9*]+\\)}\\(\\(?:.*\n\\)*\\)\\\\end{\\1}")
          (value (org-remove-indentation
                  (org-element-property :value latex-environment)))
-         (match (string-match latex-env-re value))
-         (env-contents (match-string 2 value)))
+         (env-contents (progn (string-match latex-env-re value)
+                              (match-string 2 value))))
     env-contents))
 
 (defun org-context--latex-environment-name (latex-environment)
@@ -2964,7 +2965,6 @@ used as a communication channel."
          (path (let ((raw-path (org-element-property :path link)))
                  (if (not (file-name-absolute-p raw-path)) raw-path
                    (expand-file-name raw-path))))
-         (filetype (file-name-extension path))
          (attr-latex (org-export-read-attribute :attr_latex parent))
          (attr-context (org-export-read-attribute :attr_context parent))
          ;; Context takes precedence over latex
@@ -3005,6 +3005,7 @@ used as a communication channel."
                       (org-string-nw-p opt))))
          image-code
          options-list)
+    ;; TODO Add scale to options
     (and (org-string-nw-p scale)
          (push (cons "scale" scale) options-list))
     (and (org-string-nw-p width)
@@ -3255,7 +3256,7 @@ contextual information."
 
 ;;;; Section
 
-(defun org-context-section (section contents info)
+(defun org-context-section (_section contents _info)
   "Transcode a SECTION element from Org to ConTeXt.
 CONTENTS holds the contents of the section.  INFO is a plist
 holding contextual information."
@@ -3449,7 +3450,6 @@ a communication channel."
          (last-row-p (not (org-export-get-next-element table-row info)))
          (first-col-p (not (org-export-get-previous-element table-cell info)))
          (last-col-p (not (org-export-get-next-element table-cell info)))
-         (alignment (org-export-table-cell-alignment table-cell info))
          (starts-colgroup-p (org-export-table-cell-starts-colgroup-p table-cell info))
          (ends-colgroup-p (org-export-table-cell-ends-colgroup-p table-cell info))
          (first-col-style (or (plist-get attr :w)
