@@ -1123,18 +1123,6 @@ $$foo$$"
                           '(:context-preset "empty"
                             :context-number-equations nil))))))
     (should (string-match-p (concat (regexp-quote "\\m{foo}")) content))))
-;; TODO citations
-(ert-deftest test-org-context/latex-fragment-citation-1 ()
-  "Test citations."
-  (let ((content
-         (context-test-with-temp-text
-          "\\cite{foo}"
-          (org-trim
-           (org-export-as 'context nil nil t
-                          '(:context-preset "empty"
-                            :context-number-equations nil))))))
-    (should (string-match-p (concat (regexp-quote "\\cite[foo]")) content))))
-;;;; Line Break
 
 (ert-deftest test-org-context/latex-fragment-line-break ()
   "Test citations."

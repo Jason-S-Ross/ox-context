@@ -132,8 +132,6 @@
 ;;     - ~pg~ :: Adds an index of programs defined with the ~PINDEX~ keyword.
 ;;     - ~tp~ :: Adds an index of data types defined with the ~TINDEX~ keyword.
 ;;     - ~vr~ :: Adds an index of variables defined with the ~VINDEX keyword.
-;;   - ~BIBLIOGRAPHY~ :: Sets the bibliography bib file.
-;;     TODO update documentation for this to support additional options
 ;; * Additional Inline Configuration of Elements
 ;;   The following elements support additional inline configuration through
 ;;   the ~ATTR_CONTEXT~ keyword.
@@ -2724,24 +2722,6 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                    (plist-get info kw)))))
             (if env (format "\\placelist[%s][criterium=all]" env)
               ""))))))
-     ("BIBLIOGRAPHY"
-      ;; TODO
-      ;;
-      ;; ox-bibtex supports the following syntax
-      ;;
-      ;; bibfilename stylename optional-options
-      ;;
-      ;; Full filepaths are also possible
-      ;;
-      ;; Stylename can be nil in which case no style is used
-      ;;
-      ;; Options are defined in bibtex2html manual
-      ;;
-      ;; limit:t limits to only entries cited in the document
-      (let ((file (org-context--get-bib-file keyword)))
-        (plist-put info :context-bib-command
-                   (format "\\usebtxdataset[%s]" file))
-        nil))
      ((pred (lambda (x) (member x special-indices)))
       (format "\\%s{%s}"
               (plist-get
@@ -2878,8 +2858,6 @@ The TYPE is determined from the actual latex environment."
 
 ;;;; Latex Fragment
 
-;; TODO There is currently a project for standard citations in org mode.
-;; No good reason to build this around the multitude of implementations.
 (defun org-context-latex-fragment (latex-fragment _contents info)
   "Transcode a LATEX-FRAGMENT object from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
@@ -2896,31 +2874,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
               "\\placeformula\n")
             (format "\\startformula\n%s\n\\stopformula"
                     (substring value 2 -2))))
-          ((org-context--citation-p latex-fragment)
-           (format "\\cite[%s]"
-                   (org-context--get-citation-key latex-fragment)))
           (t value))))
-
-;; TODO test
-;; TODO Get up to speed on what this is
-(defun org-context--citation-p (object)
-  "Non-nil when OBJECT is a citation."
-  (cl-case (org-element-type object)
-    (link (equal (org-element-property :type object) "cite"))
-    (latex-fragment
-     (string-match "\\`\\\\cite{" (org-element-property :value object)))))
-
-;; TODO test
-;; TODO get up to speed on what this is
-(defun org-context--get-citation-key (citation)
-  "Return key for a given citation, as a string.
-CITATION is a `latex-fragment' or `link' type object satisfying
-to `org-bibtex-citation-p' predicate."
-  (if (eq (org-element-type citation) 'link)
-      (org-element-property :path citation)
-    (let ((value (org-element-property :value citation)))
-      (and (string-match "\\`\\\\cite{" value)
-           (substring value (match-end 0) -1)))))
 
 ;;;; Line Break
 
