@@ -2971,6 +2971,7 @@ used as a communication channel."
          (attr (or attr-context attr-latex))
          (caption (org-context--caption/label-string parent info))
          (label (org-context--label parent info ))
+         (floatp (not (org-element-lineage link '(table-cell))))
          (float (let ((float (plist-get attr :float)))
                   (cond ((string= float "wrap") 'wrap)
                         ((string= float "sideways") 'sideways)
@@ -3036,12 +3037,14 @@ used as a communication channel."
       (push (cons "reference" label) env-options)
       (when (org-string-nw-p caption)
         (push (cons "title" caption) env-options))
-      (format
-       "\\startplacefigure[%s]
+      (if floatp
+          (format
+           "\\startplacefigure[%s]
 %s
 \\stopplacefigure"
        (org-context--format-arguments env-options)
-       image-code))))
+       image-code)
+        image-code))))
 
 ;;;; Math Block
 

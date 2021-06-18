@@ -3316,6 +3316,27 @@ DEADLINE: <2004-02-29 Sun>"
          :context-image-default-height nil
          :context-image-default-width ((t . "TestWidth"))
          :context-float-default-placement "TestLocation")))))))
+(ert-deftest test-org-context/image-table ()
+  "Test image in table."
+  (let ((document
+         (context-test-with-temp-text
+          "| [[./images/cat.jpg]] |"
+          (org-trim
+           (org-export-as
+            'context nil nil t
+            '(:context-preset "empty"))))))
+    (should
+     (string-match-p
+      (regexp-quote "\\externalfigure[./images/cat.jpg]")
+      document))
+    (should-not
+     (string-match-p
+      (regexp-quote "\\startplacefigure")
+      document))
+    (should-not
+     (string-match-p
+      (regexp-quote "\\stopplacefigure")
+      document))))
 (ert-deftest test-org-context/image-caption ()
   "Test image with caption."
   (should
