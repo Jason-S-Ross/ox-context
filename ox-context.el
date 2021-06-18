@@ -2006,7 +2006,6 @@ the coderef."
   "Format TEXT depending on MARKUP text markup.
 INFO is a plist used as a communication channel. See
 `org-context-text-markup-alist' for details"
-  ;; TODO Handle special cases like the LaTeX backend
   (let ((fmt (cdr (assq markup (plist-get info :context-text-markup-alist)))))
     (cl-case fmt
       ;; No format string: Return raw text.
@@ -2745,11 +2744,9 @@ return nil instead."
 
 ;;;; Latex Enviroment
 
-;; TODO Test
 (defun org-context-latex-environment (latex-environment _contents info)
   "Transcode a LATEX-ENVIRONMENT element from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
-  ;; TODO handle associated metadata
   (when (plist-get info :with-latex)
     (let* ((value (org-remove-indentation
                    (org-element-property :value latex-environment)))
@@ -3566,7 +3563,6 @@ a communication channel."
          (footer-bottom-row-style
           (or (plist-get attr :hb)
               (org-string-nw-p (plist-get info :context-table-footer-bottom-style))))
-
          (row-group-start-style
           (or (plist-get attr :rgs)
               (org-string-nw-p
