@@ -3400,7 +3400,8 @@ DEADLINE: <2004-02-29 Sun>"
     (concat
      (regexp-quote "\\externalfigure[./images/cat.jpg]")
      (context-test-build-ConTeXt-argument-regex
-      '(("width" . "TestWidth"))))
+      '(("width" . "TestWidth")
+        ("height" . "TestHeight"))))
     (context-test-with-temp-customization-value
      org-context-image-default-width
      '((t . "TestWidth"))
@@ -3416,7 +3417,8 @@ DEADLINE: <2004-02-29 Sun>"
     (concat
      (regexp-quote "\\externalfigure[./images/cat.jpg]")
      (context-test-build-ConTeXt-argument-regex
-      '(("width" . "TestWidth"))))
+      '(("width" . "TestWidth")
+        ("height" . "TestHeight"))))
     (context-test-with-temp-text
      "[[./images/cat.jpg]]"
      (org-trim
@@ -3592,7 +3594,270 @@ DEADLINE: <2004-02-29 Sun>"
       "#+ATTR_CONTEXT: :options [TestOption=Foo]
 [[./images/cat.jpg]]"
       (org-trim (org-export-as 'context nil nil t))))))
+(ert-deftest test-org-context/image-scale-local ()
+  "Test image with specified scale."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     "[[:space:]]*"
+     (context-test-build-ConTeXt-argument-regex
+      '(("scale" . "2"))))
+    (context-test-with-temp-text
+     "#+ATTR_CONTEXT: :scale 2\n[[./images/cat.jpg]]"
+     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+(ert-deftest test-org-context/image-width-height-scale-plist ()
+  "Test image options set with customization values."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     (context-test-build-ConTeXt-argument-regex
+      '(("scale" . "TestScale"))))
+    (context-test-with-temp-text
+     "[[./images/cat.jpg]]"
+     (org-trim
+      (org-export-as
+       'context nil nil t
+       '(:context-preset "empty"
+         :context-image-default-scale ((t . "TestScale"))
+         :context-image-default-height ((t . "TestHeight"))
+         :context-image-default-width ((t .  "TestWidth")))))))))
+(ert-deftest test-org-context/image-width-height-scale-cust ()
+  "Test image options set with customization values."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\externalfigure[./images/cat.jpg]")
+     (context-test-build-ConTeXt-argument-regex
+      '(("scale" . "TestScale"))))
+    (context-test-with-temp-customization-value
+     org-context-image-default-scale
+     '((t . "TestScale"))
+     (context-test-with-temp-customization-value
+     org-context-image-default-width
+     '((t . "TestWidth"))
+     (context-test-with-temp-customization-value
+      org-context-image-default-height '((t . "TestHeight"))
+      (context-test-with-temp-text
+       "[[./images/cat.jpg]]"
+       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))))
 
+;;; LaTeX Environment
+(ert-deftest test-org-context/latex-environment-align-trivial ()
+  "Test transcoding an align environment with no rows.."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startplaceformula")
+     "[[:space:]]*"
+     (context-test-build-ConTeXt-argument-regex
+      '(("reference" . "eq:org[0-9a-f]+")))
+     "[[:space:]]*"
+     (regexp-quote "\\startformula")
+     "[[:space:]]*"
+     (regexp-quote "foo")
+     "[[:space:]]*"
+     (regexp-quote "\\stopformula")
+     "[[:space:]]*"
+     (regexp-quote "\\stopplaceformula"))
+    (context-test-with-temp-text
+     "\\begin{align}
+foo
+\\end{align}"
+     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+(ert-deftest test-org-context/latex-environment-align-multiple-rows ()
+  "Test transcoding an align environment with multiple rows."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startplaceformula")
+     "[[:space:]]*"
+     (context-test-build-ConTeXt-argument-regex
+      '(("reference" . "eq:org[0-9a-f]+")))
+     "[[:space:]]*"
+     (regexp-quote "\\startformula")
+     "[[:space:]]*"
+     (regexp-quote "\\startalign")
+     "[[:space:]]*"
+     (regexp-quote "\\NC")
+     "[[:space:]]*"
+     (regexp-quote "foo")
+     "[[:space:]]*"
+     (regexp-quote "\\NR[+]")
+     "[[:space:]]*"
+     (regexp-quote "\\NC")
+     "[[:space:]]*"
+     (regexp-quote "bar")
+     "[[:space:]]*"
+     (regexp-quote "\\NR[+]")
+     "[[:space:]]*"
+     (regexp-quote "\\stopalign")
+     "[[:space:]]*"
+     (regexp-quote "\\stopformula")
+     "[[:space:]]*"
+     (regexp-quote "\\stopplaceformula"))
+    (context-test-with-temp-text
+     "\\begin{align}
+foo\\\\
+bar
+\\end{align}"
+     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+(ert-deftest test-org-context/latex-environment-align-multiple-cols ()
+  "Test transcoding an align environment with multiple rows and columns."
+  (should
+   (string-match-p
+    (concat
+     (regexp-quote "\\startplaceformula")
+     "[[:space:]]*"
+     (context-test-build-ConTeXt-argument-regex
+      '(("reference" . "eq:org[0-9a-f]+")))
+     "[[:space:]]*"
+     (regexp-quote "\\startformula")
+     "[[:space:]]*"
+     (regexp-quote "\\startalign")
+     "[[:space:]]*"
+     (regexp-quote "\\NC")
+     "[[:space:]]*"
+     (regexp-quote "foo")
+     "[[:space:]]*"
+     (regexp-quote "\\NC")
+     "[[:space:]]*"
+     (regexp-quote "bar")
+     "[[:space:]]*"
+     (regexp-quote "\\NR[+]")
+     "[[:space:]]*"
+     (regexp-quote "\\NC")
+     "[[:space:]]*"
+     (regexp-quote "baz")
+     "[[:space:]]*"
+     (regexp-quote "\\NC")
+     "[[:space:]]*"
+     (regexp-quote "buz")
+     "[[:space:]]*"
+     (regexp-quote "\\NR[+]")
+     "[[:space:]]*"
+     (regexp-quote "\\stopalign")
+     "[[:space:]]*"
+     (regexp-quote "\\stopformula")
+     "[[:space:]]*"
+     (regexp-quote "\\stopplaceformula"))
+    (context-test-with-temp-text
+     "\\begin{align}
+foo & bar \\\\
+baz & buz
+\\end{align}"
+     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
+(ert-deftest test-org-context/latex-environment-align*-trivial ()
+  "Test transcoding an align* environment with no rows.."
+  (let ((document (context-test-with-temp-text
+                   "\\begin{align*}
+foo
+\\end{align*}"
+                   (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+    (should
+     (string-match-p
+      (concat
+       (regexp-quote "\\startformula")
+       "[[:space:]]*"
+       (regexp-quote "foo")
+       "[[:space:]]*"
+       (regexp-quote "\\stopformula"))
+      document))
+    (should-not
+     (string-match-p
+      (regexp-quote "\\startplaceformula")
+      document))
+    (should-not
+     (string-match-p
+      (regexp-quote "\\stopplaceformula")
+      document))))
+(ert-deftest test-org-context/latex-environment-align*-multiple-rows ()
+  "Test transcoding an align* environment with multiple rows."
+  (let ((document (context-test-with-temp-text
+                   "\\begin{align*}
+foo\\\\
+bar
+\\end{align*}"
+                   (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+    (should
+     (string-match-p
+      (concat
+       (regexp-quote "\\startformula")
+       "[[:space:]]*"
+       (regexp-quote "\\startalign")
+       "[[:space:]]*"
+       (regexp-quote "\\NC")
+       "[[:space:]]*"
+       (regexp-quote "foo")
+       "[[:space:]]*"
+       (regexp-quote "\\NR[+]")
+       "[[:space:]]*"
+       (regexp-quote "\\NC")
+       "[[:space:]]*"
+       (regexp-quote "bar")
+       "[[:space:]]*"
+       (regexp-quote "\\NR[+]")
+       "[[:space:]]*"
+       (regexp-quote "\\stopalign")
+       "[[:space:]]*"
+       (regexp-quote "\\stopformula"))
+      document))
+    (should-not
+     (string-match-p
+      (regexp-quote "\\startplaceformula")
+      document))
+    (should-not
+     (string-match-p
+      (regexp-quote "\\stopplaceformula")
+      document))))
+(ert-deftest test-org-context/latex-environment-align*-multiple-cols ()
+  "Test transcoding an align* environment with multiple rows and columns."
+  (let ((document (context-test-with-temp-text
+                   "\\begin{align*}
+foo & bar \\\\
+baz & buz
+\\end{align*}"
+                   (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))
+    (should
+     (string-match-p
+      (concat
+       (regexp-quote "\\startformula")
+       "[[:space:]]*"
+       (regexp-quote "\\startalign")
+       "[[:space:]]*"
+       (regexp-quote "\\NC")
+       "[[:space:]]*"
+       (regexp-quote "foo")
+       "[[:space:]]*"
+       (regexp-quote "\\NC")
+       "[[:space:]]*"
+       (regexp-quote "bar")
+       "[[:space:]]*"
+       (regexp-quote "\\NR[+]")
+       "[[:space:]]*"
+       (regexp-quote "\\NC")
+       "[[:space:]]*"
+       (regexp-quote "baz")
+       "[[:space:]]*"
+       (regexp-quote "\\NC")
+       "[[:space:]]*"
+       (regexp-quote "buz")
+       "[[:space:]]*"
+       (regexp-quote "\\NR[+]")
+       "[[:space:]]*"
+       (regexp-quote "\\stopalign")
+       "[[:space:]]*"
+       (regexp-quote "\\stopformula"))
+      document))
+    (should-not
+     (string-match-p
+      (regexp-quote "\\startplaceformula")
+      document))
+    (should-not
+     (string-match-p
+      (regexp-quote "\\stopplaceformula")
+      document))))
 
 ;;; Links
 (ert-deftest test-org-context/link-plain ()

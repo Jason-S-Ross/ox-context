@@ -319,6 +319,7 @@
                   (:context-highlighted-langs nil nil org-context-highlighted-langs-alist)
                   (:context-image-default-height nil nil org-context-image-default-height)
                   (:context-image-default-option nil nil org-context-image-default-option)
+                  (:context-image-default-scale nil nil org-context-image-default-scale)
                   (:context-image-default-width nil nil org-context-image-default-width)
                   (:context-inline-image-rules nil nil org-context-inline-image-rules)
                   (:context-inline-source-environment nil nil org-context-inline-source-environment)
@@ -1061,6 +1062,22 @@ to use."
   :group 'org-export-context
   :type 'string
   :safe #'stringp)
+
+(defcustom org-context-image-default-scale nil
+  "Default scale for images.
+This is passed to the \"width\" key of the
+\"\\placeexternalfigure\" command. Keys represent different
+contexts (\"t\" being the default case). Values are the command
+to use. "
+  :group 'org-export-context
+  :type '(alist
+          :key-type (choice
+                     :tag "Context"
+                     (const t)
+                     (const wrap)
+                     (const multicolumn)
+                     (const sideways))
+          :value-type (string :tag "Scale command")))
 
 (defcustom org-context-image-default-width
   '((t . "\\dimexpr \\hsize - 1em \\relax")
@@ -2996,13 +3013,20 @@ used as a communication channel."
                   (cond ((string= float "wrap") 'wrap)
                         ((string= float "sideways") 'sideways)
                         ((string= float "multicolumn") 'multicolumn))))
-         (width (cond ((plist-get attr :width))
+         (scale (cond ((plist-get attr :scale))
+                      (t (and (not (plist-member attr :scale))
+                              (let ((scales (plist-get info :context-image-default-scale)))
+                                (cdr (or (assoc float scales)
+                                         (assoc t scales))))))))
+         (width (cond ((org-string-nw-p scale) "")
+                      ((plist-get attr :width))
                       ((plist-get attr :height) "")
                       (t (and (not (plist-member attr :width))
                               (let ((widths (plist-get info :context-image-default-width)))
                                 (cdr (or (assoc float widths)
                                          (assoc t widths))))))))
-         (height (cond ((plist-get attr :height))
+         (height (cond ((org-string-nw-p scale) "")
+                       ((plist-get attr :height))
                        ((or (plist-get attr :width)
                             (memq float '(figure wrap))) "")
                        (t (and (not (plist-member attr :height))
@@ -3019,12 +3043,12 @@ used as a communication channel."
                       (org-string-nw-p opt))))
          image-code
          options-list)
-    ;; TODO Add scale to options
-    (cond
-     ((org-string-nw-p width)
-      (push (cons "width" width) options-list))
-     ((org-string-nw-p height)
-      (push (cons "height" height) options-list)))
+    (and (org-string-nw-p scale)
+         (push (cons "scale" scale) options-list))
+    (and (org-string-nw-p width)
+         (push (cons "width" width) options-list))
+    (and (org-string-nw-p height)
+         (push (cons "height" height) options-list))
     (setq image-code
           (format "\\externalfigure[%s][%s]"
                   path
