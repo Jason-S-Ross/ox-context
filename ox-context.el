@@ -49,10 +49,6 @@
 ;;
 ;; * Document-level Keywords
 ;;   The following buffer keywords are added:
-;;   - ~ATTENTION~ :: Sets the `letter:attention' ConTeXt document metadata value.
-;;     Added for compatibility with `ox-koma-letter'.
-;;   - ~CLOSING~ :: Sets the `letter:closing' ConTeXt document metadata value.
-;;     See `org-context-closing'. Added for compatibility with `ox-koma-letter'.
 ;;   - ~CONTEXT_HEADER~ :: Adds literal ConTeXt to the document preamble
 ;;     before custom command definitions.
 ;;   - ~CONTEXT_HEADER_EXTRA~ :: Adds literal ConTeXt to the document preamble
@@ -64,31 +60,11 @@
 ;;   - ~DATE~ :: Sets the `metadata:date' ConTeXt document metadata variable. Can
 ;;     be any valid ConTeXt command. If blank, ~\currentdate~ is used.
 ;;   - ~DESCRIPTION~ :: Sets the `metadata:description' ConTeXt document metadata value.
-;;   - ~FROM_ADDRESS~ :: Sets the `letter:fromaddress' ConTeXt document metadata value.
-;;     See `org-context-from-address'. Added for compatibility with `ox-koma-letter'.
-;;   - ~FROM_LOGO~ :: TODO Added for compatibility with `ox-koma-letter'.
 ;;   - ~KEYWORDS~ :: Sets the `metadata:keywords' ConTeXt document metadata value.
 ;;   - ~LANGUAGE~ :: Sets the `metadata:language' ConTeXt document metatdata value. Adds
 ;;     `\language[%s]' to the preamble.
-;;   - ~LOCATION~ :: Sets the `letter:location' ConTeXt document metadata value.
-;;     See `org-context-location'. Added for compatibility with `ox-koma-letter'.
-;;   - ~OPENING~ :: Sets the `letter:opening' ConTeXt document metadata value.
-;;     See `org-context-opening'. Added for compatibility with `ox-koma-letter'.
-;;   - ~PHONE_NUMBER~ :: Sets the `metadata:phonenumber' ConTeXt document metadata value.
-;;     See `org-context-phone-number'. Added for compatibility with `ox-koma-letter'.
-;;   - ~PLACE~ :: Sets the `letter:place' ConTeXt document metadata value.
-;;     See `org-context-place'. Added for compatibility with `ox-koma-letter'.
-;;     Added for compatibility with `ox-koma-letter'.
-;;   - ~SIGNATURE~ :: Sets the `letter:signature' ConTeXt document metadata value.
-;;     See `org-context-closing'. Added for compatibility with `ox-koma-letter'.
 ;;   - ~SUBJECT~ :: Sets the `metadata:subject' ConTeXt document metadata value.
 ;;   - ~SUBTITLE~ :: Sets the `metadata:subtitle' ConTeXt document metadata value.
-;;   - ~TO_ADDRESS~ :: Sets the `letter:toaddress' ConTeXt document metadata value.
-;;     Added for compatibility with `ox-koma-letter'.
-;;   - ~TO_NAME~ :: Sets the `letter:toname' ConTeXt document metadata value.
-;;     Added for compatibility with `ox-koma-letter'.
-;;   - ~URL~ :: Sets the `metadata:url' ConTeXt document metadata value.
-;;     See `org-context-url'.
 ;;   - ~TABLE_LOCATION~ :: Specifies ~location~ key for the float wrapping the table.
 ;;     See `org-context-table-location'.
 ;;   - ~TABLE_HEAD~ :: Specifies the ~header~ key for the ~\startxtable~ command.
@@ -115,26 +91,6 @@
 ;;
 ;; * Options
 ;;   The following additional items are handled from the OPTIONS keyword:
-;;   - ~backaddress~ :: If non-nil, sets the `letter:withbackaddress' ConTeXt
-;;     document metadata value to "start", otherwise "stop". See
-;;     `org-context-use-backaddress'. Added for compatibility with
-;;     `ox-koma-letter'.
-;;   - ~email~ :: If non-nil, sets the `letter:withemail' ConTeXt
-;;     document metadata value to "start", otherwise "stop". See
-;;     `org-context-use-email'. Added for compatibility with
-;;     `ox-koma-letter'.
-;;   - ~foldmarks~ :: If non-nil, sets the `letter:withfoldmarks' ConTeXt
-;;     document metadata value to "start", otherwise "stop". See
-;;     `org-context-use-foldmarks'. Added for compatibility with
-;;     `ox-koma-letter'.
-;;   - ~from-logo~ :: If non-nil, sets the `letter:withfromlogo' ConTeXt
-;;     document metadata value to "start", otherwise "stop". See
-;;     `org-context-use-from-logo'. Added for compatibility with
-;;     `ox-koma-letter'.
-;;   - ~phone~ :: If non-nil, sets the `letter:withphone' ConTeXt
-;;     document metadata value to "start", otherwise "stop". See
-;;     `org-context-use-from-logo'. Added for compatibility with
-;;     `ox-koma-letter'.
 ;;   - ~syntax~ :: If ~vim~, use the ~t-vim~ ConTeXt module for syntax
 ;;     highlighting. Otherwise, don't highlight source code.
 ;;   - ~numeq~ :: if non-nil, equations are numbered.
@@ -332,10 +288,7 @@
                   (:filter-parse-tree  org-context-math-block-tree-filter
                                        org-context-texinfo-tree-filter)
                   (:filter-verse-block . org-context-clean-invalid-line-breaks))
- :options-alist '(
-                  (:attention "ATTENTION" nil nil newline)
-                  (:closing "CLOSING" nil org-context-closing parse)
-                  (:context-block-source-environment nil nil org-context-block-source-environment)
+ :options-alist '((:context-block-source-environment nil nil org-context-block-source-environment)
                   (:context-blockquote-environment nil nil org-context-blockquote-environment)
                   (:context-bullet-off-command nil nil org-context-bullet-off-command)
                   (:context-bullet-on-command nil nil org-context-bullet-on-command)
@@ -416,26 +369,9 @@
                   (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
                   (:date "DATE" nil "\\currentdate" parse)
                   (:description "DESCRIPTION" nil nil parse)
-                  (:from-address "FROM_ADDRESS" nil org-context-from-address newline)
-                  (:from-logo "FROM_LOGO" nil org-context-from-logo)
                   (:keywords "KEYWORDS" nil nil parse)
-                  (:location "LOCATION" nil org-context-location)
-                  (:opening "OPENING" nil org-context-opening parse)
-                  (:phone-number "PHONE_NUMBER" nil org-context-phone-number)
-                  (:place "PLACE" nil org-context-place)
-                  (:signature "SIGNATURE" nil org-context-signature parse)
                   (:subject "SUBJECT" nil nil parse)
-                  (:subtitle "SUBTITLE" nil nil parse)
-                  (:to-address "TO_ADDRESS" nil nil newline)
-                  (:to-name "TO_NAME" nil nil newline)
-                  (:url "URL" nil org-context-url)
-                  (:with-backaddress nil "backaddress" org-context-use-backaddress)
-                  (:with-email nil "email" org-context-use-email)
-                  (:with-foldmarks nil "foldmarks" org-context-use-foldmarks)
-                  (:with-from-logo nil "from-logo" org-context-use-from-logo)
-                  (:with-phone nil "phone" org-context-use-phone)
-                  (:with-place nil "place" org-context-use-place)
-                  (:with-url nil "url" org-context-use-url)))
+                  (:subtitle "SUBTITLE" nil nil parse)))
 
 ;;; Constants
 
@@ -458,11 +394,6 @@
   "Options for exporting to ConTeXt."
   :tag "Org ConTeXt"
   :group 'org-export)
-
-(defgroup org-export-context-letter nil
-  "Options for configuring letters with Org ConTeXt."
-  :tag "Org ConTeXt Letter"
-  :group 'org-export-context)
 
 ;;;; ConTeXt environments
 
@@ -998,11 +929,6 @@ arguments:
 
 ;; These settings configure elements in Org.
 
-(defcustom org-context-closing ""
-  "Letter's closing, as a string.
-This option can also be set with the CLOSING keyword."
-  :group 'org-export-context-letter
-  :type 'string)
 
 (defcustom org-context-export-quotes-alist
   '((primary-opening . "\\quotation{")
@@ -1102,21 +1028,6 @@ The function should return the string to be exported."
   :group 'org-export-context
   :type 'function)
 
-(defcustom org-context-from-address ""
-  "Sender's address, as a string.
-This option can also be set with one or more FROM_ADDRESS
-keywords."
-  :group 'org-export-context-letter
-  :type 'string)
-
-;; TODO test
-(defcustom org-context-from-logo ""
-  "Commands for inserting the sender's logo, e. g., \\externalfigure[logo.pdf].
-This option can also be set with the FROM_LOGO keyword."
-  :group 'org-export-context-letter
-  :type 'string
-  :safe #'stringp)
-
 (defcustom org-context-highlighted-langs-alist
   '(("metapost" . "mp")
     ("c++" . "cpp")
@@ -1214,27 +1125,6 @@ link's path."
 %b
 %o
 \\stopbackmatter")
-    ("letter" . "\\startfrontmatter
-\\startOrgTitlePage
-\\OrgMakeTitle
-\\OrgTitleContents
-\\placecontent
-\\stopOrgTitlePage
-%f
-\\stopfrontmatter
-\\startbodymatter
-%c
-\\stopbodymatter
-
-\\startappendices
-%a
-%i
-\\stopappendices
-
-\\startbackmatter
-%b
-%o
-\\stopbackmatter")
     ("report" . "\\startfrontmatter
 \\startstandardmakeup
 \\startOrgTitlePage
@@ -1274,12 +1164,6 @@ String keys are as follows:
           :key-type (string :tag "Template Name")
           :value-type (string :tag "Template Contents")))
 
-(defcustom org-context-location ""
-  "Sender's extension field, as a string.
-
-This option can also be set with the LOCATION keyword."
-  :group 'org-export-context-letter
-  :type 'string)
 
 ;; TODO test
 (defcustom org-context-logfiles-extensions
@@ -1297,13 +1181,6 @@ delimiters are numbered. Non-nil means insert a \\placeformula
 line before all formulas for numbering."
   :group 'org-export-context
   :type 'boolean)
-
-(defcustom org-context-opening ""
-  "Letter's opening, as a string.
-
-This option can also be set with the OPENING keyword."
-  :group 'org-export-context-letter
-  :type 'string)
 
 ;; TODO test
 (defcustom org-context-pdf-process
@@ -1324,18 +1201,6 @@ AUCTeX or the Emacs LaTeX mode.  This function should accept the
 file name as its single argument."
   :group 'org-export-pdf
   :type '(repeat (string :tag "Command")))
-
-(defcustom org-context-phone-number ""
-  "Sender's phone number, as a string.
-This option can also be set with the PHONE_NUMBER keyword."
-  :group 'org-export-context-letter
-  :type 'string)
-
-(defcustom org-context-place ""
-  "Place from which the letter is sent, as a string.
-This option can also be set with the PLACE keyword."
-  :group 'org-export-context-letter
-  :type 'string)
 
 (defcustom org-context-presets-alist
   '(("empty" .
@@ -1366,13 +1231,6 @@ This option can also be set with the PLACE keyword."
        "title-report"
        "headlines-report"
        "page-numbering-article"
-       "setup-grid")))
-    ("letter" .
-     (:literal "\\setupwhitespace[big]
-\\usemodule[letter]"
-      :template "letter"
-      :snippets
-      ("setup-letter"
        "setup-grid"))))
   "Alist of ConTeXt preamble presets.
 
@@ -1404,12 +1262,6 @@ By default, logfiles are files with these extensions: .aux, .idx,
 logfiles to remove, set `org-context-logfiles-extensions'."
   :group 'org-export-context
   :type 'boolean)
-
-(defcustom org-context-signature ""
-  "Signature, as a string.
-This option can also be set with the SIGNATURE keyword."
-  :group 'org-export-context-letter
-  :type 'string)
 
 (defcustom org-context-snippets-alist
   '(
@@ -1556,26 +1408,6 @@ This option can also be set with the SIGNATURE keyword."
     ;; Grid typesetting (can cause issues with dense math)
     ("setup-grid" . "\\setuplayout[grid=both]
 \\setupformulae[grid=both]")
-    ;; Setup metadata for letters
-    ;; TODO All letter parameters
-    ("setup-letter" . "\\setupletter[
-  fromname={\\documentvariable{metadata:author}},
-  fromaddress={\\documentvariable{letter:fromaddress}},
-  subject={\\documentvariable{metadata:subject}},
-  closing={\\documentvariable{letter:closing}},
-  signature={\\documentvariable{letter:signature}},
-  toname={\\documentvariable{letter:toname}},
-  toaddress={\\documentvariable{letter:toaddress}},
-  attention={\\documentvariable{letter:attention}},
-  opening={\\documentvariable{letter:opening}},
-  fromphone={\\documentvariable{metadata:phonenumber}},
-  fromurl={\\documentvariable{metadata:url}}]
-\\setupletterlayer
-  [topmark,botmark,cutmark]
-  [state=\\documentvariable{letter:foldmarks}]
-\\setupletterlayer
-  [backaddress]
-  [state=\\documentvariable{letter:withbackaddress}]")
     ;; LaTeX-style tables
     ("table-article" . "\\setupxtable
   [split=yes,
@@ -1831,65 +1663,6 @@ the corresponding command name in ConTeXt."
                                   (string :tag "Keyword")
                                   (const :tag "" :command)
                                   (string :tag "Command"))))
-
-(defcustom org-context-url ""
-  "Sender's URL, e. g., the URL of her homepage.
-This option can also be set with the URL keyword."
-  :group 'org-export-context-letter
-  :type 'string
-  :safe #'stringp)
-
-(defcustom org-context-use-backaddress nil
-  "Non-nil prints return address in line above to address.
-This option can also be set with the OPTIONS keyword, e.g.:
-\"backaddress:t\"."
-  :group 'org-export-context-letter
-  :type 'boolean)
-
-(defcustom org-context-use-email nil
-  "Non-nil prints sender's email address.
-This option can also be set with the OPTIONS keyword, e.g.:
-\"email:t\"."
-  :group 'org-export-context-letter
-  :type 'boolean)
-
-(defcustom org-context-use-foldmarks t
-  "Configure appearance of folding marks.
-
-When t, activate default folding marks.  When nil, do not insert
-folding marks at all."
-  :group 'org-export-context-letter
-  :type 'boolean)
-
-(defcustom org-context-use-from-logo nil
-  "Non-nil prints sender's FROM_LOGO.
-This option can also be set with the OPTIONS keyword, e.g.:
-\"from-logo:t\"."
-  :group 'org-export-context-letter
-  :type 'boolean
-  :safe #'booleanp)
-
-(defcustom org-context-use-phone nil
-  "Non-nil prints sender's phone number.
-This option can also be set with the OPTIONS keyword, e.g.:
-\"phone:t\"."
-  :group 'org-export-context-letter
-  :type 'boolean)
-
-(defcustom org-context-use-place t
-  "Non-nil prints the letter's place next to the date.
-This option can also be set with the OPTIONS keyword, e.g.:
-\"place:nil\"."
-  :group 'org-export-context-letter
-  :type 'boolean)
-
-(defcustom org-context-use-url nil
-  "Non-nil prints sender's URL.
-This option can also be set with the OPTIONS keyword, e.g.:
-\"url:t\"."
-  :group 'org-export-context-letter
-  :type 'boolean
-  :safe #'booleanp)
 
 (defcustom org-context-vim-langs-alist
   '(("c++" :vim-name "cpp" :context-name "Cpp")
@@ -4293,25 +4066,9 @@ INFO is a plist used as a communication channel."
     (cons "metadata:language" (plist-get info :language))
     (cons "Lang" (capitalize (plist-get info :language)))
     (cons "metadata:date" (org-export-data (org-export-get-date info) info))
-    (cons "letter:fromaddress" (org-export-data (plist-get info :from-address) info))
     (cons "metadata:phonenumber" (org-export-data (plist-get info :phone-number) info))
     (cons "metadata:url" (org-export-data (plist-get info :url) info))
-    (cons "letter:toaddress" (org-export-data (plist-get info :to-address) info))
-    (cons "letter:toname" (org-export-data (plist-get info :to-name) info))
-    (cons "letter:attention" (org-export-data (plist-get info :attention) info))
-    (cons "letter:place" (org-export-data (plist-get info :place) info))
-    (cons "letter:location" (org-export-data (plist-get info :location) info))
-    (cons "metadata:subject" (org-export-data (plist-get info :subject) info))
-    (cons "letter:opening" (org-export-data (plist-get info :opening) info))
-    (cons "letter:closing" (org-export-data (plist-get info :closing) info))
-    (cons "letter:signature" (org-export-data (plist-get info :signature) info))
-    (cons "letter:foldmarks" (if (plist-get info :with-foldmarks) "start" "stop"))
-    (cons "letter:withbackaddress" (if (plist-get info :with-backaddress) "start" "stop"))
-    (cons "letter:withemail" (if (plist-get info :with-email) "start" "stop"))
-    (cons "letter:withfromlogo" (if (plist-get info :with-from-logo) "start" "stop"))
-    (cons "letter:withphone" (if (plist-get info :with-phone) "start" "stop"))
-    (cons "letter:withplace" (if (plist-get info :with-place) "start" "stop"))
-    (cons "letter:withurl" (if (plist-get info :with-url) "start" "stop"))))
+    (cons "metadata:subject" (org-export-data (plist-get info :subject) info))))
 
 (defun org-context--get-snippet-text (info snippet-names)
   "Return snippets given a list of SNIPPET NAMES.
