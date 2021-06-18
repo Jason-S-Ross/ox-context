@@ -2765,17 +2765,9 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
            (caption (org-context--caption/label-string latex-environment info))
            (args (org-context--format-arguments
                   (list
-                   ;; (cons "title" caption)
-                   (cons "reference" label))))
-           )
+                   (cons "reference" label)))))
       (pcase type
         ('math
-         ;; TODO equaton eqnarray math displaymath
-         ;; gather multline flalign alignat
-         ;; xalginat xxalignat
-         ;; subequations brequn
-         ;; dmath dseries dgroup darray
-         ;; empheq
          (concat
           (when numberedp
             (format "\\startplaceformula\n  [%s]\n" args))
@@ -2785,8 +2777,7 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
              (org-context--transcode-align environment-contents))
             (_ environment-contents))
           "\\stopformula"
-          (when numberedp "\\stopplaceformula"))
-         )
+          (when numberedp "\\stopplaceformula")))
         (_ value)))))
 
 (defun org-context--environment-type (latex-environment)
@@ -2837,7 +2828,10 @@ The TYPE is determined from the actual latex environment."
 
 (defun org-context--transcode-align (align-environment)
   "Transcode an ALIGN-ENVIRONMENT from org to ConTeXt."
-  (concat
+  (let ((len (length (split-string align-environment "\\\\\\\\"))))
+    (if (= len 1)
+        (org-trim align-environment)
+      (concat
    "\\startalign\n"
    (mapconcat
    (lambda (math-row)
@@ -2854,7 +2848,7 @@ The TYPE is determined from the actual latex environment."
    (seq-filter 'org-string-nw-p
                (split-string align-environment "\\\\\\\\"))
    " \\NR[+]\n")
-   " \\NR[+]\n\\stopalign\n"))
+   " \\NR[+]\n\\stopalign\n"))))
 
 ;;;; Latex Fragment
 
