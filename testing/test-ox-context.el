@@ -2573,9 +2573,6 @@ DEADLINE: <2004-02-29 Sun>"
      (context-test-with-temp-text
       "=bar="
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
-(ert-deftest test-org-context/markup-verb ()
-  "Test verb."
-  (should nil))
 (ert-deftest test-org-context/markup-bold-plist ()
   "Test bold."
  (should
