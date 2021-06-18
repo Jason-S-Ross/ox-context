@@ -2868,18 +2868,20 @@ DEADLINE: <2004-02-29 Sun>"
     (format "\\\\startsection\\[%s\\][\s\n]*\\\\stopsection"
             (let ((replacement
                    (regexp-quote
-                    "Headline `\\lettertilde !@\\#\\$\\%^&*()_-=+\\[\\{\\}\\]\\|\\letterbackslash :;\"'<,>.?/")))
+                    "Headline `\\lettertilde !@\\#\\$\\%^&*()_-=+\\[\\{\\}\\]\\|\\letterbackslash :;\"'<,>.?/"))
+                  (listing (regexp-quote "Headline `~!@^&*()_-=+[{}]:;\"'<,>.?/")))
               (format
                test-org-context-inside-headline-regex
                replacement
-               replacement
-               replacement
-               replacement)))
+               listing
+               listing
+               listing)))
     (context-test-with-temp-customization-value
      org-context-headline-command
      test-org-context-headline-command
-     (context-test-with-temp-text "* Headline `~!@#$%^&*()_-=+[{}]|\\:;\"'<,>.?/"
-                                  (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+     (context-test-with-temp-text
+      "* Headline `~!@#$%^&*()_-=+[{}]|\\:;\"'<,>.?/"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/headline-nested ()
   "Nested headlines should wrap each other."
   (should
@@ -2948,6 +2950,44 @@ DEADLINE: <2004-02-29 Sun>"
        test-org-context-headline-command
        (context-test-with-temp-text "* [#A] Headline 1"
         (org-trim (org-export-as 'context nil nil t '(:context-preset "empty" :with-priority t))))))))
+(ert-deftest test-org-context/headline-withtarget ()
+  "Trivial headline match."
+  (should
+   (string-match-p
+    (let ((regex (concat
+                (regexp-quote "Foo \\reference[org")
+                "[0-9a-f]+"
+                (regexp-quote "]{bar}"))))
+      (format "\\\\startsection\\[%s\\][\s\n]*\\\\stopsection"
+              (format
+               test-org-context-inside-headline-regex
+               regex
+               "Foo"
+               "Foo"
+               "Foo")))
+    (context-test-with-temp-customization-value
+     org-context-headline-command
+     test-org-context-headline-command
+     (context-test-with-temp-text
+      "* Foo <<bar>>"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+(ert-deftest test-org-context/headline-withstyle ()
+  "Trivial headline match."
+  (should
+   (string-match-p
+    (format "\\\\startsection\\[%s\\][\s\n]*\\\\stopsection"
+            (format
+             test-org-context-inside-headline-regex
+             ".*"
+             "Foo bar baz biz buz ab bc verbatim code"
+             "Foo bar baz biz buz ab bc verbatim code"
+             "Foo bar baz biz buz ab bc verbatim code"))
+    (context-test-with-temp-customization-value
+     org-context-headline-command
+     test-org-context-headline-command
+     (context-test-with-temp-text
+      "* Foo *bar* /baz/ _biz_ +buz+ a_b b^c =verbatim= ~code~"
+      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 
 ;;; Keywords
 (ert-deftest test-org-context/keyword-context ()

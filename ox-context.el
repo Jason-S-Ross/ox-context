@@ -2087,6 +2087,24 @@ containing export options. Modify DATA by side-effect and return it."
       info nil '(latex-latex-math-block) t)
     data))
 
+(defun org-context--strip-text (obj info)
+  "Extract raw (unformatted) text from OBJ.
+INFO is a plist providing contextual information."
+  (let ((backend
+         (org-export-create-backend
+          :parent 'org
+          :transcoders
+          '((bold . (lambda (o c i) c))
+            (code . (lambda (o c i) (org-element-property :value o)))
+            (italic . (lambda (o c i) c))
+            (strike-through . (lambda (o c i) c))
+            (subscript . (lambda (o c i) c))
+            (superscript . (lambda (o c i) c))
+            (underline . (lambda (o c i) c))
+            (verbatim . (lambda (o c i) (org-element-property :value o)))
+            (underline . (lambda (o c i) c))
+            (target . (lambda (o c i) ""))))))
+    (org-export-data-with-backend obj backend info)))
 
 ;;; Transcode Functions
 
@@ -2302,18 +2320,17 @@ uniform."
   "Transcode a HEADLINE element from Org to ConTeXt.
 CONTENTS is the content of the section. INFO is a plist
 containing contextual information."
-  ;; TODO Handle node property from `org-export-get-node-property'
-  ;; TODO Strip all special characters from bookmark.
-  ;;      NOTE: Escape characters show up in bookmarks.
-  ;;            However, characters must be escaped.
-  ;;            I don't know the solution, but it's a marginal problem.
   (unless (org-element-property :footnote-section-p headline)
     (let* ((level (org-export-get-relative-level headline info))
            (numberedp (org-export-numbered-headline-p headline info))
            (text (org-export-data (org-element-property :title headline) info))
-           (alt-title (or (org-export-get-node-property :ALT_TITLE headline) text))
-           ;; TODO Handle description metadata
-           ;; (description (org-export-get-node-property :DESCRIPTION headline))
+           (alt-title
+            (org-trim
+             (or (org-export-get-node-property :ALT_TITLE headline)
+                (replace-regexp-in-string "[$|%#\\]" ""
+                 (org-context--strip-text
+                  (org-element-property :title headline)
+                  info)))))
            (todo
             (and (plist-get info :with-todo-keywords)
                  (let ((todo (org-element-property :todo-keyword headline)))
