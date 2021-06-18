@@ -22,9 +22,6 @@
 ;; (context-mode), and calling (indent-region (point-min) (point-max)).
 ;; However, this needs to ignore code blocks, so it must be done carefully.
 ;;
-;; TODO `org-context--add-reference' needs to be checked against all environments
-;;
-;;
 ;; TODO How should "hidden" enumerations be handled?
 ;; In the html exporter, explicitley enumerated items like verses
 ;; have a number that can clash with the number of the item.
@@ -32,11 +29,11 @@
 ;;
 ;; TODO should alists be called alist or not?
 ;;
-;; TODO letter template
-;;
 ;; TODO report template
 ;;
 ;; TODO article template
+;;
+;; TODO don't generate unused environments in documents.
 ;;
 ;;; Commentary:
 
