@@ -2034,7 +2034,7 @@ Environment is looked up from the info plist."
     (org-context--add-reference
      ent
      (if env-name
-         (format "\\start%s\n%s\n\\stop%s" env-name contents env-name)
+         (format "\\start%s\n%s\n\\stop%s\n" env-name contents env-name)
        contents)
      info)))
 
