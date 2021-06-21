@@ -3754,9 +3754,6 @@ CONTENTS is the transcoded contents string. INFO is a plist
 holding the export options."
   (let* ((time-stamp (plist-get info :time-stamp-file))
          (header-lines (list (plist-get info :context-header)))
-         (with-toc (plist-get info :with-toc))
-         (headline-levels (plist-get info :headline-levels))
-         (with-section-numbers (plist-get info :section-numbers))
          (metadata (org-context--list-metadata info))
          (header-extra-lines (list (plist-get info :context-header-extra)))
          (preset-name (plist-get info :context-preset))
@@ -3765,96 +3762,235 @@ holding the export options."
          (preset-header-snippets
           (org-context--get-snippet-text info (plist-get preset-data :snippets)))
          (user-snippets (org-context--get-snippet-text info (plist-get info :context-snippet)))
-         (command-defs
-          (let ((deflist
-                  (list
-                   (list
-                    :context-blockquote-environment
-                    "% blockquote environment")
-                   (list
-                    :context-block-source-environment
-                    "% Create the block source environment")
-                   (list
-                    :context-bullet-on-command
-                    "% Define on bullet command")
-                   (list
-                    :context-bullet-off-command
-                    "% Define off bullet command")
-                   (list
-                    :context-bullet-trans-command
-                    "% Define incomplete bullet command")
-                   (list
-                    :context-description-command
-                    "% LaTeX-style descriptive enumerations")
-                   (list
-                    :context-enumerate-blockquote-empty-environment
-                    "% Unlabelled blockquote enumeration environment")
-                   (list
-                    :context-enumerate-blockquote-environment
-                    "% blockquote enumeration environment")
-                   (list
-                    :context-enumerate-example-empty-environment
-                    "% Create the unlabelled example enumeration environment")
-                   (list
-                    :context-enumerate-example-environment
-                    "% Create the example enumeration environment")
-                   (list
-                    :context-enumerate-listing-empty-environment
-                    "% Create the unlabelled listings enumeration environment")
-                   (list
-                    :context-enumerate-listing-environment
-                    "% Create the listings enumeration environment")
-                   (list
-                    :context-enumerate-verse-empty-environment
-                    "% Create the unlabelled verse enumeration environment")
-                   (list
-                    :context-enumerate-verse-environment
-                    "% Create a verse enumeration environment")
-                   (list
-                    :context-example-environment
-                    "% Create the example environment")
-                   (list
-                    :context-fixed-environment
-                    "% Create the fixed width environment")
-                   (list
-                    :context-planning-command
-                    "% Define a basic planning command")
-                   (list
-                    :context-inline-source-environment
-                    "% Create the inline source environment")
-                   (list
-                    :context-inlinetask-command
-                    "% Define a basic inline task command")
-                   (list
-                    :context-headline-command
-                    "% Define a basic headline command")
-                   (list
-                    :context-clock-command
-                    "% Define a basic clock command")
-                   (list
-                    :context-drawer-command
-                    "% Define a basic drawer command")
-                   (list
-                    :context-node-property-command
-                    "% Define a command for node properties in drawers")
-                   (list
-                    :context-property-drawer-environment
-                    "% Create a property drawer style")
-                   (list
-                    :context-verse-environment
-                    "% Create a verse style"))))
+         (command-defs (org-context--get-definitions info))
+         (unnumbered-headline-commands
+          (let* ((notoc-headline-commands
+                  (org-context--get-all-headline-commands
+                   (lambda (headline inf)
+                     (org-export-excluded-from-toc-p headline inf))
+                   info))
+                 (commands
+                  (mapcar
+                     (lambda (command)
+                       (format "\\definehead[%s][%s]"
+                                 command
+                                 (string-remove-suffix "NoToc" command)))
+                     notoc-headline-commands)))
             (mapconcat
-             (lambda (args)
-               (let* ((kw (nth 0 args))
-                      (comment (nth 1 args))
-                      (nameimpl (plist-get info kw))
-                      (impl (cdr nameimpl)))
-                 (concat
-                  comment
-                  "\n"
-                  (when (org-string-nw-p impl) impl))))
-             deflist
+             #'identity
+             commands
              "\n")))
+         (vimp (eq (plist-get info :context-syntax-engine) 'vim))
+         (vim-langs
+          (let* ((vim-lang-hash (when vimp
+                                  (plist-get info :context-languages-used-cache))))
+            (when (and vimp vim-lang-hash)
+              (mapconcat
+               (lambda (key)
+                 (let* ((lang-info (gethash key vim-lang-hash))
+                        (vim-lang (plist-get lang-info :vim-lang))
+                        (context-inline-name (plist-get lang-info :context-inline-name))
+                        (context-block-name (plist-get lang-info :context-block-name))
+                        (def-template "\\definevimtyping[%s]\n  [syntax=%s,escape=command]\n"))
+                   (concat
+                    (format def-template
+                            context-inline-name vim-lang)
+                    (format def-template
+                            context-block-name vim-lang))))
+               (hash-table-keys vim-lang-hash)
+               "\n"))))
+         (bib-place (plist-get info :context-bib-command))
+         (toc-commands
+          (let ((with-toc (plist-get info :with-toc))
+                (with-section-numbers (plist-get info :section-numbers))
+                (headline-levels
+                 (min
+                  (plist-get info :headline-levels)
+                  (org-context--get-max-headline-depth info))))
+            (concat
+             (when (and with-toc (not with-section-numbers))
+               "% Add internal numbering to unnumbered sections so they can be included in TOC
+\\setuphead[subject]
+          [incrementnumber=yes,
+            number=no]
+\\setuphead[subsubject]
+          [incrementnumber=yes,
+            number=no]
+\\setuphead[subsubsubject]
+          [incrementnumber=yes,
+            number=no]
+\\setuphead[subsubsubsubject]
+          [incrementnumber=yes,
+            number=no]
+")
+             (when (and (wholenump headline-levels)
+                        (/= headline-levels 0))
+               (format "\\setupcombinedlist[content][list={%s}]\n"
+                       (mapconcat
+                        #'identity
+                        (org-context--get-all-headline-commands
+                         (lambda (hl inf)
+                           (not (org-export-excluded-from-toc-p
+                                 hl inf)))
+                         info)
+                        ",")))))))
+    (concat
+     (and time-stamp
+          (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
+     (when vimp "\n\\usemodule[vim]")
+     "\n"
+     unnumbered-headline-commands
+     (when bib-place (format "\n%s\n" bib-place))
+     (when header-lines
+       (concat
+        "
+%===============================================================================
+% From CONTEXT_HEADER
+%===============================================================================
+"
+        (mapconcat #'org-element-normalize-string
+                   header-lines
+                   "")))
+     (when (org-string-nw-p toc-commands)
+       (concat
+        "
+%===============================================================================
+% Table of Contents Configuration
+%===============================================================================
+"
+        toc-commands))
+     "
+%===============================================================================
+% Document Metadata
+%===============================================================================
+"
+     (format "\\setupdocument[%s]\n"
+             (org-context--format-arguments metadata))
+     (format "\\language[%s]" (cdr (assoc "metadata:language" metadata)))
+     (when (or (org-string-nw-p vim-langs) (org-string-nw-p command-defs))
+       (concat
+        "
+%===============================================================================
+% Define Environments and Commands
+%===============================================================================
+"
+        (when (org-string-nw-p vim-langs)
+          (concat (org-trim vim-langs)
+                  "\n"))
+        (when (org-string-nw-p command-defs)
+          (org-trim command-defs))))
+     (when (or (org-string-nw-p preset-header-string)
+                (org-string-nw-p preset-header-snippets))
+       (concat
+        "
+%===============================================================================
+% Preset Commands
+%===============================================================================
+"
+        (org-trim preset-header-string)
+        "\n"
+        (org-trim (mapconcat 'identity preset-header-snippets "\n"))))
+     (when user-snippets
+       (concat
+        "
+%===============================================================================
+% Snippet Commands
+%===============================================================================
+"
+        (mapconcat 'identity user-snippets "\n")))
+     (when header-extra-lines
+       (concat
+        "
+%===============================================================================
+% Commands from CONTEXT_HEADER_EXTRA
+%===============================================================================
+"
+        (mapconcat #'org-element-normalize-string
+                   header-extra-lines
+                   "\n\n")))
+     "
+%===============================================================================
+% Document Body
+%===============================================================================
+% Turn on interaction to make links work
+\\setupinteraction[state=start]
+\\starttext
+\\placebookmarks
+"
+     contents
+     "\\stoptext\n")))
+
+(defun org-context--get-definitions (info)
+  "Scan INFO for all used elements that need ConTeXt definitions inserted.
+
+Returns a string containing those definitions."
+  (let* ((tree (plist-get info :parse-tree))
+         (types (append org-element-all-objects org-element-all-elements))
+         (elements (org-element-map tree types #'identity))
+         (element-types (delq nil (delete-dups (mapcar #'car elements))))
+         (deflist
+           '((clock . ((:context-clock-command . "% Define a basic clock command")))
+             (drawer . ((:context-drawer-command . "% Define a basic drawer command")))
+             (example-block . ((:context-enumerate-example-empty-environment .
+                                "% Create the unlabelled example enumeration environment")
+                               (:context-enumerate-example-environment .
+                                "% Create the example enumeration environment")
+                               (:context-example-environment .
+                                "% Create the example environment")))
+             (fixed-width . ((:context-fixed-environment .
+                        "% Create the fixed width environment")))
+             (headline . ((:context-headline-command .
+                           "% Define a basic headline command")))
+             (inline-src-block . ((:context-inline-source-environment .
+                                   "% Create the inline source environment")))
+             (inlinetask . ((:context-inlinetask-command .
+                             "% Define a basic inline task command")))
+             (item . ((:context-bullet-on-command .
+                       "% Define on bullet command")
+                      (:context-bullet-off-command .
+                       "% Define off bullet command")
+                      (:context-bullet-trans-command .
+                       "% Define incomplete bullet command")
+                      (:context-description-command .
+                       "% LaTeX-style descriptive enumerations")))
+             (node-property . ((:context-node-property-command .
+                                "% Define a command for node properties in drawers")))
+             (planning . ((:context-planning-command .
+                           "% Define a basic planning command")))
+             (property-drawer . ((:context-property-drawer-environment .
+                                  "% Create a property drawer style")))
+             (quote-block . ((:context-blockquote-environment .
+                              "% blockquote environment")
+                             (:context-enumerate-blockquote-empty-environment .
+                              "% Unlabelled blockquote enumeration environment")
+                             (:context-enumerate-blockquote-environment .
+                              "% blockquote enumeration environment")))
+             (src-block . ((:context-block-source-environment .
+                            "% Create the block source environment")
+                           (:context-enumerate-listing-empty-environment .
+                            "% Create the unlabelled listings enumeration environment")
+                           (:context-enumerate-listing-environment .
+                            "% Create the listings enumeration environment")))
+             (verse-block . ((:context-enumerate-verse-empty-environment .
+                              "% Create the unlabelled verse enumeration environment")
+                             (:context-enumerate-verse-environment .
+                              "% Create a verse enumeration environment")
+                             (:context-verse-environment .
+                              "% Create a verse style")))))
+         (command-defs (mapconcat
+                        ;; TODO don't add extra newlines
+                        (lambda (elem)
+                          (mapconcat
+                           (lambda (def)
+                             (let* ((kw (car def))
+                                    (comment (cdr def))
+                                    (nameimpl (plist-get info kw))
+                                    (impl (cdr nameimpl)))
+                               (concat comment "\n" (org-string-nw-p impl))))
+                           (cdr (assoc elem deflist))
+                           "\n"))
+                        element-types
+                        "\n"))
          (table-defs
           (mapconcat
            'identity
@@ -3888,139 +4024,47 @@ holding the export options."
                     :context-table-colgroup-start-style
                     :context-table-colgroup-end-style))))
            "\n"))
+         (keywords
+          (seq-filter
+           (lambda (elem) (equal 'keyword (car elem)))
+           elements))
+         (special-indices-by-keyword
+          (mapcar
+           (lambda (ix)
+             (cons (plist-get (cdr ix) :keyword) ix))
+           (plist-get info :context-texinfo-indices)))
          (index-defs
           (mapconcat
-           (lambda (elem)
-             (let ((command (plist-get (cdr elem) :command)))
+           (lambda (kw)
+             (let* ((def (assoc (org-element-property :key kw) special-indices-by-keyword))
+                    (command (plist-get (cdr (cdr def)) :command)))
                (format "\\defineregister[%s]" command)))
-           (plist-get info :context-texinfo-indices)
+           (seq-filter
+            (lambda (kw)
+              (let ((key (org-element-property :key kw)))
+                (assoc key special-indices-by-keyword)))
+            keywords)
            "\n"))
-         (unnumbered-headline-commands
-          (let* ((notoc-headline-cache (plist-get info :context-notoc-headline-cache))
-                 (notoc-headline-keys
-                  (when notoc-headline-cache
-                    (hash-table-keys notoc-headline-cache))))
-            (mapconcat
-             (lambda (key)
-               (let ((val (gethash key notoc-headline-cache)))
-                 (format "\\definehead[%s][%s]" val key)))
-             notoc-headline-keys
-             "\n")))
-         (vimp (eq (plist-get info :context-syntax-engine) 'vim))
-         (vim-lang-hash (when vimp
-                          (plist-get info :context-languages-used-cache)))
-         (vim-langs
-          (when (and vimp vim-lang-hash)
-            (mapconcat
-             (lambda (key)
-               (let* ((lang-info (gethash key vim-lang-hash))
-                      (vim-lang (plist-get lang-info :vim-lang))
-                      (context-inline-name (plist-get lang-info :context-inline-name))
-                      (context-block-name (plist-get lang-info :context-block-name))
-                      (def-template "\\definevimtyping[%s]\n  [syntax=%s,escape=command]\n"))
-                 (concat
-                  (format def-template
-                          context-inline-name vim-lang)
-                  (format def-template
-                         context-block-name vim-lang))))
-             (hash-table-keys vim-lang-hash)
-             "\n")))
-         (bib-place (plist-get info :context-bib-command)))
+         (headlines
+          (org-element-map tree 'headline #'identity)))
     (concat
-     (and time-stamp
-          (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
-     (when vimp "\n\\usemodule[vim]\n")
+     command-defs
      "\n"
-     unnumbered-headline-commands
-     (when bib-place (format "\n%s\n" bib-place))
-   "
-%===============================================================================
-% From CONTEXT_HEADER
-%===============================================================================
-"
-   (mapconcat #'org-element-normalize-string
-              header-lines
-              "")
+     (when (member 'table element-types) table-defs)
+     "\n"
+     index-defs)))
 
-   "
-%===============================================================================
-% Table of Contents Configuration
-%===============================================================================
-"
-   (when (and with-toc (not with-section-numbers))
-     "% Add internal numbering to unnumbered sections so they can be included in TOC
-\\setuphead[subject]
-          [incrementnumber=yes,
-            number=no]
-\\setuphead[subsubject]
-          [incrementnumber=yes,
-            number=no]
-\\setuphead[subsubsubject]
-          [incrementnumber=yes,
-            number=no]
-\\setuphead[subsubsubsubject]
-          [incrementnumber=yes,
-            number=no]
-")
-   (when (and (wholenump headline-levels)
-            (/= headline-levels 0))
-     (format "\\setupcombinedlist[content][list={%s}]\n"
-             (org-context--get-all-headline-commands headline-levels)))
-   "
-%===============================================================================
-% Document Metadata
-%===============================================================================
-"
-   (format "\\setupdocument[%s]\n"
-           (org-context--format-arguments metadata))
-   (format "\\language[%s]" (cdr (assoc "metadata:language" metadata)))
-   "
-%===============================================================================
-% Define Environments and Commands
-%===============================================================================
-
-% Turn on interaction to make links work
-\\setupinteraction[state=start]
-"
-   vim-langs
-   "\n"
-   command-defs
-   "\n"
-   table-defs
-   "\n"
-   index-defs
-   "
-%===============================================================================
-% Preset Commands
-%===============================================================================
-"
-   (concat preset-header-string "\n"
-           (mapconcat 'identity preset-header-snippets "\n"))
-   "
-%===============================================================================
-% Snippet Commands
-%===============================================================================
-"
-   (mapconcat 'identity
-              user-snippets
-              "\n")
-   "
-%===============================================================================
-% Commands from CONTEXT_HEADER_EXTRA
-%===============================================================================
-"
-   (mapconcat #'org-element-normalize-string
-              header-extra-lines
-              "\n\n")
-   "
-%===============================================================================
-% Document Body
-%===============================================================================
-\\starttext
-\\placebookmarks
-"
-   contents
-   "\\stoptext\n")))
+(defun org-context--get-max-headline-depth (info)
+  "Scan INFO for all headlines and the maximum depth."
+  (let ((levels
+         (mapcar
+          (lambda (headline)
+            (org-element-property :level headline))
+          (org-element-map
+              (plist-get info :parse-tree)
+              'headline
+            #'identity))))
+    (if levels (seq-max levels) 0)))
 
 (defun org-context--list-metadata (info)
   "Create a `format-spec' for document meta-data.
