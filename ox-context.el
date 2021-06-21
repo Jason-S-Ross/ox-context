@@ -2323,7 +2323,6 @@ CONTENTS is the content of the section. INFO is a plist
 containing contextual information."
   (unless (org-element-property :footnote-section-p headline)
     (let* ((level (org-export-get-relative-level headline info))
-           (numberedp (org-export-numbered-headline-p headline info))
            (text (org-export-data (org-element-property :title headline) info))
            (alt-title
             (org-trim
@@ -2345,21 +2344,8 @@ containing contextual information."
                           (string priority-num)))
            (full-text (funcall (plist-get info :context-format-headline-function)
                                todo todo-type priority text tags info))
-           (notoc (org-export-excluded-from-toc-p headline info))
            (headline-name
-            (let ((hname (org-context--get-headline-command numberedp level)))
-              (if notoc
-                  (let* ((notoc-heading-cache
-                          (or (plist-get info :context-notoc-headline-cache)
-                              (let ((hash (make-hash-table :test #'equal)))
-                                (plist-put info :context-notoc-headline-cache hash) hash)))
-                         (notoc-name
-                          (or (gethash hname notoc-heading-cache)
-                              (puthash hname
-                                       (format "%sNoToc" hname)
-                                       notoc-heading-cache))))
-                    notoc-name)
-                hname)))
+            (org-context--get-headline-command headline info))
            (headertemplate (format "\n\\start%s" headline-name))
            (footercommand (format "\n\\stop%s" headline-name))
            (headline-label (org-context--label headline info t ))
@@ -2449,25 +2435,36 @@ See `org-context-format-headline-function' for details."
            (cons "Tags" (mapconcat #'org-context--protect-text tags ":")))))
       text)))
 
-(defun org-context--get-all-headline-commands (max-depth)
-  "Get a concatenated listing of every headline command up to MAX-DEPTH."
-  (concat
-   (mapconcat
-    (lambda (depth)
-      (concat
-       (org-context--get-headline-command t depth)
-       ","
-       (org-context--get-headline-command nil depth)))
-    (number-sequence 1 max-depth)
-    ",")))
+(defun org-context--get-all-headline-commands (pred info)
+  "Scan the parse tree for all headlines used and return a list.
+INFO is a plist containing contextual information. PRED is a
+predicate function to exclude headlines that takes the headline
+and INFO as arguments."
+  (let ((tree (plist-get info :parse-tree)))
+    (delq
+     nil
+     (delete-dups
+      (mapcar
+       (lambda (headline)
+         (org-context--get-headline-command headline info))
+       (seq-filter
+        (lambda (headline)
+          (funcall pred headline info))
+        (org-element-map tree 'headline #'identity)))))))
 
-(defun org-context--get-headline-command (numberedp level)
+(defun org-context--get-headline-command (headline info)
   "Create a headline name with the correct depth.
-If NUMBEREDP, gets a numbered command. LEVEL is the level of headline
-command to get."
-  (concat
-   (apply 'concat (make-list (+ level (- 1)) "sub"))
-   (if numberedp "section" "subject")))
+HEADLINE is the headline object. INFO is a plist containing
+contextual information."
+  (let* ((level (org-export-get-relative-level headline info))
+         (numberedp (org-export-numbered-headline-p headline info))
+         (prefix (apply 'concat (make-list (+ level (- 1)) "sub")))
+         (suffix (if numberedp "section" "subject"))
+         (hname (concat prefix suffix))
+         (notoc (org-export-excluded-from-toc-p headline info)))
+    (if notoc
+        (format "%sNoToc" hname)
+      hname)))
 
 ;;;; Horizontal Rule
 
@@ -2677,63 +2674,75 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
           'identity
           (lambda (elem) (plist-get (cdr elem) :keyword))
           (plist-get info :context-texinfo-indices))))
-    (pcase key
-     ("CONTEXT" value)
-     ("INDEX" (format "\\index{%s}" (org-context--protect-text value)))
-     ("TOC"
-      (let ((case-fold-search t)
-            (texinfo-command (assoc value (plist-get info :context-texinfo-indices)))
-            (toc-command (assoc value (plist-get info :context-toc-command-alist)))
-            kw)
-
-        (cond
-
-         (toc-command (cdr toc-command))
-         (texinfo-command
-          (format "\\placeregister[%s]"
-                  (plist-get (cdr texinfo-command) :command)))
-         ((string-match-p "\\<headlines\\>" value)
-          (let* ((localp (string-match-p "\\<local\\>" value))
-                 (parent (org-element-lineage keyword '(headline)))
-                 (depth
-                  (if (string-match "\\<[0-9]+\\>" value)
-                      (string-to-number (match-string 0 value))
-                    0))
-                 (level (+ depth
-                           (if (not (and localp parent)) 0
-                             (org-export-get-relative-level parent info))))
-                 (levelstring (if (> level 0)
-                                  (format "list={%s}"
-                                          (org-context--get-all-headline-commands level))
-                                "")))
-            (if localp (format  "\\placecontent[criterium=local,%s]" levelstring)
-              (format  "\\placecontent[%s]" levelstring))))
-         ((or
-           (and (string-match-p "\\<listings\\>" value)
-                (setq kw :context-enumerate-listing-empty-environment))
-           (and (string-match-p "\\<verses\\>" value)
-                (setq kw :context-enumerate-verse-empty-environment))
-           (and (string-match-p "\\<quotes\\>" value)
-                (setq kw :context-enumerate-blockquote-empty-environment))
-           (and (string-match-p "\\<examples\\>" value)
-                (setq kw :context-enumerate-example-empty-environment)))
-          (let ((env
-                 (org-string-nw-p
+    (format
+     "\n%s\n"
+     (pcase key
+       ("CONTEXT" value)
+       ("INDEX" (format "\\index{%s}" (org-context--protect-text value)))
+       ("TOC"
+        (let ((case-fold-search t)
+              (texinfo-command (assoc value (plist-get info :context-texinfo-indices)))
+              (toc-command (assoc value (plist-get info :context-toc-command-alist)))
+              kw)
+          (cond
+           (toc-command (cdr toc-command))
+           (texinfo-command
+            (format "\\placeregister[%s]"
+                    (plist-get (cdr texinfo-command) :command)))
+           ((string-match-p "\\<headlines\\>" value)
+            (let* ((localp (string-match-p "\\<local\\>" value))
+                   (parent (org-element-lineage keyword '(headline)))
+                   (depth
+                    (if (string-match "\\<[0-9]+\\>" value)
+                        (string-to-number (match-string 0 value))
+                      0))
+                   (level (+ depth
+                             (if (not (and localp parent)) 0
+                               (org-export-get-relative-level parent info))))
+                   (levelstring
+                    (if (> level 0)
+                        (format
+                         "list={%s}"
+                         (mapconcat
+                          'identity
+                          (org-context--get-all-headline-commands
+                           (lambda (hl inf)
+                             (and
+                              (<= (org-export-get-relative-level hl inf) level)
+                              (not (org-export-excluded-from-toc-p hl inf))))
+                           info)
+                          ","))
+                      "")))
+              (if localp (format  "\\placecontent[criterium=local,%s]" levelstring)
+                (format  "\\placecontent[%s]" levelstring))))
+           ((or
+             (and (string-match-p "\\<listings\\>" value)
+                  (setq kw :context-enumerate-listing-empty-environment))
+             (and (string-match-p "\\<verses\\>" value)
+                  (setq kw :context-enumerate-verse-empty-environment))
+             (and (string-match-p "\\<quotes\\>" value)
+                  (setq kw :context-enumerate-blockquote-empty-environment))
+             (and (string-match-p "\\<examples\\>" value)
+                  (setq kw :context-enumerate-example-empty-environment)))
+            (let ((env
+                   (org-string-nw-p
+                    (car
+                     (plist-get info kw)))))
+              (if env (format "\\placelist[%s][criterium=all]" env)
+                "")))
+           (t ""))))
+       ((pred (lambda (x) (member x special-indices)))
+        (format "\\%s{%s}\n"
+                (plist-get
+                 (cdr
                   (car
-                   (plist-get info kw)))))
-            (if env (format "\\placelist[%s][criterium=all]" env)
-              ""))))))
-     ((pred (lambda (x) (member x special-indices)))
-      (format "\\%s{%s}"
-              (plist-get
-               (cdr
-                (car
-                 (seq-filter
-                  (lambda (elem)
-                    (string= key (plist-get (cdr elem) :keyword)))
-                  (plist-get info :context-texinfo-indices))))
-               :command)
-              (org-context--protect-text value))))))
+                   (seq-filter
+                    (lambda (elem)
+                      (string= key (plist-get (cdr elem) :keyword)))
+                    (plist-get info :context-texinfo-indices))))
+                 :command)
+                (org-context--protect-text value)))
+       (_ "")))))
 
 (defun org-context--get-bib-file (keyword)
   "Return bibliography file as a string.
