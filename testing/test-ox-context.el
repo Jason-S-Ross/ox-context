@@ -3063,10 +3063,37 @@ DEADLINE: <2004-02-29 Sun>"
 (ert-deftest test-org-context/keyword-toc-headline-limited ()
   "Test placing toc limited to depth."
   (should
-   (equal
-    "\\placecontent[list={section,subject,subsection,subsubject}]"
+   (string-match-p
+    (regexp-quote
+     "\\placecontent[list={section,subsection,subject,subsubject}]")
     (context-test-with-temp-text
-     "#+TOC: headlines 2"
+     "* Foo
+** Bar
+*** Baz
+**** Biz
+***** Baz
+* Foo
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
+** Bar
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
+*** Baz
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
+**** Biz
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
+***** Baz
+:PROPERTIES:
+:UNNUMBERED: t
+:END:
+
+#+TOC: headlines 2"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
 (ert-deftest test-org-context/keyword-toc-headlines-local ()
   "Test placing table of contents with local keyword."
