@@ -1998,8 +1998,9 @@ the coderef."
            "[|\\{}$%#~]"
            (lambda (m)
              (pcase (string-to-char m)
-               (?\\ "\\backslash ")
-               (?~ "\\lettertilde ")
+               (?\\ "\\\\backslash{}")
+               (?~ "\\\\lettertilde{}")
+               (?# "\\\\letterhash{}")
                (_ "\\\\\\&")))
            text nil nil))
 
