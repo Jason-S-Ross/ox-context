@@ -1627,6 +1627,7 @@ This string is passed to the \"split\" key of the
 
 (defcustom org-context-text-markup-alist
   '((bold ."\\bold{%s}")
+    (bold-italic . "\\bolditalic{%s}")
     (code . protectedtexttt)
     (italic . "\\italic{%s}")
     (paragraph . "%s")
@@ -1643,6 +1644,7 @@ This string is passed to the \"split\" key of the
   :type 'alist
   :options
   '(bold
+    bold-italic
     code
     italic
     paragraph
@@ -2112,11 +2114,14 @@ INFO is a plist providing contextual information."
 
 ;;;; Bold
 
-(defun org-context-bold (_bold contents info)
+(defun org-context-bold (bold contents info)
   "Transcode BOLD from Org to ConTeXt.
 CONTENTS is the text with bold markup. INFO is a plist holding
 contextual information."
-  (org-context--text-markup contents 'bold info))
+  (let ((italicp (org-element-lineage bold '(italic))))
+    (if italicp
+        (org-context--text-markup contents 'bold-italic info)
+      (org-context--text-markup contents 'bold info))))
 
 ;;;; Center Block
 
@@ -2631,10 +2636,13 @@ containing contextual information."
 
 ;;;; Italic
 
-(defun org-context-italic (_italic contents info)
+(defun org-context-italic (italic contents info)
   "Transcode CONTENTS from Org to ConTeXt.
 INFO is a plist containing contextual information."
-  (org-context--text-markup contents 'italic info))
+  (let ((boldp (org-element-lineage italic '(bold))))
+    (if boldp
+        (org-context--text-markup contents 'bold-italic info)
+      (org-context--text-markup contents 'italic info))))
 
 ;;;; Item
 

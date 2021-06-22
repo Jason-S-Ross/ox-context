@@ -2587,6 +2587,36 @@ DEADLINE: <2004-02-29 Sun>"
          :context-preset "empty"
          :context-text-markup-alist
          '((bold . "\\testbold{%s}")))))))))
+(ert-deftest test-org-context/markup-bold-italic-plist ()
+  "Test bold italic text."
+ (should
+   (equal
+    "\\testbold{\\testbolditalic{foo} bar}"
+    (context-test-with-temp-text
+      "*/foo/ bar*"
+      (org-trim
+       (org-export-as
+        'context nil nil t
+        (list
+         :context-preset "empty"
+         :context-text-markup-alist
+         '((bold . "\\testbold{%s}")
+           (bold-italic . "\\testbolditalic{%s}")))))))))
+(ert-deftest test-org-context/markup-italic-bold-plist ()
+  "Test italic bold text."
+ (should
+   (equal
+    "\\testitalic{\\testbolditalic{foo} bar}"
+    (context-test-with-temp-text
+      "/*foo* bar/"
+      (org-trim
+       (org-export-as
+        'context nil nil t
+        (list
+         :context-preset "empty"
+         :context-text-markup-alist
+         '((italic . "\\testitalic{%s}")
+           (bold-italic . "\\testbolditalic{%s}")))))))))
 
 ;;; Items
 (ert-deftest test-org-context/bullet-off ()
