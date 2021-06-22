@@ -2001,7 +2001,7 @@ the coderef."
                (?\\ "\\backslash ")
                (?~ "\\lettertilde ")
                (_ "\\\\\\&")))
-           text nil t))
+           text nil nil))
 
 (defun org-context--protect-texttt (text)
   "Protect special chars, then wrap TEXT in \"{\\tt }\"."
