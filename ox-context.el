@@ -4041,17 +4041,24 @@ Returns a string containing those definitions."
            (lambda (ix)
              (cons (plist-get (cdr ix) :keyword) ix))
            (plist-get info :context-texinfo-indices)))
+         (used-keywords
+          (delq
+           nil
+           (delete-dups
+            (mapcar
+             (lambda (kw) (org-element-property :key kw))
+             (seq-filter
+              (lambda (kw)
+                (let ((key (org-element-property :key kw)))
+                  (assoc key special-indices-by-keyword)))
+              keywords)))))
          (index-defs
           (mapconcat
            (lambda (kw)
-             (let* ((def (assoc (org-element-property :key kw) special-indices-by-keyword))
+             (let* ((def (assoc kw special-indices-by-keyword))
                     (command (plist-get (cdr (cdr def)) :command)))
                (format "\\defineregister[%s]" command)))
-           (seq-filter
-            (lambda (kw)
-              (let ((key (org-element-property :key kw)))
-                (assoc key special-indices-by-keyword)))
-            keywords)
+           used-keywords
            "\n"))
          (headlines
           (org-element-map tree 'headline #'identity)))
