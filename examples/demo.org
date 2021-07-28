@@ -11,7 +11,6 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
  
-# #+CONTEXT_HEADER: \setupvimtyping[numbering=yes]
 #+TITLE: Org Mode ConTeXt Export Demo
 #+DESCRIPTION: Simple demo of the Org Mode ConTeXt exporter
 #+KEYWORDS: context org-mode
@@ -245,7 +244,7 @@ Here's a Czech quotation: "Here's a 'nested' quote"
 The default clock is set to use the ISO format. ConTeXt doesn't provide
 a locale-aware timestamp but the user can customize the clock appearance
 by overriding the ~\OrgClock~ macro. Example:
-CLOCK: [2021-01-15 Fri 16:58]
+CLOCK: [2021-01-15 Fri 16:58]--[2021-06-10 Thu 10:49] => 3496:51
 
 *** Timestamp
 Timestamps are supported by the ~\date~ macro, so different locales
@@ -375,13 +374,16 @@ as list elements, but true headlines are only supported down to 5 levels deep.
 ********* Level 8
 ********** Level 9
 * Index :appendix:
+:PROPERTIES:
+:APPENDIX:
+:END:
  We can place an index in the document using ~#+TOC:definitions~
  #+TOC: definitions
 
 [fn:1] This is a sample footnote
 * Bibliography
 :PROPERTIES:
-:BACKMATTER:
+:APPENDIX:
 :END:
 We can place a bibliography using ~#+TOC:references~
 #+TOC: references
