@@ -3926,7 +3926,8 @@ holding the export options."
 \\placebookmarks
 "
      contents
-     "\\stoptext\n")))
+     "
+\\stoptext\n")))
 
 (defun org-context--get-definitions (info)
   "Scan INFO for all used elements that need ConTeXt definitions inserted.
