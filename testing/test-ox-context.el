@@ -123,63 +123,66 @@ holding TEXT."
   (should
    (equal
     "Quote: \\quotation{Cogito ergo sum} - Descartes"
-    (context-test-with-temp-customization-value
-     org-context-export-quotes-alist
-     '((primary-opening . "\\quotation{")
-       (primary-closing . "}")
-       (secondary-opening . "\\quote{")
-       (secondary-closing . "}")
-       (apostrophe . "'"))
-     (context-test-with-temp-text
-      "Quote: \"Cogito ergo sum\" - Descartes"
-      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+    (let ((org-context-export-quotes-alist
+           '((primary-opening . "\\quotation{")
+             (primary-closing . "}")
+             (secondary-opening . "\\quote{")
+             (secondary-closing . "}")
+             (apostrophe . "'")))
+          (org-export-with-smart-quotes t))
+      (context-test-with-temp-text
+       "Quote: \"Cogito ergo sum\" - Descartes"
+       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/smart-quote-basic-plist ()
   "Test simple smart quotes."
   (should
    (equal
     "Quote: \\testquotation{Cogito ergo sum} - Descartes"
-    (context-test-with-temp-text
-      "Quote: \"Cogito ergo sum\" - Descartes"
-      (org-trim
-       (org-export-as
-        'context nil nil t
-        '(:context-preset "empty"
-          :context-export-quotes-alist
-          ((primary-opening . "\\testquotation{")
-           (primary-closing . "}")
-           (secondary-opening . "\\testquote{")
-           (secondary-closing . "}")
-           (apostrophe . "'")))))))))
+    (let ((org-export-with-smart-quotes t))
+      (context-test-with-temp-text
+       "Quote: \"Cogito ergo sum\" - Descartes"
+       (org-trim
+        (org-export-as
+         'context nil nil t
+         '(:context-preset "empty"
+           :context-export-quotes-alist
+           ((primary-opening . "\\testquotation{")
+            (primary-closing . "}")
+            (secondary-opening . "\\testquote{")
+            (secondary-closing . "}")
+            (apostrophe . "'"))))))))))
 (ert-deftest test-org-context/smart-quote-apostrophe ()
   "Test apostrophes in text."
   (should
    (equal
     "Here's a quote: \\quotation{I think, therefore I am}"
-    (context-test-with-temp-customization-value
-     org-context-export-quotes-alist
-     '((primary-opening . "\\quotation{")
-       (primary-closing . "}")
-       (secondary-opening . "\\quote{")
-       (secondary-closing . "}")
-       (apostrophe . "'"))
-     (context-test-with-temp-text
-      "Here's a quote: \"I think, therefore I am\""
-      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+    (let ((org-export-with-smart-quotes t))
+      (context-test-with-temp-customization-value
+       org-context-export-quotes-alist
+       '((primary-opening . "\\quotation{")
+         (primary-closing . "}")
+         (secondary-opening . "\\quote{")
+         (secondary-closing . "}")
+         (apostrophe . "'"))
+       (context-test-with-temp-text
+        "Here's a quote: \"I think, therefore I am\""
+        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))))
 (ert-deftest test-org-context/smart-quote-nested ()
   "Test nested quotes."
   (should
    (equal
     "Here\\TestApostrophes a nested quote: \\TestPrimary{Descartes says \\TestSecondary{I think therefore I am}}"
-    (context-test-with-temp-customization-value
-     org-context-export-quotes-alist
-     '((primary-opening . "\\TestPrimary{")
-       (primary-closing . "}")
-       (secondary-opening . "\\TestSecondary{")
-       (secondary-closing . "}")
-       (apostrophe . "\\TestApostrophe"))
-     (context-test-with-temp-text
-     "Here's a nested quote: \"Descartes says 'I think therefore I am'\""
-     (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
+    (let ((org-export-with-smart-quotes t))
+      (context-test-with-temp-customization-value
+       org-context-export-quotes-alist
+       '((primary-opening . "\\TestPrimary{")
+         (primary-closing . "}")
+         (secondary-opening . "\\TestSecondary{")
+         (secondary-closing . "}")
+         (apostrophe . "\\TestApostrophe"))
+       (context-test-with-temp-text
+        "Here's a nested quote: \"Descartes says 'I think therefore I am'\""
+        (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))))
 
 
 
@@ -922,14 +925,15 @@ foo bar baz
      "[[:space:]]*"
      (regexp-quote "\\stopitemize")
      )
-    (context-test-with-temp-text
-"a. foo
+    (let ((org-list-allow-alphabetical t))
+      (context-test-with-temp-text
+       "a. foo
 b. bar
 c. baz"
 
-     (org-trim
-      (org-export-as 'context nil nil t
-                     '(:context-preset "empty")))))))
+       (org-trim
+        (org-export-as 'context nil nil t
+                       '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/items-num ()
   "Test alphabetized flat lists."
   (should
@@ -968,7 +972,7 @@ c. baz"
      "[[:space:]]*"
      (regexp-quote "\\item e2")
      "[[:space:]]*"
-     (regexp-quote "\\startitemize[a]")
+     (regexp-quote "\\startitemize[n]")
      "[[:space:]]*"
      (regexp-quote "\\item e2.1")
      "[[:space:]]*"
@@ -988,8 +992,8 @@ c. baz"
 "1. foo
   - e1
   - e2
-    a. e2.1
-    b. e2.2
+    1. e2.1
+    2. e2.2
 2. bar
 3. baz"
 
@@ -4015,7 +4019,7 @@ baz & buz
   "Test a link to an unsupported type."
   (should
    (equal
-    "\\goto{\\hyphenatedurl{projects.org}}[url(projects.org)]"
+    "attachment:projects.org"
     (context-test-with-temp-text
      "attachment:projects.org"
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
