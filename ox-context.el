@@ -213,6 +213,7 @@
 ;;; Dependencies
 (require 'cl-lib)
 (require 'ox)
+(require 'ox-org)
 (require 'seq)
 (require 'subr-x)
 (require 'context)
