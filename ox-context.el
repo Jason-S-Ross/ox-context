@@ -33,8 +33,6 @@
 ;;
 ;; TODO article template
 ;;
-;; TODO don't generate unused environments in documents.
-;;
 ;;; Commentary:
 
 ;; This library implements a ConTeXt back-end for Org generic exporter.
