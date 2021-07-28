@@ -2915,8 +2915,6 @@ INFO is a plist holding contextual information. See
                   (_
                    raw-path)))))
     (cond
-     ;; Link type is handled by a special function.
-     ((org-export-custom-protocol-maybe link desc 'latex info))
      ;; Image file.
      (imagep (org-context--inline-image link info))
      ;; Radio link: Transcode target's contents and use them as link's
