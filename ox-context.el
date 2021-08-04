@@ -22,17 +22,6 @@
 ;; (context-mode), and calling (indent-region (point-min) (point-max)).
 ;; However, this needs to ignore code blocks, so it must be done carefully.
 ;;
-;; TODO How should "hidden" enumerations be handled?
-;; In the html exporter, explicitley enumerated items like verses
-;; have a number that can clash with the number of the item.
-;; https://orgmode.org/list/55ec0cbb-eebf-0d49-b182-372407c8c84c@gmail.com/T/#u
-;;
-;; TODO should alists be called alist or not?
-;;
-;; TODO report template
-;;
-;; TODO article template
-;;
 ;;; Commentary:
 
 ;; This library implements a ConTeXt back-end for Org generic exporter.
@@ -3021,7 +3010,6 @@ used as a communication channel."
                       (org-string-nw-p opt))))
          image-code
          options-list)
-    ;; TODO Add scale to options
     (and (org-string-nw-p scale)
          (push (cons "scale" scale) options-list))
     (and (org-string-nw-p width)
