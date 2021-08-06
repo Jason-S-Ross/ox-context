@@ -352,6 +352,7 @@
                   (:context-texinfo-indices nil nil org-context-texinfo-indices-alist)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
                   (:context-toc-command-alist nil nil org-context-toc-command-alist)
+                  (:context-toc-title-command nil nil org-context-toc-title-command)
                   (:context-verse-environment nil nil org-context-verse-environment)
                   (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
                   (:date "DATE" nil "\\currentdate" parse)
@@ -912,6 +913,15 @@ arguments:
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
 
+(defcustom org-context-toc-title-command
+  '("\\OrgTitleContents" . "\\define\\OrgTitleContents{{\\tfc Contents}}")
+  "The command that titles the table of contents.
+
+Cons list of NAME, DEF. "
+  :group 'org-export-context
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definitions")))
+
 ;;;; Element Configuration
 
 ;; These settings configure elements in Org.
@@ -1105,7 +1115,8 @@ link's path."
                 :value-type (regexp :tag "Path")))
 
 (defcustom org-context-inner-templates-alist
-  '(("empty" . "%f
+  '(("empty" . "%t
+%f
 %c
 %a
 %i
@@ -1114,8 +1125,7 @@ link's path."
     ("article" . "\\startfrontmatter
 \\startOrgTitlePage
 \\OrgMakeTitle
-\\OrgTitleContents
-\\placecontent
+%t
 \\stopOrgTitlePage
 %f
 \\stopfrontmatter
@@ -1137,8 +1147,7 @@ link's path."
 \\startstandardmakeup
 \\startOrgTitlePage
 \\OrgMakeTitle
-\\OrgTitleContents
-\\placecontent
+%t
 \\stopOrgTitlePage
 \\stopstandardmakeup
 %f
@@ -1499,10 +1508,7 @@ logfiles to remove, set `org-context-logfiles-extensions'."
    \\blank[2*medium]
    {\\tfa \\documentvariable{metadata:date}}
    \\blank[3*medium]
-  \\stopalignment}
-\\define\\OrgTitleContents{%
-  {\\tfc Contents}
-}")
+  \\stopalignment}")
     ;; LaTeX report style title setup
     ("title-report" . "\\setuphead[title][align=middle]
 \\definestartstop[OrgTitlePage]
@@ -1525,10 +1531,7 @@ logfiles to remove, set `org-context-logfiles-extensions'."
    {\\tfa \\documentvariable{metadata:date}}
    \\blank[3*medium]
   \\stopalignment
-  \\stopstandardmakeup}
-\\define\\OrgTitleContents{%
-  {\\tfc Contents}
-}")
+  \\stopstandardmakeup}")
     ;; LaTeX style tables of contents
     ("toc-article" . "\\setupcombinedlist[content][alternative=c]")
     ;; Indented verse blocks with spaces preserved
@@ -2613,7 +2616,21 @@ containing contextual information."
           (mapconcat
            'identity
            (reverse (plist-get info :context-index-sections))
-           "\n\n")))
+           "\n\n"))
+         (toc-command
+          (let* ((with-toc (plist-get info :with-toc))
+                 (commands (org-context--get-all-headline-commands
+                            (lambda (hl inf)
+                              (and (not (org-export-excluded-from-toc-p hl inf))
+                                   (and (wholenump with-toc)
+                                        (<= (org-export-get-relative-level hl inf) with-toc))))
+                            info))
+                 (toc-title (car (plist-get info :context-toc-title-command))))
+            (if (and with-toc commands)
+                (format "%s
+\\placecontent"
+                        toc-title)
+              ""))))
     (format-spec
      template
      (list (cons ?f frontmatter-sections)
@@ -2621,7 +2638,8 @@ containing contextual information."
            (cons ?a appendix-sections)
            (cons ?b backmatter-sections)
            (cons ?o copying-sections)
-           (cons ?i index-sections)))))
+           (cons ?i index-sections)
+           (cons ?t toc-command)))))
 
 ;;;; Italic
 
@@ -3794,13 +3812,10 @@ holding the export options."
                (hash-table-keys vim-lang-hash)
                "\n"))))
          (bib-place (plist-get info :context-bib-command))
+         (toc-title-command (plist-get info :context-toc-title-command))
          (toc-commands
           (let ((with-toc (plist-get info :with-toc))
-                (with-section-numbers (plist-get info :section-numbers))
-                (headline-levels
-                 (min
-                  (plist-get info :headline-levels)
-                  (org-context--get-max-headline-depth info))))
+                (with-section-numbers (plist-get info :section-numbers)))
             (concat
              (when (and with-toc (not with-section-numbers))
                "% Add internal numbering to unnumbered sections so they can be included in TOC
@@ -3817,15 +3832,17 @@ holding the export options."
           [incrementnumber=yes,
             number=no]
 ")
-             (when (and (wholenump headline-levels)
-                        (/= headline-levels 0))
-               (format "\\setupcombinedlist[content][list={%s}]\n"
+             (when (and (wholenump with-toc)
+                        (/= with-toc 0))
+               (format "%s
+\\setupcombinedlist[content][list={%s}]\n"
+                       (cdr toc-title-command)
                        (mapconcat
                         #'identity
                         (org-context--get-all-headline-commands
                          (lambda (hl inf)
-                           (not (org-export-excluded-from-toc-p
-                                 hl inf)))
+                           (and (not (org-export-excluded-from-toc-p hl inf))
+                              (<= (org-export-get-relative-level hl inf) with-toc)))
                          info)
                         ",")))))))
     (concat
