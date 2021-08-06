@@ -1508,10 +1508,7 @@ logfiles to remove, set `org-context-logfiles-extensions'."
    \\blank[2*medium]
    {\\tfa \\documentvariable{metadata:date}}
    \\blank[3*medium]
-  \\stopalignment}
-\\define\\OrgTitleContents{%
-  {\\tfc Contents}
-}")
+  \\stopalignment}")
     ;; LaTeX report style title setup
     ("title-report" . "\\setuphead[title][align=middle]
 \\definestartstop[OrgTitlePage]
@@ -1534,10 +1531,7 @@ logfiles to remove, set `org-context-logfiles-extensions'."
    {\\tfa \\documentvariable{metadata:date}}
    \\blank[3*medium]
   \\stopalignment
-  \\stopstandardmakeup}
-\\define\\OrgTitleContents{%
-  {\\tfc Contents}
-}")
+  \\stopstandardmakeup}")
     ;; LaTeX style tables of contents
     ("toc-article" . "\\setupcombinedlist[content][alternative=c]")
     ;; Indented verse blocks with spaces preserved
