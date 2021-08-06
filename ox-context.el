@@ -352,6 +352,7 @@
                   (:context-texinfo-indices nil nil org-context-texinfo-indices-alist)
                   (:context-text-markup-alist nil nil org-context-text-markup-alist)
                   (:context-toc-command-alist nil nil org-context-toc-command-alist)
+                  (:context-toc-title-command nil nil org-context-toc-title-command)
                   (:context-verse-environment nil nil org-context-verse-environment)
                   (:context-vim-langs-alist nil nil org-context-vim-langs-alist)
                   (:date "DATE" nil "\\currentdate" parse)
@@ -911,6 +912,15 @@ arguments:
   :group 'org-export-context
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
+
+(defcustom org-context-toc-title-command
+  '("\\OrgTitleContents" . "\\define\\OrgTitleContents{{\\tfc Contents}}")
+  "The command that titles the table of contents.
+
+Cons list of NAME, DEF. "
+  :group 'org-export-context
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definitions")))
 
 ;;;; Element Configuration
 
@@ -2620,11 +2630,12 @@ containing contextual information."
                               (and (not (org-export-excluded-from-toc-p hl inf))
                                    (and (wholenump with-toc)
                                         (<= (org-export-get-relative-level hl inf) with-toc))))
-                            info)))
-            ;; TODO search info for `:context-toc-title-command'
+                            info))
+                 (toc-title (car (plist-get info :context-toc-title-command))))
             (if (and with-toc commands)
-                "\\OrgTitleContents
+                (format "%s
 \\placecontent"
+                        toc-title)
               ""))))
     (format-spec
      template
@@ -3807,6 +3818,7 @@ holding the export options."
                (hash-table-keys vim-lang-hash)
                "\n"))))
          (bib-place (plist-get info :context-bib-command))
+         (toc-title-command (plist-get info :context-toc-title-command))
          (toc-commands
           (let ((with-toc (plist-get info :with-toc))
                 (with-section-numbers (plist-get info :section-numbers)))
@@ -3828,7 +3840,9 @@ holding the export options."
 ")
              (when (and (wholenump with-toc)
                         (/= with-toc 0))
-               (format "\\setupcombinedlist[content][list={%s}]\n"
+               (format "%s
+\\setupcombinedlist[content][list={%s}]\n"
+                       (cdr toc-title-command)
                        (mapconcat
                         #'identity
                         (org-context--get-all-headline-commands

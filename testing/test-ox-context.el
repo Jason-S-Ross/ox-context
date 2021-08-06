@@ -6643,5 +6643,57 @@ foo bar baz"
 
 **** Fourth"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/table-of-contents-title-on-cust ()
+  "Show that table of contents appears when it's supposed to and accepts customization."
+  (let* ((org-context-toc-title-command
+          '("\\TestTitleContents" . "\\define\\TestTitleContents{}"))
+         (content (context-test-with-temp-text
+                   "#+OPTIONS: toc:1
+* First"
+                   (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+    (should
+     (string-match-p
+      (regexp-quote "\\TestTitleContents
+\\placecontent" )
+      content))
+    (should
+     (string-match-p
+      (regexp-quote "\\define\\TestTitleContents{}")
+      content))))
+(ert-deftest test-org-context/table-of-contents-title-on-plist ()
+  "Show that table of contents appears when it's supposed to and accepts customization."
+  (let* ((content (context-test-with-temp-text
+                   "#+OPTIONS: toc:1
+* First"
+                   (org-export-as
+                    'context nil nil nil
+                    '(:context-preset "empty"
+                      :context-toc-title-command ("\\TestTitleContents" . "\\define\\TestTitleContents{}"))))))
+    (should
+     (string-match-p
+      (regexp-quote "\\TestTitleContents
+\\placecontent" )
+      content))
+    (should
+     (string-match-p
+      (regexp-quote "\\define\\TestTitleContents{}")
+      content))))
+(ert-deftest test-org-context/table-of-contents-title-off-plist ()
+  "Show that table of contents does not appear when not needed"
+  (let* ((content (context-test-with-temp-text
+                   "#+OPTIONS: toc:nil
+* First"
+                   (org-export-as
+                    'context nil nil nil
+                    '(:context-preset "empty"
+                      :context-toc-title-command ("\\TestTitleContents" . "\\define\\TestTitleContents{}"))))))
+    (should-not
+     (string-match-p
+      (regexp-quote "\\TestTitleContents" )
+      content))
+    (should-not
+     (string-match-p
+      (regexp-quote "\\define\\TestTitleContents{}")
+      content))))
 (provide 'test-ox-context)
 ;;; test-ox-context ends here
