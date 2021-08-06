@@ -4017,6 +4017,8 @@ baz & buz
      (org-trim (org-export-as 'context nil nil t '(:context-preset "empty")))))))
 (ert-deftest test-org-context/link-other ()
   "Test a link to an unsupported type."
+  ;; TODO Resolve this - There seems to have been a deprecation between
+  ;; org versions
   (should
    (equal
     "attachment:projects.org"
