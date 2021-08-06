@@ -6583,6 +6583,65 @@ FRONTMATTER
             '(:context-snippets (("TestSnippet" . "A Test Snippet"))))))))
     (should
      (string-match-p "A Test Snippet" document))))
+;;; Table of Contents
+(ert-deftest test-org-context/table-of-contents-off ()
+  "Turning the table of contents off."
+  (should-not
+   (string-match-p
+    (regexp-quote "\\placecontent")
+    (context-test-with-temp-text
+     "#+OPTIONS: toc:nil
+* First
 
+** Second"
+     (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/table-of-contents-on ()
+  "Turning the table of contents on."
+  (should
+   (string-match-p
+    (regexp-quote "\\placecontent")
+    (context-test-with-temp-text
+     "#+OPTIONS: toc:1
+* First
+
+** Second"
+     (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/table-of-contents-empty ()
+  "Requirethat table of contents does not appear if there are no headlines."
+  (should-not
+   (string-match-p
+    (regexp-quote "\\placecontent")
+    (context-test-with-temp-text
+     "#+OPTIONS: toc:1
+foo bar baz"
+     (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/table-of-contents-levels ()
+  "Test the correct number of levels appear in the table of contents."
+  (should
+   (string-match-p
+    (regexp-quote "\\setupcombinedlist[content][list={section,subsection}]")
+    (context-test-with-temp-text
+     "#+OPTIONS: toc:2
+* First
+
+** Second
+
+*** Third
+
+**** Fourth"
+     (org-export-as 'context nil nil nil '(:context-preset "empty")))))
+  (should
+   (string-match-p
+    (regexp-quote "\\setupcombinedlist[content][list={section}]")
+    (context-test-with-temp-text
+     "#+OPTIONS: toc:1
+* First
+
+** Second
+
+*** Third
+
+**** Fourth"
+     (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
 (provide 'test-ox-context)
 ;;; test-ox-context ends here

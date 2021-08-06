@@ -1105,7 +1105,8 @@ link's path."
                 :value-type (regexp :tag "Path")))
 
 (defcustom org-context-inner-templates-alist
-  '(("empty" . "%f
+  '(("empty" . "%t
+%f
 %c
 %a
 %i
@@ -1114,8 +1115,7 @@ link's path."
     ("article" . "\\startfrontmatter
 \\startOrgTitlePage
 \\OrgMakeTitle
-\\OrgTitleContents
-\\placecontent
+%t
 \\stopOrgTitlePage
 %f
 \\stopfrontmatter
@@ -1137,8 +1137,7 @@ link's path."
 \\startstandardmakeup
 \\startOrgTitlePage
 \\OrgMakeTitle
-\\OrgTitleContents
-\\placecontent
+%t
 \\stopOrgTitlePage
 \\stopstandardmakeup
 %f
@@ -2613,7 +2612,20 @@ containing contextual information."
           (mapconcat
            'identity
            (reverse (plist-get info :context-index-sections))
-           "\n\n")))
+           "\n\n"))
+         (toc-command
+          (let* ((with-toc (plist-get info :with-toc))
+                 (commands (org-context--get-all-headline-commands
+                            (lambda (hl inf)
+                              (and (not (org-export-excluded-from-toc-p hl inf))
+                                   (and (wholenump with-toc)
+                                        (<= (org-export-get-relative-level hl inf) with-toc))))
+                            info)))
+            ;; TODO search info for `:context-toc-title-command'
+            (if (and with-toc commands)
+                "\\OrgTitleContents
+\\placecontent"
+              ""))))
     (format-spec
      template
      (list (cons ?f frontmatter-sections)
@@ -2621,7 +2633,8 @@ containing contextual information."
            (cons ?a appendix-sections)
            (cons ?b backmatter-sections)
            (cons ?o copying-sections)
-           (cons ?i index-sections)))))
+           (cons ?i index-sections)
+           (cons ?t toc-command)))))
 
 ;;;; Italic
 
@@ -3796,11 +3809,7 @@ holding the export options."
          (bib-place (plist-get info :context-bib-command))
          (toc-commands
           (let ((with-toc (plist-get info :with-toc))
-                (with-section-numbers (plist-get info :section-numbers))
-                (headline-levels
-                 (min
-                  (plist-get info :headline-levels)
-                  (org-context--get-max-headline-depth info))))
+                (with-section-numbers (plist-get info :section-numbers)))
             (concat
              (when (and with-toc (not with-section-numbers))
                "% Add internal numbering to unnumbered sections so they can be included in TOC
@@ -3817,15 +3826,15 @@ holding the export options."
           [incrementnumber=yes,
             number=no]
 ")
-             (when (and (wholenump headline-levels)
-                        (/= headline-levels 0))
+             (when (and (wholenump with-toc)
+                        (/= with-toc 0))
                (format "\\setupcombinedlist[content][list={%s}]\n"
                        (mapconcat
                         #'identity
                         (org-context--get-all-headline-commands
                          (lambda (hl inf)
-                           (not (org-export-excluded-from-toc-p
-                                 hl inf)))
+                           (and (not (org-export-excluded-from-toc-p hl inf))
+                              (<= (org-export-get-relative-level hl inf) with-toc)))
                          info)
                         ",")))))))
     (concat
