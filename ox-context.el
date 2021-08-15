@@ -2622,8 +2622,9 @@ containing contextual information."
                  (commands (org-context--get-all-headline-commands
                             (lambda (hl inf)
                               (and (not (org-export-excluded-from-toc-p hl inf))
-                                   (and (wholenump with-toc)
-                                        (<= (org-export-get-relative-level hl inf) with-toc))))
+                                   (if (wholenump with-toc)
+                                        (<= (org-export-get-relative-level hl inf) with-toc)
+                                     t)))
                             info))
                  (toc-title (car (plist-get info :context-toc-title-command))))
             (if (and with-toc commands)
@@ -3832,8 +3833,7 @@ holding the export options."
           [incrementnumber=yes,
             number=no]
 ")
-             (when (and (wholenump with-toc)
-                        (/= with-toc 0))
+             (when with-toc
                (format "%s
 \\setupcombinedlist[content][list={%s}]\n"
                        (cdr toc-title-command)
@@ -3842,7 +3842,9 @@ holding the export options."
                         (org-context--get-all-headline-commands
                          (lambda (hl inf)
                            (and (not (org-export-excluded-from-toc-p hl inf))
-                              (<= (org-export-get-relative-level hl inf) with-toc)))
+                                   (if (wholenump with-toc)
+                                        (<= (org-export-get-relative-level hl inf) with-toc)
+                                     t)))
                          info)
                         ",")))))))
     (concat
