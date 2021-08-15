@@ -1,0 +1,378 @@
+#+CONTEXT_HEADER_EXTRA: \setuplayout[backspace=36pt]
+#+TITLE: Readme
+
+* Document Customization
+
+Each element type in the Org document is associated with a custom ConTeXt
+command whose name and definition is set by a customization variable. When you
+export a document, the command definition associated with each type of org
+element is exported into the ConTeXt document preamble. The element itself is
+formatted by the associated command. This allows documents to be customized by
+either changing the customization variable associated with each element type, or
+by inserting new command definitions into the document preamble after the
+original definitions in order to override them. There are several ways to insert
+command definitions into the preamble:
+
+- ~#+context_header_extra~ :: This keyword inserts literal ConTeXt code directly
+  into the document preamble after the default command definitions.
+
+  Here's how one would use it to set the paper size:
+  #+BEGIN_EXAMPLE
+#+context_header_extra: \setuppapersize[A4]
+  #+END_EXAMPLE
+
+  Here's the procedure we'd use to change description items:
+  1. Find that description items are customized by ~org-context-description-command~
+     which has the associated ConTeXt command name ~OrgDesc~.
+  2. Add the following to our document:
+     #+BEGIN_EXAMPLE
+#+context_header_extra: \setupdescription[OrgDesc][headstyle=bold]
+     #+END_EXAMPLE
+
+  This could also be used to insert an environment file to customize multiple
+  commands:
+
+  #+BEGIN_EXAMPLE
+#+context_header_extra: \environment /home/jason/ctx-envs/my-env
+  #+END_EXAMPLE
+
+- ~#+context_snippet~ :: This keyword allows a named "snippet"
+  to be inserted into the document preamble after the default command definitions.
+  Snippets are stored in the ~org-context-snippets-alist~ customization variable.
+  A new snippet can be added to this list like this:
+
+  #+BEGIN_EXAMPLE
+(add-to-list
+'org-context-snippets-alist
+'("paper-a4" . "\\setuppapersize[A4]")
+t)
+  #+END_EXAMPLE
+
+  Then the snippet can be used in the document as follows:
+
+  #+BEGIN_EXAMPLE
+#+context_snippet: paper-a4
+  #+END_EXAMPLE
+
+  As with ~#+context_header_extra~, snippets can override existing command definitions.
+
+- ~#+context_preset~ :: This keyword allows a new document "Preset" to be
+  defined. A "Preset" is a collection of some literal ConTeXt code to
+  insert into the preamble, a list of snippets, and an "inner template"
+  that specifies overall document structure.
+
+  The following code adds the "paper-a4" snippet that we previously
+  defined to the article template:
+
+  #+BEGIN_EXAMPLE
+(let ((article-preset
+    (cdr (assoc "article" org-context-presets-alist))))
+(plist-put article-preset :snippets
+            (cons "paper-a4" (plist-get article-preset :snippets))))
+  #+END_EXAMPLE
+
+  Alternatively, one could modify the literal code of the article template
+  directly and skip declaring the snippet:
+
+  #+BEGIN_EXAMPLE
+(let ((article-preset
+        (cdr (assoc "article" org-context-presets-alist))))
+(plist-put article-preset :literal
+            (concat (plist-get article-preset :literal)
+                    "\n\\setuppapersize[A4]")))
+  #+END_EXAMPLE
+
+* Features and Configuration
+
+- NOTE :: In this section, any customization variables are prefixed with ~org-context-~
+  if not stated otherwise.
+
+- NOTE :: Additional documentation on customization variables can be viewed with
+  ~customize-group~.
+
+
+** Tables
+
+The entire table gets styled by whatever global ~xtable~ options are set
+in the document preamble by a command like ~\setupxtable[option=value]~.
+Additionally, each part of the table has associated named styles applied to
+it. The styles depend on the position of the part in the table structure.
+Styles are applied in a cascading manner, with table styles getting overridden
+by section styles, which are overridden by row styles, which are finally
+overridden by cell styles.
+
+*** Table Section Element Styling
+- Note :: Customization variables in this section are prefixed with
+  ~org-context-table~.
+Each table section gets a named style as follows:
+
+| Name   | Elisp Customization Variable | Default ConTeXt name | Key  |
+|--------+------------------------------+----------------------+------|
+| Header | ~header-style~               | ~OrgTableHeader~     | ~:h~ |
+| Body   | ~body-style~                 | ~OrgTableBody~       | ~:b~ |
+| Footer | ~footer-style~               | ~OrgTableFooter~     | ~:f~ |
+
+Specific rows get named styles as well:
+
+| Name                    | Elisp Customization Variable | Default ConTeXt Name    | Key    |
+|-------------------------+------------------------------+-------------------------+--------|
+| Top Row[fn:1]           | ~toprow-style~               | ~OrgTableTopRow~        | ~:n~   |
+| Bottom Row[fn:2]        | ~bottomrow-style~            | ~OrgTableBottomRow~     | ~:s~   |
+| Header Top Row[fn:3]    | ~header-top-style~           | ~OrgTableHeaderTop~     | ~:ht~  |
+| Header Bottom Row[fn:3] | ~header-bottom-style~        | ~OrgTableHeaderBottom~  | ~:hb~  |
+| Header Mid Row[fn:3]    | ~header-mid-style~           | ~OrgTableHeaderMid~     | ~:hm~  |
+| Footer Top Row[fn:4]    | ~footer-top-style~           | ~OrgTableFooterTop~     | ~:ft~  |
+| Footer Bottom Row[fn:4] | ~footer-bottom-style~        | ~OrgTableFooterBottom~  | ~:fb~  |
+| Footer Mid Row[fn:4]    | ~header-mid-style~           | ~OrgTableFooterMid~     | ~:fm~  |
+| Row Group Top Row       | ~rowgroup-start-style~       | ~OrgTableRowGroupStart~ | ~:rgs~ |
+| Row Group Bottom Row    | ~rowgroup-end-style~         | ~OrgTableRowGroupEnd~   | ~:rge~ |
+
+
+Likewise, cells in special columns get a named style depending on their position.
+The following special columns are defined:
+
+| Name               | Elisp Customization Variable | Default ConTeXt Name    | Key    |
+|--------------------+------------------------------+-------------------------+--------|
+| Left Column        | ~leftcol-style~              | ~OrgTableLeftCol~       | ~:w~   |
+| Right Column       | ~rightcol-style~             | ~OrgTableRightCol~      | ~:e~   |
+| Column Group Right | ~colgroup-start-style~       | ~OrgTableColGroupStart~ | ~:cgs~ |
+| Column Group Left  | ~colgroup-end-style~         | ~OrgTableColGroupEnd~   | ~:cge~ |
+
+
+Finally, cells at special positions are defined:
+
+| Name         | Elisp Customization Variable | Default ConTeXt Name      | Key   |
+|--------------+------------------------------+---------------------------+-------|
+| Top Left     | ~topleft-style~              | ~OrgTableTopLeftCell~     | ~:nw~ |
+| Top Right    | ~topright-style~             | ~OrgTableTopRightCell~    | ~:ne~ |
+| Bottom Left  | ~bottomleft-style~           | ~OrgTableBottomLeftCell~  | ~:sw~ |
+| Bottom Right | ~bottomright-style~          | ~OrgTableBottomRightCell~ | ~:se~ |
+
+
+Each of these styles can be configured like any other command. Additionally,
+there is a key that can be passed to ~#+attr_context~ to customize the styling
+of each element defined above.
+
+Here's an example table with the start of each row group set to have
+a blue background:
+#+begin_example
+#+attr_context: :rgs background=color,backgroundcolor=blue
+| H1 | H2 | H3 |
+|----+----+----|
+|  1 |  2 |  3 |
+|  4 |  5 |  6 |
+|----+----+----|
+|  7 |  8 |  9 |
+|  4 |  5 |  6 |
+|----+----+----|
+|  7 |  8 |  9 |
+|  4 |  5 |  6 |
+|----+----+----|
+|  7 |  8 |  9 |
+#+end_example
+
+#+attr_context: :rgs background=color,backgroundcolor=blue
+| H1 | H2 | H3 |
+|----+----+----|
+|  1 |  2 |  3 |
+|  4 |  5 |  6 |
+|----+----+----|
+|  7 |  8 |  9 |
+|  4 |  5 |  6 |
+|----+----+----|
+|  7 |  8 |  9 |
+|  4 |  5 |  6 |
+|----+----+----|
+|  7 |  8 |  9 |
+
+*** Additional configuration for tables
+
+The following additional configuration options are available for tables.
+
+
+| Name        | Elisp Customization Variable | Document-level Keyword | Table-level Keyword |
+|-------------+------------------------------+------------------------+---------------------|
+| Location    | ~table-location~             | ~#+table_location~     | ~:location~         |
+| Header      | ~table-header~               | ~#+table_head~         | ~:header~           |
+| Footer      | ~table-footer~               | ~#+table_foot~         | ~:footer~           |
+| Option      | ~table-option~               | ~#+table_option~       | ~:option~           |
+| Table Style | ~table-style~                | ~#+table_style~        | ~:table-style~      |
+| Float Style | ~table-float-style~          | ~#+table_float~        | ~:float-style~      |
+| Split       | ~table-split~                | ~#+table_split~        | ~:split~            |
+
+- Footers :: Org mode doesn't formally support table footers. However, if
+  enabled, footers can be inferred from tables that have 3 or more row groups.
+  The last row group of such tables is considered the footer. Set this value to
+  ~repeat~ to have footers repeat across pages. Any non-nil value will have
+  associated named styles applied to footer rows.
+** Images
+The following configuration options are available for images:
+
+
+| Name      | Elisp Customization Variable | Image-level Keyword |
+|-----------+------------------------------+---------------------|
+| Float     |                              | ~:float~            |
+| Scale     | ~image-default-scale~        | ~:scale~            |
+| Width     | ~image-default-width~        | ~:width~            |
+| Height    | ~image-default-height~       | ~:height~           |
+| Placement | ~image-default-placement~    | ~:placement~        |
+| Options   | ~image-default-options~      | ~:options~          |
+
+** Syntax Highlighting
+
+*** Standard Syntax Highlighting (default)
+
+ConTeXt does not support many languages by default. Vim syntax highlighting
+is recommended.
+
+**** Configuration
+
+Language aliases are defined in the ~highlighted-langs-alist~ customization
+variable. Language aliases are used in order to avoid invalid characters in the
+ConTeXt code and to alias from the Emacs language name to the ConTeXt name.
+
+*** Vim Syntax Highlighting
+
+The ConTeXt Vim highlighting module provides support for a large range
+of languages. Vim syntax highlighting is disabled by default.
+**** Configuration
+
+Language aliases are defined in the ~vim-langs-alist~
+customization variable. Language aliases are used to rename a language
+in order to avoid invalid characters in the ConTeXt code and to alias
+from the Emacs language name to the Vim name.
+
+**** Enabling Vim Syntax Highlighting
+Vim syntax highlighting is enabled globally by setting ~syntax-engine~
+customization variable to ~'vim~. Vim syntax highlighting can set on a
+per-document basis with ~#+options: syntax:vim~.
+
+The snippet ~syntax-pigmints~ is provided to give syntax highlighting that
+may superficially resemble the default setting of a popular syntax highlighting
+package written in python...
+** Custom Indices
+The customization variable ~texinfo-indices-alist~ allows custom index keywords
+to be used in documents. The motivating example for this is the ~texinfo~ exporter
+which supports ~#+CINDEX~, ~#+FINDEX~, ~#+KINDEX~, ~#+PINDEX~, ~#+TINDEX~, and
+~#+VINDEX~ keywords for concepts, functions, keystrokes, programs, datatypes,
+and variables respectively.
+
+An indexing keyword can be placed in the document to define where a term is
+used. The corresponding list of indices can be placed with the ~#+TOC:~ command.
+
+#+BEGIN_EXAMPLE
+#+CINDEX: Defining indexing entries
+Indexing is presented by example.
+
+#+TOC: cp
+#+END_EXAMPLE
+
+New indices may be defined as follows:
+
+#+BEGIN_EXAMPLE
+(add-to-list
+   'org-context-texinfo-indices-alist
+   '("myindex" . (:keyword "MYINDEX" :command "MySpecialIndex"))
+   t)
+#+END_EXAMPLE
+
+They can then be used throughout documents as follows:
+
+#+BEGIN_EXAMPLE
+#+MYINDEX: Defining arbitrary indexing entries
+Indexing is presented by example.
+
+#+TOC: myindex
+#+END_EXAMPLE
+
+Additionally, indices defined this way can be used with headline properties
+just like with the texinfo exporter:
+
+#+BEGIN_EXAMPLE
+,* My Custom Index
+:PROPERTIES:
+:INDEX: myindex
+:END:
+#+END_EXAMPLE
+** Tables of Contents
+In addition to any custom indices, the ~#+TOC~ keyword can be used with the following
+values:
+- ~figures~ :: Adds a list of figures.
+- ~equations~ :: Adds a list of equations.
+- ~references~ :: Adds a bibliography.
+- ~definitions~ :: Places the default index.
+- ~headlines~ :: Places a table of contents. Additional options are supported:
+  - /depth/ :: An integer in the command will limit the toc to this depth.
+  - ~local~ :: If present, limits the scope of the toc to this section.
+- ~listings~ :: Adds a list of code listings.
+- ~verses~ :: Adds a list of verse blocks.
+- ~quotes~ :: Adds a list of quote blocks.
+- ~examples~ :: Adds a list of example blocks.
+
+** In-Text Keywords
+** Document Structure and Section Placement
+The overall sectioning structure of the document is defined by the "inner template".
+This is a format spec string that locates each part of the document. Inner templates
+are listed in ~inner-templates-alist~.
+
+Here's an example inner template:
+#+BEGIN_EXAMPLE
+\startfrontmatter
+\startOrgTitlePage
+\OrgMakeTitle
+%t
+\stopOrgTitlePage
+%f
+\stopfrontmatter
+
+\startbodymatter
+%c
+\stopbodymatter
+
+\startappendices
+%a
+%i
+\stopappendices
+
+\startbackmatter
+%b
+%o
+\stopbackmatter
+#+END_EXAMPLE
+
+The format string keys are as follows:
+
+- ~?f~ :: Sections with the property :FRONTMATTER:
+- ~?c~ :: Normal sections
+- ~?a~ :: Sections with the property :APPENDIX:
+- ~?b~ :: Sections with the property :BACKMATTER:
+- ~?o~ :: Sections with the property :COPYING:
+- ~?i~ :: Sections with the property :INDEX:
+- ~?t~ :: Table of contents
+
+The inner template exists primarily to allow separation to be inserted
+between different parts of a document, but it also allows the different
+parts to be reordered in the exported document if desired.
+
+* Installation
+Clone the repo to the desired location, then add that directory to your load-path:
+
+#+BEGIN_EXAMPLE
+git clone https://github.com/Jason-S-Ross/ox-context
+#+END_EXAMPLE
+
+Then, in your customization file, add
+#+BEGIN_EXAMPLE
+(add-to-list 'load-path "~/path-to-repo/ox-context/")
+#+END_EXAMPLE
+* Examples
+
+See [[https://github.com/Jason-S-Ross/ox-context-examples][the example repo]] for examples.
+
+
+
+* Footnotes
+[fn:4] Only applies if the table has more than one footer row.
+[fn:3] Only applies if the table has more than one header row.
+[fn:2] Only applies if the table doesn't have a footer.
+[fn:1] Only applies if the table doesn't have a header.
