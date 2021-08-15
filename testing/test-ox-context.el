@@ -737,6 +737,26 @@ foo bar baz
            (org-trim
             (org-export-as 'context nil nil t
                            '(:context-preset "empty")))))
+         (footnote-note-regexp
+          (concat
+            (regexp-quote "foo \\note[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]")))
+         (footnote-text-regexp
+          (concat
+           (concat
+            (regexp-quote "\\footnotetext[")
+            "\\(org[0-9a-f]+\\)"
+            (regexp-quote "]")
+            "[[:space:]]*"
+            (regexp-quote "{l1}"))))
+         (footnote-locator-regexp
+          (concat
+           footnote-note-regexp
+           "\\(?:[[:space:]]\\|.\\)*"
+           (regexp-quote "\\stopplacetable")
+           "[[:space:]]*"
+           footnote-text-regexp))
          (matches
           (string-match
            (concat
@@ -748,13 +768,24 @@ foo bar baz
             "\\(org[0-9a-f]+\\)"
             (regexp-quote "]")
             "[[:space:]]*"
-            (regexp-quote "{l1}")
-            )
-           content)))
+            (regexp-quote "{l1}"))
+           content))
+         (tag1
+          (progn
+            (string-match footnote-note-regexp content)
+            (match-string 1 content)))
+         (tag2
+          (progn
+            (string-match footnote-text-regexp content)
+            (match-string 1 content))))
     (should
-     (equal
-      (match-string 1 content)
-      (match-string 2 content)))))
+     (string-match-p footnote-note-regexp content))
+    (should
+     (string-match-p footnote-text-regexp content))
+    (should
+     (string-match-p footnote-locator-regexp content))
+    (should
+     (string-equal tag1 tag2))))
 ;;;; Horizontal Rule
 (ert-deftest test-org-context/hrule ()
   "Test horizontal rules."
