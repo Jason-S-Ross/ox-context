@@ -5042,7 +5042,7 @@ foo bar baz
      (regexp-quote "[TestBody]"))
     (context-test-with-temp-customization-value
      org-context-table-body-style
-     "TestBody"
+     '("TestBody" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-body-style-plist ()
@@ -5058,7 +5058,29 @@ foo bar baz
      (org-trim (org-export-as
                 'context nil nil t
                 '(:context-preset "empty"
-                  :context-table-body-style "TestBody")))))))
+                  :context-table-body-style ("TestBody" . ""))))))))
+(ert-deftest test-org-context/table-body-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestBodyDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim (org-export-as
+                'context nil nil nil
+                '(:context-preset "empty"
+                  :context-table-body-style ("TestBody" . "TestBodyDef"))))))))
+(ert-deftest test-org-context/table-body-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestBody]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim (org-export-as
+                'context nil nil nil
+                '(:context-preset "empty"
+                  :context-table-body-style ("TestBody" . ""))))))))
 (ert-deftest test-org-context/table-bottomleft-style-cust ()
   "Test table body style override"
   (should
@@ -5069,7 +5091,7 @@ foo bar baz
      (regexp-quote "[TestBottomLeft]"))
     (context-test-with-temp-customization-value
      org-context-table-bottomleft-style
-     "TestBottomLeft"
+     '("TestBottomLeft" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-bottomleft-style-plist ()
@@ -5086,7 +5108,31 @@ foo bar baz
        (org-export-as
         'context nil nil t
         '(:context-preset "empty"
-          :context-table-bottomleft-style "TestBottomLeft")))))))
+          :context-table-bottomleft-style ("TestBottomLeft" . ""))))))))
+(ert-deftest test-org-context/table-bottomleft-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestBottomLeftDef"
+    (context-test-with-temp-text
+      test-org-context--basic-table
+      (org-trim
+       (org-export-as
+        'context nil nil nil
+        '(:context-preset "empty"
+          :context-table-bottomleft-style ("TestBottomLeft" . "TestBottomLeftDef"))))))))
+(ert-deftest test-org-context/table-bottomleft-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestBottomLeft]")
+    (context-test-with-temp-text
+      test-org-context--basic-table
+      (org-trim
+       (org-export-as
+        'context nil nil nil
+        '(:context-preset "empty"
+          :context-table-bottomleft-style ("TestBottomLeft" . ""))))))))
 (ert-deftest test-org-context/table-bottomright-style-cust ()
   "Test table body style override"
   (should
@@ -5097,7 +5143,7 @@ foo bar baz
      (regexp-quote "[TestBottomRight]"))
     (context-test-with-temp-customization-value
      org-context-table-bottomright-style
-     "TestBottomRight"
+     '("TestBottomRight" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-bottomright-style-plist ()
@@ -5114,7 +5160,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-bottomright-style "TestBottomRight")))))))
+         :context-table-bottomright-style ("TestBottomRight" . ""))))))))
+(ert-deftest test-org-context/table-bottomright-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestBottomRightDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-bottomright-style ("TestBottomRight" . "TestBottomRightDef"))))))))
+(ert-deftest test-org-context/table-bottomright-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestBottomRight]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-bottomright-style ("TestBottomRight" . ""))))))))
 (ert-deftest test-org-context/table-bottomrow-style-cust ()
   "Test table body style override"
   (should
@@ -5125,7 +5195,7 @@ foo bar baz
      (regexp-quote "[TestBottomRow]"))
     (context-test-with-temp-customization-value
      org-context-table-bottomrow-style
-     "TestBottomRow"
+     '("TestBottomRow" . "")
      (context-test-with-temp-text
       "| abc |
 | 123 |"
@@ -5145,7 +5215,33 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-bottomrow-style "TestBottomRow")))))))
+         :context-table-bottomrow-style ("TestBottomRow" . ""))))))))
+(ert-deftest test-org-context/table-bottomrow-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestBottomRowDef"
+    (context-test-with-temp-text
+     "| abc |
+| 123 |"
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-bottomrow-style ("TestBottomRow" . "TestBottomRowDef"))))))))
+(ert-deftest test-org-context/table-bottomrow-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestBottomRow]")
+    (context-test-with-temp-text
+     "| abc |
+| 123 |"
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-bottomrow-style ("TestBottomRow" . ""))))))))
 (ert-deftest test-org-context/table-colgroup-end-style-cust ()
   "Test table body style override"
   (should
@@ -5156,7 +5252,7 @@ foo bar baz
      (regexp-quote "[TestColgroupEnd]"))
     (context-test-with-temp-customization-value
      org-context-table-colgroup-end-style
-     "TestColgroupEnd"
+     '("TestColgroupEnd" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-colgroup-end-style-plist ()
@@ -5173,7 +5269,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-colgroup-end-style "TestColgroupEnd")))))))
+         :context-table-colgroup-end-style ("TestColgroupEnd" . ""))))))))
+(ert-deftest test-org-context/table-colgroup-end-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestColgroupEndDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-colgroup-end-style ("TestColgroupEnd" . "TestColgroupEndDef"))))))))
+(ert-deftest test-org-context/table-colgroup-end-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestColgroupEnd]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-colgroup-end-style ("TestColgroupEnd" . ""))))))))
 (ert-deftest test-org-context/table-colgroup-start-style-cust ()
   "Test table body style override"
   (should
@@ -5184,7 +5304,7 @@ foo bar baz
      (regexp-quote "[TestColgroupStart]"))
     (context-test-with-temp-customization-value
      org-context-table-colgroup-start-style
-     "TestColgroupStart"
+'("TestColgroupStart" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-colgroup-start-style-plist ()
@@ -5201,7 +5321,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-colgroup-start-style "TestColgroupStart")))))))
+         :context-table-colgroup-start-style ("TestColgroupStart" . ""))))))))
+(ert-deftest test-org-context/table-colgroup-start-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestColgroupStartDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-colgroup-start-style ("TestColgroupStart" . "TestColgroupStartDef"))))))))
+(ert-deftest test-org-context/table-colgroup-start-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestColgroupStart]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-colgroup-start-style ("TestColgroupStart" . ""))))))))
 (ert-deftest test-org-context/table-footer-bottom-style-cust ()
   "Test table body style override"
   (should
@@ -5212,7 +5356,7 @@ foo bar baz
      (regexp-quote "[TestFooterBottomStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-footer-bottom-style
-     "TestFooterBottomStyle"
+     '("TestFooterBottomStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-footer-bottom-style-plist ()
@@ -5229,7 +5373,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-footer-bottom-style "TestFooterBottomStyle")))))))
+         :context-table-footer-bottom-style ("TestFooterBottomStyle" . ""))))))))
+(ert-deftest test-org-context/table-footer-bottom-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestFooterBottomStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-footer-bottom-style ("TestFooterBottomStyle" . "TestFooterBottomStyleDef"))))))))
+(ert-deftest test-org-context/table-footer-bottom-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestFooterBottomStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-footer-bottom-style ("TestFooterBottomStyle" . ""))))))))
 (ert-deftest test-org-context/table-footer-mid-style-cust ()
   "Test table body style override"
   (should
@@ -5240,7 +5408,7 @@ foo bar baz
      (regexp-quote "[TestFooterMidStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-footer-mid-style
-     "TestFooterMidStyle"
+     '("TestFooterMidStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-footer-mid-style-plist ()
@@ -5257,7 +5425,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-footer-mid-style "TestFooterMidStyle")))))))
+         :context-table-footer-mid-style ("TestFooterMidStyle" . ""))))))))
+(ert-deftest test-org-context/table-footer-mid-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestFooterMidStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-footer-mid-style ("TestFooterMidStyle" . "TestFooterMidStyleDef"))))))))
+(ert-deftest test-org-context/table-footer-mid-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestFooterMidStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-footer-mid-style ("TestFooterMidStyle" . ""))))))))
 (ert-deftest test-org-context/table-footer-style-cust ()
   "Test table body style override"
   (should
@@ -5268,7 +5460,7 @@ foo bar baz
      (regexp-quote "[TestFooterStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-footer-style
-     "TestFooterStyle"
+     '("TestFooterStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-footer-style-plist ()
@@ -5285,7 +5477,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-footer-style "TestFooterStyle")))))))
+         :context-table-footer-style ("TestFooterStyle" . ""))))))))
+(ert-deftest test-org-context/table-footer-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestFooterStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-footer-style ("TestFooterStyle" . "TestFooterStyleDef"))))))))
+(ert-deftest test-org-context/table-footer-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestFooterStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-footer-style ("TestFooterStyle" . ""))))))))
 (ert-deftest test-org-context/table-footer-top-style-cust ()
   "Test table body style override"
   (should
@@ -5296,7 +5512,7 @@ foo bar baz
      (regexp-quote "[TestFooterTopStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-footer-top-style
-     "TestFooterTopStyle"
+     '("TestFooterTopStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-footer-top-style-plist ()
@@ -5313,7 +5529,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-footer-top-style "TestFooterTopStyle")))))))
+         :context-table-footer-top-style ("TestFooterTopStyle" . ""))))))))
+(ert-deftest test-org-context/table-footer-top-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestFooterTopStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-footer-top-style ("TestFooterTopStyle" . "TestFooterTopStyleDef"))))))))
+(ert-deftest test-org-context/table-footer-top-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestFooterTopStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-footer-top-style ("TestFooterTopStyle" . ""))))))))
 (ert-deftest test-org-context/table-header-bottom-style-cust ()
   "Test table body style override"
   (should
@@ -5324,7 +5564,7 @@ foo bar baz
      (regexp-quote "[TestHeaderBottomStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-header-bottom-style
-     "TestHeaderBottomStyle"
+     '("TestHeaderBottomStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-header-bottom-style-plist ()
@@ -5341,7 +5581,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-header-bottom-style "TestHeaderBottomStyle")))))))
+         :context-table-header-bottom-style ("TestHeaderBottomStyle" . ""))))))))
+(ert-deftest test-org-context/table-header-bottom-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestHeaderBottomStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-header-bottom-style ("TestHeaderBottomStyle" . "TestHeaderBottomStyleDef"))))))))
+(ert-deftest test-org-context/table-header-bottom-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestHeaderBottomStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-header-bottom-style ("TestHeaderBottomStyle" . ""))))))))
 (ert-deftest test-org-context/table-header-mid-style-cust ()
   "Test table body style override"
   (should
@@ -5352,7 +5616,7 @@ foo bar baz
      (regexp-quote "[TestHeaderMidStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-header-mid-style
-     "TestHeaderMidStyle"
+     '("TestHeaderMidStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-header-mid-style-plist ()
@@ -5369,7 +5633,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-header-mid-style "TestHeaderMidStyle")))))))
+         :context-table-header-mid-style ("TestHeaderMidStyle" . ""))))))))
+(ert-deftest test-org-context/table-header-mid-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestHeaderMidStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-header-mid-style ("TestHeaderMidStyle" . "TestHeaderMidStyleDef"))))))))
+(ert-deftest test-org-context/table-header-mid-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestHeaderMidStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-header-mid-style ("TestHeaderMidStyle" . ""))))))))
 (ert-deftest test-org-context/table-header-style-cust ()
   "Test table body style override"
   (should
@@ -5380,7 +5668,7 @@ foo bar baz
      (regexp-quote "[TestHeaderStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-header-style
-     "TestHeaderStyle"
+     '("TestHeaderStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-header-style-plist ()
@@ -5397,7 +5685,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-header-style "TestHeaderStyle")))))))
+         :context-table-header-style ("TestHeaderStyle" . ""))))))))
+(ert-deftest test-org-context/table-header-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestHeaderStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-header-style ("TestHeaderStyle" . "TestHeaderStyleDef"))))))))
+(ert-deftest test-org-context/table-header-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestHeaderStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-header-style ("TestHeaderStyle" . ""))))))))
 (ert-deftest test-org-context/table-header-top-style-cust ()
   "Test table body style override"
   (should
@@ -5408,7 +5720,7 @@ foo bar baz
      (regexp-quote "[TestHeaderTopStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-header-top-style
-     "TestHeaderTopStyle"
+     '("TestHeaderTopStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-header-top-style-plist ()
@@ -5425,7 +5737,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-header-top-style "TestHeaderTopStyle")))))))
+         :context-table-header-top-style ("TestHeaderTopStyle" . ""))))))))
+(ert-deftest test-org-context/table-header-top-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestHeaderTopStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-header-top-style ("TestHeaderTopStyle" . "TestHeaderTopStyleDef"))))))))
+(ert-deftest test-org-context/table-header-top-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestHeaderTopStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-header-top-style ("TestHeaderTopStyle" . ""))))))))
 (ert-deftest test-org-context/table-leftcolstyle-cust ()
   "Test table body style override"
   (should
@@ -5436,7 +5772,7 @@ foo bar baz
      (regexp-quote "[TestLeftcolStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-leftcol-style
-     "TestLeftcolStyle"
+     '("TestLeftcolStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-leftcolstyle-plist ()
@@ -5453,7 +5789,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-leftcol-style "TestLeftcolStyle")))))))
+         :context-table-leftcol-style ("TestLeftcolStyle" . ""))))))))
+(ert-deftest test-org-context/table-leftcolstyle-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestLeftcolStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-leftcol-style ("TestLeftcolStyle" . "TestLeftcolStyleDef"))))))))
+(ert-deftest test-org-context/table-leftcolstyle-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestLeftcolStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-leftcol-style ("TestLeftcolStyle" . ""))))))))
 (ert-deftest test-org-context/table-rightcol-style-cust ()
   "Test table body style override"
   (should
@@ -5464,7 +5824,7 @@ foo bar baz
      (regexp-quote "[TestRightcolStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-rightcol-style
-     "TestRightcolStyle"
+     '("TestRightcolStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-rightcol-style-plist ()
@@ -5481,7 +5841,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-rightcol-style "TestRightcolStyle")))))))
+         :context-table-rightcol-style ("TestRightcolStyle" . ""))))))))
+(ert-deftest test-org-context/table-rightcol-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestRightcolStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-rightcol-style ("TestRightcolStyle" . "TestRightcolStyleDef"))))))))
+(ert-deftest test-org-context/table-rightcol-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestRightcolStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-rightcol-style ("TestRightcolStyle" . ""))))))))
 (ert-deftest test-org-context/table-rowgroup-start-style-cust ()
   "Test table body style override"
   (should
@@ -5492,7 +5876,7 @@ foo bar baz
      (regexp-quote "[TestRowgroupStartStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-rowgroup-start-style
-     "TestRowgroupStartStyle"
+     '("TestRowgroupStartStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-rowgroup-start-style-plist ()
@@ -5509,7 +5893,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-rowgroup-start-style "TestRowgroupStartStyle")))))))
+         :context-table-rowgroup-start-style ("TestRowgroupStartStyle" . ""))))))))
+(ert-deftest test-org-context/table-rowgroup-start-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestRowgroupStartStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-rowgroup-start-style ("TestRowgroupStartStyle" . "TestRowgroupStartStyleDef"))))))))
+(ert-deftest test-org-context/table-rowgroup-start-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestRowgroupStartStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-rowgroup-start-style ("TestRowgroupStartStyle" . ""))))))))
 (ert-deftest test-org-context/table-rowgroup-end-style-cust ()
   "Test table body style override"
   (should
@@ -5520,7 +5928,7 @@ foo bar baz
      (regexp-quote "[TestRowgroupEndStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-rowgroup-end-style
-     "TestRowgroupEndStyle"
+     '("TestRowgroupEndStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-rowgroup-end-style-plist ()
@@ -5537,7 +5945,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-rowgroup-end-style "TestRowgroupEndStyle")))))))
+         :context-table-rowgroup-end-style ("TestRowgroupEndStyle" . ""))))))))
+(ert-deftest test-org-context/table-rowgroup-end-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestRowgroupEndStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-rowgroup-end-style ("TestRowgroupEndStyle" . "TestRowgroupEndStyleDef"))))))))
+(ert-deftest test-org-context/table-rowgroup-end-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestRowgroupEndStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-rowgroup-end-style ("TestRowgroupEndStyle" . ""))))))))
 (ert-deftest test-org-context/table-topleft-style-cust ()
   "Test table body style override"
   (should
@@ -5548,7 +5980,7 @@ foo bar baz
      (regexp-quote "[TestTopleftStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-topleft-style
-     "TestTopleftStyle"
+     '("TestTopleftStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-topleft-style-plist ()
@@ -5565,7 +5997,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-topleft-style "TestTopleftStyle")))))))
+         :context-table-topleft-style ("TestTopleftStyle" . ""))))))))
+(ert-deftest test-org-context/table-topleft-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestTopleftStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-topleft-style ("TestTopleftStyle" . "TestTopleftStyleDef"))))))))
+(ert-deftest test-org-context/table-topleft-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestTopleftStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-topleft-style ("TestTopleftStyle" . ""))))))))
 (ert-deftest test-org-context/table-topright-style-cust ()
   "Test table body style override"
   (should
@@ -5576,7 +6032,7 @@ foo bar baz
      (regexp-quote "[TestToprightStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-topright-style
-     "TestToprightStyle"
+     '("TestToprightStyle" . "")
      (context-test-with-temp-text test-org-context--basic-table
       (org-trim (org-export-as 'context nil nil t '(:context-preset "empty"))))))))
 (ert-deftest test-org-context/table-topright-style-plist ()
@@ -5593,7 +6049,31 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-topright-style "TestToprightStyle")))))))
+         :context-table-topright-style ("TestToprightStyle" . ""))))))))
+(ert-deftest test-org-context/table-topright-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestToprightStyleDef"
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-topright-style ("TestToprightStyle" . "TestToprightStyleDef"))))))))
+(ert-deftest test-org-context/table-topright-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestToprightStyle]")
+    (context-test-with-temp-text
+     test-org-context--basic-table
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-topright-style ("TestToprightStyle" . ""))))))))
 (ert-deftest test-org-context/table-toprow-style-cust ()
   "Test table body style override"
   (should
@@ -5604,7 +6084,7 @@ foo bar baz
      (regexp-quote "[TestToprowStyle]"))
     (context-test-with-temp-customization-value
      org-context-table-toprow-style
-     "TestToprowStyle"
+     '("TestToprowStyle" . "")
      (context-test-with-temp-text
       "| abc |
 | 123 |"
@@ -5624,7 +6104,33 @@ foo bar baz
       (org-export-as
        'context nil nil t
        '(:context-preset "empty"
-         :context-table-toprow-style "TestToprowStyle")))))))
+         :context-table-toprow-style ("TestToprowStyle" . ""))))))))
+(ert-deftest test-org-context/table-toprow-style-def-nonnil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    "TestToprowStyleDef"
+    (context-test-with-temp-text
+     "| abc |
+| 123 |"
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-toprow-style ("TestToprowStyle" . "TestToprowStyleDef"))))))))
+(ert-deftest test-org-context/table-toprow-style-def-nil ()
+  "Test table body style override"
+  (should
+   (string-match-p
+    (regexp-quote "\\setupxtable[TestToprowStyle]")
+    (context-test-with-temp-text
+     "| abc |
+| 123 |"
+     (org-trim
+      (org-export-as
+       'context nil nil nil
+       '(:context-preset "empty"
+         :context-table-toprow-style ("TestToprowStyle" . ""))))))))
 ;;;; Table approximate layout
 (ert-deftest test-org-context/table-layout ()
   "Test complete table structure."
@@ -5635,27 +6141,27 @@ foo bar baz
            (org-export-as
             'context nil nil t
             '(:context-preset "empty"
-              :context-table-body-style "TestBodyStyle"
-              :context-table-bottomleft-style "TestBottomleftStyle"
-              :context-table-bottomright-style  "TestBottomrightStyle"
-              :context-table-bottomrow-style "TestBottomRowStyle"
-              :context-table-colgroup-end-style  "TestColgroupEndStyle"
-              :context-table-colgroup-start-style "TestColgroupStartStyle"
-              :context-table-footer-bottom-style "TestFooterBottomStyle"
-              :context-table-footer-mid-style "TestFooterMidStyle"
-              :context-table-footer-style "TestFooterStyle"
-              :context-table-footer-top-style "TestFooterTopStyle"
-              :context-table-header-bottom-style "TestHeaderBottomStyle"
-              :context-table-header-mid-style "TestHeaderMidStyle"
-              :context-table-header-style "TestHeaderStyle"
-              :context-table-header-top-style "TestHeaderTopStyle"
-              :context-table-leftcol-style "TestLeftcolStyle"
-              :context-table-rightcol-style "TestRightcolStyle"
-              :context-table-rowgroup-end-style "TestRowgroupEndStyle"
-              :context-table-rowgroup-start-style "TestRowgroupStartStyle"
-              :context-table-topleft-style "TestTopleftStyle"
-              :context-table-topright-style "TestToprightStyle"
-              :context-table-toprow-style "TestToprowStyle"))))))
+              :context-table-body-style ("TestBodyStyle" . "")
+              :context-table-bottomleft-style ("TestBottomleftStyle" . "")
+              :context-table-bottomright-style  ("TestBottomrightStyle" . "")
+              :context-table-bottomrow-style ("TestBottomRowStyle" . "")
+              :context-table-colgroup-end-style  ("TestColgroupEndStyle" . "")
+              :context-table-colgroup-start-style ("TestColgroupStartStyle" . "")
+              :context-table-footer-bottom-style ("TestFooterBottomStyle" . "")
+              :context-table-footer-mid-style ("TestFooterMidStyle" . "")
+              :context-table-footer-style ("TestFooterStyle" . "")
+              :context-table-footer-top-style ("TestFooterTopStyle" . "")
+              :context-table-header-bottom-style ("TestHeaderBottomStyle" . "")
+              :context-table-header-mid-style ("TestHeaderMidStyle" . "")
+              :context-table-header-style ("TestHeaderStyle" . "")
+              :context-table-header-top-style ("TestHeaderTopStyle" . "")
+              :context-table-leftcol-style ("TestLeftcolStyle" . "")
+              :context-table-rightcol-style ("TestRightcolStyle" . "")
+              :context-table-rowgroup-end-style ("TestRowgroupEndStyle" . "")
+              :context-table-rowgroup-start-style ("TestRowgroupStartStyle" . "")
+              :context-table-topleft-style ("TestTopleftStyle" . "")
+              :context-table-topright-style ("TestToprightStyle" . "")
+              :context-table-toprow-style ("TestToprowStyle" . "")))))))
     (should
      (string-match-p
       (concat
