@@ -6608,6 +6608,17 @@ FRONTMATTER
 
 ** Second"
      (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
+(ert-deftest test-org-context/table-of-contents-t ()
+  "Turning the table of contents on with t."
+  (should
+   (string-match-p
+    (regexp-quote "\\placecontent")
+    (context-test-with-temp-text
+     "#+OPTIONS: toc:t
+* First
+
+** Second"
+     (org-export-as 'context nil nil nil '(:context-preset "empty"))))))
 (ert-deftest test-org-context/table-of-contents-empty ()
   "Requirethat table of contents does not appear if there are no headlines."
   (should-not
