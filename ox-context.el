@@ -591,7 +591,8 @@ Cons list of NAME, DEF. If nil, verses aren't delimited."
 (defcustom org-context-enumerate-blockquote-empty-environment
   '("OrgBlockQuoteEnumEmpty" . "\\defineenumeration
   [OrgBlockQuoteEnumEmpty]
-  [alternative=empty]")
+  [alternative=empty
+   margin=0pt]")
   "The enumeration of the unlabelled blockquote environment.
 
 Cons list of NAME, DEF. By default, shares a counter with
@@ -620,7 +621,8 @@ block quotes are not wrapped in an enumeration"
 (defcustom org-context-enumerate-example-empty-environment
   '("OrgExampleEnumEmpty" . "\\defineenumeration
   [OrgExampleEnumEmpty]
-  [alternative=empty]")
+  [alternative=empty,
+   margin=0pt]")
   "The enumeration of the unlabelled example environment.
 
 Cons list of NAME, DEF. By default, shares a counter with
@@ -650,7 +652,8 @@ examples are not wrapped in an enumeration"
 (defcustom org-context-enumerate-listing-empty-environment
   '("OrgListingEnumEmpty" . "\\defineenumeration
   [OrgListingEnumEmpty]
-  [alternative=empty]")
+  [alternative=empty,
+   margin=0pt]")
   "The enumeration for unlabelled listings.
 
 Cons list of NAME, DEF. By default, shares a counter with
@@ -680,7 +683,8 @@ listings are not enumerated."
 (defcustom org-context-enumerate-verse-empty-environment
   '("OrgVerseEnumEmpty" . "\\defineenumeration
   [OrgVerseEnumEmpty]
-  [alternative=empty]")
+  [alternative=empty,
+   margin=0pt]")
   "The environment name that wraps verses to list them.
 
 Cons list of NAME, DEF. If nil, verses aren't enumerated."
