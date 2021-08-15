@@ -2272,7 +2272,8 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
          (contents (org-trim (org-export-data footnote-definition info)))
          (insidep (org-element-lineage footnote-reference
                                        '(footnote-reference
-                                         footnote-definition))))
+                                         footnote-definition
+                                         table-cell))))
     (concat
      (format "\\note[%s]" reference-label)
      (when (not insidep)
@@ -3747,7 +3748,8 @@ This function assumes TABLE has `org' as its `:type' property and
                    "\n")
         "\n\\stopxrow"))
      "\\stopxtable
-\\stopplacetable\n")))
+\\stopplacetable\n"
+     (org-context--delayed-footnotes-definitions table info))))
 
 ;;;; Target
 
