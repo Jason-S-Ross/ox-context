@@ -3774,7 +3774,11 @@ This function assumes TABLE has `org' as its `:type' property and
                     (org-export-data (plist-get info :context-table-style) info)))
          (float-style (or (plist-get attr :float-style)
                           (org-export-data (plist-get info :context-table-float-style) info)))
-         (split (or (plist-get attr :split)
+         (split (or (let ((split (plist-get attr :split)))
+                      (and (org-string-nw-p split)
+                           (if (string= split "t")
+                               "yes"
+                             split)))
                     (org-export-data (plist-get info :context-table-split) info)))
          (location-string (concat (when (string= split "yes") "split,") location))
          (float-args (org-context--format-arguments
