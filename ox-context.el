@@ -387,111 +387,173 @@
 
 ;;;;; Table Styles
 
+(defcustom org-context-table-body-style '("OrgTableBody" . "")
+  "The default style name for the body row group in tables.
 
-(defcustom org-context-table-body-style "OrgTableBody"
-  "The default style name for the body row group in tables."
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
   :group 'org-export-context
-  :type 'string)
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
 
-(defcustom org-context-table-bottomleft-style "OrgTableBottomLeftCell"
-  "The default style name for the bottom left cell in tables."
-  :group 'org-export-context
-  :type 'string)
+(defcustom org-context-table-bottomleft-style '("OrgTableBottomLeftCell" . "")
+  "The default style name for the bottom left cell in tables.
 
-(defcustom org-context-table-bottomright-style "OrgTableBottomRightCell"
-  "The default style name for the bottom right cell in tables."
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
   :group 'org-export-context
-  :type 'string)
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
 
-(defcustom org-context-table-bottomrow-style "OrgTableBottomRow"
-  "The default style name for the bottom row in tables."
-  :group 'org-export-context
-  :type 'string)
+(defcustom org-context-table-bottomright-style '("OrgTableBottomRightCell" . "")
+  "The default style name for the bottom right cell in tables.
 
-(defcustom org-context-table-colgroup-end-style "OrgTableColGroupEnd"
-  "The default style name for columns ending column groups in tables."
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
   :group 'org-export-context
-  :type 'string)
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
 
-(defcustom org-context-table-colgroup-start-style "OrgTableColGroupStart"
-  "The default style name for columns starting column groups in tables."
-  :group 'org-export-context
-  :type 'string)
+(defcustom org-context-table-bottomrow-style '("OrgTableBottomRow" . "")
+  "The default style name for the bottom row in tables.
 
-(defcustom org-context-table-footer-bottom-style "OrgTableFooterBottom"
-  "The default style name for the bottom row in the footer row group in tables."
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
   :group 'org-export-context
-  :type 'string)
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
 
-(defcustom org-context-table-footer-mid-style "OrgTableFooterMid"
-  "The default style name for footer rows where the footer is only one row."
-  :group 'org-export-context
-  :type 'string)
+(defcustom org-context-table-colgroup-end-style '("OrgTableColGroupEnd" . "")
+  "The default style name for columns ending column groups in tables.
 
-(defcustom org-context-table-footer-style "OrgTableFooter"
-  "The default style name for the footer row group in tables."
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
   :group 'org-export-context
-  :type 'string)
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
 
-(defcustom org-context-table-footer-top-style "OrgTableFooterTop"
-  "The default style name for the top row in the footer row group in tables."
-  :group 'org-export-context
-  :type 'string)
+(defcustom org-context-table-colgroup-start-style '("OrgTableColGroupStart" . "")
+  "The default style name for columns starting column groups in tables.
 
-(defcustom org-context-table-header-bottom-style "OrgTableHeaderBottom"
-  "The default style name for the bottom row in the header row group in tables."
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
   :group 'org-export-context
-  :type 'string)
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
 
-(defcustom org-context-table-header-mid-style "OrgTableHeaderMid"
-  "The default style name for header rows where the header is only one row."
-  :group 'org-export-context
-  :type 'string)
+(defcustom org-context-table-footer-bottom-style '("OrgTableFooterBottom" . "")
+  "The default style name for the bottom row in the footer row group in tables.
 
-(defcustom org-context-table-header-style "OrgTableHeader"
-  "The default style name for the header row group in tables."
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
   :group 'org-export-context
-  :type 'string)
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
 
-(defcustom org-context-table-header-top-style "OrgTableHeaderTop"
-  "The default style name for the top row in the header row group in tables."
-  :group 'org-export-context
-  :type 'string)
+(defcustom org-context-table-footer-mid-style '("OrgTableFooterMid" . "")
+  "The default style name for footer rows where the footer is only one row.
 
-(defcustom org-context-table-leftcol-style "OrgTableLeftCol"
-  "The default style name for the left column in tables."
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
   :group 'org-export-context
-  :type 'string)
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
 
-(defcustom org-context-table-rightcol-style "OrgTableRightCol"
-  "The default style name for the right column in tables."
-  :group 'org-export-context
-  :type 'string)
+(defcustom org-context-table-footer-style '("OrgTableFooter" . "")
+  "The default style name for the footer row group in tables.
 
-(defcustom org-context-table-rowgroup-start-style "OrgTableRowGroupStart"
-  "The default style name for rows starting row groups in tables."
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
   :group 'org-export-context
-  :type 'string)
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
 
-(defcustom org-context-table-rowgroup-end-style "OrgTableRowGroupEnd"
-  "The default style name for rows ending row groups in tables."
-  :group 'org-export-context
-  :type 'string)
+(defcustom org-context-table-footer-top-style '("OrgTableFooterTop" . "")
+  "The default style name for the top row in the footer row group in tables.
 
-(defcustom org-context-table-topleft-style "OrgTableTopLeftCell"
-  "The default style name for the top left cell in tables."
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
   :group 'org-export-context
-  :type 'string)
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
 
-(defcustom org-context-table-topright-style "OrgTableTopRightCell"
-  "The default style name for the top right cell in tables."
-  :group 'org-export-context
-  :type 'string)
+(defcustom org-context-table-header-bottom-style '("OrgTableHeaderBottom" . "")
+  "The default style name for the bottom row in the header row group in tables.
 
-(defcustom org-context-table-toprow-style "OrgTableTopRow"
-  "The default style name for the top row in tables."
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
   :group 'org-export-context
-  :type 'string)
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
+
+(defcustom org-context-table-header-mid-style '("OrgTableHeaderMid" . "")
+  "The default style name for header rows where the header is only one row.
+
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
+  :group 'org-export-context
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
+
+(defcustom org-context-table-header-style '("OrgTableHeader" . "")
+  "The default style name for the header row group in tables.
+
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
+  :group 'org-export-context
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
+
+(defcustom org-context-table-header-top-style '("OrgTableHeaderTop" . "")
+  "The default style name for the top row in the header row group in tables.
+
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
+  :group 'org-export-context
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
+
+(defcustom org-context-table-leftcol-style '("OrgTableLeftCol" . "")
+  "The default style name for the left column in tables.
+
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
+  :group 'org-export-context
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
+
+(defcustom org-context-table-rightcol-style '("OrgTableRightCol" . "")
+  "The default style name for the right column in tables.
+
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
+  :group 'org-export-context
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
+
+(defcustom org-context-table-rowgroup-start-style '("OrgTableRowGroupStart" . "")
+  "The default style name for rows starting row groups in tables.
+
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
+  :group 'org-export-context
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
+
+(defcustom org-context-table-rowgroup-end-style '("OrgTableRowGroupEnd" . "")
+  "The default style name for rows ending row groups in tables.
+
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
+  :group 'org-export-context
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
+
+(defcustom org-context-table-topleft-style '("OrgTableTopLeftCell" . "")
+  "The default style name for the top left cell in tables.
+
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
+  :group 'org-export-context
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
+
+(defcustom org-context-table-topright-style '("OrgTableTopRightCell" . "")
+  "The default style name for the top right cell in tables.
+
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
+  :group 'org-export-context
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
+
+(defcustom org-context-table-toprow-style '("OrgTableTopRow" . "")
+  "The default style name for the top row in tables.
+
+Cons list of NAME, DEF. If DEF is nil, an empty definition is created."
+  :group 'org-export-context
+  :type '(cons (string :tag "Style Name")
+               (string :tag "Style Definition")))
 
 
 
@@ -3478,28 +3540,28 @@ a communication channel."
          (ends-colgroup-p (org-export-table-cell-ends-colgroup-p table-cell info))
          (first-col-style (or (plist-get attr :w)
                              (org-string-nw-p
-                              (plist-get info :context-table-leftcol-style))))
+                              (car (plist-get info :context-table-leftcol-style)))))
          (last-col-style (or (plist-get attr :e)
                             (org-string-nw-p
-                             (plist-get info :context-table-rightcol-style))))
+                             (car (plist-get info :context-table-rightcol-style)))))
          (top-left-style (or (plist-get attr :nw)
                             (org-string-nw-p
-                             (plist-get info :context-table-topleft-style))))
+                             (car (plist-get info :context-table-topleft-style)))))
          (top-right-style (or (plist-get attr :ne)
                              (org-string-nw-p
-                              (plist-get info :context-table-topright-style))))
+                              (car (plist-get info :context-table-topright-style)))))
          (bottom-left-style (or (plist-get attr :sw)
                                (org-string-nw-p
-                                (plist-get info :context-table-bottomleft-style))))
+                                (car (plist-get info :context-table-bottomleft-style)))))
          (bottom-right-style (or (plist-get attr :se)
                                 (org-string-nw-p
-                                 (plist-get info :context-table-bottomright-style))))
+                                 (car (plist-get info :context-table-bottomright-style)))))
          (starts-colgroup-style (or (plist-get attr :cgs)
                                     (org-string-nw-p
-                                     (plist-get info :context-table-colgroup-start-style))))
+                                     (car (plist-get info :context-table-colgroup-start-style)))))
          (ends-colgroup-style (or (plist-get attr :cge)
                                     (org-string-nw-p
-                                     (plist-get info :context-table-colgroup-end-style))))
+                                     (car (plist-get info :context-table-colgroup-end-style)))))
          (suffix
           (cond ((and first-row-p first-col-p top-left-style) (format "[%s]" top-left-style))
                 ((and first-row-p last-col-p top-right-style) (format "[%s]" top-right-style))
@@ -3562,50 +3624,56 @@ a communication channel."
             last-row-group-p))
          (header-style (or (plist-get attr :h)
                            (org-string-nw-p
-                            (plist-get info :context-table-header-style))))
+                            (car (plist-get info :context-table-header-style)))))
          (footer-style (or (plist-get attr :f)
                            (org-string-nw-p
-                            (plist-get info :context-table-footer-style))))
+                            (car (plist-get info :context-table-footer-style)))))
          (body-style (or (plist-get attr :b)
                            (org-string-nw-p
-                            (plist-get info :context-table-body-style))))
+                            (car (plist-get info :context-table-body-style)))))
          (header-mid-row-style
           (or (plist-get attr :hm)
-              (org-string-nw-p (plist-get info :context-table-header-mid-style))))
+              (org-string-nw-p
+               (car (plist-get info :context-table-header-mid-style)))))
          (footer-mid-row-style
           (or (plist-get attr :fm)
-              (org-string-nw-p (plist-get info :context-table-footer-mid-style))))
+              (org-string-nw-p
+               (car (plist-get info :context-table-footer-mid-style)))))
          (header-top-row-style
           (or (plist-get attr :ht)
-              (org-string-nw-p (plist-get info :context-table-header-top-style))))
+              (org-string-nw-p
+               (car (plist-get info :context-table-header-top-style)))))
          (footer-top-row-style
           (or (plist-get attr :ft)
-              (org-string-nw-p (plist-get info :context-table-footer-top-style))))
+              (org-string-nw-p
+               (car (plist-get info :context-table-footer-top-style)))))
          (header-bottom-row-style
           (or (plist-get attr :hb)
-              (org-string-nw-p (plist-get info :context-table-header-bottom-style))))
+              (org-string-nw-p
+               (car (plist-get info :context-table-header-bottom-style)))))
          (footer-bottom-row-style
           (or (plist-get attr :hb)
-              (org-string-nw-p (plist-get info :context-table-footer-bottom-style))))
+              (org-string-nw-p
+               (car (plist-get info :context-table-footer-bottom-style)))))
          (row-group-start-style
           (or (plist-get attr :rgs)
               (org-string-nw-p
-               (plist-get info :context-table-rowgroup-start-style))))
+               (car (plist-get info :context-table-rowgroup-start-style)))))
          (row-group-end-style
           (or (plist-get attr :rge)
               (org-string-nw-p
-               (plist-get info :context-table-rowgroup-end-style))))
+               (car (plist-get info :context-table-rowgroup-end-style)))))
          (first-row-style
           (or
            (or (plist-get attr :n)
                (org-string-nw-p
-                (plist-get info :context-table-toprow-style)))
+                (car (plist-get info :context-table-toprow-style))))
            row-group-start-style))
          (last-row-style
           (or
            (or (plist-get attr :s)
                (org-string-nw-p
-                (plist-get info :context-table-bottomrow-style)))
+                (car (plist-get info :context-table-bottomrow-style))))
            row-group-end-style))
          (first-row-p (= row-num 0))
          (last-row-p (= row-num (- (car dimensions) 1)))
@@ -4012,8 +4080,12 @@ Returns a string containing those definitions."
              (mapcar
               (lambda
                 (kw)
-                (let ((style (plist-get info kw)))
-                  (when (org-string-nw-p style) (format "\\setupxtable[%s][]" style))))
+                (let* ((styledef (plist-get info kw))
+                       (def (cdr styledef))
+                       (style (car styledef)))
+                  (if (org-string-nw-p def)
+                      def
+                    (format "\\setupxtable[%s][]" style))))
               (list :context-table-toprow-style
                     :context-table-bottomrow-style
                     :context-table-leftcol-style
