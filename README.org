@@ -1,6 +1,10 @@
 #+CONTEXT_HEADER_EXTRA: \setuplayout[backspace=36pt]
 #+TITLE: Readme
 
+* About
+
+This is a [[https://wiki.contextgarden.net/Main_Page][ConTeXt]] exporter for [[https://orgmode.org/][Org Mode]].
+
 * Document Customization
 
 Each element type in the Org document is associated with a custom ConTeXt
