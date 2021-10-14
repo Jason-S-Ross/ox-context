@@ -1,11 +1,11 @@
-;;; ox-context --- Org exporter for ConTeXt -*- lexical-binding: t; -*-
+;;; ox-context.el --- Org exporter for ConTeXt -*- lexical-binding: t; -*-
 
 ;; Copyright (C) 2021 Jason Ross
 ;; Author: Jason Ross <jasonross1024 at gmail dot com>
 ;; Keywords: org, ConTeXt
 ;; Version: 0.1
 ;; URL: https://github.com/Jason-S-Ross/ox-context
-;; Package-Requires: ((emacs "26") (org "9"))
+;; Package-Requires: ((emacs "27.1") (org "9"))
 
 ;; This is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -653,7 +653,7 @@ Cons list of NAME, DEF. If nil, verses aren't delimited."
 (defcustom org-context-enumerate-blockquote-empty-environment
   '("OrgBlockQuoteEnumEmpty" . "\\defineenumeration
   [OrgBlockQuoteEnumEmpty]
-  [alternative=empty
+  [alternative=empty,
    margin=0pt]")
   "The enumeration of the unlabelled blockquote environment.
 
@@ -847,7 +847,15 @@ Should define a description environment."
                (string :tag "Command Definition")))
 
 (defcustom org-context-drawer-command
-  '("OrgDrawer" . "\\define[2]\\OrgDrawer{#2}")
+  '("OrgDrawer" . "\\def\\startOrgDrawer{\\dosingleempty\\dostartOrgDrawer}
+\\long\\def\\dostartOrgDrawer[#1]#2\\stopOrgDrawer{%
+\\getparameters
+  [OrgDrawer]
+  [Type=,
+  #1]
+#2
+}
+\\let\\stopOrgDrawer\\relax%")
   "The name of the command that formats drawers.
 
 Cons list of NAME, DEF. If nil, the command isn't created.
@@ -1191,7 +1199,10 @@ link's path."
     ("article" . "\\startfrontmatter
 \\startOrgTitlePage
 \\OrgMakeTitle
+\\start
+\\setupinterlinespace[line=1.5ex]
 %t
+\\stop
 \\stopOrgTitlePage
 %f
 \\stopfrontmatter
@@ -1213,7 +1224,10 @@ link's path."
 \\startstandardmakeup
 \\startOrgTitlePage
 \\OrgMakeTitle
+\\start
+\\setupinterlinespace[line=1.5ex]
 %t
+\\stop
 \\stopOrgTitlePage
 \\stopstandardmakeup
 %f
@@ -1241,7 +1255,8 @@ String keys are as follows:
 ?a: Sections with the property :APPENDIX:
 ?b: Sections with the property :BACKMATTER:
 ?o: Sections with the property :COPYING:
-?i: Sections with the property :INDEX:"
+?i: Sections with the property :INDEX:
+?t: Table of contents command"
   :group 'org-export-context
   :type '(alist
           :key-type (string :tag "Template Name")
@@ -1303,7 +1318,8 @@ file name as its single argument."
        "title-article"
        "sectioning-article"
        "page-numbering-article"
-       "setup-grid")))
+       "setup-grid"
+       "toc-article")))
     ("report" .
      (:literal "\\setupwhitespace[big]"
       :template "report"
@@ -1315,7 +1331,8 @@ file name as its single argument."
        "title-report"
        "headlines-report"
        "page-numbering-article"
-       "setup-grid"))))
+       "setup-grid"
+       "toc-article"))))
   "Alist of ConTeXt preamble presets.
 
 Presets are used to specify document structure, as well as
@@ -1372,7 +1389,7 @@ logfiles to remove, set `org-context-logfiles-extensions'."
     [color={x=BC7A00}]
   \\definesyntaxgroup
     [Statement]
-    [style=bold,color={x=AA22FF}]
+    [style=bold,color={x=008800}]
   % Don't Know
   \\definesyntaxgroup
     [Special]
@@ -1400,16 +1417,16 @@ logfiles to remove, set `org-context-logfiles-extensions'."
     [color={h=666666}, style=bold]
   \\definesyntaxgroup
     [Keyword]
-    [color={h=008000}, style=bold]
+    [color={h=008800}, style=bold]
   \\definesyntaxgroup
     [Conditional]
-    [Keyword]
+    [color={h=008800}, style=bold]
   \\definesyntaxgroup
     [Repeat]
-    [Keyword]
+    [color={h=880088}, style=bold]
   \\definesyntaxgroup
     [Include]
-    [Keyword]
+    [color={h=008800}, style=bold]
   \\definesyntaxgroup
     [Label]
     [color={h=B00040}, style=bold]
@@ -2245,10 +2262,14 @@ NAME is the name of the drawer. CONTENTS is the contents of the drawer.
 INFO is a plist containing contextual information."
   (let ((formatter
          (org-string-nw-p
-          (car (plist-get info :context-drawer-command)))))
+          (car (plist-get info :context-drawer-command))))
+        (options (org-context--format-arguments
+                  (list (cons "Type" name)))))
     (if formatter
-        (format "\\%s{%s}{%s}" formatter name contents)
-      (format "%s\\hairline %s" name contents))))
+        (format "\\start%s[%s]
+%s
+\\stop%s" formatter options contents formatter)
+      contents)))
 
 ;;;; Dynamic Block
 
@@ -2296,12 +2317,13 @@ CONTENTS is nil. INFO is a plist holding contextual information."
 
 ;;;; Export Block
 
+;; TODO Support LaTeX optionally (issue #20)
 (defun org-context-export-block (export-block _contents _info)
   "Transcode a EXPORT-BLOCK element from Org to ConTeXt.
 CONTENTS is nil. INFO is a plist holding contextual information."
   (let ((type (org-element-property :type export-block))
         (value (org-element-property :value export-block)))
-    (cond ((member type '("CONTEXT" "TEX"))
+    (cond ((member type '("CONTEXT" "TEX" "LATEX"))
            (org-remove-indentation value))
           ((member type '("METAPOST"))
            (format "\\startMPcode\n%s\\stopMPcode"
@@ -2838,6 +2860,140 @@ return nil instead."
 
 ;;;; Latex Enviroment
 
+(defconst org-context--convert-latex-environments-alist
+  '(("matrix" :latex-name "matrix" :context-name "matrix" :align t)
+    ("align" :latex-name "align" :context-name "mathalignment" :align t)
+    ("align*" :latex-name "align*" :context-name "mathalginment" :align t)
+    ("equation" :latex-name "equation" :context-name "formula" :align nil)
+    ("equation*" :latex-name "equation*" :context-name "formula" :align nil))
+  "Parameters for how different math environments are converted.")
+
+(defconst org-context--convert-latex-token-regexp
+  (rx-to-string
+   `(seq
+     "\\"
+     (group (or "begin" "end"))
+     "{"
+     (optional whitespace)
+     (group
+      (or ,@(mapcar
+             (lambda (foo) (plist-get (cdr foo) :latex-name))
+             org-context--convert-latex-environments-alist)))
+     (optional whitespace)
+     "}")))
+
+(defun org-context--convert-parsed-align-environment
+    (parsed-contents environment-name arg-proc)
+  "Convert a parsed math environment to a string.
+PARSED-CONTENTS is a list of either strings or cons cells of (type . contents) pairs.
+ENVIRONMENT-NAME is the name of the ConTeXt environment.
+ARG-PROC is a callable that inserts arguments into the ConTeXt text
+that is called on a nested list of rows, columns, and subparts."
+  (let* ((rows)
+         (columns)
+         (this-column)
+         (string-contents
+          (progn
+            (dolist (token parsed-contents)
+              (if (stringp token)
+                  (let ((s 0))
+                    (while (string-match (rx (or "&" "\\\\")) token s)
+                      (setq
+                       this-column (cons (substring token s (match-beginning 0))
+                                         this-column)
+                       columns (cons this-column columns)
+                       this-column nil
+                       s (match-end 0))
+                      (when (string= (match-string 0 token) "\\\\")
+                        (setq rows (cons columns rows)
+                              columns nil)))
+                    (setq this-column
+                          (cons (substring token s) this-column)))
+                (setq this-column (cons (cdr token) this-column))))
+            (setq columns (cons this-column columns)
+                  rows (cons columns rows))
+            (mapconcat
+             (lambda (row)
+               (format "\\NC %s \\NR"
+                       (mapconcat
+                        (lambda (column)
+                          (mapconcat 'org-trim (reverse column) " "))
+                        (reverse row)
+                        " \\NC ")))
+             (reverse rows)
+             "\n")))
+         (extra-args (or (and arg-proc (funcall arg-proc rows)) "")))
+    (format
+     "\\start%s%s
+%s
+\\stop%s
+"
+     environment-name
+     extra-args
+     string-contents
+     environment-name)))
+
+(defun org-context--convert-nested-latex-environment (text start typ)
+  "Recursively processes LaTeX into ConTeXt.
+TEXT is the LaTeX text to process.
+START is the position of the cursor.
+TYP is the current environment type (may be nil)"
+ (let ((s start)
+        (result)
+        (quit)
+        (case-fold-search nil)
+        (options-plist
+         (cdr
+          (assoc typ org-context--convert-latex-environments-alist))))
+    (while (and
+            (not quit)
+            (string-match org-context--convert-latex-token-regexp text s))
+      (setq s (match-end 0))
+      (let* ((openerp (string= (match-string 1 text) "begin"))
+             (subtype (match-string 2 text)))
+        (if openerp
+            (progn
+              (let ((previous-beginning (match-beginning 0))
+                    (sub (org-context--convert-nested-latex-environment text s subtype)))
+                (setq result
+                      (cons (substring text start previous-beginning) result)
+                      result
+                      (cons sub result)))
+              (setq start (match-end 0)
+                    s (match-end 0)))
+          (progn
+            (setq result
+                  (cons (substring text start (match-beginning 0)) result)
+                  quit t)))))
+    (when (not quit)
+      (setq result (cons (substring text (match-end 0)) result)))
+    (setq result (delq "" (reverse result)))
+    (setq
+     result
+     (save-match-data
+       (let ((extra-func (plist-get options-plist :extra-func))
+             (to-name (plist-get options-plist :context-name)))
+         (if (plist-get options-plist :align)
+             (org-context--convert-parsed-align-environment result to-name extra-func)
+           (let ((raw-result
+                  (mapconcat
+                   (lambda (k)
+                     (if (stringp k)
+                         k
+                       (cdr k)))
+                   result
+                   "")))
+             (if to-name
+                 (format
+                  "\\start%s
+%s
+\\stop%s"
+                  to-name
+                  raw-result
+                  to-name)
+               raw-result))))))
+    (cons typ result)))
+
 (defun org-context-latex-environment (latex-environment _contents info)
   "Transcode a LATEX-ENVIRONMENT element from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
@@ -2856,17 +3012,19 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
            (args (org-context--format-arguments
                   (list
                    (cons "reference" label)))))
+      ;; TODO Consider using ConTeXt hacks instead of
+      ;; string replacement here.
       (pcase type
         ('math
          (concat
           (when numberedp
             (format "\\startplaceformula\n  [%s]\n" args))
-          "\\startformula\n"
-          (pcase environment-name
-            ((or "align" "align*")
-             (org-context--transcode-align environment-contents))
-            (_ environment-contents))
-          "\\stopformula"
+          (cdr (org-context--convert-nested-latex-environment value 0 nil))
+          ;; (pcase environment-name
+          ;;   ((or "align" "align*")
+          ;;    (org-context--transcode-align environment-contents))
+          ;;   ("equation" environment-contents)
+          ;;   (_ environment-contents))
           (when numberedp "\\stopplaceformula")))
         (_ value)))))
 
@@ -2895,9 +3053,11 @@ The TYPE is determined from the actual latex environment."
       'src-block)
      (t 'special-block))))
 
+
+
 (defun org-context--latex-environment-contents (latex-environment)
   "Return the contents of LATEX-ENVIRONMENT."
-  (let* ((latex-env-re "\\\\begin{\\([A-Za-z0-9*]+\\)}\\(\\(?:.*\n\\)*\\)\\\\end{\\1}")
+  (let* ((latex-env-re "\\\\begin{\\([A-Za-z0-9*]+\\)}\\(\\(?:.*\n*\\)*\\)\\\\end{\\1}")
          (value (org-remove-indentation
                  (org-element-property :value latex-environment)))
          (env-contents (progn (string-match latex-env-re value)
@@ -2916,13 +3076,38 @@ The TYPE is determined from the actual latex environment."
                   "")))
     env))
 
+(defun org-context--transcode-math-pandoc (latex-environment)
+  "Transcode a latex environment using Pandoc"
+  ;; TODO allow different converters
+  (let ((input-file (make-temp-file "ox-context-math-in" nil ".tex"))
+        (template "\\documentclass{article}
+\\usepackage{amsmath}
+\\begin{document}
+%s
+\\end{document}")
+        (command "pandoc -f latex -t html --mathml %s | xmlstarlet ed -d \"//*[local-name()='annotation']\" | xmlstarlet sel -t -c \"/p/*\" | xmlstarlet ed -m \"//*[local-name()='semantics']/*\" \"//*[local-name()='math']\" | xmlstarlet ed -d \"//*[local-name()='semantics']\""))
+    (with-temp-file input-file
+     (insert (format template (org-element-property :value latex-environment))))
+    (let ((converted
+           (shell-command-to-string
+            (format command input-file))))
+      (format "\\xmlprocessdata{}{
+%s
+}{}" converted))))
+
 (defun org-context--transcode-align (align-environment)
   "Transcode an ALIGN-ENVIRONMENT from org to ConTeXt."
-  (let ((len (length (split-string align-environment "\\\\\\\\"))))
-    (if (= len 1)
+  ;; TODO This needs to actually parse the environment
+  ;; as best as it can in order to ignore line breaks inside
+  ;; nested characters.
+  (let* ((rows (split-string align-environment "\\\\\\\\"))
+         (ncols (length (split-string (nth 0 rows) "[^\\]&")))
+         (nrows (length rows)))
+    (if (= nrows 1)
         (org-trim align-environment)
       (concat
-   "\\startalign\n"
+   ; (format "\\startmathalignment[n=%s]\n" ncols)
+    "\\startmathalignment\n"
    (mapconcat
    (lambda (math-row)
      (concat
@@ -2938,7 +3123,7 @@ The TYPE is determined from the actual latex environment."
    (seq-filter 'org-string-nw-p
                (split-string align-environment "\\\\\\\\"))
    " \\NR[+]\n")
-   " \\NR[+]\n\\stopalign\n"))))
+   " \\NR[+]\n\\stopmathalignment\n"))))
 
 ;;;; Latex Fragment
 
@@ -3014,6 +3199,18 @@ INFO is a plist holding contextual information. See
            (if desc
                (format "\\goto{%s}[url(%s)]" desc destination)
              (format "\\goto{\\hyphenatedurl{%s}}[url(%s)]" destination destination)))
+          ;; TODO Check this change.
+          ;; Not sure how to handle headlines; the original handling with
+          ;; \ref[default] either stopped working with lmtx or
+          ;; never worked to begin with.
+          ;; However, I don't remember all the conditions that link has to
+          ;; deal with.
+          (headline
+           (let ((label (org-context--label destination info t)))
+             (if (not desc)
+                 (format "\\goto{\\about[%s]}[%s]" label label)
+               (format "\\goto{%s}[%s]" desc label))))
+
           ;; Fuzzy link points nowhere
           ((nil)
            (format "\\hyphenatedurl{%s}" (org-element-property :raw-link link)))
@@ -3055,6 +3252,7 @@ used as a communication channel."
          (path (let ((raw-path (org-element-property :path link)))
                  (if (not (file-name-absolute-p raw-path)) raw-path
                    (expand-file-name raw-path))))
+         (filetype (file-name-extension path))
          (attr-latex (org-export-read-attribute :attr_latex parent))
          (attr-context (org-export-read-attribute :attr_context parent))
          ;; Context takes precedence over latex
@@ -3096,6 +3294,10 @@ used as a communication channel."
                       (org-string-nw-p opt))))
          image-code
          options-list)
+    ;; TODO Add options for users without lmtx
+    ;; Issue #21
+    (member (member filetype '("svg"))
+        (push (cons "conversion" "mp") options-list))
     (and (org-string-nw-p scale)
          (push (cons "scale" scale) options-list))
     (and (org-string-nw-p width)
@@ -3356,17 +3558,43 @@ holding contextual information."
 
 ;;;; Special Block
 
-(defun org-context-special-block (special-block contents _info)
+(defun org-context-special-block (special-block contents info)
   "Transcode a SPECIAL-BLOCK element from Org to ConTeXt.
 CONTENTS holds the contents of the block. INFO is a plist
 holding contextual information."
   (let ((type (org-element-property :type special-block))
-        (opt (org-export-read-attribute :attr_context special-block :options)))
-    (concat (format "\\start%s%s\n"
+        (opt (org-export-read-attribute :attr_context special-block :options))
+        (case-fold-search t))
+    (if (string= "metapost" (downcase type))
+        (org-context--metapost-block special-block contents info)
+        (concat (format "\\start%s%s\n"
                     type
                     (if opt (format "[%s]" opt) ""))
             contents
-            (format "\n\\stop%s" type))))
+            (format "\n\\stop%s" type)))))
+
+(defun org-context--metapost-block (metapost-block contents info)
+  ;; TODO handle options the same as regular images
+  (let* ((caption (org-string-nw-p
+                   (org-trim
+                    (org-export-data
+                     (or (org-export-get-caption metapost-block t)
+                         (org-export-get-caption metapost-block))
+                     info))))
+         (label (org-context--label metapost-block info))
+         (options (list (cons "title" caption)
+                        (cons "reference" label)))
+         (raw-contents
+          (buffer-substring
+           (org-element-property :contents-begin metapost-block)
+           (org-element-property :contents-end metapost-block))))
+    (concat (format "\\startplacefigure[%s]
+\\startMPcode
+%s
+\\stopMPcode
+\\stopplacefigure"
+                    (org-context--format-arguments options)
+                    raw-contents))))
 
 ;;;; Src Block
 
@@ -4173,20 +4401,66 @@ Returns a string containing those definitions."
   "Create a `format-spec' for document meta-data.
 INFO is a plist used as a communication channel."
   ;; TODO handle arbitrary metadata.
-  (list
-    (cons "metadata:author" (org-export-data (plist-get info :author) info))
-    (cons "metadata:title" (org-export-data (plist-get info :title) info))
-    (cons "metadata:email" (org-export-data (plist-get info :email) info))
-    (cons "metadata:subtitle" (org-export-data (plist-get info :subtitle) info))
-    (cons "metadata:keywords" (org-export-data (plist-get info :keywords) info))
-    (cons "metadata:description" (org-export-data (plist-get info :description) info))
-    (cons "metadata:creator" (plist-get info :creator))
-    (cons "metadata:language" (plist-get info :language))
-    (cons "Lang" (capitalize (plist-get info :language)))
-    (cons "metadata:date" (org-export-data (org-export-get-date info) info))
-    (cons "metadata:phonenumber" (org-export-data (plist-get info :phone-number) info))
-    (cons "metadata:url" (org-export-data (plist-get info :url) info))
-    (cons "metadata:subject" (org-export-data (plist-get info :subject) info))))
+  (let* ((tree (plist-get info :parse-tree))
+         (backend-options
+          (append (org-export-get-all-options 'context)
+                  org-export-options-alist))
+         (backend-switches
+          (delq nil (mapcar (lambda (e) (nth 2 e)) backend-options)))
+         (backend-keywords
+          (delq nil (mapcar (lambda (e) (nth 1 e)) backend-options)))
+         (results))
+    (org-element-map tree 'keyword
+      (lambda (kw)
+        (let ((key (org-element-property :key kw))
+              (value (org-element-property :value kw)))
+          (if  (string= key "OPTIONS")
+              ;; Check if this isn't already used by the backend.
+              (let ((line
+                     (let ((s 0) alist)
+                       (while (string-match
+                               "\\(.+?\\):\\((.*?)\\|\\S-+\\)?[ \t]*"
+                               value s)
+                         (setq s (match-end 0))
+                         (let ((this-value (match-string 2 value)))
+                           (when this-value
+                             (push (cons (match-string 1 value)
+                                         (read this-value))
+                                   alist))))
+                       alist)))
+                (when line
+                  (dolist (entry line)
+                    (let ((this-key (downcase (car entry)))
+                          (this-value (cdr entry)))
+                      (when (not (member (car entry) backend-switches))
+                        (setq results
+                              (cons
+                               (cons (format "custom:opt:%s" this-key)
+                                     (format "%s" this-value))
+                               results)))))))
+            (when (and
+                   (not (member key backend-keywords))
+                   (not (org-string-nw-p (org-context-keyword kw nil info))))
+              (setq results
+                    (cons
+                     (cons (format "custom:%s" (downcase key)) value)
+                     results)))))))
+    (append
+     (list
+      (cons "metadata:author" (org-export-data (plist-get info :author) info))
+      (cons "metadata:title" (org-export-data (plist-get info :title) info))
+      (cons "metadata:email" (org-export-data (plist-get info :email) info))
+      (cons "metadata:subtitle" (org-export-data (plist-get info :subtitle) info))
+      (cons "metadata:keywords" (org-export-data (plist-get info :keywords) info))
+      (cons "metadata:description" (org-export-data (plist-get info :description) info))
+      (cons "metadata:creator" (plist-get info :creator))
+      (cons "metadata:language" (plist-get info :language))
+      (cons "Lang" (capitalize (plist-get info :language)))
+      (cons "metadata:date" (org-export-data (org-export-get-date info) info))
+      (cons "metadata:phonenumber" (org-export-data (plist-get info :phone-number) info))
+      (cons "metadata:url" (org-export-data (plist-get info :url) info))
+      (cons "metadata:subject" (org-export-data (plist-get info :subject) info)))
+     results)))
 
 (defun org-context--get-snippet-text (info snippet-names)
   "Return snippets given a list of SNIPPET NAMES.
