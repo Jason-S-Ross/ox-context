@@ -2860,10 +2860,12 @@ return nil instead."
 
 ;;;; Latex Enviroment
 
+;; TODO Document
+;; TODO For align environments, count the size of each row
 (defconst org-context--convert-latex-environments-alist
   '(("matrix" :latex-name "matrix" :context-name "matrix" :align t)
-    ("align" :latex-name "align" :context-name "mathalignment" :align t)
-    ("align*" :latex-name "align*" :context-name "mathalginment" :align t)
+    ("align" :latex-name "align" :context-name "mathalignment" :align t :row-proc (lambda (row) "[+]"))
+    ("align*" :latex-name "align*" :context-name "mathalignment" :align t :row-proc (lambda (row) "[+]"))
     ("equation" :latex-name "equation" :context-name "formula" :align nil)
     ("equation*" :latex-name "equation*" :context-name "formula" :align nil))
   "Parameters for how different math environments are converted.")
@@ -2883,12 +2885,14 @@ return nil instead."
      "}")))
 
 (defun org-context--convert-parsed-align-environment
-    (parsed-contents environment-name arg-proc)
+    (parsed-contents environment-name arg-proc row-proc)
   "Convert a parsed math environment to a string.
 PARSED-CONTENTS is a list of either strings or cons cells of (type . contents) pairs.
 ENVIRONMENT-NAME is the name of the ConTeXt environment.
 ARG-PROC is a callable that inserts arguments into the ConTeXt text
-that is called on a nested list of rows, columns, and subparts."
+that is called on a nested list of rows, columns, and subparts.
+ROW-PROC is a callable that inserts arguments after the \\NR
+that takes the row as a list as an argument."
   (let* ((rows)
          (columns)
          (this-column)
@@ -2914,12 +2918,13 @@ that is called on a nested list of rows, columns, and subparts."
                   rows (cons columns rows))
             (mapconcat
              (lambda (row)
-               (format "\\NC %s \\NR"
+               (format "\\NC %s \\NR%s"
                        (mapconcat
                         (lambda (column)
                           (mapconcat 'org-trim (reverse column) " "))
                         (reverse row)
-                        " \\NC ")))
+                        " \\NC ")
+                       (or (and row-proc (funcall row-proc row)) "")))
              (reverse rows)
              "\n")))
          (extra-args (or (and arg-proc (funcall arg-proc rows)) "")))
@@ -2938,6 +2943,7 @@ that is called on a nested list of rows, columns, and subparts."
 TEXT is the LaTeX text to process.
 START is the position of the cursor.
 TYP is the current environment type (may be nil)"
+  ;; TODO Comments
  (let ((s start)
         (result)
         (quit)
@@ -2971,10 +2977,11 @@ TYP is the current environment type (may be nil)"
     (setq
      result
      (save-match-data
-       (let ((extra-func (plist-get options-plist :extra-func))
+       (let ((arg-proc (plist-get options-plist :arg-proc))
+             (row-proc (plist-get options-plist :row-proc))
              (to-name (plist-get options-plist :context-name)))
          (if (plist-get options-plist :align)
-             (org-context--convert-parsed-align-environment result to-name extra-func)
+             (org-context--convert-parsed-align-environment result to-name arg-proc row-proc)
            (let ((raw-result
                   (mapconcat
                    (lambda (k)
@@ -3002,6 +3009,10 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
                    (org-element-property :value latex-environment)))
            (environment-name
             (org-context--latex-environment-name latex-environment))
+           (context-environment-name
+            (plist-get
+             (cdr (assoc environment-name org-context--convert-latex-environments-alist))
+             :context-name))
            (environment-contents
             (org-context--latex-environment-contents
              latex-environment))
@@ -3016,17 +3027,26 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
       ;; string replacement here.
       (pcase type
         ('math
-         (concat
+         (org-context--wrap-math-environment value context-environment-name numberedp args))
+        (_ value)))))
+
+(defun org-context--wrap-math-environment (value context-environment-name numberedp args)
+  (concat
           (when numberedp
             (format "\\startplaceformula\n  [%s]\n" args))
-          (cdr (org-context--convert-nested-latex-environment value 0 nil))
+          (when (not (string= context-environment-name "formula"))
+            "\\startformula\n")
+          (save-match-data
+            (set-match-data nil)
+            (cdr (org-context--convert-nested-latex-environment value 0 nil)))
           ;; (pcase environment-name
           ;;   ((or "align" "align*")
           ;;    (org-context--transcode-align environment-contents))
           ;;   ("equation" environment-contents)
           ;;   (_ environment-contents))
-          (when numberedp "\\stopplaceformula")))
-        (_ value)))))
+          (when (not (string= context-environment-name "formula"))
+            "\\stopformula")
+          (when numberedp "\n\\stopplaceformula")))
 
 (defun org-context--environment-type (latex-environment)
   "Return the TYPE of LATEX-ENVIRONMENT.
@@ -3130,20 +3150,29 @@ The TYPE is determined from the actual latex environment."
 (defun org-context-latex-fragment (latex-fragment _contents info)
   "Transcode a LATEX-FRAGMENT object from Org to ConTeXt.
 CONTENTS is nil.  INFO is a plist holding contextual information."
-  (let ((value (org-element-property :value latex-fragment)))
-    ;; Trim math markers since the fragment is enclosed within
-    ;; a latex-math-block object anyway.
-    (cond ((string-match-p "\\`\\$[^$]" value) (substring value 1 -1))
-          ((string-prefix-p "\\(" value) (substring value 2 -2))
-          ((or
-            (string-prefix-p "\\[" value)
-            (string-prefix-p "$$" value))
-           (concat
-            (when (plist-get info :context-number-equations)
-              "\\placeformula\n")
-            (format "\\startformula\n%s\n\\stopformula"
-                    (substring value 2 -2))))
-          (t value))))
+  (let* ((value (org-element-property :value latex-fragment))
+         (typecontents (cond ((string-match-p "\\`\\$[^$]" value)
+                              (cons 'inline (substring value 1 -1)))
+                             ((string-prefix-p "\\(" value)
+                              (cons 'inline (substring value 2 -2)))
+                             ((or
+                               (string-prefix-p "\\[" value)
+                               (string-prefix-p "$$" value))
+                              (cons 'display
+                                    (substring value 2 -2)))
+                             (t (cons 'none value))))
+         (type (car typecontents))
+         (contents (cdr typecontents))
+         (numberedp
+          (pcase type
+            ('inline nil)
+            ('display (plist-get info :context-number-equations))
+            (_ nil))))
+    (pcase type
+      ('inline contents)
+      ('display
+       (org-context--wrap-math-environment contents "" numberedp nil))
+      ('none contents))))
 
 ;;;; Line Break
 
