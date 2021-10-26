@@ -3169,7 +3169,9 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
             ('display (plist-get info :context-number-equations))
             (_ nil))))
     (pcase type
-      ('inline contents)
+      ('inline (save-match-data
+                 (set-match-data nil)
+                 (cdr (org-context--convert-nested-latex-environment contents 0 nil))))
       ('display
        (org-context--wrap-math-environment contents "" numberedp nil))
       ('none contents))))
