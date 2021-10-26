@@ -3272,23 +3272,17 @@ INFO is a plist holding contextual information. See
      ;; No path, only description.  Try to do something useful.
      (t (format "\\hyphenatedurl{%s}" desc)))))
 
-(defun org-context--inline-image (link info)
-  "Return the ConTeXt code for an inline image.
-LINK is the link pointing to the inline image. INFO is a plist
-used as a communication channel."
+(defun org-context--get-externalfigure-options (image info)
+  "Get external figure options.
+If using on a link, user must get the parent using `org-export-get-parent-element'
+and pass that as IMAGE.
+INFO is a plist containing contextual information."
   (let* ((case-fold-search t)
-         (parent (org-export-get-parent-element link))
-         (path (let ((raw-path (org-element-property :path link)))
-                 (if (not (file-name-absolute-p raw-path)) raw-path
-                   (expand-file-name raw-path))))
-         (filetype (file-name-extension path))
-         (attr-latex (org-export-read-attribute :attr_latex parent))
-         (attr-context (org-export-read-attribute :attr_context parent))
+         (attr-latex (org-export-read-attribute :attr_latex image))
+         (attr-context (org-export-read-attribute :attr_context image))
          ;; Context takes precedence over latex
          (attr (or attr-context attr-latex))
-         (caption (org-context--caption/label-string parent info))
-         (label (org-context--label parent info ))
-         (floatp (not (org-element-lineage link '(table-cell))))
+
          (float (let ((float (plist-get attr :float)))
                   (cond ((string= float "wrap") 'wrap)
                         ((string= float "sideways") 'sideways)
@@ -3313,35 +3307,44 @@ used as a communication channel."
                                (let ((heights (plist-get info :context-image-default-height)))
                                  (cdr (or (assoc float heights)
                                           (assoc t heights))))))))
-         (placement (or
-                     (plist-get attr :placement)
-                     (plist-get info :context-float-default-placement)))
-         (options (let ((opt (or (plist-get attr :options)
-                                 (plist-get info :context-image-default-option))))
-                    (if (string-match "\\`\\[\\(.*\\)\\]\\'" opt)
-                        (match-string 1 opt)
-                      (org-string-nw-p opt))))
-         image-code
+         (extra-options (let ((opt (or (plist-get attr :options)
+                                       (plist-get info :context-image-default-option))))
+                          (if (string-match "\\`\\[\\(.*\\)\\]\\'" opt)
+                              (match-string 1 opt)
+                            (org-string-nw-p opt))))
          options-list)
     ;; TODO Add options for users without lmtx
     ;; Issue #21
-    (member (member filetype '("svg"))
-        (push (cons "conversion" "mp") options-list))
+
     (and (org-string-nw-p scale)
          (push (cons "scale" scale) options-list))
     (and (org-string-nw-p width)
          (push (cons "width" width) options-list))
     (and (org-string-nw-p height)
          (push (cons "height" height) options-list))
-    (setq image-code
-          (format "\\externalfigure[%s][%s]"
-                  path
-                  (if options
-                      (concat
-                       options
-                       ","
-                       (org-context--format-arguments options-list))
-                    (org-context--format-arguments options-list))))
+    (list extra-options options-list)))
+
+(defun org-context--get-placefigure-options (image info)
+  "Get options to place floats.
+If using on a link, user must get the parent using `org-export-get-parent-element'
+and pass that as IMAGE.
+INFO is a plist containing contextual information."
+  (let* ((case-fold-search t)
+         (attr-latex (org-export-read-attribute :attr_latex image))
+         (attr-context (org-export-read-attribute :attr_context image))
+         ;; Context takes precedence over latex
+         (attr (or attr-context attr-latex))
+         (caption (org-context--caption/label-string image info))
+         (label (org-context--label image info))
+         (float (let ((float (plist-get attr :float)))
+                  (cond ((string= float "wrap") 'wrap)
+                        ((string= float "sideways") 'sideways)
+                        ((string= float "multicolumn") 'multicolumn))))
+         (placement (or
+                     (plist-get attr :placement)
+                     (plist-get info :context-float-default-placement))))
+    ;; TODO Add options for users without lmtx
+    ;; Issue #21
     (let (env-options
           location-options)
       (push placement location-options)
@@ -3353,18 +3356,54 @@ used as a communication channel."
       (push
        (cons "location"
              (mapconcat 'identity (delq nil (delete-dups location-options)) ","))
-            env-options)
+       env-options)
       (push (cons "reference" label) env-options)
       (when (org-string-nw-p caption)
         (push (cons "title" caption) env-options))
-      (if floatp
-          (format
-           "\\startplacefigure[%s]
+      env-options)))
+
+(defun org-context--get-link-figure-string (link info)
+  "Gets the ConTeXt code for an external figure from a link.
+LINK is a link pointing to the inline image. INFO is a plist used as
+a communication channel."
+  (let* ((parent (org-export-get-parent-element link))
+         (externalfigure-options (org-context--get-externalfigure-options parent info))
+         (path (let ((raw-path (org-element-property :path link)))
+                 (if (not (file-name-absolute-p raw-path)) raw-path
+                   (expand-file-name raw-path))))
+         (externalfigure-options-string
+          (let* ((extra-options (nth 0 externalfigure-options))
+                 (options-list (nth 1 externalfigure-options))
+                 (filetype (file-name-extension path))
+                 (options-string
+                  (progn
+                    (and (member filetype '("svg"))
+                         (push (cons "conversion" "mp") options-list))
+                    (org-context--format-arguments options-list))))
+            (if extra-options
+                (concat extra-options "," options-string)
+              options-string))))
+    (format "\\externalfigure[%s][%s]"
+            path
+            externalfigure-options-string)))
+
+(defun org-context--inline-image (link info)
+  "Return the ConTeXt code for an inline image.
+LINK is the link pointing to the inline image. INFO is a plist
+used as a communication channel."
+  (let* ((parent (org-export-get-parent-element link))
+         (placefigure-options (org-context--get-placefigure-options parent info))
+         (floatp (not (org-element-lineage link '(table-cell))))
+         (image-code
+          (org-context--get-link-figure-string link info)))
+    (if floatp
+        (format
+         "\\startplacefigure[%s]
 %s
 \\stopplacefigure"
-       (org-context--format-arguments env-options)
-       image-code)
-        image-code))))
+         (org-context--format-arguments placefigure-options)
+         image-code)
+      image-code)))
 
 ;;;; Math Block
 
