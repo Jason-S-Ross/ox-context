@@ -653,7 +653,7 @@ Cons list of NAME, DEF. If nil, verses aren't delimited."
 (defcustom org-context-enumerate-blockquote-empty-environment
   '("OrgBlockQuoteEnumEmpty" . "\\defineenumeration
   [OrgBlockQuoteEnumEmpty]
-  [alternative=empty
+  [alternative=empty,
    margin=0pt]")
   "The enumeration of the unlabelled blockquote environment.
 
