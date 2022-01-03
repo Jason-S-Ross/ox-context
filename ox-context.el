@@ -268,7 +268,7 @@
         (?o "As PDF file and open"
             (lambda (a s v b)
               (if a (org-context-export-to-pdf t s v b)
-                (org-open-file (org-context-export-to-pdf s v b)))))))
+                (org-open-file (org-context-export-to-pdf nil s v b)))))))
  :filters-alist '((:filter-options . org-context-math-block-options-filter)
                   (:filter-paragraph . org-context-clean-invalid-line-breaks)
                   (:filter-parse-tree  org-context-math-block-tree-filter
