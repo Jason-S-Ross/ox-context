@@ -1268,7 +1268,7 @@ line before all formulas for numbering."
 
 ;; TODO test
 (defcustom org-context-pdf-process
-  '("context %f")
+  '("mtxrun --path=%o --script context %F")
   "Commands to process a ConTeXt file to a PDF file.
 
 This is a list of strings, each of them will be given to the
