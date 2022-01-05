@@ -1383,7 +1383,7 @@ logfiles to remove, set `org-context-logfiles-extensions'."
      [Ignore]
   \\definesyntaxgroup
     [Identifier]
-    []
+    [color={x=008000}]
   \\definesyntaxgroup
     [PreProc]
     [color={x=BC7A00}]
