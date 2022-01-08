@@ -311,6 +311,7 @@
                   (:context-inline-source-environment nil nil org-context-inline-source-environment)
                   (:context-inlinetask-command nil nil org-context-inlinetask-command)
                   (:context-inner-templates nil nil org-context-inner-templates-alist)
+                  (:context-list-headline-command nil nil org-context-list-headline-command)
                   (:context-node-property-command nil nil org-context-node-property-command)
                   (:context-number-equations nil "numeq" org-context-number-equations)
                   (:context-planning-command nil nil org-context-planning-command)
@@ -933,6 +934,46 @@ If nil, returns a basic command with only the title and contents"
   :type '(cons (string :tag "Command Name")
                (string :tag "Command Definition")))
 
+(defcustom org-context-list-headline-command
+  '("OrgListHeadlines" . "\\startluacode
+function userdata.listsections(minlevels, maxlevels, names)
+    local names = utilities.parsers.settings_to_set(names) or {  }
+    local minlevels = tonumber(minlevels)
+    local maxlevels = tonumber(maxlevels)
+    local headings = {}
+    for name in pairs(names) do
+        local level = 1
+        for k, v in pairs(structures.sections.levels[name]) do
+            local include = true
+            if (math.type(maxlevels) == \"integer\") and level > maxlevels then
+                include = false
+            end
+            if (math.type(minlevels) == \"integer\") and level < minlevels then
+                include = false
+            end
+            if include then
+                headings[#headings+1] = v[1]
+                headings[#headings+1] = v[2]
+            end
+            level = level + 1
+        end
+    end
+    context(table.concat(headings, \",\"))
+end
+\\stopluacode
+\\def\\OrgListHeadlines#1#2#3%
+    {\\ctxlua{userdata.listsections([==[#1]==], [==[#2]==], [==[#3]==])}}")
+  "Command that generates a list of headlines. Used for TOC depth control.
+
+Cons list of NAME, DEF. Command should take the following arguments:
+
+  `#1': Minimum level of headline to include
+  `#2': Maximum level of headline to include
+  `#3': Name of sectionlevels to include, e.g. \"default, NoToc\""
+  :group 'org-export-context
+  :type '(cons (string :tag "Command Name")
+               (string :tag "Command Definition")))
+
 (defcustom org-context-node-property-command
   '("OrgNodeProp" . "\\def\\OrgNodeProp#1[#2]{%
   \\getparameters
@@ -941,7 +982,7 @@ If nil, returns a basic command with only the title and contents"
      value=,
      #2]%
 {\\tt \\OrgNodePropkey: \\OrgNodePropvalue}\\crlf}")
-  "The name of the command that formats nodes in drawers.
+  "The command that formats nodes in drawers.
 
 Cons list of NAME, DEF. Command should take the following keyword
 arguments:
@@ -1305,7 +1346,7 @@ file name as its single argument."
   '(("empty" .
      (:literal ""
       :template "empty"
-      :snippets ()))
+      :snippets ("headlines-default")))
     ("article" .
      (:literal "\\setupwhitespace[big]"
       :template "article"
@@ -1319,7 +1360,8 @@ file name as its single argument."
        "sectioning-article"
        "page-numbering-article"
        "setup-grid"
-       "toc-article")))
+       "toc-article"
+       "headlines-default")))
     ("report" .
      (:literal "\\setupwhitespace[big]"
       :template "report"
@@ -1332,7 +1374,8 @@ file name as its single argument."
        "headlines-report"
        "page-numbering-article"
        "setup-grid"
-       "toc-article"))))
+       "toc-article"
+       "headlines-default"))))
   "Alist of ConTeXt preamble presets.
 
 Presets are used to specify document structure, as well as
@@ -1365,7 +1408,7 @@ logfiles to remove, set `org-context-logfiles-extensions'."
   :type 'boolean)
 
 (defcustom org-context-snippets-alist
-  '(
+  `(
     ;; Syntax highlighting. Note that overriding pscolor overrides
     ;; the default so no further action is needed
     ("colors-pigmints" . "% Syntax highlighting that may superficially resemble Pygments
@@ -1624,7 +1667,45 @@ logfiles to remove, set `org-context-logfiles-extensions'."
   [before={\\blank[VerseSkip]
     \\setupnarrower[left=1em, right=1em]
     \\startnarrower[left, right]},
-   after={\\stopnarrower \\blank[VerseSkip]},space=on]"))
+   after={\\stopnarrower \\blank[VerseSkip]},space=on]")
+    ;; Define default headline sectioning scheme
+    ("headlines-default" .
+     ,(let (lines
+            (count 10))
+        (let (result)
+          (dolist (typ '("section" "subject"))
+            (dotimes (i count)
+              (push
+               (let ((prefix (apply 'concat (make-list i "sub"))))
+                 (format "\\definehead
+  [%s%sNoToc]
+  [%s%s]"
+                         prefix typ
+                         prefix typ))
+               result)))
+          (push (mapconcat #'identity (reverse result) "\n") lines))
+        (let (result)
+          (dotimes (i count)
+            (push
+               (let ((prefix (apply 'concat (make-list i "sub"))))
+                 (format "\\setuphead[%ssubject][incrementnumber=list]"
+                         prefix))
+               result))
+          (push (mapconcat #'identity (reverse result) "\n") lines))
+        (dolist (typ '("default" "NoToc"))
+          (push
+           (format "\n\\definesectionlevels
+  [%s]
+  [%s]"
+                   typ
+                   (let (result)
+                     (dotimes (i count)
+                       (push (let ((prefix (apply 'concat (make-list i "sub")))
+                                   (suffix (if (string= typ "NoToc") typ "")))
+                               (format "{%ssection%s, %ssubject%s}" prefix suffix prefix suffix))
+                             result))
+                     (mapconcat #'identity (reverse result) ",\n   "))) lines))
+        (mapconcat #'identity (reverse lines) "\n"))))
   "Alist of snippet names and associated text.
 These snippets will be inserted into the document preamble when
 calling `org-context-make-template'. These snippets are also
@@ -2430,10 +2511,10 @@ containing contextual information."
                           (string priority-num)))
            (full-text (funcall (plist-get info :context-format-headline-function)
                                todo todo-type priority text tags info))
+           (numberedp (org-export-numbered-headline-p headline info))
+           (notoc (org-export-excluded-from-toc-p headline info))
            (headline-name
-            (org-context--get-headline-command headline info))
-           (headertemplate (format "\n\\start%s" headline-name))
-           (footercommand (format "\n\\stop%s" headline-name))
+            (if numberedp "sectionlevel" "subjectlevel"))
            (headline-label (org-context--label headline info t ))
            (index (let ((i (org-export-get-node-property :INDEX headline t)))
                     (assoc i (plist-get info :context-texinfo-indices))))
@@ -2453,14 +2534,17 @@ containing contextual information."
               (cons "bookmark" alt-title)
               (cons "reference" headline-label))))
            (result (concat
-                    headertemplate
-                    (format "[%s]" headline-args)
+                    "\n\\start"
+                    headline-name
+                    (when notoc "\n[NoToc]")
+                    (format "\n[%s]" headline-args)
                     (and index
                          (format "\n\\placeregister[%s]"
                                  (plist-get (cdr index) :command)))
                     "\n\n"
                     contents
-                    footercommand)))
+                    "\n\\stop"
+                    headline-name)))
       ;; Special sections are stuck in the plist somewhere else
       ;; for later rendering
       (cond
@@ -2521,36 +2605,6 @@ See `org-context-format-headline-function' for details."
            (cons "Tags" (mapconcat #'org-context--protect-text tags ":")))))
       text)))
 
-(defun org-context--get-all-headline-commands (pred info)
-  "Scan the parse tree for all headlines used and return a list.
-INFO is a plist containing contextual information. PRED is a
-predicate function to exclude headlines that takes the headline
-and INFO as arguments."
-  (let ((tree (plist-get info :parse-tree)))
-    (delq
-     nil
-     (delete-dups
-      (mapcar
-       (lambda (headline)
-         (org-context--get-headline-command headline info))
-       (seq-filter
-        (lambda (headline)
-          (funcall pred headline info))
-        (org-element-map tree 'headline #'identity)))))))
-
-(defun org-context--get-headline-command (headline info)
-  "Create a headline name with the correct depth.
-HEADLINE is the headline object. INFO is a plist containing
-contextual information."
-  (let* ((level (org-export-get-relative-level headline info))
-         (numberedp (org-export-numbered-headline-p headline info))
-         (prefix (apply 'concat (make-list (+ level (- 1)) "sub")))
-         (suffix (if numberedp "section" "subject"))
-         (hname (concat prefix suffix))
-         (notoc (org-export-excluded-from-toc-p headline info)))
-    (if notoc
-        (format "%sNoToc" hname)
-      hname)))
 
 ;;;; Horizontal Rule
 
@@ -2708,15 +2762,9 @@ containing contextual information."
            "\n\n"))
          (toc-command
           (let* ((with-toc (plist-get info :with-toc))
-                 (commands (org-context--get-all-headline-commands
-                            (lambda (hl inf)
-                              (and (not (org-export-excluded-from-toc-p hl inf))
-                                   (if (wholenump with-toc)
-                                        (<= (org-export-get-relative-level hl inf) with-toc)
-                                     t)))
-                            info))
+                 (list-command (car (plist-get info :context-list-headline-command)))
                  (toc-title (car (plist-get info :context-toc-title-command))))
-            (if (and with-toc commands)
+            (if with-toc
                 (format "%s
 \\placecontent"
                         toc-title)
@@ -2797,26 +2845,24 @@ CONTENTS is nil.  INFO is a plist holding contextual information."
            ((string-match-p "\\<headlines\\>" value)
             (let* ((localp (string-match-p "\\<local\\>" value))
                    (parent (org-element-lineage keyword '(headline)))
+                   (start-level
+                    (if (not (and localp parent)) 0
+                      (org-export-get-relative-level parent info)))
                    (depth
                     (if (string-match "\\<[0-9]+\\>" value)
                         (string-to-number (match-string 0 value))
                       0))
-                   (level (+ depth
-                             (if (not (and localp parent)) 0
-                               (org-export-get-relative-level parent info))))
+                   (level (+ depth start-level))
                    (levelstring
                     (if (> level 0)
                         (format
                          "list={%s}"
-                         (mapconcat
-                          'identity
-                          (org-context--get-all-headline-commands
-                           (lambda (hl inf)
-                             (and
-                              (<= (org-export-get-relative-level hl inf) level)
-                              (not (org-export-excluded-from-toc-p hl inf))))
-                           info)
-                          ","))
+                         (let ((list-headline-command
+                                (car (plist-get info :context-list-headline-command))))
+                           (format "\\%s{%s}{%s}{default}"
+                                   list-headline-command
+                                   start-level
+                                   level)))
                       "")))
               (if localp (format  "\\placecontent[criterium=local,%s]" levelstring)
                 (format  "\\placecontent[%s]" levelstring))))
@@ -4152,23 +4198,6 @@ holding the export options."
           (org-context--get-snippet-text info (plist-get preset-data :snippets)))
          (user-snippets (org-context--get-snippet-text info (plist-get info :context-snippet)))
          (command-defs (org-context--get-definitions info))
-         (unnumbered-headline-commands
-          (let* ((notoc-headline-commands
-                  (org-context--get-all-headline-commands
-                   (lambda (headline inf)
-                     (org-export-excluded-from-toc-p headline inf))
-                   info))
-                 (commands
-                  (mapcar
-                     (lambda (command)
-                       (format "\\definehead[%s][%s]"
-                                 command
-                                 (string-remove-suffix "NoToc" command)))
-                     notoc-headline-commands)))
-            (mapconcat
-             #'identity
-             commands
-             "\n")))
          (vimp (eq (plist-get info :context-syntax-engine) 'vim))
          (vim-langs
           (let* ((vim-lang-hash (when vimp
@@ -4190,6 +4219,7 @@ holding the export options."
                "\n"))))
          (bib-place (plist-get info :context-bib-command))
          (toc-title-command (plist-get info :context-toc-title-command))
+         (list-headline-command (plist-get info :context-list-headline-command))
          (toc-commands
           (let ((with-toc (plist-get info :with-toc))
                 (with-section-numbers (plist-get info :section-numbers)))
@@ -4209,26 +4239,20 @@ holding the export options."
           [incrementnumber=yes,
             number=no]
 ")
+             (cdr list-headline-command)
              (when with-toc
                (format "%s
 \\setupcombinedlist[content][list={%s}]\n"
                        (cdr toc-title-command)
-                       (mapconcat
-                        #'identity
-                        (org-context--get-all-headline-commands
-                         (lambda (hl inf)
-                           (and (not (org-export-excluded-from-toc-p hl inf))
-                                   (if (wholenump with-toc)
-                                        (<= (org-export-get-relative-level hl inf) with-toc)
-                                     t)))
-                         info)
-                        ",")))))))
+                       (format
+                          "\\%s{}{%s}{default}"
+                          (car list-headline-command)
+                          (if (wholenump with-toc) with-toc ""))))))))
     (concat
      (and time-stamp
           (format-time-string "%% Created %Y-%m-%d %a %H:%M\n"))
      (when vimp "\n\\usemodule[vim]")
      "\n"
-     unnumbered-headline-commands
      (when bib-place (format "\n%s\n" bib-place))
      (when header-lines
        (concat
