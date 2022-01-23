@@ -205,7 +205,6 @@
 (require 'ox-org)
 (require 'seq)
 (require 'subr-x)
-(require 'context)
 (require 'texinfmt) ;; Needed for texinfo-part-of-para-regexp
 
 ;;; Define Back-end
@@ -1620,19 +1619,17 @@ logfiles to remove, set `org-context-logfiles-extensions'."
 \\define\\OrgMakeTitle{%
   \\startalignment[center]
    \\blank[force,2*big]
-   \\title{\\documentvariable{metadata:title}}
+   \\doifnot{\\documentvariable{metadata:title}}{}{
+     \\title{\\documentvariable{metadata:title}}}
    \\doifnot{\\documentvariable{metadata:subtitle}}{}{
      \\blank[force,1*big]
      \\tfa \\documentvariable{metadata:subtitle}}
-   \\doifelse{\\documentvariable{metadata:author}}{}{
-   \\blank[3*medium]
-   {\\tfa \\documentvariable{metadata:email}}
-   }{
-      \\blank[3*medium]
-      {\\tfa \\documentvariable{metadata:author}}
-   }
-   \\blank[2*medium]
-   {\\tfa \\documentvariable{metadata:date}}
+   \\doifnot{\\documentvariable{metadata:author}}{}{
+     \\blank[3*medium]
+     {\\tfa \\documentvariable{metadata:author}}}
+   \\doifnot{\\documentvariable{metadata:date}}{}{
+     \\blank[2*medium]
+     {\\tfa \\documentvariable{metadata:date}}}
    \\blank[3*medium]
   \\stopalignment}")
     ;; LaTeX report style title setup
@@ -1642,20 +1639,18 @@ logfiles to remove, set `org-context-logfiles-extensions'."
   \\startstandardmakeup[page=yes]
   \\startalignment[center]
    \\blank[force,2*big]
-    \\title{\\documentvariable{metadata:title}}
+   \\doifnot{\\documentvariable{metadata:title}}{}{
+     \\title{\\documentvariable{metadata:title}}}
    \\doifnot{\\documentvariable{metadata:subtitle}}{}{
      \\blank[force,1*big]
      \\tfa \\documentvariable{metadata:subtitle}}
-   \\doifelse{\\documentvariable{metadata:author}}{}{
-   \\blank[3*medium]
-   {\\tfa \\documentvariable{metadata:email}}
-   }{
-      \\blank[3*medium]
-      {\\tfa \\documentvariable{metadata:author}}
-   }
+   \\doifnot{\\documentvariable{metadata:author}}{}{
+     \\blank[3*medium]
+     {\\tfa \\documentvariable{metadata:author}}}
+   \\doifnot{\\documentvariable{metadata:date}}{}{
+     \\blank[2*medium]
+     {\\tfa \\documentvariable{metadata:date}}}
    \\blank[2*medium]
-   {\\tfa \\documentvariable{metadata:date}}
-   \\blank[3*medium]
   \\stopalignment
   \\stopstandardmakeup}")
     ;; LaTeX style tables of contents
@@ -4540,19 +4535,28 @@ INFO is a plist used as a communication channel."
                      (cons (format "custom:%s" (downcase key)) value)
                      results)))))))
     (append
-     (list
-      (cons "metadata:author" (org-export-data (plist-get info :author) info))
-      (cons "metadata:title" (org-export-data (plist-get info :title) info))
-      (cons "metadata:email" (org-export-data (plist-get info :email) info))
-      (cons "metadata:subtitle" (org-export-data (plist-get info :subtitle) info))
-      (cons "metadata:keywords" (org-export-data (plist-get info :keywords) info))
-      (cons "metadata:description" (org-export-data (plist-get info :description) info))
-      (cons "metadata:creator" (plist-get info :creator))
-      (cons "metadata:language" (plist-get info :language))
-      (cons "Lang" (capitalize (plist-get info :language)))
-      (cons "metadata:date" (org-export-data (org-export-get-date info) info))
-      (cons "metadata:phonenumber" (org-export-data (plist-get info :phone-number) info))
-      (cons "metadata:url" (org-export-data (plist-get info :url) info))
+  (list
+    (cons "metadata:author"
+          (and (plist-get info :with-author)
+               (org-export-data (plist-get info :author) info)))
+    (cons "metadata:title"
+          (and (plist-get info :with-title)
+               (org-export-data (plist-get info :title) info)))
+    (cons "metadata:email"
+          (and (plist-get info :with-email)
+               (org-export-data (plist-get info :email) info)))
+    (cons "metadata:subtitle" (org-export-data (plist-get info :subtitle) info))
+    (cons "metadata:keywords" (org-export-data (plist-get info :keywords) info))
+    (cons "metadata:description" (org-export-data (plist-get info :description) info))
+    (cons "metadata:creator" (plist-get info :creator))
+    (cons "metadata:language" (plist-get info :language))
+    (cons "Lang" (capitalize (plist-get info :language)))
+    (cons "metadata:date"
+          (and
+           (plist-get info :with-date)
+           (org-export-data (org-export-get-date info) info)))
+    (cons "metadata:phonenumber" (org-export-data (plist-get info :phone-number) info))
+    (cons "metadata:url" (org-export-data (plist-get info :url) info))
       (cons "metadata:subject" (org-export-data (plist-get info :subject) info)))
      results)))
 
@@ -4665,7 +4669,11 @@ will be displayed when `org-export-show-temporary-export-buffer'
 is non-nil."
   (interactive)
   (org-export-to-buffer 'context "*Org CONTEXT Export*"
-    async subtreep visible-only body-only ext-plist (lambda () (ConTeXt-mode))))
+    async subtreep visible-only body-only ext-plist
+    (lambda ()
+      (if (fboundp 'ConTeXt-mode)
+        (funcall 'ConTeXt-mode)
+        (message "ConTeXt-mode not defined. Using plain text mode.")))))
 
 ;;;###autoload
 (defun org-context-export-to-context
