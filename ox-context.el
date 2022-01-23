@@ -205,7 +205,6 @@
 (require 'ox-org)
 (require 'seq)
 (require 'subr-x)
-(require 'context)
 (require 'texinfmt) ;; Needed for texinfo-part-of-para-regexp
 
 ;;; Define Back-end
@@ -4297,7 +4296,11 @@ will be displayed when `org-export-show-temporary-export-buffer'
 is non-nil."
   (interactive)
   (org-export-to-buffer 'context "*Org CONTEXT Export*"
-    async subtreep visible-only body-only ext-plist (lambda () (ConTeXt-mode))))
+    async subtreep visible-only body-only ext-plist
+    (lambda ()
+      (if (fboundp 'ConTeXt-mode)
+        (funcall 'ConTeXt-mode)
+        (message "ConTeXt-mode not defined. Using plain text mode.")))))
 
 ;;;###autoload
 (defun org-context-export-to-context
