@@ -20,17 +20,18 @@ See [[https://github.com/Jason-S-Ross/ox-context-examples][the example repo]] fo
 
 * Document Customization
 
-Each element type in the Org document is associated with a custom ConTeXt command
+Each element type in the Org document
+is associated with a custom ConTeXt command
 whose name and definition is set by a customization variable.
 When you export a document,
 the command definition associated with each type of org element
 is exported into the ConTeXt document preamble.
 The element itself is formatted by the associated command.
-This allows documents to be customized
-by either changing the customization variable associated with each element type,
+This allows documents to be customized by either
+changing the customization variable associated with each element type,
 or by inserting new command definitions into the document preamble
-after the original definitions in order to override them. 
-here are several ways to insert command definitions into the preamble:
+after the original definitions in order to override them.
+There are several ways to insert command definitions into the preamble:
 
 - ~#+context_header_extra~ :: This keyword inserts literal ConTeXt code directly
   into the document preamble after the default command definitions.
@@ -74,8 +75,9 @@ t)
 
   As with ~#+context_header_extra~, snippets can override existing command definitions.
 
-- ~#+context_preset~ :: This keyword to define a new document /Preset/.
-  A /Preset/ is a collection of some literal ConTeXt code to
+
+- ~#+context_preset~ :: This keyword selects the document /Preset/.
+  A /Preset/ is a collection of ConTeXt instructions to
   insert into the preamble, a list of snippets,
   and an "inner template" that specifies overall document structure.
 
