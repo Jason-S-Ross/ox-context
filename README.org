@@ -33,8 +33,16 @@ or by inserting new command definitions into the document preamble
 after the original definitions in order to override them.
 There are several ways to insert command definitions into the preamble:
 
-- ~#+context_header_extra~ :: This keyword inserts literal ConTeXt code directly
-  into the document preamble after the default command definitions.
+- ~#+context_header~ :: This keyword adds literal ConTeXt code
+  at the beginning of the document preamble.
+  
+  Note that these entries will be overriden by presets
+  and other default definitions,
+  so usually you want to use the ~_extra~ variant
+  (unlike in ~ox-latex~).
+
+- ~#+context_header_extra~ :: This keyword inserts literal ConTeXt code
+  directly into the document preamble after the default command definitions.
 
   Here's how to use it to set the paper size:
   #+BEGIN_EXAMPLE
